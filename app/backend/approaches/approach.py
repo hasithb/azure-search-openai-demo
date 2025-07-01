@@ -50,6 +50,8 @@ class Document:
     score: Optional[float] = None
     reranker_score: Optional[float] = None
     search_agent_query: Optional[str] = None
+    # Add metadata field for custom fields
+    metadata: Optional[dict[str, Any]] = None
 
     def serialize_for_results(self) -> dict[str, Any]:
         result_dict = {
@@ -76,6 +78,11 @@ class Document:
             "reranker_score": self.reranker_score,
             "search_agent_query": self.search_agent_query,
         }
+        
+        # Include metadata if available
+        if self.metadata:
+            result_dict["metadata"] = self.metadata
+            
         return result_dict
 
 
@@ -225,21 +232,25 @@ class Approach(ABC):
 
         documents = []
         async for page in results.by_page():
-            async for document in page:
-                documents.append(
-                    Document(
-                        id=document.get("id"),
-                        content=document.get("content"),
-                        category=document.get("category"),
-                        sourcepage=document.get("sourcepage"),
-                        sourcefile=document.get("sourcefile"),
-                        oids=document.get("oids"),
-                        groups=document.get("groups"),
-                        captions=cast(list[QueryCaptionResult], document.get("@search.captions")),
-                        score=document.get("@search.score"),
-                        reranker_score=document.get("@search.reranker_score"),
-                    )
+            async for search_document in page:
+                # Use the field mapping to handle custom fields
+                from prepdocslib.fieldmapping import field_config
+                mapped_doc = field_config.map_document_fields(dict(search_document))
+                
+                document = Document(
+                    id=mapped_doc.get("id"),
+                    content=mapped_doc.get("content"),
+                    category=mapped_doc.get("category"),
+                    sourcepage=mapped_doc.get("sourcepage"),
+                    sourcefile=mapped_doc.get("sourcefile"),
+                    oids=search_document.get("oids"),
+                    groups=search_document.get("groups"),
+                    captions=cast(list[QueryCaptionResult], search_document.get("@search.captions")),
+                    score=search_document.get("@search.score"),
+                    reranker_score=search_document.get("@search.reranker_score"),
+                    metadata=mapped_doc.get("metadata"),
                 )
+                documents.append(document)
 
             qualified_documents = [
                 doc
@@ -327,16 +338,19 @@ class Approach(ABC):
         def nonewlines(s: str) -> str:
             return s.replace("\n", " ").replace("\r", " ")
 
+        from prepdocslib.fieldmapping import field_config
+        
         if use_semantic_captions:
             return [
-                (self.get_citation((doc.sourcepage or ""), use_image_citation))
+                field_config.generate_citation(doc.serialize_for_results(), use_image_citation)
                 + ": "
                 + nonewlines(" . ".join([cast(str, c.text) for c in (doc.captions or [])]))
                 for doc in results
             ]
         else:
             return [
-                (self.get_citation((doc.sourcepage or ""), use_image_citation)) + ": " + nonewlines(doc.content or "")
+                field_config.generate_citation(doc.serialize_for_results(), use_image_citation) 
+                + ": " + nonewlines(doc.content or "")
                 for doc in results
             ]
 
