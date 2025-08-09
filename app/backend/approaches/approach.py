@@ -4,6 +4,7 @@ from collections.abc import AsyncGenerator, Awaitable
 from dataclasses import dataclass
 from typing import Any, Callable, Optional, TypedDict, Union, cast
 from urllib.parse import urljoin
+import re
 
 import aiohttp
 from azure.search.documents.agent.aio import KnowledgeAgentRetrievalClient
@@ -36,6 +37,18 @@ from openai.types.chat import (
 from approaches.promptmanager import PromptManager
 from core.authentication import AuthenticationHelper
 
+from dataclasses import dataclass
+from typing import Optional, Any
+
+@dataclass
+class Citation:
+    content: str
+    id: str
+    title: str
+    filepath: str
+    url: Optional[str] = None
+    metadata: Optional[dict[str, Any]] = None
+
 
 @dataclass
 class Document:
@@ -44,37 +57,41 @@ class Document:
     category: Optional[str] = None
     sourcepage: Optional[str] = None
     sourcefile: Optional[str] = None
+    storage_url: Optional[str] = None
     oids: Optional[list[str]] = None
     groups: Optional[list[str]] = None
     captions: Optional[list[QueryCaptionResult]] = None
     score: Optional[float] = None
     reranker_score: Optional[float] = None
     search_agent_query: Optional[str] = None
+    updated: Optional[str] = None  # Add updated field
 
     def serialize_for_results(self) -> dict[str, Any]:
         result_dict = {
-            "id": self.id,
-            "content": self.content,
-            "category": self.category,
-            "sourcepage": self.sourcepage,
-            "sourcefile": self.sourcefile,
-            "oids": self.oids,
-            "groups": self.groups,
+            "id": str(self.id) if self.id is not None else "",
+            "content": str(self.content) if self.content is not None else "",
+            "category": str(self.category) if self.category is not None else "",
+            "sourcepage": str(self.sourcepage) if self.sourcepage is not None else "",
+            "sourcefile": str(self.sourcefile) if self.sourcefile is not None else "",
+            "storageUrl": str(self.storage_url) if self.storage_url is not None else "",
+            "oids": self.oids if self.oids is not None else [],
+            "groups": self.groups if self.groups is not None else [],
             "captions": (
                 [
                     {
-                        "additional_properties": caption.additional_properties,
-                        "text": caption.text,
-                        "highlights": caption.highlights,
+                        "additional_properties": caption.additional_properties if caption.additional_properties is not None else {},
+                        "text": str(caption.text) if caption.text is not None else "",
+                        "highlights": str(caption.highlights) if caption.highlights is not None else "",
                     }
                     for caption in self.captions
                 ]
                 if self.captions
                 else []
             ),
-            "score": self.score,
-            "reranker_score": self.reranker_score,
-            "search_agent_query": self.search_agent_query,
+            "score": float(self.score) if self.score is not None else 0.0,
+            "reranker_score": float(self.reranker_score) if self.reranker_score is not None else 0.0,
+            "search_agent_query": str(self.search_agent_query) if self.search_agent_query is not None else "",
+            "updated": str(self.updated) if self.updated is not None else "",  # Include updated field
         }
         return result_dict
 
@@ -101,6 +118,8 @@ class ExtraInfo:
     data_points: DataPoints
     thoughts: Optional[list[ThoughtStep]] = None
     followup_questions: Optional[list[Any]] = None
+    enhanced_citations: Optional[list[str]] = None  # Add enhanced citations
+    citation_map: Optional[dict[str, str]] = None   # Add citation mapping
 
 
 @dataclass
@@ -201,56 +220,77 @@ class Approach(ABC):
     ) -> list[Document]:
         search_text = query_text if use_text_search else ""
         search_vectors = vectors if use_vector_search else []
+        
+        # Explicitly request all fields including full content without truncation
+        # Azure Cognitive Search should return full field values when explicitly selected
+        select_fields = ["id", "content", "category", "sourcepage", "sourcefile", "storageUrl", "oids", "groups", "updated"]
+        
+        # Add search_mode to ensure we get comprehensive results
+        search_kwargs = {
+            "search_text": search_text,
+            "filter": filter,
+            "top": top * 3,  # Request more results initially to account for filtering
+            "select": select_fields,
+            "search_mode": "all",  # Use "all" mode for more comprehensive matching
+            "include_total_count": True,  # Include total count for debugging
+        }
+        
         if use_semantic_ranker:
-            results = await self.search_client.search(
-                search_text=search_text,
-                filter=filter,
-                top=top,
-                query_caption="extractive|highlight-false" if use_semantic_captions else None,
-                query_rewrites="generative" if use_query_rewriting else None,
-                vector_queries=search_vectors,
-                query_type=QueryType.SEMANTIC,
-                query_language=self.query_language,
-                query_speller=self.query_speller,
-                semantic_configuration_name="default",
-                semantic_query=query_text,
-            )
+            search_kwargs.update({
+                "query_caption": "extractive|highlight-false" if use_semantic_captions else None,
+                "query_rewrites": "generative" if use_query_rewriting else None,
+                "vector_queries": search_vectors,
+                "query_type": QueryType.SEMANTIC,
+                "query_language": self.query_language,
+                "query_speller": self.query_speller,
+                "semantic_configuration_name": "default",
+                "semantic_query": query_text,
+            })
         else:
-            results = await self.search_client.search(
-                search_text=search_text,
-                filter=filter,
-                top=top,
-                vector_queries=search_vectors,
-            )
+            search_kwargs["vector_queries"] = search_vectors
+            
+        results = await self.search_client.search(**search_kwargs)
 
         documents = []
         async for page in results.by_page():
             async for document in page:
+                # Get the full content from the document
+                full_content = document.get("content", "")
+                
+                # Log if content appears truncated
+                if full_content and len(full_content) < 100 and full_content.endswith("..."):
+                    import logging
+                    logging.warning(f"Potentially truncated content for document {document.get('id')}: {full_content}")
+                
                 documents.append(
                     Document(
                         id=document.get("id"),
-                        content=document.get("content"),
+                        content=full_content,  # Use the full content
                         category=document.get("category"),
                         sourcepage=document.get("sourcepage"),
                         sourcefile=document.get("sourcefile"),
+                        storage_url=document.get("storageUrl"),
                         oids=document.get("oids"),
                         groups=document.get("groups"),
                         captions=cast(list[QueryCaptionResult], document.get("@search.captions")),
                         score=document.get("@search.score"),
                         reranker_score=document.get("@search.reranker_score"),
+                        updated=document.get("updated"),
                     )
                 )
 
-            qualified_documents = [
-                doc
-                for doc in documents
-                if (
-                    (doc.score or 0) >= (minimum_search_score or 0)
-                    and (doc.reranker_score or 0) >= (minimum_reranker_score or 0)
-                )
-            ]
-
-        return qualified_documents
+        # Apply filtering and return only requested number of results
+        qualified_documents = [
+            doc
+            for doc in documents
+            if (
+                (doc.score or 0) >= (minimum_search_score or 0)
+                and (doc.reranker_score or 0) >= (minimum_reranker_score or 0)
+            )
+        ]
+        
+        # Return only the top N results as requested
+        return qualified_documents[:top]
 
     async def run_agentic_retrieval(
         self,
@@ -323,171 +363,114 @@ class Approach(ABC):
     def get_sources_content(
         self, results: list[Document], use_semantic_captions: bool, use_image_citation: bool
     ) -> list[str]:
+        """Return formatted strings with enhanced subsection support for three-part citation format"""
 
-        def nonewlines(s: str) -> str:
-            return s.replace("\n", " ").replace("\r", " ")
+        import logging
+        logging.info(f"🔍 DEBUG: Processing {len(results)} documents for sources content")
+        
+        formatted_results = []
+        
+        # First pass: process each document and collect subsections
+        document_groups = []  # List of (original_doc, [subsections]) tuples
+        
+        for i, doc in enumerate(results):
+            logging.info(f"🔍 DEBUG: Processing document {i+1}/{len(results)}: {doc.id}")
+            
+            # Check if document contains multiple subsections
+            subsections = self._extract_multiple_subsections_from_document(doc)
+            
+            if len(subsections) > 1:
+                logging.info(f"🎯 DEBUG: Document {doc.id} will be split into {len(subsections)} sources")
+                # Group this document with its subsections
+                document_groups.append((doc, subsections))
+            else:
+                logging.info(f"❌ DEBUG: Document {doc.id} not split - using original logic")
+                # Single subsection or no subsections - treat as single group
+                document_groups.append((doc, []))
+        
+        # Second pass: process groups to create formatted results
+        # This ensures subsections from the same document appear together
+        for doc, subsections in document_groups:
+            if len(subsections) > 1:
+                # Sort subsections by their natural order
+                subsections.sort(key=lambda x: self._get_subsection_sort_key(x['subsection']))
+                
+                # Split document into multiple sources, one for each subsection
+                for j, subsection_info in enumerate(subsections):
+                    subsection_id = subsection_info['subsection']
+                    subsection_content = subsection_info['content']
+                    
+                    # Build three-part citation for this specific subsection
+                    sourcepage = doc.sourcepage or "Unknown Page"
+                    sourcefile = doc.sourcefile or "Unknown Document"
+                    base_citation = f"{subsection_id}, {sourcepage}, {sourcefile}"
+                    
+                    # Format the source with the subsection-specific content
+                    formatted_source = f"[{base_citation}]: {subsection_content}"
+                    formatted_results.append(formatted_source)
+                    logging.info(f"🎯 DEBUG: Added subsection source {j+1}: {subsection_id}")
+            else:
+                logging.info(f"❌ DEBUG: Document {doc.id} not split - using original logic")
+                # Single subsection or no subsections - use existing logic
+                subsection = self._extract_subsection_from_document(doc)
+                
+                # Build three-part citation
+                sourcepage = doc.sourcepage or "Unknown Page"
+                sourcefile = doc.sourcefile or "Unknown Document"
+                
+                if subsection:
+                    base_citation = f"{subsection}, {sourcepage}, {sourcefile}"
+                else:
+                    base_citation = f"{sourcepage}, {sourcefile}"
+                
+                # Get FULL content without any truncation
+                content = doc.content or ""
+                
+                # If using semantic captions, APPEND them to the full content
+                if use_semantic_captions and doc.captions:
+                    caption_text = " . ".join([str(c.text) for c in doc.captions])
+                    if caption_text:
+                        content = f"{content}\n\nSemantic Captions: {caption_text}"
+                
+                # Format the source with the three-part citation followed by full content
+                formatted_source = f"[{base_citation}]: {content}"
+                formatted_results.append(formatted_source)
 
-        if use_semantic_captions:
-            return [
-                (self.get_citation((doc.sourcepage or ""), use_image_citation))
-                + ": "
-                + nonewlines(" . ".join([cast(str, c.text) for c in (doc.captions or [])]))
-                for doc in results
-            ]
-        else:
-            return [
-                (self.get_citation((doc.sourcepage or ""), use_image_citation)) + ": " + nonewlines(doc.content or "")
-                for doc in results
-            ]
+        logging.info(f"🏁 DEBUG: Returning {len(formatted_results)} total formatted sources")
+        return formatted_results
 
-    def get_citation(self, sourcepage: str, use_image_citation: bool) -> str:
-        if use_image_citation:
-            return sourcepage
-        else:
-            path, ext = os.path.splitext(sourcepage)
-            if ext.lower() == ".png":
-                page_idx = path.rfind("-")
-                page_number = int(path[page_idx + 1 :])
-                return f"{path[:page_idx]}.pdf#page={page_number}"
+    def _get_subsection_sort_key(self, subsection_id: str) -> tuple:
+        """Generate sort key for subsection ordering (e.g., D5.1 < D5.2 < D5.10)"""
+        import re
+        
+        # Extract components for natural sorting
+        # Handle patterns like: D5.1, A4.2, 1.1, Rule 31.1, Para 5.2
+        pattern = r'^([A-Z]*)(\d*)\.?(\d+)(?:\.(\d+))?'
+        match = re.match(pattern, subsection_id)
+        
+        if match:
+            prefix = match.group(1) or ""  # D, A, Rule, Para, etc.
+            major = int(match.group(2)) if match.group(2) else 0  # 5, 4, 31, etc.
+            minor = int(match.group(3)) if match.group(3) else 0  # 1, 2, etc.
+            patch = int(match.group(4)) if match.group(4) else 0  # For x.y.z format
+            
+            return (prefix, major, minor, patch)
+        
+        # Fallback: alphabetical sort
+        return (subsection_id, 0, 0, 0)
 
-            return sourcepage
+async def run(
+    self,
+    messages: list[ChatCompletionMessageParam],
+    session_state: Any = None,
+    context: dict[str, Any] = {},
+) -> dict[str, Any]:
+    raise NotImplementedError
 
-    async def compute_text_embedding(self, q: str):
-        SUPPORTED_DIMENSIONS_MODEL = {
-            "text-embedding-ada-002": False,
-            "text-embedding-3-small": True,
-            "text-embedding-3-large": True,
-        }
-
-        class ExtraArgs(TypedDict, total=False):
-            dimensions: int
-
-        dimensions_args: ExtraArgs = (
-            {"dimensions": self.embedding_dimensions} if SUPPORTED_DIMENSIONS_MODEL[self.embedding_model] else {}
-        )
-        embedding = await self.openai_client.embeddings.create(
-            # Azure OpenAI takes the deployment name as the model name
-            model=self.embedding_deployment if self.embedding_deployment else self.embedding_model,
-            input=q,
-            **dimensions_args,
-        )
-        query_vector = embedding.data[0].embedding
-        # This performs an oversampling due to how the search index was setup,
-        # so we do not need to explicitly pass in an oversampling parameter here
-        return VectorizedQuery(vector=query_vector, k_nearest_neighbors=50, fields=self.embedding_field)
-
-    async def compute_image_embedding(self, q: str):
-        endpoint = urljoin(self.vision_endpoint, "computervision/retrieval:vectorizeText")
-        headers = {"Content-Type": "application/json"}
-        params = {"api-version": "2024-02-01", "model-version": "2023-04-15"}
-        data = {"text": q}
-
-        headers["Authorization"] = "Bearer " + await self.vision_token_provider()
-
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                url=endpoint, params=params, headers=headers, json=data, raise_for_status=True
-            ) as response:
-                json = await response.json()
-                image_query_vector = json["vector"]
-        return VectorizedQuery(vector=image_query_vector, k_nearest_neighbors=50, fields="imageEmbedding")
-
-    def get_system_prompt_variables(self, override_prompt: Optional[str]) -> dict[str, str]:
-        # Allows client to replace the entire prompt, or to inject into the existing prompt using >>>
-        if override_prompt is None:
-            return {}
-        elif override_prompt.startswith(">>>"):
-            return {"injected_prompt": override_prompt[3:]}
-        else:
-            return {"override_prompt": override_prompt}
-
-    def get_response_token_limit(self, model: str, default_limit: int) -> int:
-        if model in self.GPT_REASONING_MODELS:
-            return self.RESPONSE_REASONING_DEFAULT_TOKEN_LIMIT
-
-        return default_limit
-
-    def create_chat_completion(
-        self,
-        chatgpt_deployment: Optional[str],
-        chatgpt_model: str,
-        messages: list[ChatCompletionMessageParam],
-        overrides: dict[str, Any],
-        response_token_limit: int,
-        should_stream: bool = False,
-        tools: Optional[list[ChatCompletionToolParam]] = None,
-        temperature: Optional[float] = None,
-        n: Optional[int] = None,
-        reasoning_effort: Optional[ChatCompletionReasoningEffort] = None,
-    ) -> Union[Awaitable[ChatCompletion], Awaitable[AsyncStream[ChatCompletionChunk]]]:
-        if chatgpt_model in self.GPT_REASONING_MODELS:
-            params: dict[str, Any] = {
-                # max_tokens is not supported
-                "max_completion_tokens": response_token_limit
-            }
-
-            # Adjust parameters for reasoning models
-            supported_features = self.GPT_REASONING_MODELS[chatgpt_model]
-            if supported_features.streaming and should_stream:
-                params["stream"] = True
-                params["stream_options"] = {"include_usage": True}
-            params["reasoning_effort"] = reasoning_effort or overrides.get("reasoning_effort") or self.reasoning_effort
-
-        else:
-            # Include parameters that may not be supported for reasoning models
-            params = {
-                "max_tokens": response_token_limit,
-                "temperature": temperature or overrides.get("temperature", 0.3),
-            }
-        if should_stream:
-            params["stream"] = True
-            params["stream_options"] = {"include_usage": True}
-
-        params["tools"] = tools
-
-        # Azure OpenAI takes the deployment name as the model name
-        return self.openai_client.chat.completions.create(
-            model=chatgpt_deployment if chatgpt_deployment else chatgpt_model,
-            messages=messages,
-            seed=overrides.get("seed", None),
-            n=n or 1,
-            **params,
-        )
-
-    def format_thought_step_for_chatcompletion(
-        self,
-        title: str,
-        messages: list[ChatCompletionMessageParam],
-        overrides: dict[str, Any],
-        model: str,
-        deployment: Optional[str],
-        usage: Optional[CompletionUsage] = None,
-        reasoning_effort: Optional[ChatCompletionReasoningEffort] = None,
-    ) -> ThoughtStep:
-        properties: dict[str, Any] = {"model": model}
-        if deployment:
-            properties["deployment"] = deployment
-        # Only add reasoning_effort setting if the model supports it
-        if model in self.GPT_REASONING_MODELS:
-            properties["reasoning_effort"] = reasoning_effort or overrides.get(
-                "reasoning_effort", self.reasoning_effort
-            )
-        if usage:
-            properties["token_usage"] = TokenUsageProps.from_completion_usage(usage)
-        return ThoughtStep(title, messages, properties)
-
-    async def run(
-        self,
-        messages: list[ChatCompletionMessageParam],
-        session_state: Any = None,
-        context: dict[str, Any] = {},
-    ) -> dict[str, Any]:
-        raise NotImplementedError
-
-    async def run_stream(
-        self,
-        messages: list[ChatCompletionMessageParam],
-        session_state: Any = None,
-        context: dict[str, Any] = {},
-    ) -> AsyncGenerator[dict[str, Any], None]:
-        raise NotImplementedError
+async def run_stream(
+    self,
+    messages: list[ChatCompletionMessageParam],
+    session_state: Any = None,
+    context: dict[str, Any] = {},
+) -> AsyncGenerator[dict[str, Any], None]:
+    raise NotImplementedError

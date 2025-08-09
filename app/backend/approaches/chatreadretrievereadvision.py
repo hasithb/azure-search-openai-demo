@@ -147,7 +147,8 @@ class ChatReadRetrieveReadVisionApproach(ChatApproach):
         text_sources = []
         image_sources = []
         if send_text_to_gptvision:
-            text_sources = self.get_sources_content(results, use_semantic_captions, use_image_citation=True)
+            # Get structured content with all fields preserved
+            text_sources = self.get_sources_content_structured(results, use_semantic_captions, use_image_citation=True)
         if send_images_to_gptvision:
             for result in results:
                 url = await fetch_image(self.blob_container_client, result)
@@ -213,7 +214,7 @@ class ChatReadRetrieveReadVisionApproach(ChatApproach):
                 model=self.gpt4v_deployment if self.gpt4v_deployment else self.gpt4v_model,
                 messages=messages,
                 temperature=overrides.get("temperature", 0.3),
-                max_tokens=1024,
+                max_tokens=4096,  # Increased from 1024 to accommodate full content
                 n=1,
                 stream=should_stream,
                 seed=seed,

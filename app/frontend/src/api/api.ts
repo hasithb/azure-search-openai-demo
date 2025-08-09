@@ -79,7 +79,14 @@ export async function getSpeechApi(text: string): Promise<string | null> {
 }
 
 export function getCitationFilePath(citation: string): string {
-    return `${BACKEND_URI}/content/${citation}`;
+    // If citation is already a URL (storageUrl), return it directly
+    if (citation.startsWith("http://") || citation.startsWith("https://")) {
+        return citation;
+    }
+
+    // For traditional citations, pass through to backend content endpoint
+    // The backend will handle redirection to storageUrl if available
+    return `/content/${encodeURIComponent(citation)}`;
 }
 
 export async function uploadFileApi(request: FormData, idToken: string): Promise<SimpleAPIResponse> {

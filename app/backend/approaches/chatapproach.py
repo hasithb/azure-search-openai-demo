@@ -149,3 +149,39 @@ class ChatApproach(Approach, ABC):
         overrides = context.get("overrides", {})
         auth_claims = context.get("auth_claims", {})
         return self.run_with_streaming(messages, overrides, auth_claims, session_state)
+
+    def build_filter(self, overrides: dict[str, Any], auth_claims: dict[str, Any]) -> Optional[str]:
+        """Build search filter based on overrides and auth claims"""
+        filters = []
+        
+        # Handle exclude_category
+        exclude_category = overrides.get("exclude_category", None)
+        if exclude_category:
+            filters.append(f"category ne '{exclude_category}'")
+        
+        # Handle include_category
+        include_category = overrides.get("include_category", None) 
+        if include_category and include_category != "All":
+            filters.append(f"category eq '{include_category}'")
+        
+        # Add security filters
+        if overrides.get("use_oid_security_filter"):
+            oid = auth_claims.get("oid")
+            if oid:
+                filters.append(f"oids/any(g:search.in(g, '{oid}'))")
+        
+        if overrides.get("use_groups_security_filter"):
+            groups = auth_claims.get("groups", [])
+            if groups:
+                group_str = ", ".join([f"'{g}'" for g in groups])
+                filters.append(f"groups/any(g:search.in(g, '{group_str}'))")
+        
+        return " and ".join(filters) if filters else None
+
+    # NEW: Provide prompt variables for PromptManager
+    def get_system_prompt_variables(self, prompt_template: Optional[str]) -> dict[str, Any]:
+        """
+        Minimal system prompt variables helper used by approaches when rendering prompty files.
+        Returns a dict with the prompt_template if provided; otherwise an empty dict.
+        """
+        return {"prompt_template": prompt_template} if prompt_template else {}

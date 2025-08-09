@@ -135,45 +135,88 @@ async def assets(path):
 @authenticated_path
 async def content_file(path: str, auth_claims: dict[str, Any]):
     """
-    Serve content files from blob storage from within the app to keep the example self-contained.
-    *** NOTE *** if you are using app services authentication, this route will return unauthorized to all users that are not logged in
-    if AZURE_ENFORCE_ACCESS_CONTROL is not set or false, logged in users can access all files regardless of access control
-    if AZURE_ENFORCE_ACCESS_CONTROL is set to true, logged in users can only access files they have access to
-    This is also slow and memory hungry.
+    Redirect to storageUrl for content files instead of serving from blob container.
+    This ensures all file access goes through the proper storageUrl mechanism.
+    Now supports highlighting via query parameter.
     """
-    # Remove page number from path, filename-1.txt -> filename.txt
-    # This shouldn't typically be necessary as browsers don't send hash fragments to servers
+    from quart import redirect, request as quart_request
+    
+    # Get highlight search terms from query parameter
+    highlight_terms = quart_request.args.get('highlight', '')
+    
+    # Remove page number from path if present
     if path.find("#page=") > 0:
         path_parts = path.rsplit("#page=", 1)
         path = path_parts[0]
-    current_app.logger.info("Opening file %s", path)
-    blob_container_client: ContainerClient = current_app.config[CONFIG_BLOB_CONTAINER_CLIENT]
-    blob: Union[BlobDownloader, DatalakeDownloader]
+    
+    # Handle citation format "sourcepage, sourcefile" by extracting sourcepage
+    if ", " in path:
+        path = path.split(", ")[0]
+
+    # If the path is already a URL, redirect to it with highlight parameter
+    if path.startswith("http://") or path.startswith("https://"):
+        if highlight_terms:
+            # Add highlight parameter to external URL
+            separator = "&" if "?" in path else "?"
+            return redirect(f"{path}{separator}search={highlight_terms}")
+        return redirect(path)
+
+    # Search for the document in the index to get its storageUrl
+    search_client: SearchClient = current_app.config[CONFIG_SEARCH_CLIENT]
     try:
-        blob = await blob_container_client.get_blob_client(path).download_blob()
-    except ResourceNotFoundError:
-        current_app.logger.info("Path not found in general Blob container: %s", path)
-        if current_app.config[CONFIG_USER_UPLOAD_ENABLED]:
-            try:
-                user_oid = auth_claims["oid"]
-                user_blob_container_client = current_app.config[CONFIG_USER_BLOB_CONTAINER_CLIENT]
-                user_directory_client: FileSystemClient = user_blob_container_client.get_directory_client(user_oid)
-                file_client = user_directory_client.get_file_client(path)
-                blob = await file_client.download_file()
-            except ResourceNotFoundError:
-                current_app.logger.exception("Path not found in DataLake: %s", path)
-                abort(404)
-        else:
-            abort(404)
-    if not blob.properties or not blob.properties.has_key("content_settings"):
-        abort(404)
-    mime_type = blob.properties["content_settings"]["content_type"]
-    if mime_type == "application/octet-stream":
-        mime_type = mimetypes.guess_type(path)[0] or "application/octet-stream"
-    blob_file = io.BytesIO()
-    await blob.readinto(blob_file)
-    blob_file.seek(0)
-    return await send_file(blob_file, mimetype=mime_type, as_attachment=False, attachment_filename=path)
+        # Search for document by sourcepage or sourcefile with proper escaping
+        escaped_path = path.replace("'", "''")
+        filter_query = f"sourcepage eq '{escaped_path}' or sourcefile eq '{escaped_path}'"
+        
+        results = await search_client.search(
+            search_text="", 
+            filter=filter_query, 
+            select=["storageUrl"], 
+            top=1
+        )
+        
+        async for document in results:
+            storage_url = document.get("storageUrl")
+            if storage_url and str(storage_url).strip():
+                current_app.logger.info("Found storageUrl for path %s: %s", path, storage_url)
+                
+                # Add highlight parameter to storage URL if provided
+                if highlight_terms:
+                    separator = "&" if "?" in str(storage_url) else "?"
+                    storage_url_with_highlight = f"{storage_url}{separator}search={highlight_terms}"
+                    return redirect(storage_url_with_highlight)
+                
+                return redirect(str(storage_url))
+            break
+            
+        # If no results found, try a broader text search
+        current_app.logger.info("No exact match found for %s, trying text search", path)
+        results = await search_client.search(
+            search_text=path,
+            select=["storageUrl", "sourcepage", "sourcefile"],
+            top=5
+        )
+        
+        async for document in results:
+            storage_url = document.get("storageUrl")
+            if storage_url and str(storage_url).strip():
+                current_app.logger.info("Found storageUrl via text search for path %s: %s", path, storage_url)
+                
+                # Add highlight parameter to storage URL if provided
+                if highlight_terms:
+                    separator = "&" if "?" in str(storage_url) else "?"
+                    storage_url_with_highlight = f"{storage_url}{separator}search={highlight_terms}"
+                    return redirect(storage_url_with_highlight)
+                
+                return redirect(str(storage_url))
+            break
+            
+    except Exception as e:
+        current_app.logger.exception("Error searching for document storageUrl: %s", e)
+    
+    # If no storageUrl found, return 404
+    current_app.logger.warning("No storageUrl found for path: %s", path)
+    abort(404)
 
 
 @bp.route("/ask", methods=["POST"])
@@ -182,8 +225,18 @@ async def ask(auth_claims: dict[str, Any]):
     if not request.is_json:
         return jsonify({"error": "request must be json"}), 415
     request_json = await request.get_json()
+    
+    # Enhanced logging to trace the data flow
+    current_app.logger.info("Ask endpoint received request")
+    current_app.logger.info(f"Question: {request_json.get('messages', [{}])[-1].get('content', 'No question')}")
+    
     context = request_json.get("context", {})
     context["auth_claims"] = auth_claims
+    
+    # Log overrides to understand what's being requested
+    overrides = context.get("overrides", {})
+    current_app.logger.info(f"Overrides: top={overrides.get('top')}, semantic_captions={overrides.get('semantic_captions')}")
+    
     try:
         use_gpt4v = context.get("overrides", {}).get("use_gpt4v", False)
         approach: Approach
@@ -191,18 +244,46 @@ async def ask(auth_claims: dict[str, Any]):
             approach = cast(Approach, current_app.config[CONFIG_ASK_VISION_APPROACH])
         else:
             approach = cast(Approach, current_app.config[CONFIG_ASK_APPROACH])
+        
+        current_app.logger.info("Using approach: %s", type(approach).__name__)
+        
         r = await approach.run(
             request_json["messages"], context=context, session_state=request_json.get("session_state")
         )
+        
+        # Enhanced logging to trace response structure
+        if isinstance(r, dict) and "context" in r:
+            context_data = r["context"]
+            if hasattr(context_data, "data_points") and context_data.data_points:
+                data_points = context_data.data_points
+                if hasattr(data_points, "text") and data_points.text:
+                    current_app.logger.info(f"Response has {len(data_points.text)} text data points")
+                    for i, dp in enumerate(data_points.text[:2]):  # Log first 2
+                        if isinstance(dp, dict):
+                            content_length = len(dp.get("content", ""))
+                            current_app.logger.info(f"Data point {i}: content_length={content_length}")
+                            if content_length < 100:
+                                current_app.logger.warning(f"Data point {i} has short content: {dp.get('content', '')}")
+        
         return jsonify(r)
     except Exception as error:
+        current_app.logger.exception("Error in ask endpoint: %s", error)
         return error_response(error, "/ask")
 
 
 class JSONEncoder(json.JSONEncoder):
     def default(self, o):
         if dataclasses.is_dataclass(o) and not isinstance(o, type):
-            return dataclasses.asdict(o)
+            # Convert dataclass to dict
+            result = dataclasses.asdict(o)
+            
+            # Special handling for ExtraInfo to ensure all fields are included
+            if hasattr(o, 'enhanced_citations'):
+                result['enhanced_citations'] = getattr(o, 'enhanced_citations', [])
+            if hasattr(o, 'citation_map'):
+                result['citation_map'] = getattr(o, 'citation_map', {})
+                
+            return result
         return super().default(o)
 
 
@@ -221,8 +302,12 @@ async def chat(auth_claims: dict[str, Any]):
     if not request.is_json:
         return jsonify({"error": "request must be json"}), 415
     request_json = await request.get_json()
+    current_app.logger.info("Chat endpoint received request: %s", request_json)
+    
     context = request_json.get("context", {})
     context["auth_claims"] = auth_claims
+    current_app.logger.info("Chat endpoint context: %s", context)
+    
     try:
         use_gpt4v = context.get("overrides", {}).get("use_gpt4v", False)
         approach: Approach
@@ -230,6 +315,8 @@ async def chat(auth_claims: dict[str, Any]):
             approach = cast(Approach, current_app.config[CONFIG_CHAT_VISION_APPROACH])
         else:
             approach = cast(Approach, current_app.config[CONFIG_CHAT_APPROACH])
+
+        current_app.logger.info("Chat endpoint using approach: %s", type(approach).__name__)
 
         # If session state is provided, persists the session state,
         # else creates a new session_id depending on the chat history options enabled.
@@ -244,8 +331,39 @@ async def chat(auth_claims: dict[str, Any]):
             context=context,
             session_state=session_state,
         )
+        
+        current_app.logger.info("Chat endpoint response structure:")
+        current_app.logger.info("- Response type: %s", type(result))
+        current_app.logger.info("- Response keys: %s", list(result.keys()) if hasattr(result, 'keys') else 'No keys')
+        
+        if hasattr(result, 'get') and result.get('context'):
+            context_data = result.get('context')
+            current_app.logger.info("- Context structure: %s", type(context_data))
+            current_app.logger.info("- Context keys: %s", list(context_data.keys()) if hasattr(context_data, 'keys') else 'No keys')
+            
+            if hasattr(context_data, 'get') and context_data.get('data_points'):
+                data_points = context_data.get('data_points')
+                current_app.logger.info("- Data points type: %s", type(data_points))
+                current_app.logger.info("- Data points is array: %s", isinstance(data_points, list))
+                if isinstance(data_points, list):
+                    current_app.logger.info("- Data points length: %s", len(data_points))
+                    for i, dp in enumerate(data_points[:3]):  # Log first 3 items
+                        current_app.logger.info("- Data point %d: %s", i, dp)
+                        if hasattr(dp, 'get'):
+                            current_app.logger.info("  - Has sourcepage: %s", dp.get('sourcepage'))
+                            current_app.logger.info("  - Has sourcefile: %s", dp.get('sourcefile'))
+                            current_app.logger.info("  - Has storageUrl: %s", dp.get('storageUrl'))
+                else:
+                    current_app.logger.warning("- Data points is not a list: %s", data_points)
+            else:
+                current_app.logger.warning("- No data_points found in context")
+        else:
+            current_app.logger.warning("- No context found in response")
+        
+        current_app.logger.info("Chat endpoint returning response")
         return jsonify(result)
     except Exception as error:
+        current_app.logger.exception("Error in chat endpoint: %s", error)
         return error_response(error, "/chat")
 
 
@@ -255,8 +373,12 @@ async def chat_stream(auth_claims: dict[str, Any]):
     if not request.is_json:
         return jsonify({"error": "request must be json"}), 415
     request_json = await request.get_json()
+    current_app.logger.info("Chat stream endpoint received request: %s", request_json)
+    
     context = request_json.get("context", {})
     context["auth_claims"] = auth_claims
+    current_app.logger.info("Chat stream endpoint context: %s", context)
+    
     try:
         use_gpt4v = context.get("overrides", {}).get("use_gpt4v", False)
         approach: Approach
@@ -264,6 +386,8 @@ async def chat_stream(auth_claims: dict[str, Any]):
             approach = cast(Approach, current_app.config[CONFIG_CHAT_VISION_APPROACH])
         else:
             approach = cast(Approach, current_app.config[CONFIG_CHAT_APPROACH])
+
+        current_app.logger.info("Chat stream endpoint using approach: %s", type(approach).__name__)
 
         # If session state is provided, persists the session state,
         # else creates a new session_id depending on the chat history options enabled.
@@ -278,11 +402,15 @@ async def chat_stream(auth_claims: dict[str, Any]):
             context=context,
             session_state=session_state,
         )
+        
+        current_app.logger.info("Chat stream endpoint created result generator")
+        
         response = await make_response(format_as_ndjson(result))
         response.timeout = None  # type: ignore
         response.mimetype = "application/json-lines"
         return response
     except Exception as error:
+        current_app.logger.exception("Error in chat stream endpoint: %s", error)
         return error_response(error, "/chat")
 
 
@@ -312,6 +440,7 @@ def config():
             "showChatHistoryBrowser": current_app.config[CONFIG_CHAT_HISTORY_BROWSER_ENABLED],
             "showChatHistoryCosmos": current_app.config[CONFIG_CHAT_HISTORY_COSMOS_ENABLED],
             "showAgenticRetrievalOption": current_app.config[CONFIG_AGENTIC_RETRIEVAL_ENABLED],
+            "useStorageUrlForCitations": True,  # Enable storageUrl usage for citations
         }
     )
 
@@ -436,8 +565,8 @@ async def setup_clients():
     OPENAI_CHATGPT_MODEL = os.environ["AZURE_OPENAI_CHATGPT_MODEL"]
     AZURE_OPENAI_SEARCHAGENT_MODEL = os.getenv("AZURE_OPENAI_SEARCHAGENT_MODEL")
     AZURE_OPENAI_SEARCHAGENT_DEPLOYMENT = os.getenv("AZURE_OPENAI_SEARCHAGENT_DEPLOYMENT")
-    OPENAI_EMB_MODEL = os.getenv("AZURE_OPENAI_EMB_MODEL_NAME", "text-embedding-ada-002")
-    OPENAI_EMB_DIMENSIONS = int(os.getenv("AZURE_OPENAI_EMB_DIMENSIONS") or 1536)
+    OPENAI_EMB_MODEL = os.getenv("AZURE_OPENAI_EMB_MODEL_NAME", "text-embedding-3-large")  # Updated default model
+    OPENAI_EMB_DIMENSIONS = int(os.getenv("AZURE_OPENAI_EMB_DIMENSIONS") or 3072)  # Updated default dimensions
     OPENAI_REASONING_EFFORT = os.getenv("AZURE_OPENAI_REASONING_EFFORT")
     # Used with Azure OpenAI deployments
     AZURE_OPENAI_SERVICE = os.getenv("AZURE_OPENAI_SERVICE")
@@ -825,6 +954,15 @@ def create_app():
     # Set our own logger levels to INFO by default
     app_level = os.getenv("APP_LOG_LEVEL", "INFO")
     app.logger.setLevel(os.getenv("APP_LOG_LEVEL", app_level))
+    logging.getLogger("scripts").setLevel(app_level)
+
+    if allowed_origin := os.getenv("ALLOWED_ORIGIN"):
+        allowed_origins = allowed_origin.split(";")
+        if len(allowed_origins) > 0:
+            app.logger.info("CORS enabled for %s", allowed_origins)
+            cors(app, allow_origin=allowed_origins, allow_methods=["GET", "POST"])
+
+    return app
     logging.getLogger("scripts").setLevel(app_level)
 
     if allowed_origin := os.getenv("ALLOWED_ORIGIN"):

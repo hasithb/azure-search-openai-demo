@@ -56,7 +56,7 @@ export type Thoughts = {
 };
 
 export type ResponseContext = {
-    data_points: string[];
+    data_points: string[] | any[]; // Can be array of strings or array of objects with storageUrl
     followup_questions: string[] | null;
     thoughts: Thoughts[];
 };
@@ -130,4 +130,17 @@ export type HistoryApiResponse = {
     id: string;
     entra_oid: string;
     answers: any;
+};
+
+export type Citation = {
+    content: string;
+    id: string;
+    title: string | null;
+    filepath: string | null;
+    url: string | null;
+    metadata: string | null;
+    chunk_id: string | null;
+    reindex_id: string | null;
+    sourcepage?: string;
+    source?: string;
 };

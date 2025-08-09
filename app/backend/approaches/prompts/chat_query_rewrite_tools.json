@@ -8,10 +8,15 @@
             "properties": {
                 "search_query": {
                     "type": "string",
-                    "description": "Query string to retrieve documents from azure search eg: 'Health care plan'"
+                    "description": "Query string to retrieve documents from azure search eg: 'Part 1, Overriding Objective'"
+                },
+                "subsection_hint": {
+                    "type": "string",
+                    "description": "Specific subsection identifier for precise citation (e.g., '1.1' for rule 1.1, 'A4.1' for court guide section A4.1, 'Para 1.1' for practice direction paragraph 1.1)"
                 }
             },
-            "required": ["search_query"]
+            "required": ["search_query", "subsection_hint"]
         }
     }
 }]
+

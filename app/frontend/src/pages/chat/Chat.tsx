@@ -72,7 +72,11 @@ const Chat = () => {
     const [error, setError] = useState<unknown>();
 
     const [activeCitation, setActiveCitation] = useState<string>();
+    const [activeCitationContent, setActiveCitationContent] = useState<string>();
     const [activeAnalysisPanelTab, setActiveAnalysisPanelTab] = useState<AnalysisPanelTabs | undefined>(undefined);
+
+    // Add this new state for the citation label
+    const [activeCitationLabel, setActiveCitationLabel] = useState<string>();
 
     const [selectedAnswer, setSelectedAnswer] = useState<number>(0);
     const [answers, setAnswers] = useState<[user: string, response: ChatAppResponse][]>([]);
@@ -372,14 +376,22 @@ const Chat = () => {
         makeApiRequest(example);
     };
 
-    const onShowCitation = (citation: string, index: number) => {
-        if (activeCitation === citation && activeAnalysisPanelTab === AnalysisPanelTabs.CitationTab && selectedAnswer === index) {
-            setActiveAnalysisPanelTab(undefined);
-        } else {
-            setActiveCitation(citation);
-            setActiveAnalysisPanelTab(AnalysisPanelTabs.CitationTab);
-        }
+    const [enableCitationTab, setEnableCitationTab] = useState(false);
 
+    const onShowCitation = (citation: string, index: number, citationContent?: string) => {
+        // Prevent rapid clicking by adding a small debounce
+        if (isLoading || isStreaming) return;
+
+        console.log("onShowCitation called with:", { citation, citationContent: citationContent ? "content provided" : "no content" });
+
+        // Use the citation directly as received
+        setActiveCitation(citation);
+
+        // If citationContent is provided, use it; otherwise it will be found in SupportingContent
+        setActiveCitationContent(citationContent || "");
+        setActiveCitationLabel(citation); // Use the citation directly
+        setActiveAnalysisPanelTab(AnalysisPanelTabs.SupportingContentTab);
+        setEnableCitationTab(false);
         setSelectedAnswer(index);
     };
 
@@ -387,6 +399,10 @@ const Chat = () => {
         if (activeAnalysisPanelTab === tab && selectedAnswer === index) {
             setActiveAnalysisPanelTab(undefined);
         } else {
+            // Enable citation tab when explicitly requested
+            if (tab === AnalysisPanelTabs.CitationTab) {
+                setEnableCitationTab(true);
+            }
             setActiveAnalysisPanelTab(tab);
         }
 
@@ -439,7 +455,7 @@ const Chat = () => {
                                                 index={index}
                                                 speechConfig={speechConfig}
                                                 isSelected={false}
-                                                onCitationClicked={c => onShowCitation(c, index)}
+                                                onCitationClicked={(c, citationContent) => onShowCitation(c, index, citationContent)}
                                                 onThoughtProcessClicked={() => onToggleTab(AnalysisPanelTabs.ThoughtProcessTab, index)}
                                                 onSupportingContentClicked={() => onToggleTab(AnalysisPanelTabs.SupportingContentTab, index)}
                                                 onFollowupQuestionClicked={q => makeApiRequest(q)}
@@ -462,7 +478,7 @@ const Chat = () => {
                                                 index={index}
                                                 speechConfig={speechConfig}
                                                 isSelected={selectedAnswer === index && activeAnalysisPanelTab !== undefined}
-                                                onCitationClicked={c => onShowCitation(c, index)}
+                                                onCitationClicked={(c, citationContent) => onShowCitation(c, index, citationContent)}
                                                 onThoughtProcessClicked={() => onToggleTab(AnalysisPanelTabs.ThoughtProcessTab, index)}
                                                 onSupportingContentClicked={() => onToggleTab(AnalysisPanelTabs.SupportingContentTab, index)}
                                                 onFollowupQuestionClicked={q => makeApiRequest(q)}
@@ -509,9 +525,12 @@ const Chat = () => {
                         className={styles.chatAnalysisPanel}
                         activeCitation={activeCitation}
                         onActiveTabChanged={x => onToggleTab(x, selectedAnswer)}
-                        citationHeight="810px"
+                        citationHeight="600px"
                         answer={answers[selectedAnswer][1]}
                         activeTab={activeAnalysisPanelTab}
+                        activeCitationLabel={activeCitationLabel}
+                        activeCitationContent={activeCitationContent}
+                        enableCitationTab={enableCitationTab}
                     />
                 )}
 

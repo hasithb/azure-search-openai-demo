@@ -76,7 +76,9 @@ export function Component(): JSX.Element {
     };
 
     const [activeCitation, setActiveCitation] = useState<string>();
+    const [activeCitationContent, setActiveCitationContent] = useState<string>(); // New state
     const [activeAnalysisPanelTab, setActiveAnalysisPanelTab] = useState<AnalysisPanelTabs | undefined>(undefined);
+    const [enableCitationTab, setEnableCitationTab] = useState(false);
 
     const client = useLogin ? useMsal().instance : undefined;
     const { loggedIn } = useContext(LoginContext);
@@ -166,6 +168,7 @@ export function Component(): JSX.Element {
             setAnswer(result);
             setSpeechUrls([null]);
         } catch (e) {
+            console.error("API request failed:", e);
             setError(e);
         } finally {
             setIsLoading(false);
@@ -250,19 +253,26 @@ export function Component(): JSX.Element {
         setQuestion(example);
     };
 
-    const onShowCitation = (citation: string) => {
-        if (activeCitation === citation && activeAnalysisPanelTab === AnalysisPanelTabs.CitationTab) {
-            setActiveAnalysisPanelTab(undefined);
-        } else {
-            setActiveCitation(citation);
-            setActiveAnalysisPanelTab(AnalysisPanelTabs.CitationTab);
-        }
+    const onShowCitation = (citation: string, citationContent?: string) => {
+        console.log("onShowCitation called with:", { citation, citationContent: citationContent ? "content provided" : "no content" });
+
+        // Always show supporting content tab when citation is clicked
+        setActiveCitation(citation);
+
+        // Store the full citation content, not just a preview
+        setActiveCitationContent(citationContent || "");
+        setActiveAnalysisPanelTab(AnalysisPanelTabs.SupportingContentTab);
+        setEnableCitationTab(false); // Disable citation tab by default
     };
 
     const onToggleTab = (tab: AnalysisPanelTabs) => {
         if (activeAnalysisPanelTab === tab) {
             setActiveAnalysisPanelTab(undefined);
         } else {
+            // Enable citation tab when explicitly requested
+            if (tab === AnalysisPanelTabs.CitationTab) {
+                setEnableCitationTab(true);
+            }
             setActiveAnalysisPanelTab(tab);
         }
     };
@@ -314,7 +324,7 @@ export function Component(): JSX.Element {
                             index={0}
                             speechConfig={speechConfig}
                             isStreaming={false}
-                            onCitationClicked={x => onShowCitation(x)}
+                            onCitationClicked={onShowCitation}
                             onThoughtProcessClicked={() => onToggleTab(AnalysisPanelTabs.ThoughtProcessTab)}
                             onSupportingContentClicked={() => onToggleTab(AnalysisPanelTabs.SupportingContentTab)}
                             showSpeechOutputAzure={showSpeechOutputAzure}
@@ -335,6 +345,8 @@ export function Component(): JSX.Element {
                         citationHeight="600px"
                         answer={answer}
                         activeTab={activeAnalysisPanelTab}
+                        activeCitationContent={activeCitationContent}
+                        enableCitationTab={enableCitationTab}
                     />
                 )}
             </div>

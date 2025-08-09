@@ -311,25 +311,12 @@ Here's an example of the first three JSON objects in a streaming response:
                     "{'role': 'assistant', 'content': 'There is no specific information provided about what is included in the Northwind Health Plus plan that is not in the standard plan. It is recommended to read the plan details carefully and ask questions to understand the specific benefits of the Northwind Health Plus plan [Northwind_Standard_Benefits_Details.pdf#page=91].'}",
                     "{'role': 'user', 'content': \"What is included in my Northwind Health Plus plan that is not in standard?\\n\\nSources:\\nBenefit_Options.pdf#page=3:  The plans also cover preventive care services such as mammograms, colonoscopies, and  other cancer screenings...(truncated)\\nBenefit_Options.pdf#page=3:   Both plans offer coverage for medical services. Northwind Health Plus offers coverage for hospital stays,  doctor visits,...(truncated)\\nBenefit_Options.pdf#page=3:  With Northwind Health Plus, you can choose  from a variety of in -network providers, including primary care physicians,...(truncated)\"}"
                 ],
-                "props": null
+                "props": null,
+                "title": "Prompt"
             }
         ]
     },
-    "session_state": null,
-}{
-    "delta": {
-        "content": null,
-        "function_call": null,
-        "role": "assistant",
-        "tool_calls": null
-    }
-}{
-    "delta": {
-        "content": "The",
-        "function_call": null,
-        "role": null,
-        "tool_calls": null
-    }
+    "session_state": null
 }
 ```
 
@@ -347,12 +334,12 @@ Here's an example of an error chunk:
 
 ### Answer formatting
 
-To support the display of citations, the answer from the LLM should contain source information in square brackets, such as `[info1.txt]`.
+To support the display of citations, the answer from the LLM should contain source information in square brackets using a three-part format: [subsection, source (page), document].
 
 Here's a full example of an answer with citation:
 
 ```text
-There is no specific information provided about what is included in the Northwind Health Plus plan that is not in the standard plan. It is recommended to read the plan details carefully and ask questions to understand the specific benefits of the Northwind Health Plus plan [Northwind_Standard_Benefits_Details.pdf#page=91].
+The court will make a costs capping order only in exceptional circumstances [1.1, Costs Capping (p. 1), Practice Direction 3E]. An application for a costs capping order must be made as soon as possible, preferably before or at the first case management hearing [1.2, Costs Capping (p. 1), Practice Direction 3E].
 ```
 
 ### Response context properties
@@ -469,6 +456,19 @@ The response context object can contain the following properties:
             "props": null
         },
         {
+            "title": "Prompt",
+            "description": [
+                "{'role': 'system', 'content': 'Assistant helps the company employees with their healthcare plan questions, and questions about the employee handbook. Be brief in your answers.\\n        Answer ONLY with the facts listed in the list of sources below. If there isn't enough information below, say you don't know. Do not generate answers that don't use the sources below. If asking a clarifying question to the user would help, ask the question.\\n        For tabular information return it as an html table. Do not return markdown format. If the question is not in English, answer in the language used in the question.\\n        Each source has a name followed by colon and the actual information, always include the source name for each fact you use in the response. Use square brackets to reference the source, for example [info1.txt]. Don\\'t combine sources, list each source separately, for example [info1.txt][info2.pdf].\\n        Generate 3 very brief follow-up questions that the user would likely ask next.\\n    Enclose the follow-up questions in double angle brackets. Example:\\n    <<Are there exclusions for prescriptions?>>\\n    <<Which pharmacies can be ordered from?>>\\n    <<What is the limit for over-the-counter medication?>>\\n    Do no repeat questions that have already been asked.\\n    Make sure the last question ends with \">>\".\\n    \\n        \\n        '}",
+                "{'role': 'user', 'content': 'What is included in my Northwind Health Plus plan that is not in standard?'}",
+                "{'role': 'assistant', 'content': 'The Northwind Health Plus plan includes coverage for prescription drugs, but it is important to read the plan details to determine which prescription drugs are covered and what the associated costs are [Northwind_Standard_Benefits_Details.pdf#page=91]. Additionally, employees should select in-network providers to maximize coverage and avoid unexpected costs, submit claims as soon as possible after a service is rendered, and track claims and follow up with Northwind Health if a claim is not processed in a timely manner [Northwind_Standard_Benefits_Details.pdf#page=17].\\n\\n'}",
+                "{'role': 'user', 'content': 'What is included in my Northwind Health Plus plan that is not in standard?\\n\\nSources:\\nNorthwind_Health_Plus_Benefits_Details.pdf#page=100:    \u2022 Understand your coverage limits, and know what services are  covered and what services  are not covered...(truncated)\\nNorthwind_Standard_Benefits_Details.pdf#page=17:  Employees should keep track of their claims and follow up with  Northwind Health if a claim is not processed in a timely manner...(truncated)\\nNorthwind_Health_Plus_Benefits_Details.pdf#page=24:  It is important to talk to your doctor or  health care provider..(truncated)'}"
+            ],
+            "props": null
+        }
+    ]
+    ```
+
+    The app displays these thoughts in the "Thought process" tab, available by selecting the lightbulb icon on each answer. [See image](./images/thoughts.png)
             "title": "Prompt",
             "description": [
                 "{'role': 'system', 'content': 'Assistant helps the company employees with their healthcare plan questions, and questions about the employee handbook. Be brief in your answers.\\n        Answer ONLY with the facts listed in the list of sources below. If there isn\\'t enough information below, say you don\\'t know. Do not generate answers that don\\'t use the sources below. If asking a clarifying question to the user would help, ask the question.\\n        For tabular information return it as an html table. Do not return markdown format. If the question is not in English, answer in the language used in the question.\\n        Each source has a name followed by colon and the actual information, always include the source name for each fact you use in the response. Use square brackets to reference the source, for example [info1.txt]. Don\\'t combine sources, list each source separately, for example [info1.txt][info2.pdf].\\n        Generate 3 very brief follow-up questions that the user would likely ask next.\\n    Enclose the follow-up questions in double angle brackets. Example:\\n    <<Are there exclusions for prescriptions?>>\\n    <<Which pharmacies can be ordered from?>>\\n    <<What is the limit for over-the-counter medication?>>\\n    Do no repeat questions that have already been asked.\\n    Make sure the last question ends with \">>\".\\n    \\n        \\n        '}",

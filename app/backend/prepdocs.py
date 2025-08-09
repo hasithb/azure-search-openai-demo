@@ -115,7 +115,7 @@ def setup_list_file_strategy(
             data_lake_storage_account=datalake_storage_account,
             data_lake_filesystem=datalake_filesystem,
             data_lake_path=datalake_path,
-            credential=adls_gen2_creds,
+            credential=adls_gen2_creeds,
         )
     elif local_files:
         logger.info("Using local files: %s", local_files)
@@ -397,7 +397,7 @@ if __name__ == "__main__":
     elif not openai_host.startswith("azure") and os.getenv("OPENAI_API_KEY"):
         openai_key = os.getenv("OPENAI_API_KEY")
 
-    openai_dimensions = 1536
+    openai_dimensions = 3072  # Updated default to match text-embedding-3-large
     if os.getenv("AZURE_OPENAI_EMB_DIMENSIONS"):
         openai_dimensions = int(os.environ["AZURE_OPENAI_EMB_DIMENSIONS"])
     openai_embeddings_service = setup_embeddings_service(

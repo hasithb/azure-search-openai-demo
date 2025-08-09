@@ -1,5 +1,13 @@
 # RAG chat: Debugging the app on App Service
 
+**If you see a 500 error after deployment:**
+- Wait 10 minutes after deployment.
+- Check deployment logs in "Deployment Center" > "Logs".
+- Check application logs in "Advanced Tools" (Kudu) > Download Docker logs.
+- Check Azure Monitor/Application Insights for exceptions.
+- Redeploy with `azd deploy` if needed.
+- See details below for each step.
+
 When you run `azd up` or `azd deploy`, it deploys your application to App Service,
 and displays the deployed endpoint in the console.
 
@@ -112,7 +120,7 @@ Running pip install...
 [19:21:36+0000]   Downloading azure_common-1.1.28-py2.py3-none-any.whl (14 kB)
 [19:21:36+0000] Collecting azure-core==1.29.7 (from -r requirements.txt (line 27))
 [19:21:36+0000]   Obtaining dependency information for azure-core==1.29.7 from https://files.pythonhosted.org/packages/ff/29/dbc7182bc207530c7b5858d59f429158465f878845d64a038afc1aa61e35/azure_core-1.29.7-py3-none-any.whl.metadata
-[19:21:36+0000]   Downloading azure_core-1.29.7-py3-none-any.whl.metadata (36 kB)
+[19:21:36+0000]   Downloading azure_core-1.29.7-py-none-any.whl.metadata (36 kB)
 [19:21:36+0000] Collecting azure-core-tracing-opentelemetry==1.0.0b11 (from -r requirements.txt (line 37))
 [19:21:36+0000]   Obtaining dependency information for azure-core-tracing-opentelemetry==1.0.0b11 from https://files.pythonhosted.org/packages/e6/6e/3ef6dfba8e0faa4692caa6d103c721ccba6ac37a24744848a3a10bb3fe89/azure_core_tracing_opentelemetry-1.0.0b11-py3-none-any.whl.metadata
 [19:21:36+0000]   Downloading azure_core_tracing_opentelemetry-1.0.0b11-py3-none-any.whl.metadata (8.5 kB)
