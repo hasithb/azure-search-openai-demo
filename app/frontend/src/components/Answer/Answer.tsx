@@ -132,8 +132,13 @@ export const Answer = ({
         return [];
     };
 
+    type ParsedCitationLabel =
+        | { kind: "full"; subsection: string; sourcePage: string; sourceFile: string }
+        | { kind: "two"; partA: string; partB: string }
+        | { kind: "single"; single: string };
+
     // Parse citation label into stable parts (handles commas in sourcepage/sourcefile)
-    const parseCitationLabel = (citation: string) => {
+    const parseCitationLabel = (citation: string): ParsedCitationLabel => {
         const parts = citation
             .split(",")
             .map(p => p.trim())
@@ -141,20 +146,22 @@ export const Answer = ({
 
         if (parts.length >= 3) {
             return {
-                subsection: parts[0],
-                sourcePage: parts.slice(1, -1).join(", "),
-                sourceFile: parts[parts.length - 1]
+                kind: "full",
+                subsection: parts[0] ?? "",
+                sourcePage: parts.slice(1, -1).join(", ") || "",
+                sourceFile: parts[parts.length - 1] ?? ""
             };
         }
 
         if (parts.length === 2) {
             return {
-                partA: parts[0],
-                partB: parts[1]
+                kind: "two",
+                partA: parts[0] ?? "",
+                partB: parts[1] ?? ""
             };
         }
 
-        return { single: citation };
+        return { kind: "single", single: citation };
     };
 
     // Enhanced function to find matching content for a citation
@@ -179,7 +186,7 @@ export const Answer = ({
             };
 
             // Three-part citations: subsection, sourcePage, sourceFile
-            if ("subsection" in parsedCitation && "sourcePage" in parsedCitation && "sourceFile" in parsedCitation) {
+            if (parsedCitation.kind === "full") {
                 const { subsection, sourcePage, sourceFile } = parsedCitation;
 
                 // 0) Exact match on all three (subsection_id + sourcepage + sourcefile)
@@ -255,7 +262,7 @@ export const Answer = ({
             }
 
             // Two-part legacy citations
-            if ("partA" in parsedCitation && "partB" in parsedCitation) {
+            if (parsedCitation.kind === "two") {
                 const { partA, partB } = parsedCitation;
                 const twoPartExact = dataPointsArray.find(dp => {
                     const dpSourcepage = String(dp.sourcepage || "").trim();
@@ -329,7 +336,7 @@ export const Answer = ({
                     // Build normalized label strictly from citation parts + index fields
                     let normalizedLabel = citationText;
                     const parsedCitation = parseCitationLabel(citationText);
-                    if ("subsection" in parsedCitation && "sourcePage" in parsedCitation && "sourceFile" in parsedCitation) {
+                    if (parsedCitation.kind === "full") {
                         const { subsection, sourcePage, sourceFile } = parsedCitation;
                         normalizedLabel = [subsection, sourcePage, sourceFile].filter(Boolean).join(", ");
                     } else if (matchingSupportingContent) {
@@ -424,7 +431,7 @@ export const Answer = ({
                             let sourcePage = "";
                             let sourceFile = "";
 
-                            if ("subsection" in parsedCitation && "sourcePage" in parsedCitation && "sourceFile" in parsedCitation) {
+                            if (parsedCitation.kind === "full") {
                                 subsection = parsedCitation.subsection;
                                 sourcePage = parsedCitation.sourcePage;
                                 sourceFile = parsedCitation.sourceFile;
