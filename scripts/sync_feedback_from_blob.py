@@ -19,7 +19,7 @@ from azure.storage.blob.aio import ContainerClient
 from azure.storage.filedatalake.aio import FileSystemClient
 
 # Local sync directory
-SYNC_DIR = Path(__file__).parent.parent / "feedback_blob_sync"
+SYNC_DIR = Path(__file__).parent.parent / "data" / "feedback_blob_sync"
 
 
 def load_azd_env():

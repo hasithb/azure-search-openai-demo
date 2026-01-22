@@ -96,7 +96,7 @@ async def submit_feedback():
 
         # 1. Save locally (User requested "folder in this repo")
         if deployment_id == "local" or not current_app.config.get(CONFIG_USER_BLOB_CONTAINER_CLIENT):
-            local_folder = os.path.join(os.getcwd(), "feedback_data", deployment_id)
+            local_folder = os.path.join(os.getcwd(), "data", "feedback_data", deployment_id)
             os.makedirs(local_folder, exist_ok=True)
             local_path = os.path.join(local_folder, f"{timestamp}_{message_id}.json")
             with open(local_path, "w", encoding="utf-8") as f:

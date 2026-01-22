@@ -66,7 +66,7 @@ async def check_blob_storage_feedback():
         
         # Check local feedback files
         print("\n📁 LOCAL FEEDBACK FILES:")
-        local_path = os.path.join(os.getcwd(), "feedback_data")
+        local_path = os.path.join(os.getcwd(), "data", "feedback_data")
         if os.path.exists(local_path):
             for root, dirs, files in os.walk(local_path):
                 for file in files:

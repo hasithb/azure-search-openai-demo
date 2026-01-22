@@ -95,15 +95,15 @@ echo ""
 echo "📁 Test 3: Verifying local storage"
 echo ""
 
-if [ -d "feedback_data" ]; then
-    echo "   ✅ feedback_data directory created"
+if [ -d "data/feedback_data" ]; then
+    echo "   ✅ data/feedback_data directory created"
     
-    FILE_COUNT=$(find feedback_data -name "*.json" 2>/dev/null | wc -l)
+    FILE_COUNT=$(find data/feedback_data -name "*.json" 2>/dev/null | wc -l)
     if [ "$FILE_COUNT" -gt 0 ]; then
         echo "   ✅ $FILE_COUNT feedback file(s) saved locally"
         
         # Show sample of first file
-        FIRST_FILE=$(find feedback_data -name "*.json" -type f 2>/dev/null | head -1)
+        FIRST_FILE=$(find data/feedback_data -name "*.json" -type f 2>/dev/null | head -1)
         if [ -n "$FIRST_FILE" ]; then
             echo ""
             echo "   📄 Sample saved feedback (first file):"
@@ -118,7 +118,7 @@ if [ -d "feedback_data" ]; then
         echo "   ⚠️  No feedback files found yet"
     fi
 else
-    echo "   ⚠️  feedback_data directory not created (expected for first run)"
+    echo "   ⚠️  data/feedback_data directory not created (expected for first run)"
 fi
 
 echo ""
