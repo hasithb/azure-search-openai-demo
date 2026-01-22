@@ -5,6 +5,16 @@
 cd "${0%/*}" || exit 1
 
 cd ../
+
+# Load environment variables from .env (repo root)
+if [ -f .env ]; then
+    set -a
+    . ./.env
+    set +a
+fi
+
+# Prevent azd env from overriding local .env values
+export LOADING_MODE_FOR_AZD_ENV_VARS="no-override"
 echo 'Creating python virtual environment ".venv"'
 if command -v python3.11 >/dev/null 2>&1; then
     python3.11 -m venv .venv

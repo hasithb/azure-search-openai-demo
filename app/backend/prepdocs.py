@@ -105,9 +105,8 @@ def setup_blob_manager(
         container=storage_container,
         account=storage_account,
         credential=storage_creds,
-        resourceGroup=storage_resource_group,
-        subscriptionId=subscription_id,
-        store_page_images=search_images,
+        resource_group=storage_resource_group,
+        subscription_id=subscription_id,
     )
 
 

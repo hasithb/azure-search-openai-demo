@@ -141,8 +141,13 @@ export function extractSubsectionContent(fullContent: string, targetSubsection: 
     console.log("Extracting subsection:", targetSubsection, "from content length:", fullContent.length);
 
     // Enhanced patterns to find the target subsection with more flexibility
+    // Handles markdown headings (## 35.1), breadcrumbs ([PART 35 > 35.1]), and bare text
     const escapedSubsection = escapeRegExp(targetSubsection);
     const patterns = [
+        // Markdown heading format: ## 35.1 or ### A.1
+        new RegExp(`(^|\\n)\\s*#{1,6}\\s*${escapedSubsection}\\s*(\\n|\\s|$)`, "i"),
+        // Breadcrumb format: [PART 35 > 35.1] or [CPR > 35.1]
+        new RegExp(`(^|\\n)\\s*\\[[^\\]]*>\\s*${escapedSubsection}\\s*\\]\\s*(\\n|\\s|$)`, "i"),
         // Exact match at start of line or after newline
         new RegExp(`(^|\\n)\\s*${escapedSubsection}\\s*(\\n|\\s|$)`, "i"),
         // Match with optional formatting and punctuation
@@ -178,7 +183,14 @@ export function extractSubsectionContent(fullContent: string, targetSubsection: 
     const startIndex = (targetMatch.index ?? 0) + (localStartOffset >= 0 ? localStartOffset : targetMatch[1] ? targetMatch[1].length : 0);
 
     // Enhanced patterns for finding the next subsection/title/divider boundary
+    // Includes markdown headings (## subsection) and breadcrumbs ([PART X > subsection])
     const nextSubsectionPatterns = [
+        // Markdown headings: ## 1.1, ### A.1, # Chapter 1
+        /\n\s*(#{1,6}\s+(?:[A-Z]\.?\d+|[A-Z]\.?\s+[A-Z][a-z]+|\d+\.\d+|Rule\s+\d+|Chapter\s+\d+|Section\s+\d+|Part\s+\d+))/i,
+
+        // Breadcrumb format: [PART 35 > 35.1], [CPR > A.1]
+        /\n\s*(\[[^\]]+>\s*(?:[A-Z]\.?\d+|[A-Z]\.?\s+[A-Z][a-z]+|\d+\.\d+)\])/i,
+
         // Letter-Dot-Word patterns (A. Preliminary, B. Commencement)
         /\n\s*([A-Z]\.?\s+[A-Z][a-z]+)/i,
 
@@ -247,7 +259,15 @@ export function extractSubsectionContent(fullContent: string, targetSubsection: 
 }
 
 function escapeRegExp(string: string): string {
-    return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const parts = string
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean)
+        .map(part => part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+    if (parts.length === 0) {
+        return "";
+    }
+    return parts.join("[\\s_]+");
 }
 
 export function parseSubsectionFromCitation(citation: string): string | null {

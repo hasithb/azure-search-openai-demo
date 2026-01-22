@@ -60,7 +60,8 @@ async def get_search_client():
     
     env = load_azd_env()
     search_service = env.get("AZURE_SEARCH_SERVICE", "cpr-rag")
-    search_index = env.get("AZURE_SEARCH_INDEX", "legal-court-rag-index")
+    # Use v2 index for evaluation with subsection fields
+    search_index = env.get("AZURE_SEARCH_INDEX", "legal-court-rag-index-v2")
     
     endpoint = f"https://{search_service}.search.windows.net"
     
@@ -80,8 +81,9 @@ async def get_openai_client():
     
     env = load_azd_env()
     endpoint = env.get("AZURE_OPENAI_ENDPOINT", "")
-    # Use eval deployment or fallback to chat deployment
-    deployment = env.get("AZURE_OPENAI_EVAL_DEPLOYMENT") or env.get("AZURE_OPENAI_CHATGPT_DEPLOYMENT", "gpt-4o")
+    # Use searchagent deployment for evaluation (not reasoning model)
+    # searchagent uses gpt-4.1-mini which produces text responses
+    deployment = env.get("AZURE_OPENAI_SEARCHAGENT_DEPLOYMENT") or env.get("AZURE_OPENAI_EVAL_DEPLOYMENT") or env.get("AZURE_OPENAI_CHATGPT_DEPLOYMENT", "gpt-4o")
     api_version = env.get("AZURE_OPENAI_API_VERSION", "2024-12-01-preview")
     
     credential = DefaultAzureCredential()
@@ -93,6 +95,8 @@ async def get_openai_client():
         azure_endpoint=endpoint,
         api_version=api_version,
         azure_ad_token_provider=token_provider,
+        timeout=60.0,
+        max_retries=2,
     )
     
     return client, deployment, credential
@@ -186,17 +190,31 @@ Provide a detailed answer. You MUST include:
 - Source documents in [Document Name] format"""
 
     try:
-        response = await openai_client.chat.completions.create(
-            model=deployment,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt},
-            ],
-            max_completion_tokens=1000,
-        )
-        raw_response = response.choices[0].message.content
+        # NOTE: Using searchagent (gpt-4.1-mini) deployment for evaluation
+        # Standard chat model - 1000 tokens is sufficient for legal answers
+        response = None
+        for attempt in range(3):
+            try:
+                response = await asyncio.wait_for(
+                    openai_client.chat.completions.create(
+                        model=deployment,
+                        messages=[
+                            {"role": "system", "content": system_prompt},
+                            {"role": "user", "content": user_prompt},
+                        ],
+                        max_completion_tokens=1000,
+                    ),
+                    timeout=120,
+                )
+                break
+            except asyncio.TimeoutError:
+                if attempt == 2:
+                    raise
+                await asyncio.sleep(2 * (attempt + 1))
+
+        raw_response = response.choices[0].message.content if response and response.choices else None
         # Post-process to fix citation format issues
-        return fix_citation_format(raw_response)
+        return fix_citation_format(raw_response) if raw_response else ""
     except Exception as e:
         console.print(f"[red]OpenAI error: {e}[/red]")
         return f"Error: {e}"
@@ -689,6 +707,9 @@ def compute_summary(results: list[dict]) -> dict:
 async def run_evaluation(
     ground_truth_path: Path,
     max_entries: int = None,
+    timeout_seconds: int = 120,
+    output_path: Path | None = None,
+    concurrency: int = 5,
 ) -> dict[str, Any]:
     """Run full evaluation against Azure services."""
     
@@ -716,17 +737,42 @@ async def run_evaluation(
         console=console,
     ) as progress:
         task = progress.add_task(f"Evaluating {len(entries)} entries...", total=len(entries))
-        
-        for i, entry in enumerate(entries):
+
+        async def process_entry(i: int, entry: dict) -> dict[str, Any]:
             try:
-                result = await evaluate_single_entry(
-                    search_client, openai_client, deployment, entry
+                return await asyncio.wait_for(
+                    evaluate_single_entry(search_client, openai_client, deployment, entry),
+                    timeout=timeout_seconds,
                 )
-                results.append(result)
-                progress.update(task, advance=1, description=f"Evaluated {i+1}/{len(entries)}")
+            except asyncio.TimeoutError:
+                console.print(f"[red]Timeout on entry {i} after {timeout_seconds}s[/red]")
+                return {
+                    "question": entry["question"][:50],
+                    "source_type": entry.get("source_type", "Unknown"),
+                    "category": entry.get("category", "Unknown"),
+                    "error": f"timeout after {timeout_seconds}s",
+                    "statute_citation_accuracy": -1,
+                    "legal_terminology_accuracy": -1,
+                    "citation_format_compliance": -1,
+                    "precedent_matching": -1,
+                    "has_citation": False,
+                }
+            except asyncio.CancelledError:
+                console.print(f"[red]Cancelled on entry {i} after {timeout_seconds}s[/red]")
+                return {
+                    "question": entry["question"][:50],
+                    "source_type": entry.get("source_type", "Unknown"),
+                    "category": entry.get("category", "Unknown"),
+                    "error": f"cancelled after {timeout_seconds}s",
+                    "statute_citation_accuracy": -1,
+                    "legal_terminology_accuracy": -1,
+                    "citation_format_compliance": -1,
+                    "precedent_matching": -1,
+                    "has_citation": False,
+                }
             except Exception as e:
                 console.print(f"[red]Error on entry {i}: {e}[/red]")
-                results.append({
+                return {
                     "question": entry["question"][:50],
                     "source_type": entry.get("source_type", "Unknown"),
                     "category": entry.get("category", "Unknown"),
@@ -736,7 +782,29 @@ async def run_evaluation(
                     "citation_format_compliance": -1,
                     "precedent_matching": -1,
                     "has_citation": False,
-                })
+                }
+
+        semaphore = asyncio.Semaphore(max(1, concurrency))
+
+        async def bounded_process(i: int, entry: dict) -> dict[str, Any]:
+            async with semaphore:
+                return await process_entry(i, entry)
+
+        tasks = [asyncio.create_task(bounded_process(i, entry)) for i, entry in enumerate(entries)]
+        completed = 0
+        for coro in asyncio.as_completed(tasks):
+            result = await coro
+            results.append(result)
+            completed += 1
+            progress.update(task, advance=1, description=f"Evaluated {completed}/{len(entries)}")
+            if output_path:
+                output_path.parent.mkdir(exist_ok=True)
+                with open(output_path, "w") as f:
+                    json.dump({
+                        "type": "direct_evaluation",
+                        "summary": compute_summary(results),
+                        "detailed_results": results,
+                    }, f, indent=2)
     
     # Cleanup
     await search_cred.close()
@@ -838,6 +906,18 @@ async def main():
         default="results/direct_evaluation_results.json",
         help="Output file path",
     )
+    parser.add_argument(
+        "--timeout-seconds",
+        type=int,
+        default=120,
+        help="Per-entry timeout in seconds",
+    )
+    parser.add_argument(
+        "--concurrency",
+        type=int,
+        default=5,
+        help="Maximum concurrent evaluations",
+    )
     
     args = parser.parse_args()
     
@@ -846,10 +926,15 @@ async def main():
         console.print(f"[red]Ground truth not found: {ground_truth_path}[/red]")
         sys.exit(1)
     
-    results = await run_evaluation(ground_truth_path, args.max_entries)
-    
-    # Save results
     output_path = Path(__file__).parent / args.output
+    results = await run_evaluation(
+        ground_truth_path,
+        args.max_entries,
+        args.timeout_seconds,
+        output_path,
+        args.concurrency,
+    )
+    # Save results
     output_path.parent.mkdir(exist_ok=True)
     with open(output_path, "w") as f:
         json.dump(results, f, indent=2)

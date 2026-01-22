@@ -185,14 +185,27 @@ class TestStatuteCitationAccuracyMetric:
         
         # Extract statutes
         for match in STATUTE_REGEX.finditer(text):
-            section = match.group(1)
-            subsection = match.group(2) or ""
-            act_name = match.group(3).strip()
+            if match.group(3):
+                # Pattern 1 matches: Section X of Act Y
+                section = match.group(1)
+                subsection = match.group(2) or ""
+                act_name = match.group(3).strip()
+            elif match.group(4):
+                # Pattern 2 matches: Act Y, Section X
+                act_name = match.group(4).strip()
+                section = match.group(5) or ""
+                subsection = ""
+            else:
+                continue
+
             normalized_act = re.sub(r'\s+', '_', act_name.upper())
-            normalized = f"S{section}"
-            if subsection:
-                normalized += f"({subsection})"
-            normalized += f"_{normalized_act}"
+            normalized = ""
+            if section:
+                normalized = f"S{section}"
+                if subsection:
+                    normalized += f"({subsection})"
+                normalized += "_"
+            normalized += normalized_act
             refs.add(normalized)
         
         return refs

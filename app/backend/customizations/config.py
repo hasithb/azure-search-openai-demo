@@ -18,6 +18,12 @@ CUSTOM_FEATURES = {
     
     # Enhanced feedback with deployment metadata and thought filtering
     "enhanced_feedback": True,
+
+    # Force agentic retrieval to always query sources when initial attempt returns no references
+    "agentic_force_query_on_empty": True,
+
+    # Fallback to direct search using agentic query plan when references are missing
+    "agentic_fallback_search": True,
 }
 
 # Security Configuration

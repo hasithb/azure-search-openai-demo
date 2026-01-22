@@ -305,7 +305,7 @@
             },
             {
               "name": "AZURE_SEARCH_INDEX",
-              "value": "legal-court-rag-index"
+              "value": "legal-court-rag-index-v2"
             },
             {
               "name": "AZURE_SEARCH_QUERY_LANGUAGE",

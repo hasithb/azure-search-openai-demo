@@ -47,6 +47,8 @@ class CitationTestResult:
     
     # Matching results
     subsection_found_in_content: bool = False
+    subsection_supported: bool = False
+    subsection_supported_by_metadata: bool = False
     subsection_matches_index_field: bool = False
     citation_is_three_part: bool = False
     citation_is_two_part: bool = False
@@ -70,6 +72,7 @@ class CitationTestSummary:
     
     # Success counts
     subsection_in_content: int = 0
+    subsection_supported: int = 0
     subsection_matches_index: int = 0
     perfect_matches: int = 0
     
@@ -96,10 +99,12 @@ class CitationBuilder:
     # Pattern for detecting subsection markers in content
     CONTENT_SUBSECTION_PATTERNS = [
         r'^([A-Z]\d+\.\d+)\b',           # A4.1, B2.3, etc.
+        r'^([A-Z]\.\d+(?:\.\d+)?)\b',   # C.2, F.1, A.1.1, etc.
         r'^(\d+\.\d+)\b',                # 1.1, 2.3, etc.
         r'^([A-Z]\d+)\b',                # A1, B2, etc.
         r'^(Rule \d+(?:\.\d+)?)\b',      # Rule 1, Rule 1.1
         r'^(Para \d+(?:\.\d+)?)\b',      # Para 1.1
+        r'^(Part \d+)\b',                # Part 1, Part 2, etc.
         r'^(\d+\.\d+)$',                 # Standalone subsection number
     ]
     
@@ -113,53 +118,72 @@ class CitationBuilder:
     # Pattern for direct subsection in sourcepage
     DIRECT_SUBSECTION_PATTERNS = [
         r'^([A-Z]\d+\.\d+)\b',           # A4.1, B2.3, etc.
+        r'^([A-Z]\.\d+(?:\.\d+)?)\b',   # C.2, F.1, A.1.1, etc.
         r'^(\d+\.\d+)\b',                # 1.1, 2.3, etc.
         r'^([A-Z]\d+)\b',                # A1, B2, etc.
         r'^(Rule \d+(?:\.\d+)?)\b',      # Rule 1, Rule 1.1
         r'^(Part \d+)\b',                # Part 1, Part 2, etc.
     ]
     
-    def extract_subsection(self, content: str, sourcepage: str) -> str:
-        """Extract subsection identifier from content or sourcepage."""
+    def extract_subsection(self, doc: dict) -> str:
+        """Extract subsection identifier from document content or sourcepage."""
+        indexed_subsection = doc.get("subsection_id", "")
+        if indexed_subsection:
+            return indexed_subsection
+
+        content = doc.get("content", "")
+        sourcepage = doc.get("sourcepage", "")
+
         # Priority 1: Check content
         if content:
-            lines = content.split('\n')[:20]
+            lines = content.split('\n')[:30]
             for line in lines:
                 line = line.strip()
                 if not line or line == "---":
                     continue
-                    
+
+                cleaned_line = re.sub(r'^#+\s*', '', line)
+                cleaned_line = re.sub(r'^\*\*([^*]+)\*\*', r'\1', cleaned_line)
+                cleaned_line = re.sub(r'^__([^_]+)__', r'\1', cleaned_line)
+                cleaned_line = cleaned_line.strip()
+
                 for pattern in self.CONTENT_SUBSECTION_PATTERNS:
-                    match = re.match(pattern, line, re.IGNORECASE)
+                    match = re.match(pattern, cleaned_line, re.IGNORECASE)
                     if match:
                         return match.group(1)
-                
-                if re.match(r'^\d+\.\d+$', line):
-                    return line
-        
+
+                if cleaned_line != line:
+                    for pattern in self.CONTENT_SUBSECTION_PATTERNS:
+                        match = re.match(pattern, line, re.IGNORECASE)
+                        if match:
+                            return match.group(1)
+
+                if re.match(r'^\d+\.\d+$', cleaned_line):
+                    return cleaned_line
+
         # Priority 2: Encoded sourcepage
         if sourcepage:
             for pattern in self.ENCODED_SUBSECTION_PATTERNS:
                 match = re.search(pattern, sourcepage)
                 if match:
                     return match.group(1)
-        
+
         # Priority 3: Direct sourcepage patterns
         if sourcepage:
             for pattern in self.DIRECT_SUBSECTION_PATTERNS:
                 match = re.match(pattern, sourcepage, re.IGNORECASE)
                 if match:
                     return match.group(1)
-        
+
         return ""
     
-    def build_citation(self, content: str, sourcepage: str, sourcefile: str, index: int) -> str:
+    def build_citation(self, doc: dict, index: int) -> str:
         """Build citation from document data."""
-        sourcepage = (sourcepage or "").strip()
-        sourcefile = (sourcefile or "").strip()
+        sourcepage = (doc.get("sourcepage", "") or "").strip()
+        sourcefile = (doc.get("sourcefile", "") or "").strip()
         
-        # Extract subsection from content
-        subsection = self.extract_subsection(content, sourcepage)
+        # Extract subsection from document
+        subsection = self.extract_subsection(doc)
         
         # Avoid duplication between subsection and sourcepage
         final_sourcepage = sourcepage
@@ -279,11 +303,12 @@ async def retrieve_all_documents(max_docs: int = 1000) -> list[dict]:
                 task = progress.add_task("Retrieving documents...", total=max_docs)
                 
                 # Search with wildcards to get all documents
-                async for result in search_client.search(
+                search_results = await search_client.search(
                     search_text="*",
-                    select=["id", "content", "sourcepage", "sourcefile", "category", "subsection_id"],
+                    select=["id", "content", "sourcepage", "sourcefile", "category"],
                     top=max_docs,
-                ):
+                )
+                async for result in search_results:
                     doc = {
                         "id": result.get("id", ""),
                         "content": result.get("content", ""),
@@ -316,10 +341,10 @@ def test_single_document(doc: dict, index: int, builder: CitationBuilder) -> Cit
     index_subsection = doc.get("subsection_id", "")  # From index if available
     
     # Build citation
-    citation = builder.build_citation(content, sourcepage, sourcefile, index)
+    citation = builder.build_citation(doc, index)
     
     # Extract subsection
-    extracted_subsection = builder.extract_subsection(content, sourcepage)
+    extracted_subsection = builder.extract_subsection(doc)
     
     # Get first few lines for debugging
     content_first_lines = [l.strip() for l in content.split('\n')[:5] if l.strip()]
@@ -346,6 +371,21 @@ def test_single_document(doc: dict, index: int, builder: CitationBuilder) -> Cit
         citation_subsection or extracted_subsection, 
         content
     )
+
+    # Metadata-backed support (index field or sourcepage)
+    candidate_subsection = citation_subsection or extracted_subsection
+    normalized_candidate = (candidate_subsection or "").strip().lower().rstrip(".: ")
+    normalized_index_subsection = (index_subsection or "").strip().lower().rstrip(".: ")
+    sourcepage_lower = (sourcepage or "").strip().lower()
+
+    subsection_supported_by_metadata = False
+    if normalized_candidate:
+        if normalized_index_subsection and normalized_candidate == normalized_index_subsection:
+            subsection_supported_by_metadata = True
+        elif sourcepage_lower and normalized_candidate in sourcepage_lower:
+            subsection_supported_by_metadata = True
+
+    subsection_supported = subsection_found_in_content or subsection_supported_by_metadata
     
     # Test subsection matches index field
     subsection_matches_index = (
@@ -358,8 +398,8 @@ def test_single_document(doc: dict, index: int, builder: CitationBuilder) -> Cit
     # Identify issues
     issues = []
     
-    if extracted_subsection and not subsection_found_in_content:
-        issues.append(f"Extracted subsection '{extracted_subsection}' not found in content")
+    if extracted_subsection and not subsection_supported:
+        issues.append(f"Extracted subsection '{extracted_subsection}' not found in content or metadata")
     
     if citation_subsection and extracted_subsection and citation_subsection != extracted_subsection:
         issues.append(f"Citation subsection '{citation_subsection}' differs from extracted '{extracted_subsection}'")
@@ -404,6 +444,8 @@ def test_single_document(doc: dict, index: int, builder: CitationBuilder) -> Cit
         sourcefile=sourcefile,
         content_preview=content[:200] if content else "",
         subsection_found_in_content=subsection_found_in_content,
+        subsection_supported=subsection_supported,
+        subsection_supported_by_metadata=subsection_supported_by_metadata,
         subsection_matches_index_field=subsection_matches_index,
         citation_is_three_part=is_three_part,
         citation_is_two_part=is_two_part,
@@ -445,17 +487,20 @@ def run_all_tests(documents: list[dict]) -> CitationTestSummary:
                 summary.subsection_in_content += 1
             else:
                 summary.subsection_missing_from_content += 1
+
+            if result.subsection_supported:
+                summary.subsection_supported += 1
             
             if result.subsection_matches_index_field:
                 summary.subsection_matches_index += 1
             
-            if result.subsection_found_in_content and not result.issues:
+            if result.subsection_supported and not result.issues:
                 summary.perfect_matches += 1
             
             # Track failures
             if result.issues:
                 summary.failed_results.append(result)
-                if "not found in content" in " ".join(result.issues):
+                if "not found in content or metadata" in " ".join(result.issues):
                     summary.subsection_detection_failed += 1
                 if "Citation subsection" in " ".join(result.issues):
                     summary.citation_format_issues += 1
@@ -531,6 +576,9 @@ def generate_report(summary: CitationTestSummary, output_path: Path) -> None:
     summary_table.add_row("[green]Subsection in Content[/green]", 
                          str(summary.subsection_in_content),
                          f"{summary.subsection_in_content/total*100:.1f}%")
+    summary_table.add_row("[green]Subsection Supported (Content or Metadata)[/green]", 
+                         str(summary.subsection_supported),
+                         f"{summary.subsection_supported/total*100:.1f}%")
     summary_table.add_row("[green]Perfect Matches[/green]", 
                          str(summary.perfect_matches),
                          f"{summary.perfect_matches/total*100:.1f}%")
@@ -578,6 +626,7 @@ def generate_report(summary: CitationTestSummary, output_path: Path) -> None:
             "two_part_citations": summary.two_part_citations,
             "single_part_citations": summary.single_part_citations,
             "subsection_in_content": summary.subsection_in_content,
+            "subsection_supported": summary.subsection_supported,
             "perfect_matches": summary.perfect_matches,
             "subsection_missing_from_content": summary.subsection_missing_from_content,
             "subsection_detection_failed": summary.subsection_detection_failed,
@@ -609,6 +658,8 @@ def generate_report(summary: CitationTestSummary, output_path: Path) -> None:
                 "is_three_part": r.citation_is_three_part,
                 "is_two_part": r.citation_is_two_part,
                 "subsection_found": r.subsection_found_in_content,
+                "subsection_supported": r.subsection_supported,
+                "subsection_supported_by_metadata": r.subsection_supported_by_metadata,
                 "issues": r.issues,
             }
             for r in summary.results

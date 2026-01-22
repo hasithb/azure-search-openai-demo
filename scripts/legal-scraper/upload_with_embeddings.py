@@ -22,9 +22,15 @@ from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_excep
 
 # Add scripts to path
 script_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, script_dir)
+backend_dir = os.path.join(script_dir, '../../app/backend')
 
+# Import from local scripts first
+sys.path.insert(0, script_dir)
 from config import Config
+
+# Then add backend to path for customizations
+sys.path.insert(0, backend_dir)
+from customizations.subsection_extractor import SubsectionExtractor
 
 # Set up logging
 logging.basicConfig(
@@ -163,18 +169,102 @@ def map_document_to_schema(doc: dict) -> dict:
     content = doc.get("content", "")
     if isinstance(content, list):
         content = "\n".join(content)
+
+    sourcepage = doc.get("sourcepage", "")
+    sourcefile = doc.get("sourcefile", "")
+    category = doc.get("category", "Legal Document")
+
+    def has_existing_header(text: str) -> bool:
+        if not text:
+            return False
+        head = [line.strip() for line in text.splitlines()[:6] if line.strip()]
+        if any(line.startswith("SOURCE:") or line.startswith("SOURCEPAGE:") or line.startswith("SECTION:") for line in head):
+            return True
+        if any(line.startswith("[PART") or (line.startswith("[") and ">" in line) for line in head):
+            return True
+        return False
+
+    def extract_parent_section_from_sourcepage(value: str) -> str:
+        if not value:
+            return ""
+        raw = value.strip()
+        # Use first comma-delimited segment if it looks like a section label
+        first_segment = raw.split(",", 1)[0].strip()
+        if re.match(r"^[A-Z]\.", first_segment) or re.match(r"^(Section|Appendix|Part|Practice Direction)\b", first_segment, re.IGNORECASE):
+            return first_segment
+
+        patterns = [
+            r"\b(Practice Direction\s+[0-9A-Z]+)\b",
+            r"\b(Part\s+\d+[A-Z]?)\b",
+            r"\b(Section\s+\d+)\b",
+            r"\b(Appendix\s+[A-Z])\b",
+            r"\b([A-Z]\.\s+[^,]+)\b",
+        ]
+        for pattern in patterns:
+            match = re.search(pattern, raw, re.IGNORECASE)
+            if match:
+                return match.group(1).strip()
+        return ""
+
+    def extract_subsection_from_sourcepage(value: str) -> str:
+        if not value:
+            return ""
+        raw = value.strip()
+        patterns = [
+            r"\b([A-Z]\.\d+(?:\.\d+)?)\b",  # C.2, F.1, A.1.1
+            r"\b([A-Z]\d+\.\d+(?:\.\d+)?)\b",  # A4.1, B2.3
+            r"\b(\d+\.\d+(?:\.\d+)?)\b",  # 8.4, 35.1
+            r"\b([A-Z]\d+)\b",  # A1, B2
+        ]
+        for pattern in patterns:
+            match = re.search(pattern, raw, re.IGNORECASE)
+            if match:
+                return match.group(1).strip()
+        return ""
+    
+    # Extract subsections for accurate citation navigation
+    extracted_subsection = SubsectionExtractor.extract_first_subsection(content)
+    extracted_subsections = SubsectionExtractor.extract_all_subsections(content)
+
+    derived_subsection = extract_subsection_from_sourcepage(sourcepage)
+    parent_section = extract_parent_section_from_sourcepage(sourcepage)
+
+    subsection_id = extracted_subsection or derived_subsection or parent_section or ""
+    subsections = list(extracted_subsections)
+    if subsection_id and subsection_id not in subsections:
+        subsections.insert(0, subsection_id)
+
+    # Prepend structured header if missing to improve citation highlight reliability
+    if content and not has_existing_header(content):
+        header_lines = []
+        if sourcefile:
+            header_lines.append(f"SOURCE: {sourcefile}")
+        if sourcepage:
+            header_lines.append(f"SOURCEPAGE: {sourcepage}")
+        if category:
+            header_lines.append(f"CATEGORY: {category}")
+        if parent_section and parent_section != subsection_id:
+            header_lines.append(f"SECTION: {parent_section}")
+        if subsection_id:
+            header_lines.append(f"## {subsection_id}")
+
+        if header_lines:
+            content = "\n".join(header_lines) + "\n\n" + content
         
     return {
         "id": sanitized_id,
         "content": content,
         "embedding": doc.get("embedding", []),
-        "category": doc.get("category", "Legal Document"),
-        "sourcepage": doc.get("sourcepage", ""),
-        "sourcefile": doc.get("sourcefile", ""),
+        "category": category,
+        "sourcepage": sourcepage,
+        "sourcefile": sourcefile,
         "storageUrl": doc.get("storageUrl", ""),
         "oids": doc.get("oids", []) if doc.get("oids") else [],
         "groups": doc.get("groups", []) if doc.get("groups") else [],
         "parent_id": doc.get("parent_id", ""),
+        "subsection_id": subsection_id,
+        "subsections": subsections,
+        "updated": doc.get("updated", ""),
     }
 
 def validate_documents(documents: list, check_embeddings: bool = False) -> tuple[list, list]:

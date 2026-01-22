@@ -97,6 +97,11 @@ CITATION COMPLIANCE WORKFLOW:
 - Before finalizing, scan the draft for any sentence containing more than one pair of brackets or text such as `][`; if found, rewrite that sentence until only one citation remains.
 - If you cannot support a sentence with exactly one source, remove or rewrite the sentence so that it can.
 
+HANDLING MISSING INFORMATION:
+- If the answer to the user's question is NOT found in the provided sources, you may answer using your own legal knowledge.
+- HOWEVER, you MUST explicitly state at the beginning of your response: "**Note: This information is not found in the sources and is based on general legal knowledge.**"
+- When answering from general knowledge, do NOT use citations like [1].
+
 RESPONSE STYLE GUIDELINES:
 - **ANSWER THE QUESTION IMMEDIATELY**: Start directly with the answer to what was asked, without any preamble, label, or prefacing.
 - **AVOID LIST-LIKE RESPONSES**: Do NOT write sentences that start with "It also includes..." or similar repetitive patterns. Instead, group related concepts into cohesive paragraphs.

@@ -1,0 +1,119 @@
+{
+  "type": "direct_evaluation",
+  "summary": {
+    "total_entries": 5,
+    "timestamp": "2026-01-18T17:12:32.913331",
+    "overall": {
+      "statute_citation_accuracy": 0.0,
+      "legal_terminology_accuracy": 0.6,
+      "citation_format_compliance": 0.0,
+      "precedent_matching": 0.0,
+      "citation_rate": 0.0
+    },
+    "by_source_type": {
+      "CPR": {
+        "count": 5,
+        "statute_citation_accuracy": 0.0,
+        "legal_terminology_accuracy": 0.6,
+        "citation_format_compliance": 0.0,
+        "precedent_matching": 0.0
+      }
+    },
+    "by_category": {
+      "Civil Procedure Rules and Practice Directions": {
+        "count": 5,
+        "statute_citation_accuracy": 0.0,
+        "legal_terminology_accuracy": 0.6,
+        "citation_format_compliance": 0.0,
+        "precedent_matching": 0.0
+      }
+    }
+  },
+  "detailed_results": [
+    {
+      "question": "What are the general rules about costs under CPR Part 44?",
+      "source_type": "CPR",
+      "category": "Civil Procedure Rules and Practice Directions",
+      "response_length": 0,
+      "statute_citation_accuracy": 0.0,
+      "legal_terminology_accuracy": 1.0,
+      "citation_format_compliance": 0.0,
+      "precedent_matching": 0.0,
+      "has_citation": false,
+      "response_preview": "",
+      "full_response": "",
+      "ground_truth_docs": [
+        "General Rules about Costs"
+      ],
+      "response_docs": []
+    },
+    {
+      "question": "What is the scope of CPR Part 74 regarding enforcement of judgments in different...",
+      "source_type": "CPR",
+      "category": "Civil Procedure Rules and Practice Directions",
+      "response_length": 0,
+      "statute_citation_accuracy": 0.0,
+      "legal_terminology_accuracy": 1.0,
+      "citation_format_compliance": 0.0,
+      "precedent_matching": 0.0,
+      "has_citation": false,
+      "response_preview": "",
+      "full_response": "",
+      "ground_truth_docs": [
+        "Enforcement of Judgments in Different Jurisdictions"
+      ],
+      "response_docs": []
+    },
+    {
+      "question": "What does CPR Part 50 say about the application of the Schedules?",
+      "source_type": "CPR",
+      "category": "Civil Procedure Rules and Practice Directions",
+      "response_length": 0,
+      "statute_citation_accuracy": 0.0,
+      "legal_terminology_accuracy": 1.0,
+      "citation_format_compliance": 0.0,
+      "precedent_matching": 0.0,
+      "has_citation": false,
+      "response_preview": "",
+      "full_response": "",
+      "ground_truth_docs": [
+        "Application of the Schedules"
+      ],
+      "response_docs": []
+    },
+    {
+      "question": "What is the meaning of default judgment under CPR Part 12?",
+      "source_type": "CPR",
+      "category": "Civil Procedure Rules and Practice Directions",
+      "response_length": 0,
+      "statute_citation_accuracy": 0.0,
+      "legal_terminology_accuracy": 0.0,
+      "citation_format_compliance": 0.0,
+      "precedent_matching": 0.0,
+      "has_citation": false,
+      "response_preview": "",
+      "full_response": "",
+      "ground_truth_docs": [
+        "Default Judgment"
+      ],
+      "response_docs": []
+    },
+    {
+      "question": "What is the scope of summary judgment under CPR Part 24?",
+      "source_type": "CPR",
+      "category": "Civil Procedure Rules and Practice Directions",
+      "response_length": 0,
+      "statute_citation_accuracy": 0.0,
+      "legal_terminology_accuracy": 0.0,
+      "citation_format_compliance": 0.0,
+      "precedent_matching": 0.0,
+      "has_citation": false,
+      "response_preview": "",
+      "full_response": "",
+      "ground_truth_docs": [
+        "Summary Judgment"
+      ],
+      "response_docs": []
+    }
+  ]
+}

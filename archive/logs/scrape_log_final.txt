@@ -1,0 +1,957 @@
+2026-01-17 11:36:23,946 - INFO - Fetching index: https://www.justice.gov.uk/courts/procedure-rules/civil/rules
+2026-01-17 11:36:24,249 - INFO - Found 204 potential CPR pages
+2026-01-17 11:36:24,251 - INFO - Starting enriched scrape with 15 workers...
+2026-01-17 11:36:24,251 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part01
+2026-01-17 11:36:24,252 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part01/practice-direction-1a-participation-of-vulnerable-parties-or-witnesses
+2026-01-17 11:36:24,252 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part02
+2026-01-17 11:36:24,252 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part02/pd_part02a
+2026-01-17 11:36:24,253 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part02/pd_part02b
+2026-01-17 11:36:24,254 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part02/practice-direction-2c-starting-proceedings-in-the-county-court
+2026-01-17 11:36:24,254 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part02/practice-direction-2e-jurisdiction-of-the-county-court-that-may-be-exercised-by-a-legal-adviser
+2026-01-17 11:36:24,255 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part02/pd_part39b
+2026-01-17 11:36:24,256 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part03
+2026-01-17 11:36:24,257 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part03/pd_part03a
+2026-01-17 11:36:24,257 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part03/pd_part03b
+2026-01-17 11:36:24,257 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part03/pd_part03c
+2026-01-17 11:36:24,258 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part03/practice-direction-3e-costs-management
+2026-01-17 11:36:24,258 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part03/practice-direction-3f-costs-capping
+2026-01-17 11:36:24,259 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part04
+2026-01-17 11:36:24,595 - WARNING - Connection pool is full, discarding connection: www.justice.gov.uk. Connection pool size: 10
+2026-01-17 11:36:24,600 - INFO - Saved 1 chunks for Practice Direction 3A – Striking Out A Statement Of Case
+2026-01-17 11:36:24,600 - WARNING - Connection pool is full, discarding connection: www.justice.gov.uk. Connection pool size: 10
+2026-01-17 11:36:24,600 - WARNING - Connection pool is full, discarding connection: www.justice.gov.uk. Connection pool size: 10
+2026-01-17 11:36:24,601 - INFO - Saved 1 chunks for Part 1 – Overriding Objective
+
+[Part
+2026-01-17 11:36:24,601 - INFO - Document Part 2 – Application And Interpretation Of The Rules
+
+[Part has 4498 tokens, chunking required
+2026-01-17 11:36:24,601 - WARNING - Connection pool is full, discarding connection: www.justice.gov.uk. Connection pool size: 10
+2026-01-17 11:36:24,607 - INFO - Document Practice Direction 2B – Allocation Of Cases To Levels Of Judiciary
+
+[Practice Direction has 6975 tokens, chunking required
+2026-01-17 11:36:24,607 - INFO - Saved 1 chunks for Practice Direction 2F – Court Sittings
+2026-01-17 11:36:24,607 - INFO - Saved 1 chunks for Practice Direction 3B – Sanctions For Non-Payment Of Fees
+2026-01-17 11:36:24,607 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part05
+2026-01-17 11:36:24,642 - INFO - Saved 1 chunks for Practice Direction 2C – Starting Proceedings In The County Court
+
+[Practice Direction
+2026-01-17 11:36:24,642 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part05/pd_part05a
+2026-01-17 11:36:24,643 - INFO - Saved 1 chunks for Part 4 – Forms
+2026-01-17 11:36:24,647 - WARNING - Connection pool is full, discarding connection: www.justice.gov.uk. Connection pool size: 10
+2026-01-17 11:36:24,647 - INFO - Document Practice Direction 3C – Civil Restraint Orders has 6403 tokens, chunking required
+2026-01-17 11:36:24,648 - INFO - Saved 1 chunks for Practice Direction 2A – Court Offices
+
+[Practice Direction
+2026-01-17 11:36:24,648 - INFO - Document Practice Direction 3D – Costs Management has 4441 tokens, chunking required
+2026-01-17 11:36:24,650 - INFO - Saved 1 chunks for Practice Direction 2E – Jurisdiction Of The County Court That May Be Exercised By A Legal Adviser
+
+[Practice Direction
+2026-01-17 11:36:24,657 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part05/pd_part05b
+2026-01-17 11:36:24,661 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part06
+2026-01-17 11:36:24,662 - INFO - Saved 1 chunks for Practice Direction 3E – Costs Capping
+2026-01-17 11:36:24,662 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part06/pd_part06a
+2026-01-17 11:36:24,663 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part06/pd_part06b
+2026-01-17 11:36:24,670 - INFO - Saved 1 chunks for Practice Direction 1A – Participation Of Vulnerable Parties Or Witnesses
+
+[Practice Direction
+2026-01-17 11:36:24,677 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part07
+2026-01-17 11:36:24,695 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part07/pd_part07a
+2026-01-17 11:36:24,700 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part07/pd_part07c
+2026-01-17 11:36:24,701 - INFO - Split document Part 2 – Application And Interpretation Of The Rules
+
+[Part into 4 chunks
+2026-01-17 11:36:24,703 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part07/pd_part07e
+2026-01-17 11:36:24,707 - INFO - Split document Practice Direction 2B – Allocation Of Cases To Levels Of Judiciary
+
+[Practice Direction into 5 chunks
+2026-01-17 11:36:24,708 - INFO - Document Part 3 – The Court has 16069 tokens, chunking required
+2026-01-17 11:36:24,709 - WARNING - No legal boundaries found for Part 3 – The Court, using sentence chunking
+2026-01-17 11:36:24,710 - INFO - Split document Practice Direction 3C – Civil Restraint Orders into 4 chunks
+2026-01-17 11:36:24,710 - INFO - Split document Practice Direction 3D – Costs Management into 4 chunks
+2026-01-17 11:36:24,711 - INFO - Saved 4 chunks for Part 2 – Application And Interpretation Of The Rules
+
+[Part
+2026-01-17 11:36:24,711 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part08
+2026-01-17 11:36:24,712 - INFO - Saved 4 chunks for Practice Direction 3D – Costs Management
+2026-01-17 11:36:24,712 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part09
+2026-01-17 11:36:24,713 - INFO - Saved 4 chunks for Practice Direction 3C – Civil Restraint Orders
+2026-01-17 11:36:24,713 - INFO - Saved 5 chunks for Practice Direction 2B – Allocation Of Cases To Levels Of Judiciary
+
+[Practice Direction
+2026-01-17 11:36:24,713 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part10
+2026-01-17 11:36:24,713 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part11
+2026-01-17 11:36:24,761 - INFO - Saved 1 chunks for Part 5 – Court Documents
+
+[Part
+2026-01-17 11:36:24,761 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part12
+2026-01-17 11:36:24,830 - INFO - Document Practice Direction 7C – Money Claim Online has 5445 tokens, chunking required
+2026-01-17 11:36:24,859 - INFO - Document Practice Direction 7B – Production Centre has 4310 tokens, chunking required
+2026-01-17 11:36:24,941 - INFO - Document Practice Direction 6A – Service Within The United Kingdom
+
+[Practice Direction has 5792 tokens, chunking required
+2026-01-17 11:36:24,944 - INFO - Document Practice Direction 5A – Court Documents has 8245 tokens, chunking required
+2026-01-17 11:36:24,966 - INFO - Document Practice Direction 7A – How To Start Proceedings has 5457 tokens, chunking required
+2026-01-17 11:36:24,966 - WARNING - No legal boundaries found for Practice Direction 7A – How To Start Proceedings, using sentence chunking
+2026-01-17 11:36:24,982 - WARNING - Connection pool is full, discarding connection: www.justice.gov.uk. Connection pool size: 10
+2026-01-17 11:36:24,989 - INFO - Document Practice Direction 6B – Service Out Of The Jurisdiction has 6874 tokens, chunking required
+2026-01-17 11:36:24,996 - WARNING - Connection pool is full, discarding connection: www.justice.gov.uk. Connection pool size: 10
+2026-01-17 11:36:25,023 - WARNING - Connection pool is full, discarding connection: www.justice.gov.uk. Connection pool size: 10
+2026-01-17 11:36:25,028 - INFO - Saved 1 chunks for Practice Direction 5B – Communication And Filing Of Documents By E-Mail
+2026-01-17 11:36:25,028 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part13
+2026-01-17 11:36:25,029 - INFO - Saved 1 chunks for Part 11 – Disputing The Court
+2026-01-17 11:36:25,029 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part14
+2026-01-17 11:36:25,035 - INFO - Saved 1 chunks for Part 7 – How To Start Proceedings
+2026-01-17 11:36:25,035 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part15
+2026-01-17 11:36:25,042 - INFO - Document Part 12 – Default Judgment
+
+[Part has 6437 tokens, chunking required
+2026-01-17 11:36:25,043 - INFO - Split document Practice Direction 7B – Production Centre into 3 chunks
+2026-01-17 11:36:25,044 - INFO - Split document Practice Direction 7C – Money Claim Online into 4 chunks
+2026-01-17 11:36:25,045 - INFO - Saved 1 chunks for Part 8 – Alternative Procedure For Claims
+
+[Part
+2026-01-17 11:36:25,045 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part16
+2026-01-17 11:36:25,046 - WARNING - Connection pool is full, discarding connection: www.justice.gov.uk. Connection pool size: 6
+2026-01-17 11:36:25,052 - INFO - Saved 1 chunks for Part 9 – Responding To Particulars Of Claim
+2026-01-17 11:36:25,058 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part16/pd_part16
+2026-01-17 11:36:25,065 - INFO - Saved 1 chunks for Part 10 – Acknowledgment Of Service
+
+[Part
+2026-01-17 11:36:25,065 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part17
+2026-01-17 11:36:25,100 - INFO - Saved 3 chunks for Practice Direction 7B – Production Centre
+2026-01-17 11:36:25,100 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part17/pd_part17
+2026-01-17 11:36:25,100 - INFO - Saved 4 chunks for Practice Direction 7C – Money Claim Online
+2026-01-17 11:36:25,100 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part18
+2026-01-17 11:36:25,100 - INFO - Split document Practice Direction 5A – Court Documents into 5 chunks
+2026-01-17 11:36:25,102 - INFO - Split document Practice Direction 6A – Service Within The United Kingdom
+
+[Practice Direction into 4 chunks
+2026-01-17 11:36:25,104 - INFO - Split document Part 12 – Default Judgment
+
+[Part into 4 chunks
+2026-01-17 11:36:25,106 - INFO - Document Part 6 – Service Of Documents
+
+[Part has 16896 tokens, chunking required
+2026-01-17 11:36:25,108 - INFO - Saved 4 chunks for Practice Direction 6A – Service Within The United Kingdom
+
+[Practice Direction
+2026-01-17 11:36:25,109 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part18/pd_part18
+2026-01-17 11:36:25,109 - INFO - Split document Practice Direction 6B – Service Out Of The Jurisdiction into 4 chunks
+2026-01-17 11:36:25,110 - INFO - Saved 5 chunks for Practice Direction 5A – Court Documents
+2026-01-17 11:36:25,110 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part19
+2026-01-17 11:36:25,111 - INFO - Saved 5 chunks for Part 3 – The Court
+2026-01-17 11:36:25,111 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part19/pd_part19a
+2026-01-17 11:36:25,112 - INFO - Saved 4 chunks for Part 12 – Default Judgment
+
+[Part
+2026-01-17 11:36:25,112 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part19/pd_part19b
+2026-01-17 11:36:25,113 - INFO - Saved 4 chunks for Practice Direction 6B – Service Out Of The Jurisdiction
+2026-01-17 11:36:25,113 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part20
+2026-01-17 11:36:25,126 - INFO - Split document Part 6 – Service Of Documents
+
+[Part into 8 chunks
+2026-01-17 11:36:25,128 - INFO - Saved 8 chunks for Part 6 – Service Of Documents
+
+[Part
+2026-01-17 11:36:25,128 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part20/pd_part20
+2026-01-17 11:36:25,141 - INFO - Saved 2 chunks for Practice Direction 7A – How To Start Proceedings
+2026-01-17 11:36:25,141 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part21
+2026-01-17 11:36:25,243 - INFO - Saved 1 chunks for Part 18 – Further Information
+
+[Part
+2026-01-17 11:36:25,249 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part22
+2026-01-17 11:36:25,250 - INFO - Saved 1 chunks for Part 13 – Setting Aside Or Varying Default Judgment
+
+[Part
+2026-01-17 11:36:25,250 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part22/pd_part22
+2026-01-17 11:36:25,259 - INFO - Saved 1 chunks for Part 14 – Admissions
+
+[Part
+2026-01-17 11:36:25,259 - INFO - Document Part 16 – Statements Of Case
+
+[Part has 4024 tokens, chunking required
+2026-01-17 11:36:25,265 - INFO - Saved 1 chunks for Part 15 – Defence And Reply
+
+[Part
+2026-01-17 11:36:25,279 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part23
+2026-01-17 11:36:25,291 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part23/pd_part23a
+2026-01-17 11:36:25,291 - INFO - Document Practice Direction 16 – Statements Of Case
+
+[Practice Direction has 7949 tokens, chunking required
+2026-01-17 11:36:25,303 - INFO - Saved 1 chunks for Practice Direction 17 – Amendments To Statements Of Case
+2026-01-17 11:36:25,335 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part24
+2026-01-17 11:36:25,335 - WARNING - Connection pool is full, discarding connection: www.justice.gov.uk. Connection pool size: 10
+2026-01-17 11:36:25,340 - INFO - Saved 1 chunks for Practice Direction 19A – Derivative Claims
+2026-01-17 11:36:25,346 - INFO - Saved 1 chunks for Part 17 – Amendments To Statements Of Case
+
+[Part
+2026-01-17 11:36:25,353 - INFO - Document Part 19 – Parties And Group Litigation
+
+[Part has 10912 tokens, chunking required
+2026-01-17 11:36:25,353 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part25
+2026-01-17 11:36:25,359 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part26
+2026-01-17 11:36:25,366 - INFO - Split document Part 16 – Statements Of Case
+
+[Part into 3 chunks
+2026-01-17 11:36:25,377 - INFO - Document Practice Direction 19B – Group Litigation has 4073 tokens, chunking required
+2026-01-17 11:36:25,389 - INFO - Saved 1 chunks for Practice Direction 18 – Further Information
+2026-01-17 11:36:25,410 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part26/pd_part26
+2026-01-17 11:36:25,492 - INFO - Document Part 21 – Children And Protected Parties
+
+[Part has 8719 tokens, chunking required
+2026-01-17 11:36:25,495 - INFO - Saved 1 chunks for Part 20 – Counterclaims And Other Additional Claims
+
+[Part
+2026-01-17 11:36:25,495 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part27
+2026-01-17 11:36:25,495 - INFO - Saved 1 chunks for Part 22 – Statements Of Truth
+
+[Part
+2026-01-17 11:36:25,495 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part27/pd_part27
+2026-01-17 11:36:25,553 - INFO - Split document Practice Direction 16 – Statements Of Case
+
+[Practice Direction into 5 chunks
+2026-01-17 11:36:25,567 - INFO - Saved 1 chunks for Part 23 – General Rules About Applications For Court Orders
+
+[Part
+2026-01-17 11:36:25,572 - INFO - Saved 1 chunks for Practice Direction 20 – Counterclaims And Other Additional Claims
+2026-01-17 11:36:25,578 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part27/practice-direction-27b-claims-under-the-pre-action-protocol-for-personal-injury-claims-below-the-small-claims-limit-in-road-traffic-accidents-court-procedure
+2026-01-17 11:36:25,578 - INFO - Split document Part 19 – Parties And Group Litigation
+
+[Part into 6 chunks
+2026-01-17 11:36:25,578 - INFO - Saved 1 chunks for Practice Direction 22 – Statements Of Truth
+2026-01-17 11:36:25,590 - INFO - Saved 3 chunks for Part 16 – Statements Of Case
+
+[Part
+2026-01-17 11:36:25,591 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part28
+2026-01-17 11:36:25,591 - INFO - Split document Practice Direction 19B – Group Litigation into 4 chunks
+2026-01-17 11:36:25,591 - INFO - Saved 1 chunks for Practice Direction 23A – Applications
+2026-01-17 11:36:25,592 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part28/pd_part28
+2026-01-17 11:36:25,592 - INFO - Saved 1 chunks for Part 24 – Summary Judgment
+
+[Part
+2026-01-17 11:36:25,592 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part29
+2026-01-17 11:36:25,593 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part29/pd_part29
+2026-01-17 11:36:25,599 - INFO - Document Part 25 – Interim Remedies And Security For Costs has 12081 tokens, chunking required
+2026-01-17 11:36:25,618 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part30
+2026-01-17 11:36:25,619 - INFO - Split document Part 21 – Children And Protected Parties
+
+[Part into 5 chunks
+2026-01-17 11:36:25,622 - INFO - Saved 5 chunks for Practice Direction 16 – Statements Of Case
+
+[Practice Direction
+2026-01-17 11:36:25,622 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part30/pd_part30
+2026-01-17 11:36:25,622 - INFO - Saved 4 chunks for Practice Direction 19B – Group Litigation
+2026-01-17 11:36:25,622 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part31
+2026-01-17 11:36:25,623 - INFO - Document Practice Direction 26 – Case Management has 12659 tokens, chunking required
+2026-01-17 11:36:25,624 - WARNING - No legal boundaries found for Practice Direction 26 – Case Management, using sentence chunking
+2026-01-17 11:36:25,625 - INFO - Saved 6 chunks for Part 19 – Parties And Group Litigation
+
+[Part
+2026-01-17 11:36:25,626 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part31/pd_part31a
+2026-01-17 11:36:25,626 - INFO - Saved 5 chunks for Part 21 – Children And Protected Parties
+
+[Part
+2026-01-17 11:36:25,626 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part31/pd_part31b
+2026-01-17 11:36:25,634 - INFO - Split document Part 25 – Interim Remedies And Security For Costs into 6 chunks
+2026-01-17 11:36:25,635 - INFO - Saved 6 chunks for Part 25 – Interim Remedies And Security For Costs
+2026-01-17 11:36:25,635 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part31/practice-direction-31c-disclosure-and-inspection-in-relation-to-competition-claims
+2026-01-17 11:36:25,672 - INFO - Document Part 26 – Case Management has 15523 tokens, chunking required
+2026-01-17 11:36:25,672 - WARNING - No legal boundaries found for Part 26 – Case Management, using sentence chunking
+2026-01-17 11:36:25,718 - INFO - Document Part 27 – The Small Claims Track
+
+[Part has 4941 tokens, chunking required
+2026-01-17 11:36:25,732 - INFO - Document Practice Direction 27A – Small Claims Track has 4776 tokens, chunking required
+2026-01-17 11:36:25,736 - INFO - Split document Part 27 – The Small Claims Track
+
+[Part into 4 chunks
+2026-01-17 11:36:25,739 - INFO - Saved 4 chunks for Part 27 – The Small Claims Track
+
+[Part
+2026-01-17 11:36:25,739 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part32
+2026-01-17 11:36:25,740 - INFO - Split document Practice Direction 27A – Small Claims Track into 4 chunks
+2026-01-17 11:36:25,740 - INFO - Saved 4 chunks for Practice Direction 27A – Small Claims Track
+2026-01-17 11:36:25,740 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part32/pd_part32
+2026-01-17 11:36:25,849 - INFO - Document Practice Direction 28 – The Fast Track And The Intermediate Track has 7493 tokens, chunking required
+2026-01-17 11:36:25,892 - INFO - Document Practice Direction 31C – Disclosure And Inspection In Relation To Competition Claims
+
+[Practice Direction has 4041 tokens, chunking required
+2026-01-17 11:36:25,893 - WARNING - Connection pool is full, discarding connection: www.justice.gov.uk. Connection pool size: 10
+2026-01-17 11:36:25,898 - INFO - Saved 1 chunks for Part 28 – The Fast Track And The Intermediate Track
+
+[Part
+2026-01-17 11:36:25,898 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part33
+2026-01-17 11:36:25,898 - INFO - Saved 1 chunks for Practice Direction 30 – Transfer
+2026-01-17 11:36:25,930 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part33/pd_part33
+2026-01-17 11:36:25,930 - INFO - Document Part 31 – Disclosure And Inspection Of Documents
+
+[Part has 8205 tokens, chunking required
+2026-01-17 11:36:25,924 - WARNING - Connection pool is full, discarding connection: www.justice.gov.uk. Connection pool size: 10
+2026-01-17 11:36:25,934 - INFO - Saved 1 chunks for Part 29 – The Multi-Track
+
+[Part
+2026-01-17 11:36:25,941 - INFO - Document Practice Direction 31B – Disclosure Of Electronic Documents has 9508 tokens, chunking required
+2026-01-17 11:36:25,947 - INFO - Saved 1 chunks for Practice Direction 31A – Disclosure And Inspection
+2026-01-17 11:36:25,960 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part34
+2026-01-17 11:36:25,975 - INFO - Document Practice Direction 29 – The Multi-Track has 9171 tokens, chunking required
+2026-01-17 11:36:25,981 - INFO - Split document Practice Direction 31C – Disclosure And Inspection In Relation To Competition Claims
+
+[Practice Direction into 3 chunks
+2026-01-17 11:36:25,995 - INFO - Saved 1 chunks for Part 30 – Transfer
+
+[Part
+2026-01-17 11:36:26,017 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part34/pd_part34a
+2026-01-17 11:36:26,072 - WARNING - No legal boundaries found for Practice Direction 29 – The Multi-Track, using sentence chunking
+2026-01-17 11:36:26,073 - INFO - Document Practice Direction 32 – Evidence has 13561 tokens, chunking required
+2026-01-17 11:36:26,074 - INFO - Saved 1 chunks for Part 32 – Evidence
+
+[Part
+2026-01-17 11:36:26,136 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part35
+2026-01-17 11:36:26,081 - INFO - Split document Practice Direction 28 – The Fast Track And The Intermediate Track into 5 chunks
+2026-01-17 11:36:26,105 - WARNING - Connection pool is full, discarding connection: www.justice.gov.uk. Connection pool size: 10
+2026-01-17 11:36:26,128 - INFO - Split document Part 31 – Disclosure And Inspection Of Documents
+
+[Part into 5 chunks
+2026-01-17 11:36:26,094 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part34/pd_part34b
+2026-01-17 11:36:26,157 - INFO - Saved 3 chunks for Practice Direction 31C – Disclosure And Inspection In Relation To Competition Claims
+
+[Practice Direction
+2026-01-17 11:36:26,157 - INFO - Saved 1 chunks for Part 33 – Miscellaneous Rules About Evidence
+
+[Part
+2026-01-17 11:36:26,158 - INFO - Split document Practice Direction 31B – Disclosure Of Electronic Documents into 5 chunks
+2026-01-17 11:36:26,224 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part35/pd_part35
+2026-01-17 11:36:26,235 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part36
+2026-01-17 11:36:26,256 - INFO - Saved 1 chunks for Practice Direction 33 – Civil Evidence Act
+2026-01-17 11:36:26,256 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part36/pd_part36a
+2026-01-17 11:36:26,281 - INFO - Document Practice Direction  27B – Claims Under The Pre-Action Protocol For Personal Injury Claims Below The Small Claims Limit In Road Traffic Accidents has 87315 tokens, chunking required
+2026-01-17 11:36:26,302 - INFO - Document Part 35 – Experts And Assessors
+
+[Part has 4967 tokens, chunking required
+2026-01-17 11:36:26,317 - INFO - Document Part 34 – Witnesses has 8605 tokens, chunking required
+2026-01-17 11:36:26,318 - WARNING - No legal boundaries found for Part 34 – Witnesses, using sentence chunking
+2026-01-17 11:36:26,335 - INFO - Saved 5 chunks for Practice Direction 28 – The Fast Track And The Intermediate Track
+2026-01-17 11:36:26,335 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part37
+2026-01-17 11:36:26,335 - INFO - Split document Practice Direction 32 – Evidence into 6 chunks
+2026-01-17 11:36:26,336 - INFO - Document Practice Direction 34A – Depositions And Court Attendance By Witnesses has 6065 tokens, chunking required
+2026-01-17 11:36:26,338 - INFO - Saved 4 chunks for Practice Direction 26 – Case Management
+2026-01-17 11:36:26,338 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part37/pd_part37
+2026-01-17 11:36:26,342 - INFO - Saved 5 chunks for Part 31 – Disclosure And Inspection Of Documents
+
+[Part
+2026-01-17 11:36:26,342 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part38
+2026-01-17 11:36:26,344 - INFO - Saved 5 chunks for Practice Direction 31B – Disclosure Of Electronic Documents
+2026-01-17 11:36:26,344 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part39
+2026-01-17 11:36:26,348 - INFO - Split document Part 35 – Experts And Assessors
+
+[Part into 4 chunks
+2026-01-17 11:36:26,349 - INFO - Saved 6 chunks for Practice Direction 32 – Evidence
+2026-01-17 11:36:26,349 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part40
+2026-01-17 11:36:26,352 - INFO - Split document Practice Direction 34A – Depositions And Court Attendance By Witnesses into 4 chunks
+2026-01-17 11:36:26,353 - INFO - Saved 4 chunks for Part 35 – Experts And Assessors
+
+[Part
+2026-01-17 11:36:26,353 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part40/pd_part40a
+2026-01-17 11:36:26,407 - INFO - Saved 4 chunks for Practice Direction 34A – Depositions And Court Attendance By Witnesses
+2026-01-17 11:36:26,407 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part40/pd_part40b
+2026-01-17 11:36:26,414 - INFO - Saved 1 chunks for Practice Direction 34B – Fees For Examiners Of The Court
+2026-01-17 11:36:26,414 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part40/pd_part40d
+2026-01-17 11:36:26,415 - INFO - Document Part 36 – Offers To Settle
+
+[Part has 15947 tokens, chunking required
+2026-01-17 11:36:26,439 - INFO - Document Practice Direction 35 – Experts And Assessors has 6134 tokens, chunking required
+2026-01-17 11:36:26,459 - INFO - Saved 1 chunks for Part 37 – Miscellaneous Provisions About Payments Into Court
+
+[Part
+2026-01-17 11:36:26,460 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part40/pd_part40e
+2026-01-17 11:36:26,472 - INFO - Document Practice Direction 37 – Miscellaneous Provisions About Payments Into Court has 4175 tokens, chunking required
+2026-01-17 11:36:26,533 - INFO - Saved 1 chunks for Part 38 – Discontinuance
+
+[Part
+2026-01-17 11:36:26,533 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part40/practice-direction-40f-non-disclosure-injunctions-information-collection-scheme
+2026-01-17 11:36:26,533 - INFO - Document Part 40 – Judgments has 10041 tokens, chunking required
+2026-01-17 11:36:26,534 - WARNING - No legal boundaries found for Part 40 – Judgments, using sentence chunking
+2026-01-17 11:36:26,561 - INFO - Document Practice Direction 40B – Judgments And Orders has 5992 tokens, chunking required
+2026-01-17 11:36:26,591 - INFO - Saved 1 chunks for Practice Direction 36 – Offers To Settle
+2026-01-17 11:36:26,591 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part41
+2026-01-17 11:36:26,591 - INFO - Saved 1 chunks for Part 39 – Miscellaneous Provisions Relating To Hearings
+
+[Part
+2026-01-17 11:36:26,591 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part41/pd_part41a
+2026-01-17 11:36:26,598 - INFO - Split document Practice Direction 35 – Experts And Assessors into 4 chunks
+2026-01-17 11:36:26,625 - INFO - Saved 1 chunks for Practice Direction 40A – Accounts
+2026-01-17 11:36:26,625 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part41/pd_part41b
+2026-01-17 11:36:26,643 - INFO - Saved 1 chunks for Part 40 – Judgments
+2026-01-17 11:36:26,643 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part42
+2026-01-17 11:36:26,644 - INFO - Split document Practice Direction 37 – Miscellaneous Provisions About Payments Into Court into 4 chunks
+2026-01-17 11:36:26,644 - INFO - Saved 1 chunks for Practice Direction 40E – Reserved Judgments
+2026-01-17 11:36:26,645 - INFO - Split document Part 36 – Offers To Settle
+
+[Part into 7 chunks
+2026-01-17 11:36:26,645 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part42/pd_part42
+2026-01-17 11:36:26,646 - INFO - Split document Practice Direction 40B – Judgments And Orders into 4 chunks
+2026-01-17 11:36:26,649 - INFO - Saved 4 chunks for Practice Direction 35 – Experts And Assessors
+2026-01-17 11:36:26,649 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-44-general-rules-about-costs
+2026-01-17 11:36:26,651 - INFO - Saved 4 chunks for Practice Direction 37 – Miscellaneous Provisions About Payments Into Court
+2026-01-17 11:36:26,652 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-44-general-rules-about-costs/part-44-general-rules-about-costs2
+2026-01-17 11:36:26,655 - INFO - Saved 4 chunks for Practice Direction 40B – Judgments And Orders
+2026-01-17 11:36:26,655 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part45-fixed-costs
+2026-01-17 11:36:26,658 - INFO - Saved 7 chunks for Part 36 – Offers To Settle
+
+[Part
+2026-01-17 11:36:26,658 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part45-fixed-costs/practice-direction-45-fixed-costs
+2026-01-17 11:36:26,686 - INFO - Split document Practice Direction  27B – Claims Under The Pre-Action Protocol For Personal Injury Claims Below The Small Claims Limit In Road Traffic Accidents into 31 chunks
+2026-01-17 11:36:26,697 - INFO - Saved 3 chunks for Part 34 – Witnesses
+2026-01-17 11:36:26,697 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-46-costs-special-cases
+2026-01-17 11:36:26,700 - INFO - Saved 31 chunks for Practice Direction  27B – Claims Under The Pre-Action Protocol For Personal Injury Claims Below The Small Claims Limit In Road Traffic Accidents
+2026-01-17 11:36:26,701 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-46-costs-special-cases/practice-direction-46-costs-special-cases
+2026-01-17 11:36:26,719 - INFO - Saved 1 chunks for Part 40 – Judgments
+2026-01-17 11:36:26,719 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-47-procedure-for-detailed-assessment
+2026-01-17 11:36:26,744 - INFO - Saved 3 chunks for Practice Direction 29 – The Multi-Track
+2026-01-17 11:36:26,744 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-47-procedure-for-detailed-assessment/practice-direction-46-costs-special-cases2
+2026-01-17 11:36:26,809 - INFO - Document Part 44 – General Rules About Costs
+
+[Part has 9323 tokens, chunking required
+2026-01-17 11:36:26,827 - INFO - Saved 1 chunks for Part 41 – Damages
+
+[Part
+2026-01-17 11:36:26,827 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-48-part-2of-the-legal-aid,-sentencing-and-punishment-of-offenders-act-2012-relating-to-civil-litigation-funding-and-costs-transitional-provision-in-relation-to-pre-commencement-funding-arrangements
+2026-01-17 11:36:26,876 - INFO - Saved 1 chunks for Practice Direction 41B – Periodical Payments Under The Damages Act
+2026-01-17 11:36:26,913 - INFO - Saved 1 chunks for Practice Direction 42 – Change Of Solicitor
+2026-01-17 11:36:26,924 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-48-part-2of-the-legal-aid,-sentencing-and-punishment-of-offenders-act-2012-relating-to-civil-litigation-funding-and-costs-transitional-provision-in-relation-to-pre-commencement-funding-arrangements/part-48-part-2of-the-legal-aid,-sentencing-and-punishment-of-offenders-act-2012-relating-to-civil-litigation-funding-and-costs-transitional-provision-in-relation-to-pre-commencement-funding-arrangements2
+2026-01-17 11:36:26,930 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part49
+2026-01-17 11:36:26,930 - INFO - Document Practice Direction 45 – Tables Of Fixed Costs ( has 18484 tokens, chunking required
+2026-01-17 11:36:26,960 - INFO - Document Practice Direction 44 – General Rules About Costs has 8019 tokens, chunking required
+2026-01-17 11:36:26,960 - INFO - Saved 1 chunks for Practice Direction 41A – Provisional Damages
+2026-01-17 11:36:26,989 - INFO - Document Practice Direction 46 – Costs Special Cases has 7826 tokens, chunking required
+2026-01-17 11:36:26,989 - INFO - Document Part 47 – Procedure For Assessment Of Costs And Default Provisions
+
+[Part has 9289 tokens, chunking required
+2026-01-17 11:36:26,991 - WARNING - Connection pool is full, discarding connection: www.justice.gov.uk. Connection pool size: 10
+2026-01-17 11:36:26,991 - INFO - Saved 1 chunks for Part 42 – Change Of Solicitor
+
+[Part
+2026-01-17 11:36:27,002 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part49/pd_part49b
+2026-01-17 11:36:27,003 - INFO - Document Part 46 – Costs-Special Cases
+
+[Part has 11697 tokens, chunking required
+2026-01-17 11:36:27,003 - WARNING - No legal boundaries found for Part 46 – Costs-Special Cases
+
+[Part, using sentence chunking
+2026-01-17 11:36:26,994 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part49/pd_part49a
+2026-01-17 11:36:27,097 - INFO - Document Part 45 – Fixed Costs
+
+[Part has 24209 tokens, chunking required
+2026-01-17 11:36:27,111 - INFO - Split document Part 44 – General Rules About Costs
+
+[Part into 5 chunks
+2026-01-17 11:36:27,169 - INFO - Split document Practice Direction 44 – General Rules About Costs into 5 chunks
+2026-01-17 11:36:27,178 - INFO - Document Practice Direction 47 – Procedure For Detailed Assessment Of Costs And Default Provisions
+
+[Practice Direction has 29029 tokens, chunking required
+2026-01-17 11:36:27,179 - INFO - Split document Practice Direction 46 – Costs Special Cases into 5 chunks
+2026-01-17 11:36:27,184 - INFO - Split document Part 47 – Procedure For Assessment Of Costs And Default Provisions
+
+[Part into 5 chunks
+2026-01-17 11:36:27,185 - INFO - Saved 1 chunks for Part 49 – Specialist Proceedings
+2026-01-17 11:36:27,192 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part49/practice-direction-49c-consumer-credit-act-2006-unfair-relationships
+2026-01-17 11:36:27,205 - INFO - Saved 1 chunks for Practice Direction 49B – Mesothelioma Claims
+
+[Practice Direction
+2026-01-17 11:36:27,205 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part49/practice-direction-49d-claims-for-the-recovery-of-taxes-and-duties
+2026-01-17 11:36:27,205 - INFO - Saved 1 chunks for Part 48 – Part
+2026-01-17 11:36:27,205 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part49/practice-direction-49e-alternative-procedure-for-claims
+2026-01-17 11:36:27,227 - INFO - Saved 5 chunks for Part 44 – General Rules About Costs
+
+[Part
+2026-01-17 11:36:27,228 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part49/practice-direction-49f-pre-action-protocol-for-low-value-personal-injury-claims-in-road-traffic-accidents-and-low-value-personal-injury-employers-liability-and-public-liability-claims-stage-3-procedure
+2026-01-17 11:36:27,229 - INFO - Split document Practice Direction 45 – Tables Of Fixed Costs ( into 7 chunks
+2026-01-17 11:36:27,230 - INFO - Saved 1 chunks for Practice Direction 49A – Applications Under The Companies Acts And Related Legislation
+2026-01-17 11:36:27,230 - INFO - Saved 1 chunks for Practice Direction 48 – Part
+2026-01-17 11:36:27,230 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part49/practice-direction-49g-applications-under-part-iii-of-the-family-law-reform-act-1969-for-use-of-scientific-tests-to-determine-parentage
+2026-01-17 11:36:27,230 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part50
+2026-01-17 11:36:27,231 - INFO - Saved 5 chunks for Practice Direction 44 – General Rules About Costs
+2026-01-17 11:36:27,232 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part51
+2026-01-17 11:36:27,235 - INFO - Saved 5 chunks for Part 47 – Procedure For Assessment Of Costs And Default Provisions
+
+[Part
+2026-01-17 11:36:27,235 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part51/practice-direction-51y-video-or-audio-hearings-during-coronavirus-pandemic
+2026-01-17 11:36:27,236 - INFO - Saved 5 chunks for Practice Direction 46 – Costs Special Cases
+2026-01-17 11:36:27,237 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part51/practice-direction-51zb-the-damages-claims-pilot
+2026-01-17 11:36:27,239 - INFO - Saved 4 chunks for Part 26 – Case Management
+2026-01-17 11:36:27,239 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part51/practice-direction-51zc-the-small-claims-paper-determination-pilot
+2026-01-17 11:36:27,242 - INFO - Split document Part 45 – Fixed Costs
+
+[Part into 10 chunks
+2026-01-17 11:36:27,243 - INFO - Saved 7 chunks for Practice Direction 45 – Tables Of Fixed Costs (
+2026-01-17 11:36:27,243 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part51/practice-direction-51ze-small-claims-track-automatic-referral-to-mediation-pilot-scheme
+2026-01-17 11:36:27,246 - INFO - Saved 10 chunks for Part 45 – Fixed Costs
+
+[Part
+2026-01-17 11:36:27,246 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/practice-direction-51zf-part-3-of-the-domestic-abuse-act-2021-provision-during-piloted-commencement
+2026-01-17 11:36:27,253 - INFO - Split document Practice Direction 47 – Procedure For Detailed Assessment Of Costs And Default Provisions
+
+[Practice Direction into 13 chunks
+2026-01-17 11:36:27,256 - INFO - Saved 13 chunks for Practice Direction 47 – Procedure For Detailed Assessment Of Costs And Default Provisions
+
+[Practice Direction
+2026-01-17 11:36:27,256 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part52
+2026-01-17 11:36:27,315 - INFO - Saved 1 chunks for Practice Direction 49D – Claims For The Recovery Of Taxes And Duties
+
+[Practice Direction
+2026-01-17 11:36:27,315 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part52/pd_part52
+2026-01-17 11:36:27,336 - INFO - Saved 1 chunks for Part 51 – Transitional Arrangements And Pilot Schemes
+2026-01-17 11:36:27,336 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part52/practice-direction-52b-appeals-in-the-county-courts-and-high-court
+2026-01-17 11:36:27,364 - INFO - Document Practice Direction 49C – Consumer Credit Act has 8370 tokens, chunking required
+2026-01-17 11:36:27,430 - INFO - Document Practice Direction 51Ze – Small Claims Track Automatic Referral To Mediation Pilot Scheme
+
+[Practice Direction has 4852 tokens, chunking required
+2026-01-17 11:36:27,475 - INFO - Saved 1 chunks for Practice Direction 51Y – Video Or Audio Hearings During Coronavirus Pandemic
+
+[Practice Direction
+2026-01-17 11:36:27,527 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part52/practice-direction-52c-appeals-to-the-court-of-appeal
+2026-01-17 11:36:27,482 - INFO - Saved 1 chunks for Part 50 – Application Of The Schedules
+2026-01-17 11:36:27,495 - INFO - Document Practice Direction 49E – Alternative Procedure For Claims
+
+[Practice Direction has 20145 tokens, chunking required
+2026-01-17 11:36:27,507 - INFO - Saved 1 chunks for Practice Direction 51Zc – The Small Claims Paper Determination Pilot
+2026-01-17 11:36:27,519 - WARNING - Connection pool is full, discarding connection: www.justice.gov.uk. Connection pool size: 10
+2026-01-17 11:36:27,527 - INFO - Document Practice Direction 49F – Pre-Action Protocol For Low Value Personal Injury Claims In Road Traffic Accidents And Low Value Personal Injury (Employers has 13053 tokens, chunking required
+2026-01-17 11:36:27,534 - WARNING - Connection pool is full, discarding connection: www.justice.gov.uk. Connection pool size: 10
+2026-01-17 11:36:27,495 - INFO - Saved 1 chunks for Practice Direction 49G – Applications Under Part Iii Of The Family Law Reform Act
+2026-01-17 11:36:27,540 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part52/practice-direction-52d-statutory-appeals-and-appeals-subject-to-special-provision
+2026-01-17 11:36:27,540 - INFO - Saved 3 chunks for Part 46 – Costs-Special Cases
+
+[Part
+2026-01-17 11:36:27,540 - WARNING - Connection pool is full, discarding connection: www.justice.gov.uk. Connection pool size: 9
+2026-01-17 11:36:27,541 - INFO - Document Practice Direction 51Zb – The Damages Claims Pilot
+
+[Practice Direction has 19563 tokens, chunking required
+2026-01-17 11:36:27,542 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part52/practice-direction-52e-appeals-by-way-of-case-stated
+2026-01-17 11:36:27,572 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part53
+2026-01-17 11:36:27,573 - INFO - Document Practice Direction 51Zf – Part has 21360 tokens, chunking required
+2026-01-17 11:36:27,579 - INFO - Split document Practice Direction 51Ze – Small Claims Track Automatic Referral To Mediation Pilot Scheme
+
+[Practice Direction into 4 chunks
+2026-01-17 11:36:27,592 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part53/pd_part53
+2026-01-17 11:36:27,637 - INFO - Document Practice Direction 52B – Appeals In The County Court And High Court has 4242 tokens, chunking required
+2026-01-17 11:36:27,661 - INFO - Document Part 52 – Appeals
+
+[Part has 12461 tokens, chunking required
+2026-01-17 11:36:27,670 - WARNING - No legal boundaries found for Practice Direction 51Zf – Part, using sentence chunking
+2026-01-17 11:36:27,674 - INFO - Document Practice Direction 52A – Appeals
+
+[Practice Direction has 8662 tokens, chunking required
+2026-01-17 11:36:27,687 - INFO - Split document Practice Direction 49C – Consumer Credit Act into 5 chunks
+2026-01-17 11:36:27,702 - INFO - Saved 4 chunks for Practice Direction 51Ze – Small Claims Track Automatic Referral To Mediation Pilot Scheme
+
+[Practice Direction
+2026-01-17 11:36:27,702 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part53/practice-direction-53b-media-and-communications-claims
+2026-01-17 11:36:27,709 - INFO - Split document Practice Direction 49F – Pre-Action Protocol For Low Value Personal Injury Claims In Road Traffic Accidents And Low Value Personal Injury (Employers into 6 chunks
+2026-01-17 11:36:27,713 - INFO - Saved 5 chunks for Practice Direction 49C – Consumer Credit Act
+2026-01-17 11:36:27,713 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54
+2026-01-17 11:36:27,719 - INFO - Document Practice Direction 52C – Appeals To The Court Of Appeal has 10447 tokens, chunking required
+2026-01-17 11:36:27,722 - INFO - Split document Practice Direction 52B – Appeals In The County Court And High Court into 4 chunks
+2026-01-17 11:36:27,725 - INFO - Split document Practice Direction 52A – Appeals
+
+[Practice Direction into 5 chunks
+2026-01-17 11:36:27,728 - INFO - Split document Part 52 – Appeals
+
+[Part into 6 chunks
+2026-01-17 11:36:27,729 - INFO - Saved 6 chunks for Practice Direction 49F – Pre-Action Protocol For Low Value Personal Injury Claims In Road Traffic Accidents And Low Value Personal Injury (Employers
+2026-01-17 11:36:27,729 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/pd_part54a
+2026-01-17 11:36:27,730 - INFO - Saved 4 chunks for Practice Direction 52B – Appeals In The County Court And High Court
+2026-01-17 11:36:27,730 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/cyfarwyddyd-ymarfer-54a-adolygiad-barnwrol
+2026-01-17 11:36:27,734 - INFO - Saved 5 chunks for Practice Direction 52A – Appeals
+
+[Practice Direction
+2026-01-17 11:36:27,734 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/pd_part54c
+2026-01-17 11:36:27,735 - INFO - Saved 3 chunks for Part 40 – Judgments
+2026-01-17 11:36:27,736 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/cyfarwyddyd-ymarfer-54b-ceisiadau-brys-a-cheisiadau-eraill-am-ryddhad-interim
+2026-01-17 11:36:27,737 - INFO - Saved 6 chunks for Part 52 – Appeals
+
+[Part
+2026-01-17 11:36:27,737 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/pd_part54d
+2026-01-17 11:36:27,739 - INFO - Split document Practice Direction 52C – Appeals To The Court Of Appeal into 7 chunks
+2026-01-17 11:36:27,741 - INFO - Split document Practice Direction 51Zb – The Damages Claims Pilot
+
+[Practice Direction into 8 chunks
+2026-01-17 11:36:27,742 - INFO - Saved 7 chunks for Practice Direction 52C – Appeals To The Court Of Appeal
+2026-01-17 11:36:27,742 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/cyfarwyddyd-ymarfer-54c-llys-gweinyddol-lleoliad
+2026-01-17 11:36:27,743 - INFO - Saved 8 chunks for Practice Direction 51Zb – The Damages Claims Pilot
+
+[Practice Direction
+2026-01-17 11:36:27,744 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/practice-direction-54e-planning-court-claims
+2026-01-17 11:36:27,778 - INFO - Saved 1 chunks for Practice Direction 52E – Appeals By Way Of Case Stated
+2026-01-17 11:36:27,778 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/cyfarwyddyd-ymarfer-54d-hawliadau-llys-cynllunio
+2026-01-17 11:36:27,789 - INFO - Split document Practice Direction 49E – Alternative Procedure For Claims
+
+[Practice Direction into 9 chunks
+2026-01-17 11:36:27,792 - INFO - Saved 9 chunks for Practice Direction 49E – Alternative Procedure For Claims
+
+[Practice Direction
+2026-01-17 11:36:27,792 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/practice-direction-54e-environmental-review-claims
+2026-01-17 11:36:27,856 - INFO - Saved 1 chunks for Practice Direction 53A – Transferring Proceedings To And From The Media And Communications List
+2026-01-17 11:36:27,856 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part55
+2026-01-17 11:36:27,883 - INFO - Document Practice Direction 53B – Media And Communications Claims has 7047 tokens, chunking required
+2026-01-17 11:36:27,943 - INFO - Saved 1 chunks for Part 53 – Media And Communications Claims
+
+[Part
+2026-01-17 11:36:27,943 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part55/pd_part55a
+2026-01-17 11:36:27,943 - INFO - Document Practice Direction 52D – Statutory Appeals And Appeals Subject To Special Provision has 16528 tokens, chunking required
+2026-01-17 11:36:27,962 - INFO - Saved 1 chunks for Practice Direction 54B – Urgent Applications And Other Applications For Interim Relief
+2026-01-17 11:36:27,962 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part55/pd_part55b
+2026-01-17 11:36:27,962 - INFO - Saved 1 chunks for Part 54 – Judicial Review And Statutory Review
+2026-01-17 11:36:27,962 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part56
+2026-01-17 11:36:27,980 - INFO - Document Part 54 – Judicial Review And Statutory Review
+
+[Part has 10088 tokens, chunking required
+2026-01-17 11:36:27,981 - INFO - Document Part 54 – Judicial Review And Statutory Review has 17526 tokens, chunking required
+2026-01-17 11:36:27,988 - INFO - Saved 1 chunks for Part 54 – Judicial Review And Statutory Review
+2026-01-17 11:36:27,988 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part56/pd_part56
+2026-01-17 11:36:28,011 - INFO - Document Practice Direction 54A – Judicial Review has 8549 tokens, chunking required
+2026-01-17 11:36:28,012 - INFO - Saved 1 chunks for Part 54 – Judicial Review And Statutory Review
+2026-01-17 11:36:28,031 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part56/practice-direction-56a-renting-homes-wales-claims
+2026-01-17 11:36:28,061 - INFO - Saved 1 chunks for Practice Direction 54C – Administrative Court (Venue)
+2026-01-17 11:36:28,061 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part57
+2026-01-17 11:36:28,068 - INFO - Document Practice Direction 54D – Planning Court Claims And Appeals To The Planning Court has 14261 tokens, chunking required
+2026-01-17 11:36:28,131 - INFO - Split document Practice Direction 53B – Media And Communications Claims into 5 chunks
+2026-01-17 11:36:28,132 - INFO - Document Part 55 – Possession Claims
+
+[Part has 17203 tokens, chunking required
+2026-01-17 11:36:28,172 - WARNING - Connection pool is full, discarding connection: www.justice.gov.uk. Connection pool size: 10
+2026-01-17 11:36:28,179 - INFO - Document Practice Direction 54E – Environmental Review Claims
+
+[Practice Direction has 4335 tokens, chunking required
+2026-01-17 11:36:28,181 - INFO - Split document Part 54 – Judicial Review And Statutory Review into 5 chunks
+2026-01-17 11:36:28,192 - INFO - Document Practice Direction 55A – Possession Claims has 8417 tokens, chunking required
+2026-01-17 11:36:28,199 - INFO - Split document Part 54 – Judicial Review And Statutory Review
+
+[Part into 5 chunks
+2026-01-17 11:36:28,207 - INFO - Document Part 56 – Landlord And Tenant Claims And Miscellaneous Provisions About Land And Claims Under The Renting Homes (Wales) Act has 4479 tokens, chunking required
+2026-01-17 11:36:28,208 - WARNING - No legal boundaries found for Part 56 – Landlord And Tenant Claims And Miscellaneous Provisions About Land And Claims Under The Renting Homes (Wales) Act, using sentence chunking
+2026-01-17 11:36:28,209 - WARNING - Connection pool is full, discarding connection: www.justice.gov.uk. Connection pool size: 10
+2026-01-17 11:36:28,214 - WARNING - Connection pool is full, discarding connection: www.justice.gov.uk. Connection pool size: 10
+2026-01-17 11:36:28,215 - INFO - Document Practice Direction 55B – Possession Claims Online has 7235 tokens, chunking required
+2026-01-17 11:36:28,300 - WARNING - Connection pool is full, discarding connection: www.justice.gov.uk. Connection pool size: 10
+2026-01-17 11:36:28,314 - INFO - Saved 1 chunks for Practice Direction 56A – Renting Homes (Wales) Claims
+
+[Practice Direction
+2026-01-17 11:36:28,314 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part57/pd_part57
+2026-01-17 11:36:28,356 - INFO - Document Practice Direction 56 – Landlord And Tenant Claims And Miscellaneous Provisions About Land has 15843 tokens, chunking required
+2026-01-17 11:36:28,362 - INFO - Split document Practice Direction 52D – Statutory Appeals And Appeals Subject To Special Provision into 9 chunks
+2026-01-17 11:36:28,364 - INFO - Split document Practice Direction 54A – Judicial Review into 5 chunks
+2026-01-17 11:36:28,368 - INFO - Saved 5 chunks for Practice Direction 53B – Media And Communications Claims
+2026-01-17 11:36:28,370 - INFO - Document Part 57 – Probate has 17488 tokens, chunking required
+2026-01-17 11:36:28,374 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part57/practice-direction-57b-proceedings-under-the-presumption-of-death-act-2013
+2026-01-17 11:36:28,375 - WARNING - No legal boundaries found for Part 57 – Probate, using sentence chunking
+2026-01-17 11:36:28,376 - INFO - Split document Practice Direction 55B – Possession Claims Online into 5 chunks
+2026-01-17 11:36:28,376 - INFO - Saved 5 chunks for Part 54 – Judicial Review And Statutory Review
+
+[Part
+2026-01-17 11:36:28,378 - INFO - Split document Practice Direction 54E – Environmental Review Claims
+
+[Practice Direction into 4 chunks
+2026-01-17 11:36:28,379 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-57a-business-and-property-courts
+2026-01-17 11:36:28,381 - INFO - Split document Practice Direction 54D – Planning Court Claims And Appeals To The Planning Court into 7 chunks
+2026-01-17 11:36:28,381 - INFO - Split document Part 55 – Possession Claims
+
+[Part into 7 chunks
+2026-01-17 11:36:28,383 - INFO - Split document Practice Direction 55A – Possession Claims into 5 chunks
+2026-01-17 11:36:28,383 - INFO - Saved 5 chunks for Part 54 – Judicial Review And Statutory Review
+2026-01-17 11:36:28,384 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-57a-business-and-property-courts/practice-direction-57ac-trial-witness-statements-in-the-business-and-property-courts
+2026-01-17 11:36:28,389 - INFO - Saved 9 chunks for Practice Direction 52D – Statutory Appeals And Appeals Subject To Special Provision
+2026-01-17 11:36:28,389 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-57a-business-and-property-courts/practice-direction-57ad-disclosure-in-the-business-and-property-courts
+2026-01-17 11:36:28,390 - INFO - Saved 4 chunks for Practice Direction 54E – Environmental Review Claims
+
+[Practice Direction
+2026-01-17 11:36:28,390 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part58
+2026-01-17 11:36:28,391 - INFO - Saved 5 chunks for Practice Direction 54A – Judicial Review
+2026-01-17 11:36:28,392 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part58/pd_part58
+2026-01-17 11:36:28,392 - INFO - Saved 5 chunks for Practice Direction 55B – Possession Claims Online
+2026-01-17 11:36:28,393 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part59
+2026-01-17 11:36:28,395 - INFO - Saved 7 chunks for Practice Direction 54D – Planning Court Claims And Appeals To The Planning Court
+2026-01-17 11:36:28,395 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part59/pd_part59
+2026-01-17 11:36:28,396 - INFO - Saved 5 chunks for Practice Direction 55A – Possession Claims
+2026-01-17 11:36:28,396 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part60
+2026-01-17 11:36:28,399 - INFO - Split document Practice Direction 56 – Landlord And Tenant Claims And Miscellaneous Provisions About Land into 8 chunks
+2026-01-17 11:36:28,399 - INFO - Saved 7 chunks for Part 55 – Possession Claims
+
+[Part
+2026-01-17 11:36:28,399 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part60/pd_part60
+2026-01-17 11:36:28,402 - INFO - Saved 8 chunks for Practice Direction 56 – Landlord And Tenant Claims And Miscellaneous Provisions About Land
+2026-01-17 11:36:28,402 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part61
+2026-01-17 11:36:28,404 - INFO - Saved 2 chunks for Part 56 – Landlord And Tenant Claims And Miscellaneous Provisions About Land And Claims Under The Renting Homes (Wales) Act
+2026-01-17 11:36:28,404 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part61/pd_part61
+2026-01-17 11:36:28,462 - INFO - Saved 6 chunks for Practice Direction 51Zf – Part
+2026-01-17 11:36:28,462 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part62
+2026-01-17 11:36:28,483 - INFO - Saved 5 chunks for Part 57 – Probate
+2026-01-17 11:36:28,483 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part62/pd_part62
+2026-01-17 11:36:28,548 - INFO - Document Practice Direction 57 – Probate has 5076 tokens, chunking required
+2026-01-17 11:36:28,602 - INFO - Document Practice Direction 57B – Proceedings Under The Presumption Of Death Act has 4136 tokens, chunking required
+2026-01-17 11:36:28,602 - WARNING - No legal boundaries found for Practice Direction 57B – Proceedings Under The Presumption Of Death Act, using sentence chunking
+2026-01-17 11:36:28,620 - INFO - Saved 1 chunks for Part 57A – Business And Property Courts
+
+[Part
+2026-01-17 11:36:28,624 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part63
+2026-01-17 11:36:28,631 - INFO - Document Practice Direction 57Ac – Trial Witness Statements In The Business And Property Courts has 8824 tokens, chunking required
+2026-01-17 11:36:28,631 - WARNING - No legal boundaries found for Practice Direction 57Ac – Trial Witness Statements In The Business And Property Courts, using sentence chunking
+2026-01-17 11:36:28,657 - INFO - Saved 1 chunks for Part 59 – Circuit Commercial Courts
+
+[Part
+2026-01-17 11:36:28,695 - INFO - Saved 1 chunks for Part 58 – Commercial Court
+
+[Part
+2026-01-17 11:36:28,695 - WARNING - Connection pool is full, discarding connection: www.justice.gov.uk. Connection pool size: 10
+2026-01-17 11:36:28,743 - WARNING - Connection pool is full, discarding connection: www.justice.gov.uk. Connection pool size: 10
+2026-01-17 11:36:28,743 - INFO - Saved 1 chunks for Practice Direction 59 – Circuit Commercial Courts
+2026-01-17 11:36:28,743 - WARNING - Connection pool is full, discarding connection: www.justice.gov.uk. Connection pool size: 10
+2026-01-17 11:36:28,744 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part63/pd_part63
+2026-01-17 11:36:28,744 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/financial-list
+2026-01-17 11:36:28,750 - INFO - Document Part 61 – Admiralty Claims
+
+[Part has 11756 tokens, chunking required
+2026-01-17 11:36:28,756 - INFO - Document Practice Direction 57Ad – Disclosure In The Business And Property Courts has 29266 tokens, chunking required
+2026-01-17 11:36:28,762 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part64
+2026-01-17 11:36:28,781 - INFO - Saved 1 chunks for Practice Direction 58 – Commercial Court
+2026-01-17 11:36:28,788 - INFO - Saved 1 chunks for Part 60 – Technology And Construction Court Claims
+
+[Part
+2026-01-17 11:36:28,861 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part64/pd_part64b
+2026-01-17 11:36:28,788 - INFO - Split document Practice Direction 57 – Probate into 4 chunks
+2026-01-17 11:36:28,830 - INFO - Document Part 62 – Arbitration Claims
+
+[Part has 10526 tokens, chunking required
+2026-01-17 11:36:28,832 - WARNING - No legal boundaries found for Practice Direction 57Ad – Disclosure In The Business And Property Courts, using sentence chunking
+2026-01-17 11:36:28,837 - INFO - Document Practice Direction 61 – Admiralty Claims has 12358 tokens, chunking required
+2026-01-17 11:36:28,851 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part64/pd_part64a
+2026-01-17 11:36:28,812 - INFO - Saved 1 chunks for Practice Direction 60 – Technology And Construction Court Claims
+2026-01-17 11:36:28,884 - INFO - Document Part 63 – Intellectual Property Claims
+
+[Part has 7912 tokens, chunking required
+2026-01-17 11:36:28,889 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part65
+2026-01-17 11:36:28,892 - INFO - Saved 2 chunks for Practice Direction 57B – Proceedings Under The Presumption Of Death Act
+2026-01-17 11:36:28,892 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part65/pd_part65
+2026-01-17 11:36:28,893 - INFO - Document Practice Direction 62 – Arbitration has 4125 tokens, chunking required
+2026-01-17 11:36:28,895 - INFO - Saved 4 chunks for Practice Direction 57 – Probate
+2026-01-17 11:36:28,895 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part66
+2026-01-17 11:36:28,898 - INFO - Split document Part 61 – Admiralty Claims
+
+[Part into 6 chunks
+2026-01-17 11:36:28,901 - INFO - Split document Part 62 – Arbitration Claims
+
+[Part into 5 chunks
+2026-01-17 11:36:28,902 - INFO - Saved 6 chunks for Part 61 – Admiralty Claims
+
+[Part
+2026-01-17 11:36:28,902 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part66/pd_part66
+2026-01-17 11:36:28,904 - INFO - Split document Practice Direction 62 – Arbitration into 4 chunks
+2026-01-17 11:36:28,906 - INFO - Saved 5 chunks for Part 62 – Arbitration Claims
+
+[Part
+2026-01-17 11:36:28,906 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part67
+2026-01-17 11:36:28,907 - INFO - Saved 4 chunks for Practice Direction 62 – Arbitration
+2026-01-17 11:36:28,907 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part67/pd_part67
+2026-01-17 11:36:28,908 - INFO - Split document Part 63 – Intellectual Property Claims
+
+[Part into 5 chunks
+2026-01-17 11:36:28,909 - INFO - Saved 5 chunks for Part 63 – Intellectual Property Claims
+
+[Part
+2026-01-17 11:36:28,909 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-68-proceedings-under-the-european-union-withdrawal-act-2018
+2026-01-17 11:36:28,935 - INFO - Split document Practice Direction 61 – Admiralty Claims into 7 chunks
+2026-01-17 11:36:28,941 - INFO - Saved 7 chunks for Practice Direction 61 – Admiralty Claims
+2026-01-17 11:36:28,941 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part69
+2026-01-17 11:36:28,944 - INFO - Document Practice Direction 63A – Intellectual Property Claims has 12035 tokens, chunking required
+2026-01-17 11:36:28,963 - INFO - Saved 1 chunks for Practice Direction 64B – Applications To The Court For Directions By Trustees In Relation To The Administration Of The Trust
+2026-01-17 11:36:28,963 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part69/pd_part69
+2026-01-17 11:36:28,969 - INFO - Split document Practice Direction 63A – Intellectual Property Claims into 6 chunks
+2026-01-17 11:36:28,972 - INFO - Saved 6 chunks for Practice Direction 63A – Intellectual Property Claims
+2026-01-17 11:36:28,972 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part70
+2026-01-17 11:36:29,003 - INFO - Saved 1 chunks for Part 63A – Financial List
+
+[Part
+2026-01-17 11:36:29,003 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part70/pd_part70
+2026-01-17 11:36:29,045 - INFO - Document Part 68 – Proceedings under the European Union (Withdrawal) Act 2018 has 4143 tokens, chunking required
+2026-01-17 11:36:29,045 - WARNING - No legal boundaries found for Part 68 – Proceedings under the European Union (Withdrawal) Act 2018, using sentence chunking
+2026-01-17 11:36:29,060 - INFO - Document Practice Direction 64A – Estates has 4851 tokens, chunking required
+2026-01-17 11:36:29,060 - WARNING - No legal boundaries found for Practice Direction 64A – Estates, using sentence chunking
+2026-01-17 11:36:29,126 - INFO - Saved 1 chunks for Part 64 – Estates
+2026-01-17 11:36:29,126 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part70/practice-direction-70b-debt-respite-scheme-under-the-financial-guidance-and-claims-act-2018
+2026-01-17 11:36:29,132 - INFO - Saved 1 chunks for Part 66 – Crown Proceedings
+
+[Part
+2026-01-17 11:36:29,133 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part71
+2026-01-17 11:36:29,133 - INFO - Document Practice Direction 65 – Anti-Social Behaviour And Harassment has 6306 tokens, chunking required
+2026-01-17 11:36:29,134 - WARNING - No legal boundaries found for Practice Direction 65 – Anti-Social Behaviour And Harassment, using sentence chunking
+2026-01-17 11:36:29,134 - INFO - Saved 1 chunks for Practice Direction 67 – Proceedings Relating To Solicitors
+2026-01-17 11:36:29,134 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part71/pd_part71
+2026-01-17 11:36:29,134 - WARNING - Connection pool is full, discarding connection: www.justice.gov.uk. Connection pool size: 9
+2026-01-17 11:36:29,196 - INFO - Saved 1 chunks for Practice Direction 66 – Crown Proceedings
+2026-01-17 11:36:29,196 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part72
+2026-01-17 11:36:29,214 - INFO - Saved 1 chunks for Part 67 – Proceedings Relating To Solicitors
+
+[Part
+2026-01-17 11:36:29,214 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part72/pd_part72
+2026-01-17 11:36:29,215 - INFO - Document Practice Direction 69 – Court has 4134 tokens, chunking required
+2026-01-17 11:36:29,215 - WARNING - No legal boundaries found for Practice Direction 69 – Court, using sentence chunking
+2026-01-17 11:36:29,267 - INFO - Saved 1 chunks for Part 69 – Court
+2026-01-17 11:36:29,268 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part73
+2026-01-17 11:36:29,275 - INFO - Document Part 65 – Proceedings Relating To Anti-Social Behaviour And Harassment
+
+[Part has 16588 tokens, chunking required
+2026-01-17 11:36:29,276 - WARNING - No legal boundaries found for Part 65 – Proceedings Relating To Anti-Social Behaviour And Harassment
+
+[Part, using sentence chunking
+2026-01-17 11:36:29,280 - INFO - Document Practice Direction 70A – Enforcement Of Judgments And Orders has 4987 tokens, chunking required
+2026-01-17 11:36:29,281 - INFO - Saved 1 chunks for Part 70 – General Rules About Enforcement Of Judgments And Orders
+
+[Part
+2026-01-17 11:36:29,281 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part73/pd_part73
+2026-01-17 11:36:29,282 - INFO - Saved 1 chunks for Practice Direction 70B – Debt Respite Scheme Under The Financial Guidance And Claims Act
+2026-01-17 11:36:29,282 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part74
+2026-01-17 11:36:29,298 - INFO - Split document Practice Direction 70A – Enforcement Of Judgments And Orders into 4 chunks
+2026-01-17 11:36:29,301 - INFO - Saved 4 chunks for Practice Direction 70A – Enforcement Of Judgments And Orders
+2026-01-17 11:36:29,301 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part74/pd_part74a
+2026-01-17 11:36:29,342 - INFO - Document Part 72 – Third Party Debt Orders
+
+[Part has 4111 tokens, chunking required
+2026-01-17 11:36:29,381 - INFO - Saved 1 chunks for Practice Direction 71 – Orders To Obtain Information From Judgment Debtors
+2026-01-17 11:36:29,381 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part75
+2026-01-17 11:36:29,384 - INFO - Saved 1 chunks for Practice Direction 72 – Third Party Debt Orders
+2026-01-17 11:36:29,384 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part75/pd_part75
+2026-01-17 11:36:29,385 - INFO - Saved 1 chunks for Part 71 – Orders To Obtain Information From Judgment Debtors
+
+[Part
+2026-01-17 11:36:29,385 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part76
+2026-01-17 11:36:29,386 - INFO - Split document Part 72 – Third Party Debt Orders
+
+[Part into 3 chunks
+2026-01-17 11:36:29,392 - INFO - Saved 3 chunks for Part 72 – Third Party Debt Orders
+
+[Part
+2026-01-17 11:36:29,393 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part77
+2026-01-17 11:36:29,396 - INFO - Saved 2 chunks for Practice Direction 64A – Estates
+2026-01-17 11:36:29,396 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part77/pd_part77
+2026-01-17 11:36:29,482 - INFO - Saved 1 chunks for Practice Direction 73 – Charging Orders
+2026-01-17 11:36:29,482 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part79
+2026-01-17 11:36:29,488 - INFO - Document Part 73 – Charging Orders has 9527 tokens, chunking required
+2026-01-17 11:36:29,489 - INFO - Saved 1 chunks for Practice Direction 74A – Enforcement Of Judgments In Different Jurisdictions
+2026-01-17 11:36:29,490 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part80
+2026-01-17 11:36:29,492 - INFO - Document Part 74 – Enforcement Of Judgments In Different Jurisdictions
+
+[Part has 10911 tokens, chunking required
+2026-01-17 11:36:29,493 - INFO - Saved 2 chunks for Practice Direction 69 – Court
+2026-01-17 11:36:29,493 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-81-applications-and-proceedings-in-relation-to-contempt-of-court
+2026-01-17 11:36:29,494 - INFO - Saved 2 chunks for Part 68 – Proceedings under the European Union (Withdrawal) Act 2018
+2026-01-17 11:36:29,495 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-82-closed-material-procedure
+2026-01-17 11:36:29,495 - INFO - Saved 3 chunks for Practice Direction 57Ac – Trial Witness Statements In The Business And Property Courts
+2026-01-17 11:36:29,495 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-83-writs-and-warrants-general-provisions
+2026-01-17 11:36:29,499 - INFO - Saved 2 chunks for Practice Direction 65 – Anti-Social Behaviour And Harassment
+2026-01-17 11:36:29,499 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-83-writs-and-warrants-general-provisions/37-practice-direction-83-writs-and-warrants-general-provisions
+2026-01-17 11:36:29,502 - INFO - Split document Part 73 – Charging Orders into 2 chunks
+2026-01-17 11:36:29,502 - INFO - Saved 2 chunks for Part 73 – Charging Orders
+2026-01-17 11:36:29,502 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-84enforcement-by-taking-control-of-goods
+2026-01-17 11:36:29,505 - INFO - Split document Part 74 – Enforcement Of Judgments In Different Jurisdictions
+
+[Part into 5 chunks
+2026-01-17 11:36:29,576 - INFO - Document Practice Direction 75 – Traffic Enforcement has 6426 tokens, chunking required
+2026-01-17 11:36:29,608 - INFO - Saved 1 chunks for Practice Direction 77 – Applications For And Relating To Serious Crime Prevention Orders And Referral Of Release Decisions
+2026-01-17 11:36:29,620 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-84enforcement-by-taking-control-of-goods/practice-direction-84-enforcement-by-taking-control-of-goods
+2026-01-17 11:36:29,677 - INFO - Document Part 76 – Proceedings Under The Prevention Of Terrorism Act has 13868 tokens, chunking required
+2026-01-17 11:36:29,678 - WARNING - No legal boundaries found for Part 76 – Proceedings Under The Prevention Of Terrorism Act, using sentence chunking
+2026-01-17 11:36:29,739 - INFO - Document Part 77 – Provisions In Support Of Criminal Justice
+
+[Part has 12315 tokens, chunking required
+2026-01-17 11:36:29,770 - INFO - Saved 1 chunks for Part 75 – Traffic Enforcement
+
+[Part
+2026-01-17 11:36:29,770 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-85-claims-on-controlled-goods-and-executed-goods
+2026-01-17 11:36:29,783 - INFO - Document Part 84 – Enforcement By Taking Control Of Goods
+
+[Part has 6260 tokens, chunking required
+2026-01-17 11:36:29,800 - INFO - Document Part 83 – Writs And Warrants has 19720 tokens, chunking required
+2026-01-17 11:36:29,814 - INFO - Document Part 79 – Proceedings under the counter-terrorism act 2008, part 1 of the terrorist asset-freezing etc. act 2010 and part 1 of the sanctions and anti-money laundering act 2018 has 20841 tokens, chunking required
+2026-01-17 11:36:29,815 - WARNING - No legal boundaries found for Part 79 – Proceedings under the counter-terrorism act 2008, part 1 of the terrorist asset-freezing etc. act 2010 and part 1 of the sanctions and anti-money laundering act 2018, using sentence chunking
+2026-01-17 11:36:29,852 - INFO - Split document Practice Direction 75 – Traffic Enforcement into 4 chunks
+2026-01-17 11:36:29,863 - INFO - Saved 1 chunks for Practice Direction 83 – Writs And Warrants
+2026-01-17 11:36:29,863 - INFO - Saved 1 chunks for Part 81 – Applications and Proceedings in Relation to Contempt of Court
+2026-01-17 11:36:29,864 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-86-stakeholder-claims-and-applications
+2026-01-17 11:36:29,870 - INFO - Saved 5 chunks for Part 74 – Enforcement Of Judgments In Different Jurisdictions
+
+[Part
+2026-01-17 11:36:29,870 - INFO - Document Part 80 – Proceedings under the Terrorism Prevention and Investigation Measures Act 2011 has 10645 tokens, chunking required
+2026-01-17 11:36:29,870 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-87-applications-for-writ-of-habeas-corpus
+2026-01-17 11:36:29,877 - WARNING - Connection pool is full, discarding connection: www.justice.gov.uk. Connection pool size: 10
+2026-01-17 11:36:29,880 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-88-proceedings-under-the-counter-terrorism-and-security-act-2015
+2026-01-17 11:36:29,889 - INFO - Document Part 82 – Closed Material Procedure
+
+[Part has 12419 tokens, chunking required
+2026-01-17 11:36:29,896 - INFO - Split document Part 84 – Enforcement By Taking Control Of Goods
+
+[Part into 4 chunks
+2026-01-17 11:36:29,900 - INFO - Saved 4 chunks for Practice Direction 75 – Traffic Enforcement
+2026-01-17 11:36:29,900 - INFO - Saved 1 chunks for Practice Direction 84 – Enforcement By Taking Control Of Goods
+2026-01-17 11:36:29,900 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/art-89-attachment-of-earnings
+2026-01-17 11:36:29,901 - INFO - Saved 4 chunks for Part 84 – Enforcement By Taking Control Of Goods
+
+[Part
+2026-01-17 11:36:29,901 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/competitionlaw_pd
+2026-01-17 11:36:29,903 - INFO - Scraping with Context Injection: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/appforwarrant
+2026-01-17 11:36:29,909 - INFO - Split document Part 77 – Provisions In Support Of Criminal Justice
+
+[Part into 6 chunks
+2026-01-17 11:36:29,915 - INFO - Split document Part 83 – Writs And Warrants into 8 chunks
+2026-01-17 11:36:29,917 - INFO - Saved 6 chunks for Part 77 – Provisions In Support Of Criminal Justice
+
+[Part
+2026-01-17 11:36:29,919 - INFO - Split document Part 82 – Closed Material Procedure
+
+[Part into 7 chunks
+2026-01-17 11:36:29,919 - INFO - Split document Part 80 – Proceedings under the Terrorism Prevention and Investigation Measures Act 2011 into 6 chunks
+2026-01-17 11:36:29,923 - INFO - Saved 8 chunks for Part 83 – Writs And Warrants
+2026-01-17 11:36:29,925 - INFO - Saved 7 chunks for Part 82 – Closed Material Procedure
+
+[Part
+2026-01-17 11:36:29,926 - INFO - Saved 6 chunks for Part 80 – Proceedings under the Terrorism Prevention and Investigation Measures Act 2011
+2026-01-17 11:36:29,965 - INFO - Saved 5 chunks for Part 65 – Proceedings Relating To Anti-Social Behaviour And Harassment
+
+[Part
+2026-01-17 11:36:29,978 - INFO - Saved 4 chunks for Part 76 – Proceedings Under The Prevention Of Terrorism Act
+2026-01-17 11:36:30,072 - INFO - Document Part 85 – Claims On Controlled Goods And Executed Goods
+
+[Part has 10422 tokens, chunking required
+2026-01-17 11:36:30,080 - INFO - Saved 6 chunks for Part 79 – Proceedings under the counter-terrorism act 2008, part 1 of the terrorist asset-freezing etc. act 2010 and part 1 of the sanctions and anti-money laundering act 2018
+2026-01-17 11:36:30,083 - INFO - Split document Part 85 – Claims On Controlled Goods And Executed Goods
+
+[Part into 6 chunks
+2026-01-17 11:36:30,084 - INFO - Saved 6 chunks for Part 85 – Claims On Controlled Goods And Executed Goods
+
+[Part
+2026-01-17 11:36:30,190 - INFO - Saved 8 chunks for Practice Direction 57Ad – Disclosure In The Business And Property Courts
+2026-01-17 11:36:30,333 - INFO - Saved 1 chunks for Part 86 – Stakeholder Claims And Applications
+
+[Part
+2026-01-17 11:36:30,348 - INFO - Document Part 89 – Attachment Of Earnings
+
+[Part has 8295 tokens, chunking required
+2026-01-17 11:36:30,352 - INFO - Saved 1 chunks for Part 87 – Applications For Writ Of Habeas Corpus
+
+[Part
+2026-01-17 11:36:30,357 - INFO - Document Part 88 – Proceedings Under The Counter-Terrorism And Security Act has 13088 tokens, chunking required
+2026-01-17 11:36:30,357 - WARNING - No legal boundaries found for Part 88 – Proceedings Under The Counter-Terrorism And Security Act, using sentence chunking
+2026-01-17 11:36:30,361 - INFO - Split document Part 89 – Attachment Of Earnings
+
+[Part into 5 chunks
+2026-01-17 11:36:30,362 - INFO - Saved 5 chunks for Part 89 – Attachment Of Earnings
+
+[Part
+2026-01-17 11:36:30,413 - INFO - Saved 4 chunks for Part 88 – Proceedings Under The Counter-Terrorism And Security Act
+2026-01-17 11:36:30,729 - INFO - Document Practice Direction – Competition Law – claims relating to the application of chapters I and II of part I of the Competition Act 1998 and claims made under section 101 of the Digital Markets, Competition and Consumers Act 2024 has 6335 tokens, chunking required
+2026-01-17 11:36:30,729 - WARNING - No legal boundaries found for Practice Direction – Competition Law – claims relating to the application of chapters I and II of part I of the Competition Act 1998 and claims made under section 101 of the Digital Markets, Competition and Consumers Act 2024, using sentence chunking
+2026-01-17 11:36:30,760 - INFO - Saved 2 chunks for Practice Direction – Competition Law – claims relating to the application of chapters I and II of part I of the Competition Act 1998 and claims made under section 101 of the Digital Markets, Competition and Consumers Act 2024
+2026-01-17 11:36:30,898 - WARNING - Connection pool is full, discarding connection: www.justice.gov.uk. Connection pool size: 10
+2026-01-17 11:36:30,953 - INFO - Document Application for a Warrant under The Competition Act 1998 or Part 1 of the Digital Markets, Competition and Consumers Act 2024 has 18444 tokens, chunking required
+2026-01-17 11:36:30,954 - WARNING - No legal boundaries found for Application for a Warrant under The Competition Act 1998 or Part 1 of the Digital Markets, Competition and Consumers Act 2024, using sentence chunking
+2026-01-17 11:36:31,099 - INFO - Saved 5 chunks for Application for a Warrant under The Competition Act 1998 or Part 1 of the Digital Markets, Competition and Consumers Act 2024
+2026-01-17 11:36:31,099 - INFO - Scrape complete. Enriched 204/204 docs.

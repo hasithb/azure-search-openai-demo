@@ -37,14 +37,16 @@ class LegalDocumentChunker:
         boundaries = []
         
         # Legal document boundary patterns (in order of preference)
+        # Updated to support Markdown headers (# PART, ## Rule) in addition to raw text
         patterns = [
             # Major sections (highest priority)
             (r'\n\s*([IVX]+)\s+([A-Z][A-Z\s]+)\s*\n', 'major_section'),
-            (r'\n\s*(PART\s+\d+\s*[-–]\s*[A-Z][A-Z\s]+)\s*\n', 'part'),
-            (r'\n\s*(PRACTICE DIRECTION\s+\d+[A-Z]?\s*[-–]\s*[A-Z][A-Z\s]+)\s*\n', 'practice_direction'),
+            (r'\n\s*(?:#\s*)?(PART\s+\d+\s*[-–]\s*[A-Z][A-Z\s]+)\s*\n', 'part'),
+            (r'\n\s*(?:#\s*)?(PRACTICE DIRECTION\s+\d+[A-Z]?\s*[-–]\s*[A-Z][A-Z\s]+)\s*\n', 'practice_direction'),
+            (r'\n\s*(DATA PROTECTION|MISUSE OF PRIVATE|HARASSMENT|DEFAMATION|INTRODUCTION|OBJECTIVES|PROPORTIONALITY|EXPERTS|SETTLEMENT|LIMITATION).*\n', 'major_section'),
             
             # Rules and sub-rules
-            (r'\n\s*([A-Z][a-z]+\s+\d+(?:\.\d+)*(?:\s*[A-Z]\s*\d*)?)\s*\n', 'rule'),
+            (r'\n\s*(?:##\s*)?([A-Z][a-z]+\s+\d+(?:\.\d+)*(?:\s*[A-Z]\s*\d*)?)\s*\n', 'rule'),
             (r'\n\s*(\d+\.\d+(?:\.\d+)*)\s+([A-Z][^.]+)\s*\n', 'sub_rule'),
             (r'\n\s*(\d+\.)\s+([A-Z][^.]+)\s*\n', 'numbered_section'),
             
@@ -103,14 +105,7 @@ class LegalDocumentChunker:
                            rule_title: str) -> List[Dict]:
         """
         Chunk a legal document intelligently, respecting legal boundaries.
-        
-        Args:
-            text: Full document text
-            document_id: Base document ID
-            rule_title: Title of the rule/document
-            
-        Returns:
-            List of document chunks in Azure Search format
+        Prioritizes keeping sections intact. Only splits internally if a single section exceeds max_tokens.
         """
         token_count = self.count_tokens(text)
         
@@ -130,26 +125,107 @@ class LegalDocumentChunker:
         boundaries = self.find_legal_boundaries(text)
         
         if not boundaries:
-            # Fallback to sentence-based chunking if no legal boundaries found
             return self._fallback_sentence_chunking(text, document_id, rule_title)
         
         chunks = []
         current_start = 0
-        current_section_context = ""
+        last_safe_boundary = 0
         
-        for i, (boundary_pos, boundary_type, header_text) in enumerate(boundaries):
-            # Calculate potential chunk from current_start to this boundary
-            potential_chunk = text[current_start:boundary_pos]
-            potential_tokens = self.count_tokens(potential_chunk)
+        # Add a synthetic boundary at the end to ensure we process the last section
+        boundary_list = boundaries + [(len(text), 'end', '')]
+        
+        # We also need to be careful: boundaries are Start positions of headers.
+        # So the content of "Rule 1" is [boundary[i].pos : boundary[i+1].pos].
+        
+        # Actually, my proposed algorithm works better if we iterate through segments.
+        # Let's iterate through the boundary list.
+        
+        # State tracking
+        current_section_context = ""
+        last_section_context = ""
+
+        # Use a while loop to allow manual index manipulation (for retries after splitting)
+        i = 0
+        # Start looking from the first boundary? 
+        # No, we just iterate the identified boundaries. 
+        # But `current_start` must advance.
+        
+        while i < len(boundary_list):
+            boundary_pos, boundary_type, header_text = boundary_list[i]
             
-            # If this chunk would exceed token limit, create a chunk
-            if potential_tokens > self.max_tokens:
-                # Try to find a good breaking point before the boundary
-                break_point = self._find_safe_break_point(
-                    text, current_start, boundary_pos, current_section_context
-                )
+            # If boundary is behind current_start (e.g. after a split), skip it
+            if boundary_pos <= current_start and boundary_type != 'end':
+                # Update context if we are passing a header
+                if boundary_type in ['major_section', 'part', 'practice_direction', 'rule']:
+                     current_section_context = header_text
+                i += 1
+                continue
+
+            # Candidate chunk: From current_start to this boundary
+            candidate_text = text[current_start:boundary_pos]
+            candidate_tokens = self.count_tokens(candidate_text)
+            
+            if candidate_tokens <= self.max_tokens:
+                # It fits! 
+                # This boundary is now our "safe" aggregation point.
+                last_safe_boundary = boundary_pos
                 
-                if break_point > current_start:
+                # Update context for the *next* segment
+                if boundary_type in ['major_section', 'part', 'practice_direction', 'rule']:
+                     # Before we move on, save the context of the segment we just swallowed?
+                     # Actually, valid implementation calculates context based on the *start* of the chunk.
+                     # We just need to track the latest header we've seen.
+                     last_section_context = current_section_context
+                     current_section_context = header_text
+                
+                # Move to try next boundary
+                i += 1
+            else:
+                # Overflow!
+                # Decision: Aggregate overflow or Single Section overflow?
+                
+                # Check if we have aggregated multiple sections (last_safe_boundary > current_start)
+                if last_safe_boundary > current_start:
+                    # AGGREGATION OVERFLOW:
+                    # The chunk [current_start : boundary_pos] is too big.
+                    # But [current_start : last_safe_boundary] was safe.
+                    # So we cut at last_safe_boundary.
+                    
+                    chunk_text = text[current_start:last_safe_boundary].strip()
+                    if chunk_text:
+                        chunks.append({
+                            'text': chunk_text,
+                            'token_count': self.count_tokens(chunk_text),
+                            'section_context': last_section_context, # Approximate
+                            'start_pos': current_start,
+                            'end_pos': last_safe_boundary
+                        })
+                    
+                    # Advance
+                    current_start = last_safe_boundary
+                    # We do NOT increment i. We must re-evaluate the current boundary 
+                    # against the new current_start.
+                
+                else:
+                    # SINGLE SECTION OVERFLOW:
+                    # We haven't even reached the first safe boundary after current_start, 
+                    # and we are already over limit. 
+                    # This means [current_start : boundary_pos] (one section) is huge.
+                    
+                    # We must split strictly.
+                    # Estimate end point (current_start + max_tokensish)
+                    # We can use the existing _find_safe_break_point logic but constrained.
+                    
+                    break_point = self._find_safe_break_point(
+                        text, current_start, boundary_pos, current_section_context
+                    )
+                    
+                    # If break_point fails to advance (edge case), force advance
+                    if break_point <= current_start:
+                        break_point = current_start + int(len(candidate_text) * 0.5) 
+                        if break_point <= current_start: # Still stuck (1 char?)
+                             break_point = boundary_pos
+                    
                     chunk_text = text[current_start:break_point].strip()
                     if chunk_text:
                         chunks.append({
@@ -159,33 +235,12 @@ class LegalDocumentChunker:
                             'start_pos': current_start,
                             'end_pos': break_point
                         })
+                    
                     current_start = break_point
-            
-            # Update section context for major boundaries
-            if boundary_type in ['major_section', 'part', 'practice_direction', 'rule']:
-                current_section_context = header_text
-        
-        # Handle remaining text
-        if current_start < len(text):
-            remaining_text = text[current_start:].strip()
-            if remaining_text:
-                remaining_tokens = self.count_tokens(remaining_text)
-                if remaining_tokens > self.max_tokens:
-                    # Split remaining text if still too large
-                    remaining_chunks = self._split_large_text(
-                        remaining_text, current_section_context
-                    )
-                    chunks.extend(remaining_chunks)
-                else:
-                    chunks.append({
-                        'text': remaining_text,
-                        'token_count': remaining_tokens,
-                        'section_context': current_section_context,
-                        'start_pos': current_start,
-                        'end_pos': len(text)
-                    })
-        
-        # Format chunks with proper context
+                    last_safe_boundary = current_start # Reset safe boundary
+                    # Do not increment i. Re-eval rest of the section.
+
+        # Format chunks
         formatted_chunks = []
         total_chunks = len(chunks)
         

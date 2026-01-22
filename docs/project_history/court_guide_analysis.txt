@@ -1,0 +1,1 @@
+/opt/homebrew/Cellar/python@3.11/3.11.14_1/Frameworks/Python.framework/Versions/3.11/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/analyze_court_guide_structure.py': [Errno 2] No such file or directory

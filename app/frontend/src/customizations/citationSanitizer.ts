@@ -97,12 +97,60 @@ export function fixMalformedCitations(text: string): string {
 }
 
 /**
+ * CUSTOM: Remove specific display artifacts identified in legal domain responses.
+ *
+ * Artifacts removed:
+ * 1. Markdown headers for rule numbers: "## 1.1" -> "1.1" (removes formatting, keeps number)
+ * 2. Bracketed source headers: "[PART 1 – OVERRIDING OBJECTIVE > 1.1]" -> ""
+ *
+ * These checks are applied before other sanitizations to ensure cleaner text.
+ */
+export function removeArtifacts(text: string): string {
+    let result = text;
+
+    // Remove "## " prefix from "## 1.1" style headers but KEEP the number
+    // Replaces "## 1.1" with "1.1"
+    result = result.replace(/##\s+(?=\d)/g, "");
+
+    // Remove "[PART ...]" style headers
+    // Using \s* at end to clean up trailing space if the tag was at start of line
+    result = result.replace(/\[PART\s+[^\]]+\]\s*/g, "");
+
+    return result;
+}
+
+/**
+ * CUSTOM: Remove trailing citation lists like:
+ *
+ * Citation:
+ * 1. Source 1
+ * 2. Source 2
+ *
+ * These lists are redundant because the UI renders citations separately.
+ */
+function removeTrailingCitationList(text: string): string {
+    let result = text;
+
+    // Remove trailing blocks that start with "Citation:" or "Citations:" and list "Source N" items
+    const sourceListBlock = /(?:\r?\n)+\s*(?:Citations?|Citation)\s*:\s*(?:\r?\n\s*\d+[\.)]\s*Source\s*\d+\s*)+\s*$/gi;
+    result = result.replace(sourceListBlock, "");
+
+    return result;
+}
+
+/**
  * Main sanitization function - applies all citation fixes in the correct order.
  * Call this on the raw LLM response before parsing into HTML.
  */
 export function sanitizeCitations(text: string): string {
+    // 0. Remove visual artifacts (hashes and PART brackets)
+    let result = removeArtifacts(text);
+
+    // 0b. Remove trailing citation lists (e.g., "Citation:\n1. Source 1")
+    result = removeTrailingCitationList(result);
+
     // First fix malformed unbracketed citations like "1. 1" → "[1]"
-    let result = fixMalformedCitations(text);
+    result = fixMalformedCitations(result);
     // Then collapse any adjacent bracketed citations like [1][2] → [2]
     result = collapseAdjacentCitations(result);
     return result;

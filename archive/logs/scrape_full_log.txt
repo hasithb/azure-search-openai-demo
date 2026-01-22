@@ -1,0 +1,543 @@
+2026-01-15 18:42:00,550 - INFO - Fetching index: https://www.justice.gov.uk/courts/procedure-rules/civil/rules
+2026-01-15 18:42:01,868 - INFO - Found 204 potential CPR pages
+2026-01-15 18:42:01,868 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part01
+2026-01-15 18:42:02,962 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_1___Overriding_Objective__M.json (ID: Part 1 – Overriding Objective
+
+M)
+2026-01-15 18:42:02,962 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part01/practice-direction-1a-participation-of-vulnerable-parties-or-witnesses
+2026-01-15 18:42:03,678 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_1___Overriding_Objective.json (ID: Part 1 – Overriding Objective)
+2026-01-15 18:42:03,678 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part02
+2026-01-15 18:42:04,380 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_2___Application_And_Interpretation_Of_The_Rules__M.json (ID: Part 2 – Application And Interpretation Of The Rules
+
+M)
+2026-01-15 18:42:04,381 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part02/pd_part02a
+2026-01-15 18:42:05,347 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_2___Application_And_Interpretation_Of_The_Rules.json (ID: Part 2 – Application And Interpretation Of The Rules)
+2026-01-15 18:42:05,347 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part02/pd_part02b
+2026-01-15 18:42:06,710 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_2___Application_And_Interpretation_Of_The_Rules.json (ID: Part 2 – Application And Interpretation Of The Rules)
+2026-01-15 18:42:06,711 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part02/practice-direction-2c-starting-proceedings-in-the-county-court
+2026-01-15 18:42:07,355 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_2___Application_And_Interpretation_Of_The_Rules.json (ID: Part 2 – Application And Interpretation Of The Rules)
+2026-01-15 18:42:07,355 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part02/practice-direction-2e-jurisdiction-of-the-county-court-that-may-be-exercised-by-a-legal-adviser
+2026-01-15 18:42:08,544 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_2___Application_And_Interpretation_Of_The_Rules.json (ID: Part 2 – Application And Interpretation Of The Rules)
+2026-01-15 18:42:08,544 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part02/pd_part39b
+2026-01-15 18:42:09,913 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_2___Application_And_Interpretation_Of_The_Rules.json (ID: Part 2 – Application And Interpretation Of The Rules)
+2026-01-15 18:42:09,913 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part03
+2026-01-15 18:42:10,764 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_3___The_Court.json (ID: Part 3 – The Court)
+2026-01-15 18:42:10,764 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part03/pd_part03a
+2026-01-15 18:42:11,989 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_3___The_Court.json (ID: Part 3 – The Court)
+2026-01-15 18:42:11,989 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part03/pd_part03b
+2026-01-15 18:42:13,061 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_3___The_Court.json (ID: Part 3 – The Court)
+2026-01-15 18:42:13,061 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part03/pd_part03c
+2026-01-15 18:42:14,343 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_3___The_Court.json (ID: Part 3 – The Court)
+2026-01-15 18:42:14,343 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part03/practice-direction-3e-costs-management
+2026-01-15 18:42:15,653 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_3___The_Court.json (ID: Part 3 – The Court)
+2026-01-15 18:42:15,653 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part03/practice-direction-3f-costs-capping
+2026-01-15 18:42:16,934 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_3___The_Court.json (ID: Part 3 – The Court)
+2026-01-15 18:42:16,934 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part04
+2026-01-15 18:42:17,659 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_4___Forms__M.json (ID: Part 4 – Forms
+
+M)
+2026-01-15 18:42:17,660 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part05
+2026-01-15 18:42:18,808 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_5___Court_Documents__M.json (ID: Part 5 – Court Documents
+
+M)
+2026-01-15 18:42:18,808 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part05/pd_part05a
+2026-01-15 18:42:20,486 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_5___Court_Documents.json (ID: Part 5 – Court Documents)
+2026-01-15 18:42:20,486 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part05/pd_part05b
+2026-01-15 18:42:22,013 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_5___Court_Documents.json (ID: Part 5 – Court Documents)
+2026-01-15 18:42:22,013 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part06
+2026-01-15 18:42:23,677 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_6___Service_Of_Documents__M.json (ID: Part 6 – Service Of Documents
+
+M)
+2026-01-15 18:42:23,677 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part06/pd_part06a
+2026-01-15 18:42:24,395 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_6___Service_Of_Documents.json (ID: Part 6 – Service Of Documents)
+2026-01-15 18:42:24,395 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part06/pd_part06b
+2026-01-15 18:42:25,341 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_6___Service_Of_Documents.json (ID: Part 6 – Service Of Documents)
+2026-01-15 18:42:25,341 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part07
+2026-01-15 18:42:26,673 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_7___How_To_Start_Proceedings.json (ID: Part 7 – How To Start Proceedings)
+2026-01-15 18:42:26,673 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part07/pd_part07a
+2026-01-15 18:42:28,084 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_7___How_To_Start_Proceedings.json (ID: Part 7 – How To Start Proceedings)
+2026-01-15 18:42:28,084 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part07/pd_part07c
+2026-01-15 18:42:29,624 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_7___How_To_Start_Proceedings.json (ID: Part 7 – How To Start Proceedings)
+2026-01-15 18:42:29,624 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part07/pd_part07e
+2026-01-15 18:42:31,213 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_7___How_To_Start_Proceedings.json (ID: Part 7 – How To Start Proceedings)
+2026-01-15 18:42:31,213 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part08
+2026-01-15 18:42:31,943 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_8___Alternative_Procedure_For_Claims__M.json (ID: Part 8 – Alternative Procedure For Claims
+
+M)
+2026-01-15 18:42:31,943 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part09
+2026-01-15 18:42:33,196 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_9___Responding_To_Particulars_Of_Claim.json (ID: Part 9 – Responding To Particulars Of Claim)
+2026-01-15 18:42:33,196 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part10
+2026-01-15 18:42:34,624 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_10___Acknowledgment_Of_Service__M.json (ID: Part 10 – Acknowledgment Of Service
+
+M)
+2026-01-15 18:42:34,625 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part11
+2026-01-15 18:42:35,426 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_11___Disputing_The_Court.json (ID: Part 11 – Disputing The Court)
+2026-01-15 18:42:35,426 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part12
+2026-01-15 18:42:36,597 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_12___Default_Judgment__M.json (ID: Part 12 – Default Judgment
+
+M)
+2026-01-15 18:42:36,597 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part13
+2026-01-15 18:42:38,132 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_13___Setting_Aside_Or_Varying_Default_Judgment__M.json (ID: Part 13 – Setting Aside Or Varying Default Judgment
+
+M)
+2026-01-15 18:42:38,132 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part14
+2026-01-15 18:42:39,337 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_14___Admissions__M.json (ID: Part 14 – Admissions
+
+M)
+2026-01-15 18:42:39,337 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part15
+2026-01-15 18:42:40,890 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_15___Defence_And_Reply__M.json (ID: Part 15 – Defence And Reply
+
+M)
+2026-01-15 18:42:40,890 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part16
+2026-01-15 18:42:41,901 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_16___Statements_Of_Case__M.json (ID: Part 16 – Statements Of Case
+
+M)
+2026-01-15 18:42:41,901 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part16/pd_part16
+2026-01-15 18:42:42,591 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_16___Statements_Of_Case.json (ID: Part 16 – Statements Of Case)
+2026-01-15 18:42:42,591 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part17
+2026-01-15 18:42:43,294 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_17___Amendments_To_Statements_Of_Case__M.json (ID: Part 17 – Amendments To Statements Of Case
+
+M)
+2026-01-15 18:42:43,294 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part17/pd_part17
+2026-01-15 18:42:44,153 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_17___Amendments_To_Statements_Of_Case.json (ID: Part 17 – Amendments To Statements Of Case)
+2026-01-15 18:42:44,153 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part18
+2026-01-15 18:42:44,813 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_18___Further_Information__M.json (ID: Part 18 – Further Information
+
+M)
+2026-01-15 18:42:44,813 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part18/pd_part18
+2026-01-15 18:42:45,785 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_18___Further_Information.json (ID: Part 18 – Further Information)
+2026-01-15 18:42:45,785 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part19
+2026-01-15 18:42:46,547 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_19___Parties_And_Group_Litigation__M.json (ID: Part 19 – Parties And Group Litigation
+
+M)
+2026-01-15 18:42:46,547 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part19/pd_part19a
+2026-01-15 18:42:47,587 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_19___Parties_And_Group_Litigation.json (ID: Part 19 – Parties And Group Litigation)
+2026-01-15 18:42:47,587 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part19/pd_part19b
+2026-01-15 18:42:48,397 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_19___Parties_And_Group_Litigation.json (ID: Part 19 – Parties And Group Litigation)
+2026-01-15 18:42:48,398 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part20
+2026-01-15 18:42:49,222 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_20___Counterclaims_And_Other_Additional_Claims__M.json (ID: Part 20 – Counterclaims And Other Additional Claims
+
+M)
+2026-01-15 18:42:49,222 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part20/pd_part20
+2026-01-15 18:42:50,671 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_20___Counterclaims_And_Other_Additional_Claims.json (ID: Part 20 – Counterclaims And Other Additional Claims)
+2026-01-15 18:42:50,671 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part21
+2026-01-15 18:42:51,918 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_21___Children_And_Protected_Parties__M.json (ID: Part 21 – Children And Protected Parties
+
+M)
+2026-01-15 18:42:51,919 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part22
+2026-01-15 18:42:53,208 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_22___Statements_Of_Truth__M.json (ID: Part 22 – Statements Of Truth
+
+M)
+2026-01-15 18:42:53,208 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part22/pd_part22
+2026-01-15 18:42:54,326 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_22___Statements_Of_Truth.json (ID: Part 22 – Statements Of Truth)
+2026-01-15 18:42:54,326 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part23
+2026-01-15 18:42:54,966 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_23___General_Rules_About_Applications_For_Court_Orders__M.json (ID: Part 23 – General Rules About Applications For Court Orders
+
+M)
+2026-01-15 18:42:54,966 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part23/pd_part23a
+2026-01-15 18:42:55,872 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_23___General_Rules_About_Applications_For_Court_Orders.json (ID: Part 23 – General Rules About Applications For Court Orders)
+2026-01-15 18:42:55,872 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part24
+2026-01-15 18:42:57,192 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_24___Summary_Judgment__M.json (ID: Part 24 – Summary Judgment
+
+M)
+2026-01-15 18:42:57,192 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part25
+2026-01-15 18:42:57,954 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_25___Interim_Remedies_And_Security_For_Costs__M.json (ID: Part 25 – Interim Remedies And Security For Costs
+
+M)
+2026-01-15 18:42:57,954 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part26
+2026-01-15 18:42:59,080 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_26___Case_Management.json (ID: Part 26 – Case Management)
+2026-01-15 18:42:59,080 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part26/pd_part26
+2026-01-15 18:42:59,986 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_26___Case_Management.json (ID: Part 26 – Case Management)
+2026-01-15 18:42:59,986 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part27
+2026-01-15 18:43:00,964 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_27___The_Small_Claims_Track__M.json (ID: Part 27 – The Small Claims Track
+
+M)
+2026-01-15 18:43:00,964 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part27/pd_part27
+2026-01-15 18:43:02,357 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_27___The_Small_Claims_Track.json (ID: Part 27 – The Small Claims Track)
+2026-01-15 18:43:02,357 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part27/practice-direction-27b-claims-under-the-pre-action-protocol-for-personal-injury-claims-below-the-small-claims-limit-in-road-traffic-accidents-court-procedure
+2026-01-15 18:43:03,886 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_27___The_Small_Claims_Track.json (ID: Part 27 – The Small Claims Track)
+2026-01-15 18:43:03,886 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part28
+2026-01-15 18:43:04,911 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_28___The_Fast_Track_And_The_Intermediate_Track__M.json (ID: Part 28 – The Fast Track And The Intermediate Track
+
+M)
+2026-01-15 18:43:04,911 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part28/pd_part28
+2026-01-15 18:43:06,015 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_28___The_Fast_Track_And_The_Intermediate_Track.json (ID: Part 28 – The Fast Track And The Intermediate Track)
+2026-01-15 18:43:06,015 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part29
+2026-01-15 18:43:06,732 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_29___The_Multi.json (ID: Part 29 – The Multi)
+2026-01-15 18:43:06,732 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part29/pd_part29
+2026-01-15 18:43:07,925 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_29___The_Multi.json (ID: Part 29 – The Multi)
+2026-01-15 18:43:07,925 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part30
+2026-01-15 18:43:08,727 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_30___Transfer__M.json (ID: Part 30 – Transfer
+
+M)
+2026-01-15 18:43:08,727 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part30/pd_part30
+2026-01-15 18:43:09,538 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_30___Transfer.json (ID: Part 30 – Transfer)
+2026-01-15 18:43:09,538 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part31
+2026-01-15 18:43:10,733 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_31___Disclosure_And_Inspection_Of_Documents__M.json (ID: Part 31 – Disclosure And Inspection Of Documents
+
+M)
+2026-01-15 18:43:10,733 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part31/pd_part31a
+2026-01-15 18:43:11,948 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_31___Disclosure_And_Inspection_Of_Documents.json (ID: Part 31 – Disclosure And Inspection Of Documents)
+2026-01-15 18:43:11,948 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part31/pd_part31b
+2026-01-15 18:43:13,497 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_31___Disclosure_And_Inspection_Of_Documents.json (ID: Part 31 – Disclosure And Inspection Of Documents)
+2026-01-15 18:43:13,497 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part31/practice-direction-31c-disclosure-and-inspection-in-relation-to-competition-claims
+2026-01-15 18:43:14,242 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_31___Disclosure_And_Inspection_Of_Documents.json (ID: Part 31 – Disclosure And Inspection Of Documents)
+2026-01-15 18:43:14,243 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part32
+2026-01-15 18:43:15,683 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_32___Evidence__M.json (ID: Part 32 – Evidence
+
+M)
+2026-01-15 18:43:15,683 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part32/pd_part32
+2026-01-15 18:43:16,502 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_32___Evidence.json (ID: Part 32 – Evidence)
+2026-01-15 18:43:16,502 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part33
+2026-01-15 18:43:17,931 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_33___Miscellaneous_Rules_About_Evidence__M.json (ID: Part 33 – Miscellaneous Rules About Evidence
+
+M)
+2026-01-15 18:43:17,931 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part33/pd_part33
+2026-01-15 18:43:18,669 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_33___Miscellaneous_Rules_About_Evidence.json (ID: Part 33 – Miscellaneous Rules About Evidence)
+2026-01-15 18:43:18,670 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part34
+2026-01-15 18:43:20,278 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_34___Witnesses.json (ID: Part 34 – Witnesses)
+2026-01-15 18:43:20,278 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part34/pd_part34a
+2026-01-15 18:43:21,195 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_34___Witnesses.json (ID: Part 34 – Witnesses)
+2026-01-15 18:43:21,195 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part34/pd_part34b
+2026-01-15 18:43:22,102 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_34___Witnesses.json (ID: Part 34 – Witnesses)
+2026-01-15 18:43:22,102 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part35
+2026-01-15 18:43:23,210 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_35___Experts_And_Assessors__M.json (ID: Part 35 – Experts And Assessors
+
+M)
+2026-01-15 18:43:23,210 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part35/pd_part35
+2026-01-15 18:43:24,386 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_35___Experts_And_Assessors.json (ID: Part 35 – Experts And Assessors)
+2026-01-15 18:43:24,386 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part36
+2026-01-15 18:43:25,855 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_36___Offers_To_Settle__M.json (ID: Part 36 – Offers To Settle
+
+M)
+2026-01-15 18:43:25,855 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part36/pd_part36a
+2026-01-15 18:43:27,187 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_36___Offers_To_Settle.json (ID: Part 36 – Offers To Settle)
+2026-01-15 18:43:27,187 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part37
+2026-01-15 18:43:28,395 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_37___Miscellaneous_Provisions_About_Payments_Into_Court__M.json (ID: Part 37 – Miscellaneous Provisions About Payments Into Court
+
+M)
+2026-01-15 18:43:28,395 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part37/pd_part37
+2026-01-15 18:43:29,744 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_37___Miscellaneous_Provisions_About_Payments_Into_Court.json (ID: Part 37 – Miscellaneous Provisions About Payments Into Court)
+2026-01-15 18:43:29,744 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part38
+2026-01-15 18:43:30,707 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_38___Discontinuance__M.json (ID: Part 38 – Discontinuance
+
+M)
+2026-01-15 18:43:30,707 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part39
+2026-01-15 18:43:31,437 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_39___Miscellaneous_Provisions_Relating_To_Hearings__M.json (ID: Part 39 – Miscellaneous Provisions Relating To Hearings
+
+M)
+2026-01-15 18:43:31,437 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part40
+2026-01-15 18:43:32,695 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_40___Judgments.json (ID: Part 40 – Judgments)
+2026-01-15 18:43:32,695 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part40/pd_part40a
+2026-01-15 18:43:34,299 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_40___Judgments.json (ID: Part 40 – Judgments)
+2026-01-15 18:43:34,299 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part40/pd_part40b
+2026-01-15 18:43:35,580 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_40___Judgments.json (ID: Part 40 – Judgments)
+2026-01-15 18:43:35,580 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part40/pd_part40d
+2026-01-15 18:43:37,108 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_40___Judgments.json (ID: Part 40 – Judgments)
+2026-01-15 18:43:37,108 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part40/pd_part40e
+2026-01-15 18:43:38,606 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_40___Judgments.json (ID: Part 40 – Judgments)
+2026-01-15 18:43:38,606 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part40/practice-direction-40f-non-disclosure-injunctions-information-collection-scheme
+2026-01-15 18:43:39,699 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_40___Judgments.json (ID: Part 40 – Judgments)
+2026-01-15 18:43:39,699 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part41
+2026-01-15 18:43:41,188 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_41___Damages__M.json (ID: Part 41 – Damages
+
+M)
+2026-01-15 18:43:41,188 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part41/pd_part41a
+2026-01-15 18:43:41,893 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_41___Damages.json (ID: Part 41 – Damages)
+2026-01-15 18:43:41,893 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part41/pd_part41b
+2026-01-15 18:43:43,397 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_41___Damages.json (ID: Part 41 – Damages)
+2026-01-15 18:43:43,397 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part42
+2026-01-15 18:43:44,190 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_42___Change_Of_Solicitor__M.json (ID: Part 42 – Change Of Solicitor
+
+M)
+2026-01-15 18:43:44,190 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part42/pd_part42
+2026-01-15 18:43:45,716 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_42___Change_Of_Solicitor.json (ID: Part 42 – Change Of Solicitor)
+2026-01-15 18:43:45,716 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-44-general-rules-about-costs
+2026-01-15 18:43:47,361 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_44___General_Rules_About_Costs__M.json (ID: Part 44 – General Rules About Costs
+
+M)
+2026-01-15 18:43:47,361 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-44-general-rules-about-costs/part-44-general-rules-about-costs2
+2026-01-15 18:43:48,137 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_44___General_Rules_About_Costs.json (ID: Part 44 – General Rules About Costs)
+2026-01-15 18:43:48,137 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part45-fixed-costs
+2026-01-15 18:43:49,385 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_45___Fixed_Costs__M.json (ID: Part 45 – Fixed Costs
+
+M)
+2026-01-15 18:43:49,385 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part45-fixed-costs/practice-direction-45-fixed-costs
+2026-01-15 18:43:50,206 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_45___Fixed_Costs.json (ID: Part 45 – Fixed Costs)
+2026-01-15 18:43:50,206 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-46-costs-special-cases
+2026-01-15 18:43:51,530 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_46___Costs.json (ID: Part 46 – Costs)
+2026-01-15 18:43:51,530 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-46-costs-special-cases/practice-direction-46-costs-special-cases
+2026-01-15 18:43:52,202 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_46___Costs.json (ID: Part 46 – Costs)
+2026-01-15 18:43:52,202 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-47-procedure-for-detailed-assessment
+2026-01-15 18:43:53,455 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_47___Procedure_For_Assessment_Of_Costs_And_Default_Provisions__M.json (ID: Part 47 – Procedure For Assessment Of Costs And Default Provisions
+
+M)
+2026-01-15 18:43:53,455 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-47-procedure-for-detailed-assessment/practice-direction-46-costs-special-cases2
+2026-01-15 18:43:54,376 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_47___Procedure_For_Assessment_Of_Costs_And_Default_Provisions.json (ID: Part 47 – Procedure For Assessment Of Costs And Default Provisions)
+2026-01-15 18:43:54,376 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-48-part-2of-the-legal-aid,-sentencing-and-punishment-of-offenders-act-2012-relating-to-civil-litigation-funding-and-costs-transitional-provision-in-relation-to-pre-commencement-funding-arrangements
+2026-01-15 18:43:55,480 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_48___Part.json (ID: Part 48 – Part)
+2026-01-15 18:43:55,480 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-48-part-2of-the-legal-aid,-sentencing-and-punishment-of-offenders-act-2012-relating-to-civil-litigation-funding-and-costs-transitional-provision-in-relation-to-pre-commencement-funding-arrangements/part-48-part-2of-the-legal-aid,-sentencing-and-punishment-of-offenders-act-2012-relating-to-civil-litigation-funding-and-costs-transitional-provision-in-relation-to-pre-commencement-funding-arrangements2
+2026-01-15 18:43:56,764 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_48___Part.json (ID: Part 48 – Part)
+2026-01-15 18:43:56,765 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part49
+2026-01-15 18:43:58,158 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_49___Specialist_Proceedings__M.json (ID: Part 49 – Specialist Proceedings
+
+M)
+2026-01-15 18:43:58,158 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part49/pd_part49a
+2026-01-15 18:43:59,341 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_49___Specialist_Proceedings.json (ID: Part 49 – Specialist Proceedings)
+2026-01-15 18:43:59,341 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part49/pd_part49b
+2026-01-15 18:44:00,388 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_49___Specialist_Proceedings.json (ID: Part 49 – Specialist Proceedings)
+2026-01-15 18:44:00,388 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part49/practice-direction-49c-consumer-credit-act-2006-unfair-relationships
+2026-01-15 18:44:01,857 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_49___Specialist_Proceedings.json (ID: Part 49 – Specialist Proceedings)
+2026-01-15 18:44:01,857 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part49/practice-direction-49d-claims-for-the-recovery-of-taxes-and-duties
+2026-01-15 18:44:03,095 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_49___Specialist_Proceedings.json (ID: Part 49 – Specialist Proceedings)
+2026-01-15 18:44:03,095 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part49/practice-direction-49e-alternative-procedure-for-claims
+2026-01-15 18:44:03,917 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_49___Specialist_Proceedings.json (ID: Part 49 – Specialist Proceedings)
+2026-01-15 18:44:03,917 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part49/practice-direction-49f-pre-action-protocol-for-low-value-personal-injury-claims-in-road-traffic-accidents-and-low-value-personal-injury-employers-liability-and-public-liability-claims-stage-3-procedure
+2026-01-15 18:44:05,143 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_49___Specialist_Proceedings.json (ID: Part 49 – Specialist Proceedings)
+2026-01-15 18:44:05,143 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part49/practice-direction-49g-applications-under-part-iii-of-the-family-law-reform-act-1969-for-use-of-scientific-tests-to-determine-parentage
+2026-01-15 18:44:05,824 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_49___Specialist_Proceedings.json (ID: Part 49 – Specialist Proceedings)
+2026-01-15 18:44:05,824 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part50
+2026-01-15 18:44:07,042 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_50___Application_Of_The_Schedules__M.json (ID: Part 50 – Application Of The Schedules
+
+M)
+2026-01-15 18:44:07,042 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part51
+2026-01-15 18:44:08,584 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_51___Transitional_Arrangements_And_Pilot_Schemes__M.json (ID: Part 51 – Transitional Arrangements And Pilot Schemes
+
+M)
+2026-01-15 18:44:08,584 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part51/practice-direction-51y-video-or-audio-hearings-during-coronavirus-pandemic
+2026-01-15 18:44:10,201 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_51___Transitional_Arrangements_And_Pilot_Schemes.json (ID: Part 51 – Transitional Arrangements And Pilot Schemes)
+2026-01-15 18:44:10,201 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part51/practice-direction-51zb-the-damages-claims-pilot
+2026-01-15 18:44:10,947 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_51___Transitional_Arrangements_And_Pilot_Schemes.json (ID: Part 51 – Transitional Arrangements And Pilot Schemes)
+2026-01-15 18:44:10,947 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part51/practice-direction-51zc-the-small-claims-paper-determination-pilot
+2026-01-15 18:44:12,418 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_51___Transitional_Arrangements_And_Pilot_Schemes.json (ID: Part 51 – Transitional Arrangements And Pilot Schemes)
+2026-01-15 18:44:12,418 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part51/practice-direction-51ze-small-claims-track-automatic-referral-to-mediation-pilot-scheme
+2026-01-15 18:44:13,923 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_51___Transitional_Arrangements_And_Pilot_Schemes.json (ID: Part 51 – Transitional Arrangements And Pilot Schemes)
+2026-01-15 18:44:13,923 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/practice-direction-51zf-part-3-of-the-domestic-abuse-act-2021-provision-during-piloted-commencement
+2026-01-15 18:44:14,691 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Practice_Direction_51Zf___Part.json (ID: Practice Direction 51Zf – Part)
+2026-01-15 18:44:14,691 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part52
+2026-01-15 18:44:15,996 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_52___Appeals__M.json (ID: Part 52 – Appeals
+
+M)
+2026-01-15 18:44:15,996 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part52/pd_part52
+2026-01-15 18:44:17,553 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_52___Appeals.json (ID: Part 52 – Appeals)
+2026-01-15 18:44:17,553 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part52/practice-direction-52b-appeals-in-the-county-courts-and-high-court
+2026-01-15 18:44:18,751 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_52___Appeals.json (ID: Part 52 – Appeals)
+2026-01-15 18:44:18,751 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part52/practice-direction-52c-appeals-to-the-court-of-appeal
+2026-01-15 18:44:20,409 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_52___Appeals.json (ID: Part 52 – Appeals)
+2026-01-15 18:44:20,409 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part52/practice-direction-52d-statutory-appeals-and-appeals-subject-to-special-provision
+2026-01-15 18:44:21,315 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_52___Appeals.json (ID: Part 52 – Appeals)
+2026-01-15 18:44:21,315 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part52/practice-direction-52e-appeals-by-way-of-case-stated
+2026-01-15 18:44:22,402 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_52___Appeals.json (ID: Part 52 – Appeals)
+2026-01-15 18:44:22,402 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part53
+2026-01-15 18:44:23,343 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_53___Media_And_Communications_Claims__M.json (ID: Part 53 – Media And Communications Claims
+
+M)
+2026-01-15 18:44:23,343 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part53/pd_part53
+2026-01-15 18:44:24,893 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_53___Media_And_Communications_Claims.json (ID: Part 53 – Media And Communications Claims)
+2026-01-15 18:44:24,893 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part53/practice-direction-53b-media-and-communications-claims
+2026-01-15 18:44:26,407 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_53___Media_And_Communications_Claims.json (ID: Part 53 – Media And Communications Claims)
+2026-01-15 18:44:26,407 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54
+2026-01-15 18:44:27,151 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_54___Judicial_Review_And_Statutory_Review__M.json (ID: Part 54 – Judicial Review And Statutory Review
+
+M)
+2026-01-15 18:44:27,151 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/pd_part54a
+2026-01-15 18:44:28,784 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_54___Judicial_Review_And_Statutory_Review.json (ID: Part 54 – Judicial Review And Statutory Review)
+2026-01-15 18:44:28,784 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/cyfarwyddyd-ymarfer-54a-adolygiad-barnwrol
+2026-01-15 18:44:29,589 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_54___Judicial_Review_And_Statutory_Review.json (ID: Part 54 – Judicial Review And Statutory Review)
+2026-01-15 18:44:29,589 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/pd_part54c
+2026-01-15 18:44:30,875 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_54___Judicial_Review_And_Statutory_Review.json (ID: Part 54 – Judicial Review And Statutory Review)
+2026-01-15 18:44:30,875 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/cyfarwyddyd-ymarfer-54b-ceisiadau-brys-a-cheisiadau-eraill-am-ryddhad-interim
+2026-01-15 18:44:31,900 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_54___Judicial_Review_And_Statutory_Review.json (ID: Part 54 – Judicial Review And Statutory Review)
+2026-01-15 18:44:31,900 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/pd_part54d
+2026-01-15 18:44:33,462 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_54___Judicial_Review_And_Statutory_Review.json (ID: Part 54 – Judicial Review And Statutory Review)
+2026-01-15 18:44:33,463 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/cyfarwyddyd-ymarfer-54c-llys-gweinyddol-lleoliad
+2026-01-15 18:44:34,348 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_54___Judicial_Review_And_Statutory_Review.json (ID: Part 54 – Judicial Review And Statutory Review)
+2026-01-15 18:44:34,348 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/practice-direction-54e-planning-court-claims
+2026-01-15 18:44:35,721 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_54___Judicial_Review_And_Statutory_Review.json (ID: Part 54 – Judicial Review And Statutory Review)
+2026-01-15 18:44:35,721 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/cyfarwyddyd-ymarfer-54d-hawliadau-llys-cynllunio
+2026-01-15 18:44:36,757 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_54___Judicial_Review_And_Statutory_Review.json (ID: Part 54 – Judicial Review And Statutory Review)
+2026-01-15 18:44:36,757 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/practice-direction-54e-environmental-review-claims
+2026-01-15 18:44:37,693 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_54___Judicial_Review_And_Statutory_Review.json (ID: Part 54 – Judicial Review And Statutory Review)
+2026-01-15 18:44:37,693 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part55
+2026-01-15 18:44:38,474 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_55___Possession_Claims__M.json (ID: Part 55 – Possession Claims
+
+M)
+2026-01-15 18:44:38,474 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part55/pd_part55a
+2026-01-15 18:44:39,760 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_55___Possession_Claims.json (ID: Part 55 – Possession Claims)
+2026-01-15 18:44:39,760 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part55/pd_part55b
+2026-01-15 18:44:40,720 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_55___Possession_Claims.json (ID: Part 55 – Possession Claims)
+2026-01-15 18:44:40,720 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part56
+2026-01-15 18:44:41,957 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_56___Landlord_And_Tenant_Claims_And_Miscellaneous_Provisions_About_Land_And_Claims_Under_The_Re.json (ID: Part 56 – Landlord And Tenant Claims And Miscellaneous Provisions About Land And Claims Under The Renting Homes)
+2026-01-15 18:44:41,958 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part56/pd_part56
+2026-01-15 18:44:43,401 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_56___Landlord_And_Tenant_Claims_And_Miscellaneous_Provisions_About_Land_And_Claims_Under_The_Re.json (ID: Part 56 – Landlord And Tenant Claims And Miscellaneous Provisions About Land And Claims Under The Renting Homes)
+2026-01-15 18:44:43,402 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part56/practice-direction-56a-renting-homes-wales-claims
+2026-01-15 18:44:44,939 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_56___Landlord_And_Tenant_Claims_And_Miscellaneous_Provisions_About_Land_And_Claims_Under_The_Re.json (ID: Part 56 – Landlord And Tenant Claims And Miscellaneous Provisions About Land And Claims Under The Renting Homes)
+2026-01-15 18:44:44,939 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part57
+2026-01-15 18:44:46,508 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_57___Probate.json (ID: Part 57 – Probate)
+2026-01-15 18:44:46,508 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part57/pd_part57
+2026-01-15 18:44:47,843 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_57___Probate.json (ID: Part 57 – Probate)
+2026-01-15 18:44:47,843 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part57/practice-direction-57b-proceedings-under-the-presumption-of-death-act-2013
+2026-01-15 18:44:49,104 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_57___Probate.json (ID: Part 57 – Probate)
+2026-01-15 18:44:49,104 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-57a-business-and-property-courts
+2026-01-15 18:44:50,055 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_57A___Business_And_Property_Courts__M.json (ID: Part 57A – Business And Property Courts
+
+M)
+2026-01-15 18:44:50,056 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-57a-business-and-property-courts/practice-direction-57ac-trial-witness-statements-in-the-business-and-property-courts
+2026-01-15 18:44:51,292 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_57A___Business_And_Property_Courts.json (ID: Part 57A – Business And Property Courts)
+2026-01-15 18:44:51,292 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-57a-business-and-property-courts/practice-direction-57ad-disclosure-in-the-business-and-property-courts
+2026-01-15 18:44:52,640 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_57A___Business_And_Property_Courts.json (ID: Part 57A – Business And Property Courts)
+2026-01-15 18:44:52,640 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part58
+2026-01-15 18:44:53,928 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_58___Commercial_Court__M.json (ID: Part 58 – Commercial Court
+
+M)
+2026-01-15 18:44:53,928 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part58/pd_part58
+2026-01-15 18:44:54,745 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_58___Commercial_Court.json (ID: Part 58 – Commercial Court)
+2026-01-15 18:44:54,745 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part59
+2026-01-15 18:44:55,685 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_59___Circuit_Commercial_Courts__M.json (ID: Part 59 – Circuit Commercial Courts
+
+M)
+2026-01-15 18:44:55,685 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part59/pd_part59
+2026-01-15 18:44:56,385 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_59___Circuit_Commercial_Courts.json (ID: Part 59 – Circuit Commercial Courts)
+2026-01-15 18:44:56,385 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part60
+2026-01-15 18:44:57,767 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_60___Technology_And_Construction_Court_Claims__M.json (ID: Part 60 – Technology And Construction Court Claims
+
+M)
+2026-01-15 18:44:57,767 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part60/pd_part60
+2026-01-15 18:44:58,628 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_60___Technology_And_Construction_Court_Claims.json (ID: Part 60 – Technology And Construction Court Claims)
+2026-01-15 18:44:58,628 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part61
+2026-01-15 18:44:59,578 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_61___Admiralty_Claims__M.json (ID: Part 61 – Admiralty Claims
+
+M)
+2026-01-15 18:44:59,578 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part61/pd_part61
+2026-01-15 18:45:01,106 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_61___Admiralty_Claims.json (ID: Part 61 – Admiralty Claims)
+2026-01-15 18:45:01,106 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part62
+2026-01-15 18:45:02,372 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_62___Arbitration_Claims__M.json (ID: Part 62 – Arbitration Claims
+
+M)
+2026-01-15 18:45:02,372 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part62/pd_part62
+2026-01-15 18:45:03,572 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_62___Arbitration_Claims.json (ID: Part 62 – Arbitration Claims)
+2026-01-15 18:45:03,572 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part63
+2026-01-15 18:45:04,886 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_63___Intellectual_Property_Claims__M.json (ID: Part 63 – Intellectual Property Claims
+
+M)
+2026-01-15 18:45:04,886 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part63/pd_part63
+2026-01-15 18:45:05,894 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_63___Intellectual_Property_Claims.json (ID: Part 63 – Intellectual Property Claims)
+2026-01-15 18:45:05,894 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/financial-list
+2026-01-15 18:45:07,263 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_63A___Financial_List__M.json (ID: Part 63A – Financial List
+
+M)
+2026-01-15 18:45:07,263 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part64
+2026-01-15 18:45:08,728 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_64___Estates.json (ID: Part 64 – Estates)
+2026-01-15 18:45:08,728 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part64/pd_part64a
+2026-01-15 18:45:09,762 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_64___Estates.json (ID: Part 64 – Estates)
+2026-01-15 18:45:09,762 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part64/pd_part64b
+2026-01-15 18:45:10,815 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_64___Estates.json (ID: Part 64 – Estates)
+2026-01-15 18:45:10,815 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part65
+2026-01-15 18:45:12,444 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_65___Proceedings_Relating_To_Anti.json (ID: Part 65 – Proceedings Relating To Anti)
+2026-01-15 18:45:12,445 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part65/pd_part65
+2026-01-15 18:45:13,764 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_65___Proceedings_Relating_To_Anti.json (ID: Part 65 – Proceedings Relating To Anti)
+2026-01-15 18:45:13,765 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part66
+2026-01-15 18:45:14,971 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_66___Crown_Proceedings__M.json (ID: Part 66 – Crown Proceedings
+
+M)
+2026-01-15 18:45:14,971 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part66/pd_part66
+2026-01-15 18:45:16,052 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_66___Crown_Proceedings.json (ID: Part 66 – Crown Proceedings)
+2026-01-15 18:45:16,052 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part67
+2026-01-15 18:45:16,721 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_67___Proceedings_Relating_To_Solicitors__M.json (ID: Part 67 – Proceedings Relating To Solicitors
+
+M)
+2026-01-15 18:45:16,721 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part67/pd_part67
+2026-01-15 18:45:18,008 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_67___Proceedings_Relating_To_Solicitors.json (ID: Part 67 – Proceedings Relating To Solicitors)
+2026-01-15 18:45:18,008 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-68-proceedings-under-the-european-union-withdrawal-act-2018
+2026-01-15 18:45:19,316 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_68___Proceedings_under_the_European_Union__Withdrawal__Act_2018.json (ID: Part 68 – Proceedings under the European Union (Withdrawal) Act 2018)
+2026-01-15 18:45:19,316 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part69
+2026-01-15 18:45:20,012 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_69___Court.json (ID: Part 69 – Court)
+2026-01-15 18:45:20,012 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part69/pd_part69
+2026-01-15 18:45:21,398 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_69___Court.json (ID: Part 69 – Court)
+2026-01-15 18:45:21,398 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part70
+2026-01-15 18:45:22,183 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_70___General_Rules_About_Enforcement_Of_Judgments_And_Orders__M.json (ID: Part 70 – General Rules About Enforcement Of Judgments And Orders
+
+M)
+2026-01-15 18:45:22,183 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part70/pd_part70
+2026-01-15 18:45:22,868 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_70___General_Rules_About_Enforcement_Of_Judgments_And_Orders.json (ID: Part 70 – General Rules About Enforcement Of Judgments And Orders)
+2026-01-15 18:45:22,868 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part70/practice-direction-70b-debt-respite-scheme-under-the-financial-guidance-and-claims-act-2018
+2026-01-15 18:45:23,968 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_70___General_Rules_About_Enforcement_Of_Judgments_And_Orders.json (ID: Part 70 – General Rules About Enforcement Of Judgments And Orders)
+2026-01-15 18:45:23,968 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part71
+2026-01-15 18:45:25,119 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_71___Orders_To_Obtain_Information_From_Judgment_Debtors__M.json (ID: Part 71 – Orders To Obtain Information From Judgment Debtors
+
+M)
+2026-01-15 18:45:25,119 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part71/pd_part71
+2026-01-15 18:45:26,647 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_71___Orders_To_Obtain_Information_From_Judgment_Debtors.json (ID: Part 71 – Orders To Obtain Information From Judgment Debtors)
+2026-01-15 18:45:26,647 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part72
+2026-01-15 18:45:27,891 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_72___Third_Party_Debt_Orders__M.json (ID: Part 72 – Third Party Debt Orders
+
+M)
+2026-01-15 18:45:27,891 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part72/pd_part72
+2026-01-15 18:45:28,734 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_72___Third_Party_Debt_Orders.json (ID: Part 72 – Third Party Debt Orders)
+2026-01-15 18:45:28,734 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part73
+2026-01-15 18:45:30,249 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_73___Charging_Orders.json (ID: Part 73 – Charging Orders)
+2026-01-15 18:45:30,249 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part73/pd_part73
+2026-01-15 18:45:30,975 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_73___Charging_Orders.json (ID: Part 73 – Charging Orders)
+2026-01-15 18:45:30,975 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part74
+2026-01-15 18:45:32,197 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_74___Enforcement_Of_Judgments_In_Different_Jurisdictions__M.json (ID: Part 74 – Enforcement Of Judgments In Different Jurisdictions
+
+M)
+2026-01-15 18:45:32,197 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part74/pd_part74a
+2026-01-15 18:45:32,883 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_74___Enforcement_Of_Judgments_In_Different_Jurisdictions.json (ID: Part 74 – Enforcement Of Judgments In Different Jurisdictions)
+2026-01-15 18:45:32,884 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part75
+2026-01-15 18:45:34,199 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_75___Traffic_Enforcement__M.json (ID: Part 75 – Traffic Enforcement
+
+M)
+2026-01-15 18:45:34,199 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part75/pd_part75
+2026-01-15 18:45:34,894 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_75___Traffic_Enforcement.json (ID: Part 75 – Traffic Enforcement)
+2026-01-15 18:45:34,894 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part76
+2026-01-15 18:45:36,001 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_76___Proceedings_Under_The_Prevention_Of_Terrorism_Act.json (ID: Part 76 – Proceedings Under The Prevention Of Terrorism Act)
+2026-01-15 18:45:36,001 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part77
+2026-01-15 18:45:37,356 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_77___Provisions_In_Support_Of_Criminal_Justice__M.json (ID: Part 77 – Provisions In Support Of Criminal Justice
+
+M)
+2026-01-15 18:45:37,357 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part77/pd_part77
+2026-01-15 18:45:38,423 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_77___Provisions_In_Support_Of_Criminal_Justice.json (ID: Part 77 – Provisions In Support Of Criminal Justice)
+2026-01-15 18:45:38,423 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part79
+2026-01-15 18:45:39,365 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_79___Proceedings_under_the_counter-terrorism_act_2008__part_1_of_the_terrorist_asset-freezing_e.json (ID: Part 79 – Proceedings under the counter-terrorism act 2008, part 1 of the terrorist asset-freezing etc. act 2010 and part 1 of the sanctions and anti-money laundering act 2018)
+2026-01-15 18:45:39,365 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part80
+2026-01-15 18:45:40,262 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_80___Proceedings_under_the_Terrorism_Prevention_and_Investigation_Measures_Act_2011.json (ID: Part 80 – Proceedings under the Terrorism Prevention and Investigation Measures Act 2011)
+2026-01-15 18:45:40,262 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-81-applications-and-proceedings-in-relation-to-contempt-of-court
+2026-01-15 18:45:41,636 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_81___Applications_and_Proceedings_in_Relation_to_Contempt_of_Court.json (ID: Part 81 – Applications and Proceedings in Relation to Contempt of Court)
+2026-01-15 18:45:41,636 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-82-closed-material-procedure
+2026-01-15 18:45:42,803 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_82___Closed_Material_Procedure__M.json (ID: Part 82 – Closed Material Procedure
+
+M)
+2026-01-15 18:45:42,803 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-83-writs-and-warrants-general-provisions
+2026-01-15 18:45:44,285 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_83___Writs_And_Warrants.json (ID: Part 83 – Writs And Warrants)
+2026-01-15 18:45:44,286 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-83-writs-and-warrants-general-provisions/37-practice-direction-83-writs-and-warrants-general-provisions
+2026-01-15 18:45:45,154 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_83___Writs_And_Warrants.json (ID: Part 83 – Writs And Warrants)
+2026-01-15 18:45:45,154 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-84enforcement-by-taking-control-of-goods
+2026-01-15 18:45:46,332 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_84___Enforcement_By_Taking_Control_Of_Goods__M.json (ID: Part 84 – Enforcement By Taking Control Of Goods
+
+M)
+2026-01-15 18:45:46,332 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-84enforcement-by-taking-control-of-goods/practice-direction-84-enforcement-by-taking-control-of-goods
+2026-01-15 18:45:47,172 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_84___Enforcement_By_Taking_Control_Of_Goods.json (ID: Part 84 – Enforcement By Taking Control Of Goods)
+2026-01-15 18:45:47,172 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-85-claims-on-controlled-goods-and-executed-goods
+2026-01-15 18:45:48,098 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_85___Claims_On_Controlled_Goods_And_Executed_Goods__M.json (ID: Part 85 – Claims On Controlled Goods And Executed Goods
+
+M)
+2026-01-15 18:45:48,098 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-86-stakeholder-claims-and-applications
+2026-01-15 18:45:49,204 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_86___Stakeholder_Claims_And_Applications__M.json (ID: Part 86 – Stakeholder Claims And Applications
+
+M)
+2026-01-15 18:45:49,204 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-87-applications-for-writ-of-habeas-corpus
+2026-01-15 18:45:50,632 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_87___Applications_For_Writ_Of_Habeas_Corpus__M.json (ID: Part 87 – Applications For Writ Of Habeas Corpus
+
+M)
+2026-01-15 18:45:50,632 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-88-proceedings-under-the-counter-terrorism-and-security-act-2015
+2026-01-15 18:45:51,465 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_88___Proceedings_Under_The_Counter.json (ID: Part 88 – Proceedings Under The Counter)
+2026-01-15 18:45:51,465 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/art-89-attachment-of-earnings
+2026-01-15 18:45:53,151 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Part_89___Attachment_Of_Earnings__M.json (ID: Part 89 – Attachment Of Earnings
+
+M)
+2026-01-15 18:45:53,151 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/competitionlaw_pd
+2026-01-15 18:45:54,113 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Practice_Direction___Competition_Law___claims_relating_to_the_application_of_chapters_I_and_II_of_pa.json (ID: Practice Direction – Competition Law – claims relating to the application of chapters I and II of part I of the Competition Act 1998 and claims made under section 101 of the Digital Markets, Competition and Consumers Act 2024)
+2026-01-15 18:45:54,113 - INFO - Scraping: https://www.justice.gov.uk/courts/procedure-rules/civil/rules/appforwarrant
+2026-01-15 18:45:55,019 - INFO - Saved: /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload/Application_for_a_Warrant_under_The_Competition_Act_1998_or_Part_1_of_the_Digital_Markets__Competiti.json (ID: Application for a Warrant under The Competition Act 1998 or Part 1 of the Digital Markets, Competition and Consumers Act 2024)
+2026-01-15 18:45:55,019 - INFO - Scraping complete. Successfully scraped 204/204 pages.

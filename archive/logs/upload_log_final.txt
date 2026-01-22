@@ -1,0 +1,2098 @@
+2026-01-17 11:36:53,545 - INFO - Found 561 JSON files in /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/Upload
+2026-01-17 11:36:53,645 - INFO - Loaded 561 documents from 561 files
+2026-01-17 11:36:53,645 - INFO - 
+📋 Validating 561 documents (structure only, embeddings checked later)...
+2026-01-17 11:36:53,645 - INFO - Sanitized ID: 'Application for a Warrant under The Competition Act 1998 or Part 1 of the Digital Markets, Competition and Consumers Act 2024_chunk_004' -> 'Application_for_a_Warrant_under_The_Competition_Act_1998_or_Part_1_of_the_Digital_Markets___Competition_and_Consumers_Act_2024_chunk_004'
+2026-01-17 11:36:53,645 - INFO - Sanitized ID: 'Part 10 – Acknowledgment Of Service
+
+[Part' -> 'Part_10___Acknowledgment_Of_Service___Part'
+2026-01-17 11:36:53,645 - INFO - Sanitized ID: 'Part 11 – Disputing The Court' -> 'Part_11___Disputing_The_Court'
+2026-01-17 11:36:53,645 - INFO - Sanitized ID: 'Part 12 – Default Judgment
+
+[Part_chunk_000' -> 'Part_12___Default_Judgment___Part_chunk_000'
+2026-01-17 11:36:53,645 - INFO - Sanitized ID: 'Part 12 – Default Judgment
+
+[Part_chunk_001' -> 'Part_12___Default_Judgment___Part_chunk_001'
+2026-01-17 11:36:53,645 - INFO - Sanitized ID: 'Part 12 – Default Judgment
+
+[Part_chunk_002' -> 'Part_12___Default_Judgment___Part_chunk_002'
+2026-01-17 11:36:53,645 - INFO - Sanitized ID: 'Part 12 – Default Judgment
+
+[Part_chunk_003' -> 'Part_12___Default_Judgment___Part_chunk_003'
+2026-01-17 11:36:53,645 - INFO - Sanitized ID: 'Part 13 – Setting Aside Or Varying Default Judgment
+
+[Part' -> 'Part_13___Setting_Aside_Or_Varying_Default_Judgment___Part'
+2026-01-17 11:36:53,645 - INFO - Sanitized ID: 'Part 14 – Admissions
+
+[Part' -> 'Part_14___Admissions___Part'
+2026-01-17 11:36:53,645 - INFO - Sanitized ID: 'Part 15 – Defence And Reply
+
+[Part' -> 'Part_15___Defence_And_Reply___Part'
+2026-01-17 11:36:53,645 - INFO - Sanitized ID: 'Part 16 – Statements Of Case
+
+[Part_chunk_000' -> 'Part_16___Statements_Of_Case___Part_chunk_000'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 16 – Statements Of Case
+
+[Part_chunk_001' -> 'Part_16___Statements_Of_Case___Part_chunk_001'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 16 – Statements Of Case
+
+[Part_chunk_002' -> 'Part_16___Statements_Of_Case___Part_chunk_002'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 17 – Amendments To Statements Of Case
+
+[Part' -> 'Part_17___Amendments_To_Statements_Of_Case___Part'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 18 – Further Information
+
+[Part' -> 'Part_18___Further_Information___Part'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 19 – Parties And Group Litigation
+
+[Part_chunk_000' -> 'Part_19___Parties_And_Group_Litigation___Part_chunk_000'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 19 – Parties And Group Litigation
+
+[Part_chunk_001' -> 'Part_19___Parties_And_Group_Litigation___Part_chunk_001'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 19 – Parties And Group Litigation
+
+[Part_chunk_002' -> 'Part_19___Parties_And_Group_Litigation___Part_chunk_002'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 19 – Parties And Group Litigation
+
+[Part_chunk_003' -> 'Part_19___Parties_And_Group_Litigation___Part_chunk_003'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 19 – Parties And Group Litigation
+
+[Part_chunk_004' -> 'Part_19___Parties_And_Group_Litigation___Part_chunk_004'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 19 – Parties And Group Litigation
+
+[Part_chunk_005' -> 'Part_19___Parties_And_Group_Litigation___Part_chunk_005'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 1 – Overriding Objective
+
+[Part' -> 'Part_1___Overriding_Objective___Part'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 20 – Counterclaims And Other Additional Claims
+
+[Part' -> 'Part_20___Counterclaims_And_Other_Additional_Claims___Part'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 21 – Children And Protected Parties
+
+[Part_chunk_000' -> 'Part_21___Children_And_Protected_Parties___Part_chunk_000'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 21 – Children And Protected Parties
+
+[Part_chunk_001' -> 'Part_21___Children_And_Protected_Parties___Part_chunk_001'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 21 – Children And Protected Parties
+
+[Part_chunk_002' -> 'Part_21___Children_And_Protected_Parties___Part_chunk_002'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 21 – Children And Protected Parties
+
+[Part_chunk_003' -> 'Part_21___Children_And_Protected_Parties___Part_chunk_003'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 21 – Children And Protected Parties
+
+[Part_chunk_004' -> 'Part_21___Children_And_Protected_Parties___Part_chunk_004'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 22 – Statements Of Truth
+
+[Part' -> 'Part_22___Statements_Of_Truth___Part'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 23 – General Rules About Applications For Court Orders
+
+[Part' -> 'Part_23___General_Rules_About_Applications_For_Court_Orders___Part'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 24 – Summary Judgment
+
+[Part' -> 'Part_24___Summary_Judgment___Part'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 25 – Interim Remedies And Security For Costs_chunk_000' -> 'Part_25___Interim_Remedies_And_Security_For_Costs_chunk_000'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 25 – Interim Remedies And Security For Costs_chunk_001' -> 'Part_25___Interim_Remedies_And_Security_For_Costs_chunk_001'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 25 – Interim Remedies And Security For Costs_chunk_002' -> 'Part_25___Interim_Remedies_And_Security_For_Costs_chunk_002'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 25 – Interim Remedies And Security For Costs_chunk_003' -> 'Part_25___Interim_Remedies_And_Security_For_Costs_chunk_003'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 25 – Interim Remedies And Security For Costs_chunk_004' -> 'Part_25___Interim_Remedies_And_Security_For_Costs_chunk_004'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 25 – Interim Remedies And Security For Costs_chunk_005' -> 'Part_25___Interim_Remedies_And_Security_For_Costs_chunk_005'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 26 – Case Management_chunk_000' -> 'Part_26___Case_Management_chunk_000'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 26 – Case Management_chunk_001' -> 'Part_26___Case_Management_chunk_001'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 26 – Case Management_chunk_002' -> 'Part_26___Case_Management_chunk_002'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 26 – Case Management_chunk_003' -> 'Part_26___Case_Management_chunk_003'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 27 – The Small Claims Track
+
+[Part_chunk_000' -> 'Part_27___The_Small_Claims_Track___Part_chunk_000'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 27 – The Small Claims Track
+
+[Part_chunk_001' -> 'Part_27___The_Small_Claims_Track___Part_chunk_001'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 27 – The Small Claims Track
+
+[Part_chunk_002' -> 'Part_27___The_Small_Claims_Track___Part_chunk_002'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 27 – The Small Claims Track
+
+[Part_chunk_003' -> 'Part_27___The_Small_Claims_Track___Part_chunk_003'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 28 – The Fast Track And The Intermediate Track
+
+[Part' -> 'Part_28___The_Fast_Track_And_The_Intermediate_Track___Part'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 29 – The Multi-Track
+
+[Part' -> 'Part_29___The_Multi-Track___Part'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 2 – Application And Interpretation Of The Rules
+
+[Part_chunk_000' -> 'Part_2___Application_And_Interpretation_Of_The_Rules___Part_chunk_000'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 2 – Application And Interpretation Of The Rules
+
+[Part_chunk_001' -> 'Part_2___Application_And_Interpretation_Of_The_Rules___Part_chunk_001'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 2 – Application And Interpretation Of The Rules
+
+[Part_chunk_002' -> 'Part_2___Application_And_Interpretation_Of_The_Rules___Part_chunk_002'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 2 – Application And Interpretation Of The Rules
+
+[Part_chunk_003' -> 'Part_2___Application_And_Interpretation_Of_The_Rules___Part_chunk_003'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 2 – Application And Interpretation Of The Rules
+
+[Part_chunk_004' -> 'Part_2___Application_And_Interpretation_Of_The_Rules___Part_chunk_004'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 2 – Application And Interpretation Of The Rules
+
+[Part_chunk_005' -> 'Part_2___Application_And_Interpretation_Of_The_Rules___Part_chunk_005'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 30 – Transfer
+
+[Part' -> 'Part_30___Transfer___Part'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 31 – Disclosure And Inspection Of Documents
+
+[Part_chunk_000' -> 'Part_31___Disclosure_And_Inspection_Of_Documents___Part_chunk_000'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 31 – Disclosure And Inspection Of Documents
+
+[Part_chunk_001' -> 'Part_31___Disclosure_And_Inspection_Of_Documents___Part_chunk_001'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 31 – Disclosure And Inspection Of Documents
+
+[Part_chunk_002' -> 'Part_31___Disclosure_And_Inspection_Of_Documents___Part_chunk_002'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 31 – Disclosure And Inspection Of Documents
+
+[Part_chunk_003' -> 'Part_31___Disclosure_And_Inspection_Of_Documents___Part_chunk_003'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 31 – Disclosure And Inspection Of Documents
+
+[Part_chunk_004' -> 'Part_31___Disclosure_And_Inspection_Of_Documents___Part_chunk_004'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 32 – Evidence
+
+[Part' -> 'Part_32___Evidence___Part'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 33 – Miscellaneous Rules About Evidence
+
+[Part' -> 'Part_33___Miscellaneous_Rules_About_Evidence___Part'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 34 – Witnesses_chunk_000' -> 'Part_34___Witnesses_chunk_000'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 34 – Witnesses_chunk_001' -> 'Part_34___Witnesses_chunk_001'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 34 – Witnesses_chunk_002' -> 'Part_34___Witnesses_chunk_002'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 35 – Experts And Assessors
+
+[Part_chunk_000' -> 'Part_35___Experts_And_Assessors___Part_chunk_000'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 35 – Experts And Assessors
+
+[Part_chunk_001' -> 'Part_35___Experts_And_Assessors___Part_chunk_001'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 35 – Experts And Assessors
+
+[Part_chunk_002' -> 'Part_35___Experts_And_Assessors___Part_chunk_002'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 35 – Experts And Assessors
+
+[Part_chunk_003' -> 'Part_35___Experts_And_Assessors___Part_chunk_003'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 36 – Offers To Settle
+
+[Part_chunk_000' -> 'Part_36___Offers_To_Settle___Part_chunk_000'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 36 – Offers To Settle
+
+[Part_chunk_001' -> 'Part_36___Offers_To_Settle___Part_chunk_001'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 36 – Offers To Settle
+
+[Part_chunk_002' -> 'Part_36___Offers_To_Settle___Part_chunk_002'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 36 – Offers To Settle
+
+[Part_chunk_003' -> 'Part_36___Offers_To_Settle___Part_chunk_003'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 36 – Offers To Settle
+
+[Part_chunk_004' -> 'Part_36___Offers_To_Settle___Part_chunk_004'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 36 – Offers To Settle
+
+[Part_chunk_005' -> 'Part_36___Offers_To_Settle___Part_chunk_005'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 36 – Offers To Settle
+
+[Part_chunk_006' -> 'Part_36___Offers_To_Settle___Part_chunk_006'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 37 – Miscellaneous Provisions About Payments Into Court
+
+[Part' -> 'Part_37___Miscellaneous_Provisions_About_Payments_Into_Court___Part'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 38 – Discontinuance
+
+[Part' -> 'Part_38___Discontinuance___Part'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 39 – Miscellaneous Provisions Relating To Hearings
+
+[Part' -> 'Part_39___Miscellaneous_Provisions_Relating_To_Hearings___Part'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 3 – The Court_chunk_000' -> 'Part_3___The_Court_chunk_000'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 3 – The Court_chunk_001' -> 'Part_3___The_Court_chunk_001'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 3 – The Court_chunk_002' -> 'Part_3___The_Court_chunk_002'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 3 – The Court_chunk_003' -> 'Part_3___The_Court_chunk_003'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 3 – The Court_chunk_004' -> 'Part_3___The_Court_chunk_004'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 40 – Judgments' -> 'Part_40___Judgments'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 40 – Judgments_chunk_000' -> 'Part_40___Judgments_chunk_000'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 40 – Judgments_chunk_001' -> 'Part_40___Judgments_chunk_001'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 40 – Judgments_chunk_002' -> 'Part_40___Judgments_chunk_002'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 41 – Damages
+
+[Part' -> 'Part_41___Damages___Part'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 42 – Change Of Solicitor
+
+[Part' -> 'Part_42___Change_Of_Solicitor___Part'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 44 – General Rules About Costs
+
+[Part_chunk_000' -> 'Part_44___General_Rules_About_Costs___Part_chunk_000'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 44 – General Rules About Costs
+
+[Part_chunk_001' -> 'Part_44___General_Rules_About_Costs___Part_chunk_001'
+2026-01-17 11:36:53,646 - INFO - Sanitized ID: 'Part 44 – General Rules About Costs
+
+[Part_chunk_002' -> 'Part_44___General_Rules_About_Costs___Part_chunk_002'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 44 – General Rules About Costs
+
+[Part_chunk_003' -> 'Part_44___General_Rules_About_Costs___Part_chunk_003'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 44 – General Rules About Costs
+
+[Part_chunk_004' -> 'Part_44___General_Rules_About_Costs___Part_chunk_004'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 45 – Fixed Costs
+
+[Part_chunk_000' -> 'Part_45___Fixed_Costs___Part_chunk_000'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 45 – Fixed Costs
+
+[Part_chunk_001' -> 'Part_45___Fixed_Costs___Part_chunk_001'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 45 – Fixed Costs
+
+[Part_chunk_002' -> 'Part_45___Fixed_Costs___Part_chunk_002'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 45 – Fixed Costs
+
+[Part_chunk_003' -> 'Part_45___Fixed_Costs___Part_chunk_003'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 45 – Fixed Costs
+
+[Part_chunk_004' -> 'Part_45___Fixed_Costs___Part_chunk_004'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 45 – Fixed Costs
+
+[Part_chunk_005' -> 'Part_45___Fixed_Costs___Part_chunk_005'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 45 – Fixed Costs
+
+[Part_chunk_006' -> 'Part_45___Fixed_Costs___Part_chunk_006'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 45 – Fixed Costs
+
+[Part_chunk_007' -> 'Part_45___Fixed_Costs___Part_chunk_007'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 45 – Fixed Costs
+
+[Part_chunk_008' -> 'Part_45___Fixed_Costs___Part_chunk_008'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 45 – Fixed Costs
+
+[Part_chunk_009' -> 'Part_45___Fixed_Costs___Part_chunk_009'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 46 – Costs-Special Cases
+
+[Part_chunk_000' -> 'Part_46___Costs-Special_Cases___Part_chunk_000'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 46 – Costs-Special Cases
+
+[Part_chunk_001' -> 'Part_46___Costs-Special_Cases___Part_chunk_001'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 46 – Costs-Special Cases
+
+[Part_chunk_002' -> 'Part_46___Costs-Special_Cases___Part_chunk_002'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 47 – Procedure For Assessment Of Costs And Default Provisions
+
+[Part_chunk_000' -> 'Part_47___Procedure_For_Assessment_Of_Costs_And_Default_Provisions___Part_chunk_000'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 47 – Procedure For Assessment Of Costs And Default Provisions
+
+[Part_chunk_001' -> 'Part_47___Procedure_For_Assessment_Of_Costs_And_Default_Provisions___Part_chunk_001'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 47 – Procedure For Assessment Of Costs And Default Provisions
+
+[Part_chunk_002' -> 'Part_47___Procedure_For_Assessment_Of_Costs_And_Default_Provisions___Part_chunk_002'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 47 – Procedure For Assessment Of Costs And Default Provisions
+
+[Part_chunk_003' -> 'Part_47___Procedure_For_Assessment_Of_Costs_And_Default_Provisions___Part_chunk_003'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 47 – Procedure For Assessment Of Costs And Default Provisions
+
+[Part_chunk_004' -> 'Part_47___Procedure_For_Assessment_Of_Costs_And_Default_Provisions___Part_chunk_004'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 48 – Part' -> 'Part_48___Part'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 49 – Specialist Proceedings' -> 'Part_49___Specialist_Proceedings'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 4 – Forms' -> 'Part_4___Forms'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 50 – Application Of The Schedules' -> 'Part_50___Application_Of_The_Schedules'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 51 – Transitional Arrangements And Pilot Schemes' -> 'Part_51___Transitional_Arrangements_And_Pilot_Schemes'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 52 – Appeals
+
+[Part_chunk_000' -> 'Part_52___Appeals___Part_chunk_000'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 52 – Appeals
+
+[Part_chunk_001' -> 'Part_52___Appeals___Part_chunk_001'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 52 – Appeals
+
+[Part_chunk_002' -> 'Part_52___Appeals___Part_chunk_002'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 52 – Appeals
+
+[Part_chunk_003' -> 'Part_52___Appeals___Part_chunk_003'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 52 – Appeals
+
+[Part_chunk_004' -> 'Part_52___Appeals___Part_chunk_004'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 52 – Appeals
+
+[Part_chunk_005' -> 'Part_52___Appeals___Part_chunk_005'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 53 – Media And Communications Claims
+
+[Part' -> 'Part_53___Media_And_Communications_Claims___Part'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 54 – Judicial Review And Statutory Review' -> 'Part_54___Judicial_Review_And_Statutory_Review'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 54 – Judicial Review And Statutory Review
+
+[Part_chunk_000' -> 'Part_54___Judicial_Review_And_Statutory_Review___Part_chunk_000'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 54 – Judicial Review And Statutory Review
+
+[Part_chunk_001' -> 'Part_54___Judicial_Review_And_Statutory_Review___Part_chunk_001'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 54 – Judicial Review And Statutory Review
+
+[Part_chunk_002' -> 'Part_54___Judicial_Review_And_Statutory_Review___Part_chunk_002'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 54 – Judicial Review And Statutory Review
+
+[Part_chunk_003' -> 'Part_54___Judicial_Review_And_Statutory_Review___Part_chunk_003'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 54 – Judicial Review And Statutory Review
+
+[Part_chunk_004' -> 'Part_54___Judicial_Review_And_Statutory_Review___Part_chunk_004'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 54 – Judicial Review And Statutory Review_chunk_000' -> 'Part_54___Judicial_Review_And_Statutory_Review_chunk_000'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 54 – Judicial Review And Statutory Review_chunk_001' -> 'Part_54___Judicial_Review_And_Statutory_Review_chunk_001'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 54 – Judicial Review And Statutory Review_chunk_002' -> 'Part_54___Judicial_Review_And_Statutory_Review_chunk_002'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 54 – Judicial Review And Statutory Review_chunk_003' -> 'Part_54___Judicial_Review_And_Statutory_Review_chunk_003'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 54 – Judicial Review And Statutory Review_chunk_004' -> 'Part_54___Judicial_Review_And_Statutory_Review_chunk_004'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 55 – Possession Claims
+
+[Part_chunk_000' -> 'Part_55___Possession_Claims___Part_chunk_000'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 55 – Possession Claims
+
+[Part_chunk_001' -> 'Part_55___Possession_Claims___Part_chunk_001'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 55 – Possession Claims
+
+[Part_chunk_002' -> 'Part_55___Possession_Claims___Part_chunk_002'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 55 – Possession Claims
+
+[Part_chunk_003' -> 'Part_55___Possession_Claims___Part_chunk_003'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 55 – Possession Claims
+
+[Part_chunk_004' -> 'Part_55___Possession_Claims___Part_chunk_004'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 55 – Possession Claims
+
+[Part_chunk_005' -> 'Part_55___Possession_Claims___Part_chunk_005'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 55 – Possession Claims
+
+[Part_chunk_006' -> 'Part_55___Possession_Claims___Part_chunk_006'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 56 – Landlord And Tenant Claims And Miscellaneous Provisions About Land And Claims Under The Renting Homes (Wales) Act_chunk_001' -> 'Part_56___Landlord_And_Tenant_Claims_And_Miscellaneous_Provisions_About_Land_And_Claims_Under_The_Renting_Homes___Wales___Act_chunk_001'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 57A – Business And Property Courts
+
+[Part' -> 'Part_57A___Business_And_Property_Courts___Part'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 57 – Probate_chunk_000' -> 'Part_57___Probate_chunk_000'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 57 – Probate_chunk_001' -> 'Part_57___Probate_chunk_001'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 57 – Probate_chunk_002' -> 'Part_57___Probate_chunk_002'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 57 – Probate_chunk_003' -> 'Part_57___Probate_chunk_003'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 57 – Probate_chunk_004' -> 'Part_57___Probate_chunk_004'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 58 – Commercial Court
+
+[Part' -> 'Part_58___Commercial_Court___Part'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 59 – Circuit Commercial Courts
+
+[Part' -> 'Part_59___Circuit_Commercial_Courts___Part'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 5 – Court Documents
+
+[Part' -> 'Part_5___Court_Documents___Part'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 60 – Technology And Construction Court Claims
+
+[Part' -> 'Part_60___Technology_And_Construction_Court_Claims___Part'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 61 – Admiralty Claims
+
+[Part_chunk_000' -> 'Part_61___Admiralty_Claims___Part_chunk_000'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 61 – Admiralty Claims
+
+[Part_chunk_001' -> 'Part_61___Admiralty_Claims___Part_chunk_001'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 61 – Admiralty Claims
+
+[Part_chunk_002' -> 'Part_61___Admiralty_Claims___Part_chunk_002'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 61 – Admiralty Claims
+
+[Part_chunk_003' -> 'Part_61___Admiralty_Claims___Part_chunk_003'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 61 – Admiralty Claims
+
+[Part_chunk_004' -> 'Part_61___Admiralty_Claims___Part_chunk_004'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 61 – Admiralty Claims
+
+[Part_chunk_005' -> 'Part_61___Admiralty_Claims___Part_chunk_005'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 62 – Arbitration Claims
+
+[Part_chunk_000' -> 'Part_62___Arbitration_Claims___Part_chunk_000'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 62 – Arbitration Claims
+
+[Part_chunk_001' -> 'Part_62___Arbitration_Claims___Part_chunk_001'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 62 – Arbitration Claims
+
+[Part_chunk_002' -> 'Part_62___Arbitration_Claims___Part_chunk_002'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 62 – Arbitration Claims
+
+[Part_chunk_003' -> 'Part_62___Arbitration_Claims___Part_chunk_003'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 62 – Arbitration Claims
+
+[Part_chunk_004' -> 'Part_62___Arbitration_Claims___Part_chunk_004'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 63A – Financial List
+
+[Part' -> 'Part_63A___Financial_List___Part'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 63 – Intellectual Property Claims
+
+[Part_chunk_000' -> 'Part_63___Intellectual_Property_Claims___Part_chunk_000'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 63 – Intellectual Property Claims
+
+[Part_chunk_001' -> 'Part_63___Intellectual_Property_Claims___Part_chunk_001'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 63 – Intellectual Property Claims
+
+[Part_chunk_002' -> 'Part_63___Intellectual_Property_Claims___Part_chunk_002'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 63 – Intellectual Property Claims
+
+[Part_chunk_003' -> 'Part_63___Intellectual_Property_Claims___Part_chunk_003'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 63 – Intellectual Property Claims
+
+[Part_chunk_004' -> 'Part_63___Intellectual_Property_Claims___Part_chunk_004'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 64 – Estates' -> 'Part_64___Estates'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 65 – Proceedings Relating To Anti-Social Behaviour And Harassment
+
+[Part_chunk_000' -> 'Part_65___Proceedings_Relating_To_Anti-Social_Behaviour_And_Harassment___Part_chunk_000'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 65 – Proceedings Relating To Anti-Social Behaviour And Harassment
+
+[Part_chunk_001' -> 'Part_65___Proceedings_Relating_To_Anti-Social_Behaviour_And_Harassment___Part_chunk_001'
+2026-01-17 11:36:53,647 - INFO - Sanitized ID: 'Part 65 – Proceedings Relating To Anti-Social Behaviour And Harassment
+
+[Part_chunk_002' -> 'Part_65___Proceedings_Relating_To_Anti-Social_Behaviour_And_Harassment___Part_chunk_002'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 65 – Proceedings Relating To Anti-Social Behaviour And Harassment
+
+[Part_chunk_003' -> 'Part_65___Proceedings_Relating_To_Anti-Social_Behaviour_And_Harassment___Part_chunk_003'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 65 – Proceedings Relating To Anti-Social Behaviour And Harassment
+
+[Part_chunk_004' -> 'Part_65___Proceedings_Relating_To_Anti-Social_Behaviour_And_Harassment___Part_chunk_004'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 66 – Crown Proceedings
+
+[Part' -> 'Part_66___Crown_Proceedings___Part'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 67 – Proceedings Relating To Solicitors
+
+[Part' -> 'Part_67___Proceedings_Relating_To_Solicitors___Part'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 68 – Proceedings under the European Union (Withdrawal) Act 2018_chunk_000' -> 'Part_68___Proceedings_under_the_European_Union___Withdrawal___Act_2018_chunk_000'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 68 – Proceedings under the European Union (Withdrawal) Act 2018_chunk_001' -> 'Part_68___Proceedings_under_the_European_Union___Withdrawal___Act_2018_chunk_001'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 69 – Court' -> 'Part_69___Court'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 6 – Service Of Documents
+
+[Part_chunk_000' -> 'Part_6___Service_Of_Documents___Part_chunk_000'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 6 – Service Of Documents
+
+[Part_chunk_001' -> 'Part_6___Service_Of_Documents___Part_chunk_001'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 6 – Service Of Documents
+
+[Part_chunk_002' -> 'Part_6___Service_Of_Documents___Part_chunk_002'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 6 – Service Of Documents
+
+[Part_chunk_003' -> 'Part_6___Service_Of_Documents___Part_chunk_003'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 6 – Service Of Documents
+
+[Part_chunk_004' -> 'Part_6___Service_Of_Documents___Part_chunk_004'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 6 – Service Of Documents
+
+[Part_chunk_005' -> 'Part_6___Service_Of_Documents___Part_chunk_005'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 6 – Service Of Documents
+
+[Part_chunk_006' -> 'Part_6___Service_Of_Documents___Part_chunk_006'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 6 – Service Of Documents
+
+[Part_chunk_007' -> 'Part_6___Service_Of_Documents___Part_chunk_007'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 70 – General Rules About Enforcement Of Judgments And Orders
+
+[Part' -> 'Part_70___General_Rules_About_Enforcement_Of_Judgments_And_Orders___Part'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 71 – Orders To Obtain Information From Judgment Debtors
+
+[Part' -> 'Part_71___Orders_To_Obtain_Information_From_Judgment_Debtors___Part'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 72 – Third Party Debt Orders
+
+[Part_chunk_000' -> 'Part_72___Third_Party_Debt_Orders___Part_chunk_000'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 72 – Third Party Debt Orders
+
+[Part_chunk_001' -> 'Part_72___Third_Party_Debt_Orders___Part_chunk_001'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 72 – Third Party Debt Orders
+
+[Part_chunk_002' -> 'Part_72___Third_Party_Debt_Orders___Part_chunk_002'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 73 – Charging Orders_chunk_000' -> 'Part_73___Charging_Orders_chunk_000'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 73 – Charging Orders_chunk_001' -> 'Part_73___Charging_Orders_chunk_001'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 74 – Enforcement Of Judgments In Different Jurisdictions
+
+[Part_chunk_000' -> 'Part_74___Enforcement_Of_Judgments_In_Different_Jurisdictions___Part_chunk_000'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 74 – Enforcement Of Judgments In Different Jurisdictions
+
+[Part_chunk_001' -> 'Part_74___Enforcement_Of_Judgments_In_Different_Jurisdictions___Part_chunk_001'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 74 – Enforcement Of Judgments In Different Jurisdictions
+
+[Part_chunk_002' -> 'Part_74___Enforcement_Of_Judgments_In_Different_Jurisdictions___Part_chunk_002'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 74 – Enforcement Of Judgments In Different Jurisdictions
+
+[Part_chunk_003' -> 'Part_74___Enforcement_Of_Judgments_In_Different_Jurisdictions___Part_chunk_003'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 74 – Enforcement Of Judgments In Different Jurisdictions
+
+[Part_chunk_004' -> 'Part_74___Enforcement_Of_Judgments_In_Different_Jurisdictions___Part_chunk_004'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 75 – Traffic Enforcement
+
+[Part' -> 'Part_75___Traffic_Enforcement___Part'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 76 – Proceedings Under The Prevention Of Terrorism Act_chunk_000' -> 'Part_76___Proceedings_Under_The_Prevention_Of_Terrorism_Act_chunk_000'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 76 – Proceedings Under The Prevention Of Terrorism Act_chunk_001' -> 'Part_76___Proceedings_Under_The_Prevention_Of_Terrorism_Act_chunk_001'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 76 – Proceedings Under The Prevention Of Terrorism Act_chunk_002' -> 'Part_76___Proceedings_Under_The_Prevention_Of_Terrorism_Act_chunk_002'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 76 – Proceedings Under The Prevention Of Terrorism Act_chunk_003' -> 'Part_76___Proceedings_Under_The_Prevention_Of_Terrorism_Act_chunk_003'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 77 – Provisions In Support Of Criminal Justice
+
+[Part_chunk_000' -> 'Part_77___Provisions_In_Support_Of_Criminal_Justice___Part_chunk_000'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 77 – Provisions In Support Of Criminal Justice
+
+[Part_chunk_001' -> 'Part_77___Provisions_In_Support_Of_Criminal_Justice___Part_chunk_001'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 77 – Provisions In Support Of Criminal Justice
+
+[Part_chunk_002' -> 'Part_77___Provisions_In_Support_Of_Criminal_Justice___Part_chunk_002'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 77 – Provisions In Support Of Criminal Justice
+
+[Part_chunk_003' -> 'Part_77___Provisions_In_Support_Of_Criminal_Justice___Part_chunk_003'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 77 – Provisions In Support Of Criminal Justice
+
+[Part_chunk_004' -> 'Part_77___Provisions_In_Support_Of_Criminal_Justice___Part_chunk_004'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 77 – Provisions In Support Of Criminal Justice
+
+[Part_chunk_005' -> 'Part_77___Provisions_In_Support_Of_Criminal_Justice___Part_chunk_005'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 79 – Proceedings under the counter-terrorism act 2008, part 1 of the terrorist asset-freezing etc. act 2010 and part 1 of the sanctions and anti-money laundering act 2018_chunk_005' -> 'Part_79___Proceedings_under_the_counter-terrorism_act_2008___part_1_of_the_terrorist_asset-freezing_etc___act_2010_and_part_1_of_the_sanctions_and_anti-money_laundering_act_2018_chunk_005'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 7 – How To Start Proceedings' -> 'Part_7___How_To_Start_Proceedings'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 80 – Proceedings under the Terrorism Prevention and Investigation Measures Act 2011_chunk_000' -> 'Part_80___Proceedings_under_the_Terrorism_Prevention_and_Investigation_Measures_Act_2011_chunk_000'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 80 – Proceedings under the Terrorism Prevention and Investigation Measures Act 2011_chunk_001' -> 'Part_80___Proceedings_under_the_Terrorism_Prevention_and_Investigation_Measures_Act_2011_chunk_001'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 80 – Proceedings under the Terrorism Prevention and Investigation Measures Act 2011_chunk_002' -> 'Part_80___Proceedings_under_the_Terrorism_Prevention_and_Investigation_Measures_Act_2011_chunk_002'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 80 – Proceedings under the Terrorism Prevention and Investigation Measures Act 2011_chunk_003' -> 'Part_80___Proceedings_under_the_Terrorism_Prevention_and_Investigation_Measures_Act_2011_chunk_003'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 80 – Proceedings under the Terrorism Prevention and Investigation Measures Act 2011_chunk_004' -> 'Part_80___Proceedings_under_the_Terrorism_Prevention_and_Investigation_Measures_Act_2011_chunk_004'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 80 – Proceedings under the Terrorism Prevention and Investigation Measures Act 2011_chunk_005' -> 'Part_80___Proceedings_under_the_Terrorism_Prevention_and_Investigation_Measures_Act_2011_chunk_005'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 81 – Applications and Proceedings in Relation to Contempt of Court' -> 'Part_81___Applications_and_Proceedings_in_Relation_to_Contempt_of_Court'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 82 – Closed Material Procedure
+
+[Part_chunk_000' -> 'Part_82___Closed_Material_Procedure___Part_chunk_000'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 82 – Closed Material Procedure
+
+[Part_chunk_001' -> 'Part_82___Closed_Material_Procedure___Part_chunk_001'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 82 – Closed Material Procedure
+
+[Part_chunk_002' -> 'Part_82___Closed_Material_Procedure___Part_chunk_002'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 82 – Closed Material Procedure
+
+[Part_chunk_003' -> 'Part_82___Closed_Material_Procedure___Part_chunk_003'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 82 – Closed Material Procedure
+
+[Part_chunk_004' -> 'Part_82___Closed_Material_Procedure___Part_chunk_004'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 82 – Closed Material Procedure
+
+[Part_chunk_005' -> 'Part_82___Closed_Material_Procedure___Part_chunk_005'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 82 – Closed Material Procedure
+
+[Part_chunk_006' -> 'Part_82___Closed_Material_Procedure___Part_chunk_006'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 83 – Writs And Warrants_chunk_000' -> 'Part_83___Writs_And_Warrants_chunk_000'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 83 – Writs And Warrants_chunk_001' -> 'Part_83___Writs_And_Warrants_chunk_001'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 83 – Writs And Warrants_chunk_002' -> 'Part_83___Writs_And_Warrants_chunk_002'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 83 – Writs And Warrants_chunk_003' -> 'Part_83___Writs_And_Warrants_chunk_003'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 83 – Writs And Warrants_chunk_004' -> 'Part_83___Writs_And_Warrants_chunk_004'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 83 – Writs And Warrants_chunk_005' -> 'Part_83___Writs_And_Warrants_chunk_005'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 83 – Writs And Warrants_chunk_006' -> 'Part_83___Writs_And_Warrants_chunk_006'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 83 – Writs And Warrants_chunk_007' -> 'Part_83___Writs_And_Warrants_chunk_007'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 84 – Enforcement By Taking Control Of Goods
+
+[Part_chunk_000' -> 'Part_84___Enforcement_By_Taking_Control_Of_Goods___Part_chunk_000'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 84 – Enforcement By Taking Control Of Goods
+
+[Part_chunk_001' -> 'Part_84___Enforcement_By_Taking_Control_Of_Goods___Part_chunk_001'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 84 – Enforcement By Taking Control Of Goods
+
+[Part_chunk_002' -> 'Part_84___Enforcement_By_Taking_Control_Of_Goods___Part_chunk_002'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 84 – Enforcement By Taking Control Of Goods
+
+[Part_chunk_003' -> 'Part_84___Enforcement_By_Taking_Control_Of_Goods___Part_chunk_003'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 85 – Claims On Controlled Goods And Executed Goods
+
+[Part_chunk_000' -> 'Part_85___Claims_On_Controlled_Goods_And_Executed_Goods___Part_chunk_000'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 85 – Claims On Controlled Goods And Executed Goods
+
+[Part_chunk_001' -> 'Part_85___Claims_On_Controlled_Goods_And_Executed_Goods___Part_chunk_001'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 85 – Claims On Controlled Goods And Executed Goods
+
+[Part_chunk_002' -> 'Part_85___Claims_On_Controlled_Goods_And_Executed_Goods___Part_chunk_002'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 85 – Claims On Controlled Goods And Executed Goods
+
+[Part_chunk_003' -> 'Part_85___Claims_On_Controlled_Goods_And_Executed_Goods___Part_chunk_003'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 85 – Claims On Controlled Goods And Executed Goods
+
+[Part_chunk_004' -> 'Part_85___Claims_On_Controlled_Goods_And_Executed_Goods___Part_chunk_004'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 85 – Claims On Controlled Goods And Executed Goods
+
+[Part_chunk_005' -> 'Part_85___Claims_On_Controlled_Goods_And_Executed_Goods___Part_chunk_005'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 86 – Stakeholder Claims And Applications
+
+[Part' -> 'Part_86___Stakeholder_Claims_And_Applications___Part'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 87 – Applications For Writ Of Habeas Corpus
+
+[Part' -> 'Part_87___Applications_For_Writ_Of_Habeas_Corpus___Part'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 88 – Proceedings Under The Counter-Terrorism And Security Act_chunk_000' -> 'Part_88___Proceedings_Under_The_Counter-Terrorism_And_Security_Act_chunk_000'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 88 – Proceedings Under The Counter-Terrorism And Security Act_chunk_001' -> 'Part_88___Proceedings_Under_The_Counter-Terrorism_And_Security_Act_chunk_001'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 88 – Proceedings Under The Counter-Terrorism And Security Act_chunk_002' -> 'Part_88___Proceedings_Under_The_Counter-Terrorism_And_Security_Act_chunk_002'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 88 – Proceedings Under The Counter-Terrorism And Security Act_chunk_003' -> 'Part_88___Proceedings_Under_The_Counter-Terrorism_And_Security_Act_chunk_003'
+2026-01-17 11:36:53,648 - INFO - Sanitized ID: 'Part 89 – Attachment Of Earnings
+
+[Part_chunk_000' -> 'Part_89___Attachment_Of_Earnings___Part_chunk_000'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Part 89 – Attachment Of Earnings
+
+[Part_chunk_001' -> 'Part_89___Attachment_Of_Earnings___Part_chunk_001'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Part 89 – Attachment Of Earnings
+
+[Part_chunk_002' -> 'Part_89___Attachment_Of_Earnings___Part_chunk_002'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Part 89 – Attachment Of Earnings
+
+[Part_chunk_003' -> 'Part_89___Attachment_Of_Earnings___Part_chunk_003'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Part 89 – Attachment Of Earnings
+
+[Part_chunk_004' -> 'Part_89___Attachment_Of_Earnings___Part_chunk_004'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Part 8 – Alternative Procedure For Claims
+
+[Part' -> 'Part_8___Alternative_Procedure_For_Claims___Part'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Part 9 – Responding To Particulars Of Claim' -> 'Part_9___Responding_To_Particulars_Of_Claim'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 16 – Statements Of Case
+
+[Practice Direction_chunk_000' -> 'Practice_Direction_16___Statements_Of_Case___Practice_Direction_chunk_000'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 16 – Statements Of Case
+
+[Practice Direction_chunk_001' -> 'Practice_Direction_16___Statements_Of_Case___Practice_Direction_chunk_001'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 16 – Statements Of Case
+
+[Practice Direction_chunk_002' -> 'Practice_Direction_16___Statements_Of_Case___Practice_Direction_chunk_002'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 16 – Statements Of Case
+
+[Practice Direction_chunk_003' -> 'Practice_Direction_16___Statements_Of_Case___Practice_Direction_chunk_003'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 16 – Statements Of Case
+
+[Practice Direction_chunk_004' -> 'Practice_Direction_16___Statements_Of_Case___Practice_Direction_chunk_004'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 17 – Amendments To Statements Of Case' -> 'Practice_Direction_17___Amendments_To_Statements_Of_Case'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 18 – Further Information' -> 'Practice_Direction_18___Further_Information'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 19A – Derivative Claims' -> 'Practice_Direction_19A___Derivative_Claims'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 19B – Group Litigation_chunk_000' -> 'Practice_Direction_19B___Group_Litigation_chunk_000'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 19B – Group Litigation_chunk_001' -> 'Practice_Direction_19B___Group_Litigation_chunk_001'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 19B – Group Litigation_chunk_002' -> 'Practice_Direction_19B___Group_Litigation_chunk_002'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 19B – Group Litigation_chunk_003' -> 'Practice_Direction_19B___Group_Litigation_chunk_003'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 1A – Participation Of Vulnerable Parties Or Witnesses
+
+[Practice Direction' -> 'Practice_Direction_1A___Participation_Of_Vulnerable_Parties_Or_Witnesses___Practice_Direction'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 1A – Participation Of Vulnerable Parties Or Witnesses
+
+[Practice Direction_chunk_004' -> 'Practice_Direction_1A___Participation_Of_Vulnerable_Parties_Or_Witnesses___Practice_Direction_chunk_004'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 20 – Counterclaims And Other Additional Claims' -> 'Practice_Direction_20___Counterclaims_And_Other_Additional_Claims'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 22 – Statements Of Truth' -> 'Practice_Direction_22___Statements_Of_Truth'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 23A – Applications' -> 'Practice_Direction_23A___Applications'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 26 – Case Management_chunk_000' -> 'Practice_Direction_26___Case_Management_chunk_000'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 26 – Case Management_chunk_001' -> 'Practice_Direction_26___Case_Management_chunk_001'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 26 – Case Management_chunk_002' -> 'Practice_Direction_26___Case_Management_chunk_002'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 26 – Case Management_chunk_003' -> 'Practice_Direction_26___Case_Management_chunk_003'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 27A – Small Claims Track_chunk_000' -> 'Practice_Direction_27A___Small_Claims_Track_chunk_000'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 27A – Small Claims Track_chunk_001' -> 'Practice_Direction_27A___Small_Claims_Track_chunk_001'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 27A – Small Claims Track_chunk_002' -> 'Practice_Direction_27A___Small_Claims_Track_chunk_002'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 27A – Small Claims Track_chunk_003' -> 'Practice_Direction_27A___Small_Claims_Track_chunk_003'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 28 – The Fast Track And The Intermediate Track_chunk_000' -> 'Practice_Direction_28___The_Fast_Track_And_The_Intermediate_Track_chunk_000'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 28 – The Fast Track And The Intermediate Track_chunk_001' -> 'Practice_Direction_28___The_Fast_Track_And_The_Intermediate_Track_chunk_001'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 28 – The Fast Track And The Intermediate Track_chunk_002' -> 'Practice_Direction_28___The_Fast_Track_And_The_Intermediate_Track_chunk_002'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 28 – The Fast Track And The Intermediate Track_chunk_003' -> 'Practice_Direction_28___The_Fast_Track_And_The_Intermediate_Track_chunk_003'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 28 – The Fast Track And The Intermediate Track_chunk_004' -> 'Practice_Direction_28___The_Fast_Track_And_The_Intermediate_Track_chunk_004'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 29 – The Multi-Track_chunk_000' -> 'Practice_Direction_29___The_Multi-Track_chunk_000'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 29 – The Multi-Track_chunk_001' -> 'Practice_Direction_29___The_Multi-Track_chunk_001'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 29 – The Multi-Track_chunk_002' -> 'Practice_Direction_29___The_Multi-Track_chunk_002'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 2A – Court Offices
+
+[Practice Direction' -> 'Practice_Direction_2A___Court_Offices___Practice_Direction'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 2B – Allocation Of Cases To Levels Of Judiciary
+
+[Practice Direction_chunk_000' -> 'Practice_Direction_2B___Allocation_Of_Cases_To_Levels_Of_Judiciary___Practice_Direction_chunk_000'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 2B – Allocation Of Cases To Levels Of Judiciary
+
+[Practice Direction_chunk_001' -> 'Practice_Direction_2B___Allocation_Of_Cases_To_Levels_Of_Judiciary___Practice_Direction_chunk_001'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 2B – Allocation Of Cases To Levels Of Judiciary
+
+[Practice Direction_chunk_002' -> 'Practice_Direction_2B___Allocation_Of_Cases_To_Levels_Of_Judiciary___Practice_Direction_chunk_002'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 2B – Allocation Of Cases To Levels Of Judiciary
+
+[Practice Direction_chunk_003' -> 'Practice_Direction_2B___Allocation_Of_Cases_To_Levels_Of_Judiciary___Practice_Direction_chunk_003'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 2B – Allocation Of Cases To Levels Of Judiciary
+
+[Practice Direction_chunk_004' -> 'Practice_Direction_2B___Allocation_Of_Cases_To_Levels_Of_Judiciary___Practice_Direction_chunk_004'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 2C – Starting Proceedings In The County Court
+
+[Practice Direction' -> 'Practice_Direction_2C___Starting_Proceedings_In_The_County_Court___Practice_Direction'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 2E – Jurisdiction Of The County Court That May Be Exercised By A Legal Adviser
+
+[Practice Direction' -> 'Practice_Direction_2E___Jurisdiction_Of_The_County_Court_That_May_Be_Exercised_By_A_Legal_Adviser___Practice_Direction'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 2F – Court Sittings' -> 'Practice_Direction_2F___Court_Sittings'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 30 – Transfer' -> 'Practice_Direction_30___Transfer'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 31A – Disclosure And Inspection' -> 'Practice_Direction_31A___Disclosure_And_Inspection'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 31B – Disclosure Of Electronic Documents_chunk_000' -> 'Practice_Direction_31B___Disclosure_Of_Electronic_Documents_chunk_000'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 31B – Disclosure Of Electronic Documents_chunk_001' -> 'Practice_Direction_31B___Disclosure_Of_Electronic_Documents_chunk_001'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 31B – Disclosure Of Electronic Documents_chunk_002' -> 'Practice_Direction_31B___Disclosure_Of_Electronic_Documents_chunk_002'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 31B – Disclosure Of Electronic Documents_chunk_003' -> 'Practice_Direction_31B___Disclosure_Of_Electronic_Documents_chunk_003'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 31B – Disclosure Of Electronic Documents_chunk_004' -> 'Practice_Direction_31B___Disclosure_Of_Electronic_Documents_chunk_004'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 31C – Disclosure And Inspection In Relation To Competition Claims
+
+[Practice Direction_chunk_002' -> 'Practice_Direction_31C___Disclosure_And_Inspection_In_Relation_To_Competition_Claims___Practice_Direction_chunk_002'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 32 – Evidence_chunk_000' -> 'Practice_Direction_32___Evidence_chunk_000'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 32 – Evidence_chunk_001' -> 'Practice_Direction_32___Evidence_chunk_001'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 32 – Evidence_chunk_002' -> 'Practice_Direction_32___Evidence_chunk_002'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 32 – Evidence_chunk_003' -> 'Practice_Direction_32___Evidence_chunk_003'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 32 – Evidence_chunk_004' -> 'Practice_Direction_32___Evidence_chunk_004'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 32 – Evidence_chunk_005' -> 'Practice_Direction_32___Evidence_chunk_005'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 33 – Civil Evidence Act' -> 'Practice_Direction_33___Civil_Evidence_Act'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 34A – Depositions And Court Attendance By Witnesses_chunk_000' -> 'Practice_Direction_34A___Depositions_And_Court_Attendance_By_Witnesses_chunk_000'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 34A – Depositions And Court Attendance By Witnesses_chunk_001' -> 'Practice_Direction_34A___Depositions_And_Court_Attendance_By_Witnesses_chunk_001'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 34A – Depositions And Court Attendance By Witnesses_chunk_002' -> 'Practice_Direction_34A___Depositions_And_Court_Attendance_By_Witnesses_chunk_002'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 34A – Depositions And Court Attendance By Witnesses_chunk_003' -> 'Practice_Direction_34A___Depositions_And_Court_Attendance_By_Witnesses_chunk_003'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 34B – Fees For Examiners Of The Court' -> 'Practice_Direction_34B___Fees_For_Examiners_Of_The_Court'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 35 – Experts And Assessors_chunk_000' -> 'Practice_Direction_35___Experts_And_Assessors_chunk_000'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 35 – Experts And Assessors_chunk_001' -> 'Practice_Direction_35___Experts_And_Assessors_chunk_001'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 35 – Experts And Assessors_chunk_002' -> 'Practice_Direction_35___Experts_And_Assessors_chunk_002'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 35 – Experts And Assessors_chunk_003' -> 'Practice_Direction_35___Experts_And_Assessors_chunk_003'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 36 – Offers To Settle' -> 'Practice_Direction_36___Offers_To_Settle'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 37 – Miscellaneous Provisions About Payments Into Court_chunk_000' -> 'Practice_Direction_37___Miscellaneous_Provisions_About_Payments_Into_Court_chunk_000'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 37 – Miscellaneous Provisions About Payments Into Court_chunk_001' -> 'Practice_Direction_37___Miscellaneous_Provisions_About_Payments_Into_Court_chunk_001'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 37 – Miscellaneous Provisions About Payments Into Court_chunk_002' -> 'Practice_Direction_37___Miscellaneous_Provisions_About_Payments_Into_Court_chunk_002'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 37 – Miscellaneous Provisions About Payments Into Court_chunk_003' -> 'Practice_Direction_37___Miscellaneous_Provisions_About_Payments_Into_Court_chunk_003'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 3A – Striking Out A Statement Of Case' -> 'Practice_Direction_3A___Striking_Out_A_Statement_Of_Case'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 3B – Sanctions For Non-Payment Of Fees' -> 'Practice_Direction_3B___Sanctions_For_Non-Payment_Of_Fees'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 3C – Civil Restraint Orders_chunk_000' -> 'Practice_Direction_3C___Civil_Restraint_Orders_chunk_000'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 3C – Civil Restraint Orders_chunk_001' -> 'Practice_Direction_3C___Civil_Restraint_Orders_chunk_001'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 3C – Civil Restraint Orders_chunk_002' -> 'Practice_Direction_3C___Civil_Restraint_Orders_chunk_002'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 3C – Civil Restraint Orders_chunk_003' -> 'Practice_Direction_3C___Civil_Restraint_Orders_chunk_003'
+2026-01-17 11:36:53,649 - INFO - Sanitized ID: 'Practice Direction 3D – Costs Management_chunk_000' -> 'Practice_Direction_3D___Costs_Management_chunk_000'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 3D – Costs Management_chunk_001' -> 'Practice_Direction_3D___Costs_Management_chunk_001'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 3D – Costs Management_chunk_002' -> 'Practice_Direction_3D___Costs_Management_chunk_002'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 3D – Costs Management_chunk_003' -> 'Practice_Direction_3D___Costs_Management_chunk_003'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 3E – Costs Capping' -> 'Practice_Direction_3E___Costs_Capping'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 40A – Accounts' -> 'Practice_Direction_40A___Accounts'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 40B – Judgments And Orders_chunk_000' -> 'Practice_Direction_40B___Judgments_And_Orders_chunk_000'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 40B – Judgments And Orders_chunk_001' -> 'Practice_Direction_40B___Judgments_And_Orders_chunk_001'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 40B – Judgments And Orders_chunk_002' -> 'Practice_Direction_40B___Judgments_And_Orders_chunk_002'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 40B – Judgments And Orders_chunk_003' -> 'Practice_Direction_40B___Judgments_And_Orders_chunk_003'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 40E – Reserved Judgments' -> 'Practice_Direction_40E___Reserved_Judgments'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 41A – Provisional Damages' -> 'Practice_Direction_41A___Provisional_Damages'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 41B – Periodical Payments Under The Damages Act' -> 'Practice_Direction_41B___Periodical_Payments_Under_The_Damages_Act'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 42 – Change Of Solicitor' -> 'Practice_Direction_42___Change_Of_Solicitor'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 44 – General Rules About Costs_chunk_000' -> 'Practice_Direction_44___General_Rules_About_Costs_chunk_000'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 44 – General Rules About Costs_chunk_001' -> 'Practice_Direction_44___General_Rules_About_Costs_chunk_001'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 44 – General Rules About Costs_chunk_002' -> 'Practice_Direction_44___General_Rules_About_Costs_chunk_002'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 44 – General Rules About Costs_chunk_003' -> 'Practice_Direction_44___General_Rules_About_Costs_chunk_003'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 44 – General Rules About Costs_chunk_004' -> 'Practice_Direction_44___General_Rules_About_Costs_chunk_004'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 45 – Tables Of Fixed Costs (_chunk_000' -> 'Practice_Direction_45___Tables_Of_Fixed_Costs___chunk_000'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 45 – Tables Of Fixed Costs (_chunk_001' -> 'Practice_Direction_45___Tables_Of_Fixed_Costs___chunk_001'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 45 – Tables Of Fixed Costs (_chunk_002' -> 'Practice_Direction_45___Tables_Of_Fixed_Costs___chunk_002'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 45 – Tables Of Fixed Costs (_chunk_003' -> 'Practice_Direction_45___Tables_Of_Fixed_Costs___chunk_003'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 45 – Tables Of Fixed Costs (_chunk_004' -> 'Practice_Direction_45___Tables_Of_Fixed_Costs___chunk_004'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 45 – Tables Of Fixed Costs (_chunk_005' -> 'Practice_Direction_45___Tables_Of_Fixed_Costs___chunk_005'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 45 – Tables Of Fixed Costs (_chunk_006' -> 'Practice_Direction_45___Tables_Of_Fixed_Costs___chunk_006'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 46 – Costs Special Cases_chunk_000' -> 'Practice_Direction_46___Costs_Special_Cases_chunk_000'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 46 – Costs Special Cases_chunk_001' -> 'Practice_Direction_46___Costs_Special_Cases_chunk_001'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 46 – Costs Special Cases_chunk_002' -> 'Practice_Direction_46___Costs_Special_Cases_chunk_002'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 46 – Costs Special Cases_chunk_003' -> 'Practice_Direction_46___Costs_Special_Cases_chunk_003'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 46 – Costs Special Cases_chunk_004' -> 'Practice_Direction_46___Costs_Special_Cases_chunk_004'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 47 – Procedure For Detailed Assessment Of Costs And Default Provisions
+
+[Practice Direction_chunk_012' -> 'Practice_Direction_47___Procedure_For_Detailed_Assessment_Of_Costs_And_Default_Provisions___Practice_Direction_chunk_012'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 48 – Part' -> 'Practice_Direction_48___Part'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 49A – Applications Under The Companies Acts And Related Legislation' -> 'Practice_Direction_49A___Applications_Under_The_Companies_Acts_And_Related_Legislation'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 49B – Mesothelioma Claims
+
+[Practice Direction' -> 'Practice_Direction_49B___Mesothelioma_Claims___Practice_Direction'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 49C – Consumer Credit Act_chunk_000' -> 'Practice_Direction_49C___Consumer_Credit_Act_chunk_000'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 49C – Consumer Credit Act_chunk_001' -> 'Practice_Direction_49C___Consumer_Credit_Act_chunk_001'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 49C – Consumer Credit Act_chunk_002' -> 'Practice_Direction_49C___Consumer_Credit_Act_chunk_002'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 49C – Consumer Credit Act_chunk_003' -> 'Practice_Direction_49C___Consumer_Credit_Act_chunk_003'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 49C – Consumer Credit Act_chunk_004' -> 'Practice_Direction_49C___Consumer_Credit_Act_chunk_004'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 49D – Claims For The Recovery Of Taxes And Duties
+
+[Practice Direction' -> 'Practice_Direction_49D___Claims_For_The_Recovery_Of_Taxes_And_Duties___Practice_Direction'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 49E – Alternative Procedure For Claims
+
+[Practice Direction_chunk_000' -> 'Practice_Direction_49E___Alternative_Procedure_For_Claims___Practice_Direction_chunk_000'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 49E – Alternative Procedure For Claims
+
+[Practice Direction_chunk_001' -> 'Practice_Direction_49E___Alternative_Procedure_For_Claims___Practice_Direction_chunk_001'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 49E – Alternative Procedure For Claims
+
+[Practice Direction_chunk_002' -> 'Practice_Direction_49E___Alternative_Procedure_For_Claims___Practice_Direction_chunk_002'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 49E – Alternative Procedure For Claims
+
+[Practice Direction_chunk_003' -> 'Practice_Direction_49E___Alternative_Procedure_For_Claims___Practice_Direction_chunk_003'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 49E – Alternative Procedure For Claims
+
+[Practice Direction_chunk_004' -> 'Practice_Direction_49E___Alternative_Procedure_For_Claims___Practice_Direction_chunk_004'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 49E – Alternative Procedure For Claims
+
+[Practice Direction_chunk_005' -> 'Practice_Direction_49E___Alternative_Procedure_For_Claims___Practice_Direction_chunk_005'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 49E – Alternative Procedure For Claims
+
+[Practice Direction_chunk_006' -> 'Practice_Direction_49E___Alternative_Procedure_For_Claims___Practice_Direction_chunk_006'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 49E – Alternative Procedure For Claims
+
+[Practice Direction_chunk_007' -> 'Practice_Direction_49E___Alternative_Procedure_For_Claims___Practice_Direction_chunk_007'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 49E – Alternative Procedure For Claims
+
+[Practice Direction_chunk_008' -> 'Practice_Direction_49E___Alternative_Procedure_For_Claims___Practice_Direction_chunk_008'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 49F – Pre-Action Protocol For Low Value Personal Injury Claims In Road Traffic Accidents And Low Value Personal Injury (Employers_chunk_005' -> 'Practice_Direction_49F___Pre-Action_Protocol_For_Low_Value_Personal_Injury_Claims_In_Road_Traffic_Accidents_And_Low_Value_Personal_Injury___Employers_chunk_005'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 49G – Applications Under Part Iii Of The Family Law Reform Act' -> 'Practice_Direction_49G___Applications_Under_Part_Iii_Of_The_Family_Law_Reform_Act'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 51Y – Video Or Audio Hearings During Coronavirus Pandemic
+
+[Practice Direction' -> 'Practice_Direction_51Y___Video_Or_Audio_Hearings_During_Coronavirus_Pandemic___Practice_Direction'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 51Zb – The Damages Claims Pilot
+
+[Practice Direction_chunk_000' -> 'Practice_Direction_51Zb___The_Damages_Claims_Pilot___Practice_Direction_chunk_000'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 51Zb – The Damages Claims Pilot
+
+[Practice Direction_chunk_001' -> 'Practice_Direction_51Zb___The_Damages_Claims_Pilot___Practice_Direction_chunk_001'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 51Zb – The Damages Claims Pilot
+
+[Practice Direction_chunk_002' -> 'Practice_Direction_51Zb___The_Damages_Claims_Pilot___Practice_Direction_chunk_002'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 51Zb – The Damages Claims Pilot
+
+[Practice Direction_chunk_003' -> 'Practice_Direction_51Zb___The_Damages_Claims_Pilot___Practice_Direction_chunk_003'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 51Zb – The Damages Claims Pilot
+
+[Practice Direction_chunk_004' -> 'Practice_Direction_51Zb___The_Damages_Claims_Pilot___Practice_Direction_chunk_004'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 51Zb – The Damages Claims Pilot
+
+[Practice Direction_chunk_005' -> 'Practice_Direction_51Zb___The_Damages_Claims_Pilot___Practice_Direction_chunk_005'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 51Zb – The Damages Claims Pilot
+
+[Practice Direction_chunk_006' -> 'Practice_Direction_51Zb___The_Damages_Claims_Pilot___Practice_Direction_chunk_006'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 51Zb – The Damages Claims Pilot
+
+[Practice Direction_chunk_007' -> 'Practice_Direction_51Zb___The_Damages_Claims_Pilot___Practice_Direction_chunk_007'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 51Zc – The Small Claims Paper Determination Pilot' -> 'Practice_Direction_51Zc___The_Small_Claims_Paper_Determination_Pilot'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 51Ze – Small Claims Track Automatic Referral To Mediation Pilot Scheme
+
+[Practice Direction_chunk_003' -> 'Practice_Direction_51Ze___Small_Claims_Track_Automatic_Referral_To_Mediation_Pilot_Scheme___Practice_Direction_chunk_003'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 51Zf – Part_chunk_000' -> 'Practice_Direction_51Zf___Part_chunk_000'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 51Zf – Part_chunk_001' -> 'Practice_Direction_51Zf___Part_chunk_001'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 51Zf – Part_chunk_002' -> 'Practice_Direction_51Zf___Part_chunk_002'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 51Zf – Part_chunk_003' -> 'Practice_Direction_51Zf___Part_chunk_003'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 51Zf – Part_chunk_004' -> 'Practice_Direction_51Zf___Part_chunk_004'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 51Zf – Part_chunk_005' -> 'Practice_Direction_51Zf___Part_chunk_005'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 52A – Appeals
+
+[Practice Direction_chunk_000' -> 'Practice_Direction_52A___Appeals___Practice_Direction_chunk_000'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 52A – Appeals
+
+[Practice Direction_chunk_001' -> 'Practice_Direction_52A___Appeals___Practice_Direction_chunk_001'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 52A – Appeals
+
+[Practice Direction_chunk_002' -> 'Practice_Direction_52A___Appeals___Practice_Direction_chunk_002'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 52A – Appeals
+
+[Practice Direction_chunk_003' -> 'Practice_Direction_52A___Appeals___Practice_Direction_chunk_003'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 52A – Appeals
+
+[Practice Direction_chunk_004' -> 'Practice_Direction_52A___Appeals___Practice_Direction_chunk_004'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 52B – Appeals In The County Court And High Court_chunk_000' -> 'Practice_Direction_52B___Appeals_In_The_County_Court_And_High_Court_chunk_000'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 52B – Appeals In The County Court And High Court_chunk_001' -> 'Practice_Direction_52B___Appeals_In_The_County_Court_And_High_Court_chunk_001'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 52B – Appeals In The County Court And High Court_chunk_002' -> 'Practice_Direction_52B___Appeals_In_The_County_Court_And_High_Court_chunk_002'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 52B – Appeals In The County Court And High Court_chunk_003' -> 'Practice_Direction_52B___Appeals_In_The_County_Court_And_High_Court_chunk_003'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 52C – Appeals To The Court Of Appeal_chunk_000' -> 'Practice_Direction_52C___Appeals_To_The_Court_Of_Appeal_chunk_000'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 52C – Appeals To The Court Of Appeal_chunk_001' -> 'Practice_Direction_52C___Appeals_To_The_Court_Of_Appeal_chunk_001'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 52C – Appeals To The Court Of Appeal_chunk_002' -> 'Practice_Direction_52C___Appeals_To_The_Court_Of_Appeal_chunk_002'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 52C – Appeals To The Court Of Appeal_chunk_003' -> 'Practice_Direction_52C___Appeals_To_The_Court_Of_Appeal_chunk_003'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 52C – Appeals To The Court Of Appeal_chunk_004' -> 'Practice_Direction_52C___Appeals_To_The_Court_Of_Appeal_chunk_004'
+2026-01-17 11:36:53,650 - INFO - Sanitized ID: 'Practice Direction 52C – Appeals To The Court Of Appeal_chunk_005' -> 'Practice_Direction_52C___Appeals_To_The_Court_Of_Appeal_chunk_005'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 52C – Appeals To The Court Of Appeal_chunk_006' -> 'Practice_Direction_52C___Appeals_To_The_Court_Of_Appeal_chunk_006'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 52D – Statutory Appeals And Appeals Subject To Special Provision_chunk_000' -> 'Practice_Direction_52D___Statutory_Appeals_And_Appeals_Subject_To_Special_Provision_chunk_000'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 52D – Statutory Appeals And Appeals Subject To Special Provision_chunk_001' -> 'Practice_Direction_52D___Statutory_Appeals_And_Appeals_Subject_To_Special_Provision_chunk_001'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 52D – Statutory Appeals And Appeals Subject To Special Provision_chunk_002' -> 'Practice_Direction_52D___Statutory_Appeals_And_Appeals_Subject_To_Special_Provision_chunk_002'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 52D – Statutory Appeals And Appeals Subject To Special Provision_chunk_003' -> 'Practice_Direction_52D___Statutory_Appeals_And_Appeals_Subject_To_Special_Provision_chunk_003'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 52D – Statutory Appeals And Appeals Subject To Special Provision_chunk_004' -> 'Practice_Direction_52D___Statutory_Appeals_And_Appeals_Subject_To_Special_Provision_chunk_004'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 52D – Statutory Appeals And Appeals Subject To Special Provision_chunk_005' -> 'Practice_Direction_52D___Statutory_Appeals_And_Appeals_Subject_To_Special_Provision_chunk_005'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 52D – Statutory Appeals And Appeals Subject To Special Provision_chunk_006' -> 'Practice_Direction_52D___Statutory_Appeals_And_Appeals_Subject_To_Special_Provision_chunk_006'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 52D – Statutory Appeals And Appeals Subject To Special Provision_chunk_007' -> 'Practice_Direction_52D___Statutory_Appeals_And_Appeals_Subject_To_Special_Provision_chunk_007'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 52D – Statutory Appeals And Appeals Subject To Special Provision_chunk_008' -> 'Practice_Direction_52D___Statutory_Appeals_And_Appeals_Subject_To_Special_Provision_chunk_008'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 52E – Appeals By Way Of Case Stated' -> 'Practice_Direction_52E___Appeals_By_Way_Of_Case_Stated'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 53A – Transferring Proceedings To And From The Media And Communications List' -> 'Practice_Direction_53A___Transferring_Proceedings_To_And_From_The_Media_And_Communications_List'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 53B – Media And Communications Claims_chunk_000' -> 'Practice_Direction_53B___Media_And_Communications_Claims_chunk_000'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 53B – Media And Communications Claims_chunk_001' -> 'Practice_Direction_53B___Media_And_Communications_Claims_chunk_001'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 53B – Media And Communications Claims_chunk_002' -> 'Practice_Direction_53B___Media_And_Communications_Claims_chunk_002'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 53B – Media And Communications Claims_chunk_003' -> 'Practice_Direction_53B___Media_And_Communications_Claims_chunk_003'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 53B – Media And Communications Claims_chunk_004' -> 'Practice_Direction_53B___Media_And_Communications_Claims_chunk_004'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 54A – Judicial Review_chunk_000' -> 'Practice_Direction_54A___Judicial_Review_chunk_000'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 54A – Judicial Review_chunk_001' -> 'Practice_Direction_54A___Judicial_Review_chunk_001'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 54A – Judicial Review_chunk_002' -> 'Practice_Direction_54A___Judicial_Review_chunk_002'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 54A – Judicial Review_chunk_003' -> 'Practice_Direction_54A___Judicial_Review_chunk_003'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 54A – Judicial Review_chunk_004' -> 'Practice_Direction_54A___Judicial_Review_chunk_004'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 54B – Urgent Applications And Other Applications For Interim Relief' -> 'Practice_Direction_54B___Urgent_Applications_And_Other_Applications_For_Interim_Relief'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 54C – Administrative Court (Venue)' -> 'Practice_Direction_54C___Administrative_Court___Venue'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 54D – Planning Court Claims And Appeals To The Planning Court_chunk_000' -> 'Practice_Direction_54D___Planning_Court_Claims_And_Appeals_To_The_Planning_Court_chunk_000'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 54D – Planning Court Claims And Appeals To The Planning Court_chunk_001' -> 'Practice_Direction_54D___Planning_Court_Claims_And_Appeals_To_The_Planning_Court_chunk_001'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 54D – Planning Court Claims And Appeals To The Planning Court_chunk_002' -> 'Practice_Direction_54D___Planning_Court_Claims_And_Appeals_To_The_Planning_Court_chunk_002'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 54D – Planning Court Claims And Appeals To The Planning Court_chunk_003' -> 'Practice_Direction_54D___Planning_Court_Claims_And_Appeals_To_The_Planning_Court_chunk_003'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 54D – Planning Court Claims And Appeals To The Planning Court_chunk_004' -> 'Practice_Direction_54D___Planning_Court_Claims_And_Appeals_To_The_Planning_Court_chunk_004'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 54D – Planning Court Claims And Appeals To The Planning Court_chunk_005' -> 'Practice_Direction_54D___Planning_Court_Claims_And_Appeals_To_The_Planning_Court_chunk_005'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 54D – Planning Court Claims And Appeals To The Planning Court_chunk_006' -> 'Practice_Direction_54D___Planning_Court_Claims_And_Appeals_To_The_Planning_Court_chunk_006'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 54E – Environmental Review Claims
+
+[Practice Direction_chunk_000' -> 'Practice_Direction_54E___Environmental_Review_Claims___Practice_Direction_chunk_000'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 54E – Environmental Review Claims
+
+[Practice Direction_chunk_001' -> 'Practice_Direction_54E___Environmental_Review_Claims___Practice_Direction_chunk_001'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 54E – Environmental Review Claims
+
+[Practice Direction_chunk_002' -> 'Practice_Direction_54E___Environmental_Review_Claims___Practice_Direction_chunk_002'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 54E – Environmental Review Claims
+
+[Practice Direction_chunk_003' -> 'Practice_Direction_54E___Environmental_Review_Claims___Practice_Direction_chunk_003'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 55A – Possession Claims_chunk_000' -> 'Practice_Direction_55A___Possession_Claims_chunk_000'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 55A – Possession Claims_chunk_001' -> 'Practice_Direction_55A___Possession_Claims_chunk_001'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 55A – Possession Claims_chunk_002' -> 'Practice_Direction_55A___Possession_Claims_chunk_002'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 55A – Possession Claims_chunk_003' -> 'Practice_Direction_55A___Possession_Claims_chunk_003'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 55A – Possession Claims_chunk_004' -> 'Practice_Direction_55A___Possession_Claims_chunk_004'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 55B – Possession Claims Online_chunk_000' -> 'Practice_Direction_55B___Possession_Claims_Online_chunk_000'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 55B – Possession Claims Online_chunk_001' -> 'Practice_Direction_55B___Possession_Claims_Online_chunk_001'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 55B – Possession Claims Online_chunk_002' -> 'Practice_Direction_55B___Possession_Claims_Online_chunk_002'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 55B – Possession Claims Online_chunk_003' -> 'Practice_Direction_55B___Possession_Claims_Online_chunk_003'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 55B – Possession Claims Online_chunk_004' -> 'Practice_Direction_55B___Possession_Claims_Online_chunk_004'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 56A – Renting Homes (Wales) Claims
+
+[Practice Direction' -> 'Practice_Direction_56A___Renting_Homes___Wales___Claims___Practice_Direction'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 56 – Landlord And Tenant Claims And Miscellaneous Provisions About Land_chunk_000' -> 'Practice_Direction_56___Landlord_And_Tenant_Claims_And_Miscellaneous_Provisions_About_Land_chunk_000'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 56 – Landlord And Tenant Claims And Miscellaneous Provisions About Land_chunk_001' -> 'Practice_Direction_56___Landlord_And_Tenant_Claims_And_Miscellaneous_Provisions_About_Land_chunk_001'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 56 – Landlord And Tenant Claims And Miscellaneous Provisions About Land_chunk_002' -> 'Practice_Direction_56___Landlord_And_Tenant_Claims_And_Miscellaneous_Provisions_About_Land_chunk_002'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 56 – Landlord And Tenant Claims And Miscellaneous Provisions About Land_chunk_003' -> 'Practice_Direction_56___Landlord_And_Tenant_Claims_And_Miscellaneous_Provisions_About_Land_chunk_003'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 56 – Landlord And Tenant Claims And Miscellaneous Provisions About Land_chunk_004' -> 'Practice_Direction_56___Landlord_And_Tenant_Claims_And_Miscellaneous_Provisions_About_Land_chunk_004'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 56 – Landlord And Tenant Claims And Miscellaneous Provisions About Land_chunk_005' -> 'Practice_Direction_56___Landlord_And_Tenant_Claims_And_Miscellaneous_Provisions_About_Land_chunk_005'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 56 – Landlord And Tenant Claims And Miscellaneous Provisions About Land_chunk_006' -> 'Practice_Direction_56___Landlord_And_Tenant_Claims_And_Miscellaneous_Provisions_About_Land_chunk_006'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 56 – Landlord And Tenant Claims And Miscellaneous Provisions About Land_chunk_007' -> 'Practice_Direction_56___Landlord_And_Tenant_Claims_And_Miscellaneous_Provisions_About_Land_chunk_007'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 57Ac – Trial Witness Statements In The Business And Property Courts_chunk_000' -> 'Practice_Direction_57Ac___Trial_Witness_Statements_In_The_Business_And_Property_Courts_chunk_000'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 57Ac – Trial Witness Statements In The Business And Property Courts_chunk_001' -> 'Practice_Direction_57Ac___Trial_Witness_Statements_In_The_Business_And_Property_Courts_chunk_001'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 57Ac – Trial Witness Statements In The Business And Property Courts_chunk_002' -> 'Practice_Direction_57Ac___Trial_Witness_Statements_In_The_Business_And_Property_Courts_chunk_002'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 57Ad – Disclosure In The Business And Property Courts_chunk_000' -> 'Practice_Direction_57Ad___Disclosure_In_The_Business_And_Property_Courts_chunk_000'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 57Ad – Disclosure In The Business And Property Courts_chunk_001' -> 'Practice_Direction_57Ad___Disclosure_In_The_Business_And_Property_Courts_chunk_001'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 57Ad – Disclosure In The Business And Property Courts_chunk_002' -> 'Practice_Direction_57Ad___Disclosure_In_The_Business_And_Property_Courts_chunk_002'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 57Ad – Disclosure In The Business And Property Courts_chunk_003' -> 'Practice_Direction_57Ad___Disclosure_In_The_Business_And_Property_Courts_chunk_003'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 57Ad – Disclosure In The Business And Property Courts_chunk_004' -> 'Practice_Direction_57Ad___Disclosure_In_The_Business_And_Property_Courts_chunk_004'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 57Ad – Disclosure In The Business And Property Courts_chunk_005' -> 'Practice_Direction_57Ad___Disclosure_In_The_Business_And_Property_Courts_chunk_005'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 57Ad – Disclosure In The Business And Property Courts_chunk_006' -> 'Practice_Direction_57Ad___Disclosure_In_The_Business_And_Property_Courts_chunk_006'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 57Ad – Disclosure In The Business And Property Courts_chunk_007' -> 'Practice_Direction_57Ad___Disclosure_In_The_Business_And_Property_Courts_chunk_007'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 57B – Proceedings Under The Presumption Of Death Act_chunk_000' -> 'Practice_Direction_57B___Proceedings_Under_The_Presumption_Of_Death_Act_chunk_000'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 57B – Proceedings Under The Presumption Of Death Act_chunk_001' -> 'Practice_Direction_57B___Proceedings_Under_The_Presumption_Of_Death_Act_chunk_001'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 57 – Probate_chunk_000' -> 'Practice_Direction_57___Probate_chunk_000'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 57 – Probate_chunk_001' -> 'Practice_Direction_57___Probate_chunk_001'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 57 – Probate_chunk_002' -> 'Practice_Direction_57___Probate_chunk_002'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 57 – Probate_chunk_003' -> 'Practice_Direction_57___Probate_chunk_003'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 58 – Commercial Court' -> 'Practice_Direction_58___Commercial_Court'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 59 – Circuit Commercial Courts' -> 'Practice_Direction_59___Circuit_Commercial_Courts'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 5A – Court Documents_chunk_000' -> 'Practice_Direction_5A___Court_Documents_chunk_000'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 5A – Court Documents_chunk_001' -> 'Practice_Direction_5A___Court_Documents_chunk_001'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 5A – Court Documents_chunk_002' -> 'Practice_Direction_5A___Court_Documents_chunk_002'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 5A – Court Documents_chunk_003' -> 'Practice_Direction_5A___Court_Documents_chunk_003'
+2026-01-17 11:36:53,651 - INFO - Sanitized ID: 'Practice Direction 5A – Court Documents_chunk_004' -> 'Practice_Direction_5A___Court_Documents_chunk_004'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 5B – Communication And Filing Of Documents By E-Mail' -> 'Practice_Direction_5B___Communication_And_Filing_Of_Documents_By_E-Mail'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 60 – Technology And Construction Court Claims' -> 'Practice_Direction_60___Technology_And_Construction_Court_Claims'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 61 – Admiralty Claims_chunk_000' -> 'Practice_Direction_61___Admiralty_Claims_chunk_000'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 61 – Admiralty Claims_chunk_001' -> 'Practice_Direction_61___Admiralty_Claims_chunk_001'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 61 – Admiralty Claims_chunk_002' -> 'Practice_Direction_61___Admiralty_Claims_chunk_002'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 61 – Admiralty Claims_chunk_003' -> 'Practice_Direction_61___Admiralty_Claims_chunk_003'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 61 – Admiralty Claims_chunk_004' -> 'Practice_Direction_61___Admiralty_Claims_chunk_004'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 61 – Admiralty Claims_chunk_005' -> 'Practice_Direction_61___Admiralty_Claims_chunk_005'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 61 – Admiralty Claims_chunk_006' -> 'Practice_Direction_61___Admiralty_Claims_chunk_006'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 62 – Arbitration_chunk_000' -> 'Practice_Direction_62___Arbitration_chunk_000'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 62 – Arbitration_chunk_001' -> 'Practice_Direction_62___Arbitration_chunk_001'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 62 – Arbitration_chunk_002' -> 'Practice_Direction_62___Arbitration_chunk_002'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 62 – Arbitration_chunk_003' -> 'Practice_Direction_62___Arbitration_chunk_003'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 63A – Intellectual Property Claims_chunk_000' -> 'Practice_Direction_63A___Intellectual_Property_Claims_chunk_000'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 63A – Intellectual Property Claims_chunk_001' -> 'Practice_Direction_63A___Intellectual_Property_Claims_chunk_001'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 63A – Intellectual Property Claims_chunk_002' -> 'Practice_Direction_63A___Intellectual_Property_Claims_chunk_002'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 63A – Intellectual Property Claims_chunk_003' -> 'Practice_Direction_63A___Intellectual_Property_Claims_chunk_003'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 63A – Intellectual Property Claims_chunk_004' -> 'Practice_Direction_63A___Intellectual_Property_Claims_chunk_004'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 63A – Intellectual Property Claims_chunk_005' -> 'Practice_Direction_63A___Intellectual_Property_Claims_chunk_005'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 64A – Estates_chunk_000' -> 'Practice_Direction_64A___Estates_chunk_000'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 64A – Estates_chunk_001' -> 'Practice_Direction_64A___Estates_chunk_001'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 64B – Applications To The Court For Directions By Trustees In Relation To The Administration Of The Trust' -> 'Practice_Direction_64B___Applications_To_The_Court_For_Directions_By_Trustees_In_Relation_To_The_Administration_Of_The_Trust'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 65 – Anti-Social Behaviour And Harassment_chunk_000' -> 'Practice_Direction_65___Anti-Social_Behaviour_And_Harassment_chunk_000'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 65 – Anti-Social Behaviour And Harassment_chunk_001' -> 'Practice_Direction_65___Anti-Social_Behaviour_And_Harassment_chunk_001'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 66 – Crown Proceedings' -> 'Practice_Direction_66___Crown_Proceedings'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 67 – Proceedings Relating To Solicitors' -> 'Practice_Direction_67___Proceedings_Relating_To_Solicitors'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 69 – Court_chunk_000' -> 'Practice_Direction_69___Court_chunk_000'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 69 – Court_chunk_001' -> 'Practice_Direction_69___Court_chunk_001'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 6A – Service Within The United Kingdom
+
+[Practice Direction_chunk_000' -> 'Practice_Direction_6A___Service_Within_The_United_Kingdom___Practice_Direction_chunk_000'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 6A – Service Within The United Kingdom
+
+[Practice Direction_chunk_001' -> 'Practice_Direction_6A___Service_Within_The_United_Kingdom___Practice_Direction_chunk_001'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 6A – Service Within The United Kingdom
+
+[Practice Direction_chunk_002' -> 'Practice_Direction_6A___Service_Within_The_United_Kingdom___Practice_Direction_chunk_002'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 6A – Service Within The United Kingdom
+
+[Practice Direction_chunk_003' -> 'Practice_Direction_6A___Service_Within_The_United_Kingdom___Practice_Direction_chunk_003'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 6B – Service Out Of The Jurisdiction_chunk_000' -> 'Practice_Direction_6B___Service_Out_Of_The_Jurisdiction_chunk_000'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 6B – Service Out Of The Jurisdiction_chunk_001' -> 'Practice_Direction_6B___Service_Out_Of_The_Jurisdiction_chunk_001'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 6B – Service Out Of The Jurisdiction_chunk_002' -> 'Practice_Direction_6B___Service_Out_Of_The_Jurisdiction_chunk_002'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 6B – Service Out Of The Jurisdiction_chunk_003' -> 'Practice_Direction_6B___Service_Out_Of_The_Jurisdiction_chunk_003'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 70A – Enforcement Of Judgments And Orders_chunk_000' -> 'Practice_Direction_70A___Enforcement_Of_Judgments_And_Orders_chunk_000'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 70A – Enforcement Of Judgments And Orders_chunk_001' -> 'Practice_Direction_70A___Enforcement_Of_Judgments_And_Orders_chunk_001'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 70A – Enforcement Of Judgments And Orders_chunk_002' -> 'Practice_Direction_70A___Enforcement_Of_Judgments_And_Orders_chunk_002'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 70A – Enforcement Of Judgments And Orders_chunk_003' -> 'Practice_Direction_70A___Enforcement_Of_Judgments_And_Orders_chunk_003'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 70B – Debt Respite Scheme Under The Financial Guidance And Claims Act' -> 'Practice_Direction_70B___Debt_Respite_Scheme_Under_The_Financial_Guidance_And_Claims_Act'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 71 – Orders To Obtain Information From Judgment Debtors' -> 'Practice_Direction_71___Orders_To_Obtain_Information_From_Judgment_Debtors'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 72 – Third Party Debt Orders' -> 'Practice_Direction_72___Third_Party_Debt_Orders'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 73 – Charging Orders' -> 'Practice_Direction_73___Charging_Orders'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 74A – Enforcement Of Judgments In Different Jurisdictions' -> 'Practice_Direction_74A___Enforcement_Of_Judgments_In_Different_Jurisdictions'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 75 – Traffic Enforcement_chunk_000' -> 'Practice_Direction_75___Traffic_Enforcement_chunk_000'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 75 – Traffic Enforcement_chunk_001' -> 'Practice_Direction_75___Traffic_Enforcement_chunk_001'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 75 – Traffic Enforcement_chunk_002' -> 'Practice_Direction_75___Traffic_Enforcement_chunk_002'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 75 – Traffic Enforcement_chunk_003' -> 'Practice_Direction_75___Traffic_Enforcement_chunk_003'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 77 – Applications For And Relating To Serious Crime Prevention Orders And Referral Of Release Decisions' -> 'Practice_Direction_77___Applications_For_And_Relating_To_Serious_Crime_Prevention_Orders_And_Referral_Of_Release_Decisions'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 7A – How To Start Proceedings_chunk_000' -> 'Practice_Direction_7A___How_To_Start_Proceedings_chunk_000'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 7A – How To Start Proceedings_chunk_001' -> 'Practice_Direction_7A___How_To_Start_Proceedings_chunk_001'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 7B – Production Centre_chunk_000' -> 'Practice_Direction_7B___Production_Centre_chunk_000'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 7B – Production Centre_chunk_001' -> 'Practice_Direction_7B___Production_Centre_chunk_001'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 7B – Production Centre_chunk_002' -> 'Practice_Direction_7B___Production_Centre_chunk_002'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 7C – Money Claim Online_chunk_000' -> 'Practice_Direction_7C___Money_Claim_Online_chunk_000'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 7C – Money Claim Online_chunk_001' -> 'Practice_Direction_7C___Money_Claim_Online_chunk_001'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 7C – Money Claim Online_chunk_002' -> 'Practice_Direction_7C___Money_Claim_Online_chunk_002'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 7C – Money Claim Online_chunk_003' -> 'Practice_Direction_7C___Money_Claim_Online_chunk_003'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 83 – Writs And Warrants' -> 'Practice_Direction_83___Writs_And_Warrants'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction 84 – Enforcement By Taking Control Of Goods' -> 'Practice_Direction_84___Enforcement_By_Taking_Control_Of_Goods'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction  27B – Claims Under The Pre-Action Protocol For Personal Injury Claims Below The Small Claims Limit In Road Traffic Accidents_chunk_030' -> 'Practice_Direction___27B___Claims_Under_The_Pre-Action_Protocol_For_Personal_Injury_Claims_Below_The_Small_Claims_Limit_In_Road_Traffic_Accidents_chunk_030'
+2026-01-17 11:36:53,652 - INFO - Sanitized ID: 'Practice Direction – Competition Law – claims relating to the application of chapters I and II of part I of the Competition Act 1998 and claims made under section 101 of the Digital Markets, Competition and Consumers Act 2024_chunk_001' -> 'Practice_Direction___Competition_Law___claims_relating_to_the_application_of_chapters_I_and_II_of_part_I_of_the_Competition_Act_1998_and_claims_made_under_section_101_of_the_Digital_Markets___Competition_and_Consumers_Act_2024_chunk_001'
+2026-01-17 11:36:53,652 - INFO - ✅ 561 documents passed validation
+2026-01-17 11:36:53,652 - INFO - 📍 Target index: legal-court-rag-index-v2
+2026-01-17 11:36:53,652 - INFO - 
+⬆️  Starting Upload to legal-court-rag-index-v2...
+2026-01-17 11:36:53,718 - INFO - Using DefaultAzureCredential for authentication
+2026-01-17 11:36:53,718 - INFO - No environment configuration found.
+2026-01-17 11:36:53,719 - INFO - ManagedIdentityCredential will use IMDS
+2026-01-17 11:36:53,777 - INFO - Request URL: 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=REDACTED&resource=REDACTED'
+Request method: 'GET'
+Request headers:
+    'User-Agent': 'azsdk-python-identity/1.17.1 Python/3.11.14 (macOS-26.2-arm64-arm-64bit)'
+No body was attached to the request
+2026-01-17 11:36:55,259 - INFO - DefaultAzureCredential acquired a token from AzureCliCredential
+2026-01-17 11:36:55,259 - INFO - Request URL: 'https://cpr-rag.search.windows.net/indexes('legal-court-rag-index-v2')?api-version=REDACTED'
+Request method: 'GET'
+Request headers:
+    'Accept': 'application/json;odata.metadata=minimal'
+    'x-ms-client-request-id': 'd253df4e-f398-11f0-b11e-92bc89cda245'
+    'User-Agent': 'azsdk-python-search-documents/11.7.0b2 Python/3.11.14 (macOS-26.2-arm64-arm-64bit)'
+    'Authorization': 'REDACTED'
+No body was attached to the request
+2026-01-17 11:36:55,766 - INFO - Response status: 200
+Response headers:
+    'Transfer-Encoding': 'chunked'
+    'Content-Type': 'application/json; odata.metadata=minimal; odata.streaming=true; charset=utf-8'
+    'Content-Encoding': 'REDACTED'
+    'ETag': '"0x8DE5471E2F36CAB"'
+    'Vary': 'REDACTED'
+    'Strict-Transport-Security': 'REDACTED'
+    'Preference-Applied': 'REDACTED'
+    'OData-Version': 'REDACTED'
+    'request-id': 'd253df4e-f398-11f0-b11e-92bc89cda245'
+    'elapsed-time': 'REDACTED'
+    'Date': 'Sat, 17 Jan 2026 11:36:55 GMT'
+2026-01-17 11:36:55,771 - INFO - ✅ Index 'legal-court-rag-index-v2' found
+2026-01-17 11:36:55,772 - INFO - Checking for existing documents to minimize updates...
+2026-01-17 11:36:56,032 - INFO - AzureCliCredential.get_token succeeded
+2026-01-17 11:36:56,032 - INFO - DefaultAzureCredential acquired a token from AzureCliCredential
+2026-01-17 11:36:56,032 - INFO - Request URL: 'https://cpr-rag.search.windows.net/indexes('legal-court-rag-index-v2')/docs/search.post.search?api-version=REDACTED'
+Request method: 'POST'
+Request headers:
+    'Content-Type': 'application/json'
+    'Content-Length': '3259'
+    'Accept': 'application/json;odata.metadata=none'
+    'x-ms-client-request-id': 'd384676c-f398-11f0-b11e-92bc89cda245'
+    'User-Agent': 'azsdk-python-search-documents/11.7.0b2 Python/3.11.14 (macOS-26.2-arm64-arm-64bit)'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-01-17 11:36:56,497 - INFO - Response status: 200
+Response headers:
+    'Transfer-Encoding': 'chunked'
+    'Content-Type': 'application/json; odata.metadata=none; odata.streaming=true; charset=utf-8'
+    'Content-Encoding': 'REDACTED'
+    'Vary': 'REDACTED'
+    'Strict-Transport-Security': 'REDACTED'
+    'Preference-Applied': 'REDACTED'
+    'OData-Version': 'REDACTED'
+    'request-id': 'd384676c-f398-11f0-b11e-92bc89cda245'
+    'elapsed-time': 'REDACTED'
+    'Date': 'Sat, 17 Jan 2026 11:36:55 GMT'
+2026-01-17 11:36:56,498 - INFO - ✨ New document: Application_for_a_Warrant_under_The_Competition_Act_1998_or_Part_1_of_the_Digital_Markets___Competition_and_Consumers_Act_2024_chunk_004
+2026-01-17 11:36:56,498 - INFO - ✨ New document: Part_10___Acknowledgment_Of_Service___Part
+2026-01-17 11:36:56,498 - INFO - ✨ New document: Part_11___Disputing_The_Court
+2026-01-17 11:36:56,498 - INFO - ✨ New document: Part_12___Default_Judgment___Part_chunk_000
+2026-01-17 11:36:56,498 - INFO - ✨ New document: Part_12___Default_Judgment___Part_chunk_001
+2026-01-17 11:36:56,498 - INFO - ✨ New document: Part_12___Default_Judgment___Part_chunk_002
+2026-01-17 11:36:56,498 - INFO - ✨ New document: Part_12___Default_Judgment___Part_chunk_003
+2026-01-17 11:36:56,498 - INFO - ✨ New document: Part_13___Setting_Aside_Or_Varying_Default_Judgment___Part
+2026-01-17 11:36:56,498 - INFO - ✨ New document: Part_14___Admissions___Part
+2026-01-17 11:36:56,498 - INFO - ✨ New document: Part_15___Defence_And_Reply___Part
+2026-01-17 11:36:56,498 - INFO - ✨ New document: Part_16___Statements_Of_Case___Part_chunk_000
+2026-01-17 11:36:56,498 - INFO - ✨ New document: Part_16___Statements_Of_Case___Part_chunk_001
+2026-01-17 11:36:56,498 - INFO - ✨ New document: Part_16___Statements_Of_Case___Part_chunk_002
+2026-01-17 11:36:56,498 - INFO - ✨ New document: Part_17___Amendments_To_Statements_Of_Case___Part
+2026-01-17 11:36:56,498 - INFO - ✨ New document: Part_18___Further_Information___Part
+2026-01-17 11:36:56,498 - INFO - ✨ New document: Part_19___Parties_And_Group_Litigation___Part_chunk_000
+2026-01-17 11:36:56,499 - INFO - ✨ New document: Part_19___Parties_And_Group_Litigation___Part_chunk_001
+2026-01-17 11:36:56,499 - INFO - ✨ New document: Part_19___Parties_And_Group_Litigation___Part_chunk_002
+2026-01-17 11:36:56,499 - INFO - ✨ New document: Part_19___Parties_And_Group_Litigation___Part_chunk_003
+2026-01-17 11:36:56,499 - INFO - ✨ New document: Part_19___Parties_And_Group_Litigation___Part_chunk_004
+2026-01-17 11:36:56,499 - INFO - ✨ New document: Part_19___Parties_And_Group_Litigation___Part_chunk_005
+2026-01-17 11:36:56,499 - INFO - ✨ New document: Part_1___Overriding_Objective___Part
+2026-01-17 11:36:56,499 - INFO - ✨ New document: Part_20___Counterclaims_And_Other_Additional_Claims___Part
+2026-01-17 11:36:56,499 - INFO - ✨ New document: Part_21___Children_And_Protected_Parties___Part_chunk_000
+2026-01-17 11:36:56,499 - INFO - ✨ New document: Part_21___Children_And_Protected_Parties___Part_chunk_001
+2026-01-17 11:36:56,499 - INFO - ✨ New document: Part_21___Children_And_Protected_Parties___Part_chunk_002
+2026-01-17 11:36:56,499 - INFO - ✨ New document: Part_21___Children_And_Protected_Parties___Part_chunk_003
+2026-01-17 11:36:56,499 - INFO - ✨ New document: Part_21___Children_And_Protected_Parties___Part_chunk_004
+2026-01-17 11:36:56,499 - INFO - ✨ New document: Part_22___Statements_Of_Truth___Part
+2026-01-17 11:36:56,499 - INFO - ✨ New document: Part_23___General_Rules_About_Applications_For_Court_Orders___Part
+2026-01-17 11:36:56,499 - INFO - ✨ New document: Part_24___Summary_Judgment___Part
+2026-01-17 11:36:56,499 - INFO - ✨ New document: Part_25___Interim_Remedies_And_Security_For_Costs_chunk_000
+2026-01-17 11:36:56,499 - INFO - ✨ New document: Part_25___Interim_Remedies_And_Security_For_Costs_chunk_001
+2026-01-17 11:36:56,499 - INFO - ✨ New document: Part_25___Interim_Remedies_And_Security_For_Costs_chunk_002
+2026-01-17 11:36:56,499 - INFO - ✨ New document: Part_25___Interim_Remedies_And_Security_For_Costs_chunk_003
+2026-01-17 11:36:56,499 - INFO - ✨ New document: Part_25___Interim_Remedies_And_Security_For_Costs_chunk_004
+2026-01-17 11:36:56,499 - INFO - ✨ New document: Part_25___Interim_Remedies_And_Security_For_Costs_chunk_005
+2026-01-17 11:36:56,499 - INFO - ✨ New document: Part_26___Case_Management_chunk_000
+2026-01-17 11:36:56,499 - INFO - ✨ New document: Part_26___Case_Management_chunk_001
+2026-01-17 11:36:56,499 - INFO - ✨ New document: Part_26___Case_Management_chunk_002
+2026-01-17 11:36:56,499 - INFO - ✨ New document: Part_26___Case_Management_chunk_003
+2026-01-17 11:36:56,499 - INFO - ✨ New document: Part_27___The_Small_Claims_Track___Part_chunk_000
+2026-01-17 11:36:56,499 - INFO - ✨ New document: Part_27___The_Small_Claims_Track___Part_chunk_001
+2026-01-17 11:36:56,499 - INFO - ✨ New document: Part_27___The_Small_Claims_Track___Part_chunk_002
+2026-01-17 11:36:56,499 - INFO - ✨ New document: Part_27___The_Small_Claims_Track___Part_chunk_003
+2026-01-17 11:36:56,499 - INFO - ✨ New document: Part_28___The_Fast_Track_And_The_Intermediate_Track___Part
+2026-01-17 11:36:56,499 - INFO - ✨ New document: Part_29___The_Multi-Track___Part
+2026-01-17 11:36:56,499 - INFO - ✨ New document: Part_2___Application_And_Interpretation_Of_The_Rules___Part_chunk_000
+2026-01-17 11:36:56,500 - INFO - ✨ New document: Part_2___Application_And_Interpretation_Of_The_Rules___Part_chunk_001
+2026-01-17 11:36:56,500 - INFO - ✨ New document: Part_2___Application_And_Interpretation_Of_The_Rules___Part_chunk_002
+2026-01-17 11:36:56,501 - INFO - Request URL: 'https://cpr-rag.search.windows.net/indexes('legal-court-rag-index-v2')/docs/search.post.search?api-version=REDACTED'
+Request method: 'POST'
+Request headers:
+    'Content-Type': 'application/json'
+    'Content-Length': '2877'
+    'Accept': 'application/json;odata.metadata=none'
+    'x-ms-client-request-id': 'd3f377a6-f398-11f0-b11e-92bc89cda245'
+    'User-Agent': 'azsdk-python-search-documents/11.7.0b2 Python/3.11.14 (macOS-26.2-arm64-arm-64bit)'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-01-17 11:36:56,620 - INFO - Response status: 200
+Response headers:
+    'Transfer-Encoding': 'chunked'
+    'Content-Type': 'application/json; odata.metadata=none; odata.streaming=true; charset=utf-8'
+    'Content-Encoding': 'REDACTED'
+    'Vary': 'REDACTED'
+    'Strict-Transport-Security': 'REDACTED'
+    'Preference-Applied': 'REDACTED'
+    'OData-Version': 'REDACTED'
+    'request-id': 'd3f377a6-f398-11f0-b11e-92bc89cda245'
+    'elapsed-time': 'REDACTED'
+    'Date': 'Sat, 17 Jan 2026 11:36:55 GMT'
+2026-01-17 11:36:56,621 - INFO - ✨ New document: Part_2___Application_And_Interpretation_Of_The_Rules___Part_chunk_003
+2026-01-17 11:36:56,621 - INFO - ✨ New document: Part_2___Application_And_Interpretation_Of_The_Rules___Part_chunk_004
+2026-01-17 11:36:56,621 - INFO - ✨ New document: Part_2___Application_And_Interpretation_Of_The_Rules___Part_chunk_005
+2026-01-17 11:36:56,621 - INFO - ✨ New document: Part_30___Transfer___Part
+2026-01-17 11:36:56,621 - INFO - ✨ New document: Part_31___Disclosure_And_Inspection_Of_Documents___Part_chunk_000
+2026-01-17 11:36:56,622 - INFO - ✨ New document: Part_31___Disclosure_And_Inspection_Of_Documents___Part_chunk_001
+2026-01-17 11:36:56,622 - INFO - ✨ New document: Part_31___Disclosure_And_Inspection_Of_Documents___Part_chunk_002
+2026-01-17 11:36:56,622 - INFO - ✨ New document: Part_31___Disclosure_And_Inspection_Of_Documents___Part_chunk_003
+2026-01-17 11:36:56,622 - INFO - ✨ New document: Part_31___Disclosure_And_Inspection_Of_Documents___Part_chunk_004
+2026-01-17 11:36:56,622 - INFO - ✨ New document: Part_32___Evidence___Part
+2026-01-17 11:36:56,622 - INFO - ✨ New document: Part_33___Miscellaneous_Rules_About_Evidence___Part
+2026-01-17 11:36:56,622 - INFO - ✨ New document: Part_34___Witnesses_chunk_000
+2026-01-17 11:36:56,622 - INFO - ✨ New document: Part_34___Witnesses_chunk_001
+2026-01-17 11:36:56,622 - INFO - ✨ New document: Part_34___Witnesses_chunk_002
+2026-01-17 11:36:56,622 - INFO - ✨ New document: Part_35___Experts_And_Assessors___Part_chunk_000
+2026-01-17 11:36:56,622 - INFO - ✨ New document: Part_35___Experts_And_Assessors___Part_chunk_001
+2026-01-17 11:36:56,622 - INFO - ✨ New document: Part_35___Experts_And_Assessors___Part_chunk_002
+2026-01-17 11:36:56,622 - INFO - ✨ New document: Part_35___Experts_And_Assessors___Part_chunk_003
+2026-01-17 11:36:56,622 - INFO - ✨ New document: Part_36___Offers_To_Settle___Part_chunk_000
+2026-01-17 11:36:56,622 - INFO - ✨ New document: Part_36___Offers_To_Settle___Part_chunk_001
+2026-01-17 11:36:56,622 - INFO - ✨ New document: Part_36___Offers_To_Settle___Part_chunk_002
+2026-01-17 11:36:56,623 - INFO - ✨ New document: Part_36___Offers_To_Settle___Part_chunk_003
+2026-01-17 11:36:56,623 - INFO - ✨ New document: Part_36___Offers_To_Settle___Part_chunk_004
+2026-01-17 11:36:56,623 - INFO - ✨ New document: Part_36___Offers_To_Settle___Part_chunk_005
+2026-01-17 11:36:56,623 - INFO - ✨ New document: Part_36___Offers_To_Settle___Part_chunk_006
+2026-01-17 11:36:56,623 - INFO - ✨ New document: Part_37___Miscellaneous_Provisions_About_Payments_Into_Court___Part
+2026-01-17 11:36:56,623 - INFO - ✨ New document: Part_38___Discontinuance___Part
+2026-01-17 11:36:56,623 - INFO - ✨ New document: Part_39___Miscellaneous_Provisions_Relating_To_Hearings___Part
+2026-01-17 11:36:56,623 - INFO - ✨ New document: Part_3___The_Court_chunk_000
+2026-01-17 11:36:56,623 - INFO - ✨ New document: Part_3___The_Court_chunk_001
+2026-01-17 11:36:56,623 - INFO - ✨ New document: Part_3___The_Court_chunk_002
+2026-01-17 11:36:56,623 - INFO - ✨ New document: Part_3___The_Court_chunk_003
+2026-01-17 11:36:56,623 - INFO - ✨ New document: Part_3___The_Court_chunk_004
+2026-01-17 11:36:56,623 - INFO - ✨ New document: Part_40___Judgments
+2026-01-17 11:36:56,623 - INFO - ✨ New document: Part_40___Judgments_chunk_000
+2026-01-17 11:36:56,623 - INFO - ✨ New document: Part_40___Judgments_chunk_001
+2026-01-17 11:36:56,623 - INFO - ✨ New document: Part_40___Judgments_chunk_002
+2026-01-17 11:36:56,623 - INFO - ✨ New document: Part_41___Damages___Part
+2026-01-17 11:36:56,623 - INFO - ✨ New document: Part_42___Change_Of_Solicitor___Part
+2026-01-17 11:36:56,623 - INFO - ✨ New document: Part_44___General_Rules_About_Costs___Part_chunk_000
+2026-01-17 11:36:56,623 - INFO - ✨ New document: Part_44___General_Rules_About_Costs___Part_chunk_001
+2026-01-17 11:36:56,623 - INFO - ✨ New document: Part_44___General_Rules_About_Costs___Part_chunk_002
+2026-01-17 11:36:56,623 - INFO - ✨ New document: Part_44___General_Rules_About_Costs___Part_chunk_003
+2026-01-17 11:36:56,623 - INFO - ✨ New document: Part_44___General_Rules_About_Costs___Part_chunk_004
+2026-01-17 11:36:56,623 - INFO - ✨ New document: Part_45___Fixed_Costs___Part_chunk_000
+2026-01-17 11:36:56,623 - INFO - ✨ New document: Part_45___Fixed_Costs___Part_chunk_001
+2026-01-17 11:36:56,624 - INFO - ✨ New document: Part_45___Fixed_Costs___Part_chunk_002
+2026-01-17 11:36:56,624 - INFO - ✨ New document: Part_45___Fixed_Costs___Part_chunk_003
+2026-01-17 11:36:56,624 - INFO - ✨ New document: Part_45___Fixed_Costs___Part_chunk_004
+2026-01-17 11:36:56,624 - INFO - ✨ New document: Part_45___Fixed_Costs___Part_chunk_005
+2026-01-17 11:36:56,625 - INFO - Request URL: 'https://cpr-rag.search.windows.net/indexes('legal-court-rag-index-v2')/docs/search.post.search?api-version=REDACTED'
+Request method: 'POST'
+Request headers:
+    'Content-Type': 'application/json'
+    'Content-Length': '3116'
+    'Accept': 'application/json;odata.metadata=none'
+    'x-ms-client-request-id': 'd4066118-f398-11f0-b11e-92bc89cda245'
+    'User-Agent': 'azsdk-python-search-documents/11.7.0b2 Python/3.11.14 (macOS-26.2-arm64-arm-64bit)'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-01-17 11:36:56,749 - INFO - Response status: 200
+Response headers:
+    'Transfer-Encoding': 'chunked'
+    'Content-Type': 'application/json; odata.metadata=none; odata.streaming=true; charset=utf-8'
+    'Content-Encoding': 'REDACTED'
+    'Vary': 'REDACTED'
+    'Strict-Transport-Security': 'REDACTED'
+    'Preference-Applied': 'REDACTED'
+    'OData-Version': 'REDACTED'
+    'request-id': 'd4066118-f398-11f0-b11e-92bc89cda245'
+    'elapsed-time': 'REDACTED'
+    'Date': 'Sat, 17 Jan 2026 11:36:55 GMT'
+2026-01-17 11:36:56,751 - INFO - 📝 content changed: Part_49___Specialist_Proceedings
+2026-01-17 11:36:56,751 - INFO - 📝 content changed: Part_4___Forms
+2026-01-17 11:36:56,751 - INFO - 📝 content changed: Part_54___Judicial_Review_And_Statutory_Review
+2026-01-17 11:36:56,751 - INFO - ✨ New document: Part_45___Fixed_Costs___Part_chunk_006
+2026-01-17 11:36:56,751 - INFO - ✨ New document: Part_45___Fixed_Costs___Part_chunk_007
+2026-01-17 11:36:56,751 - INFO - ✨ New document: Part_45___Fixed_Costs___Part_chunk_008
+2026-01-17 11:36:56,751 - INFO - ✨ New document: Part_45___Fixed_Costs___Part_chunk_009
+2026-01-17 11:36:56,751 - INFO - ✨ New document: Part_46___Costs-Special_Cases___Part_chunk_000
+2026-01-17 11:36:56,751 - INFO - ✨ New document: Part_46___Costs-Special_Cases___Part_chunk_001
+2026-01-17 11:36:56,751 - INFO - ✨ New document: Part_46___Costs-Special_Cases___Part_chunk_002
+2026-01-17 11:36:56,751 - INFO - ✨ New document: Part_47___Procedure_For_Assessment_Of_Costs_And_Default_Provisions___Part_chunk_000
+2026-01-17 11:36:56,751 - INFO - ✨ New document: Part_47___Procedure_For_Assessment_Of_Costs_And_Default_Provisions___Part_chunk_001
+2026-01-17 11:36:56,751 - INFO - ✨ New document: Part_47___Procedure_For_Assessment_Of_Costs_And_Default_Provisions___Part_chunk_002
+2026-01-17 11:36:56,751 - INFO - ✨ New document: Part_47___Procedure_For_Assessment_Of_Costs_And_Default_Provisions___Part_chunk_003
+2026-01-17 11:36:56,751 - INFO - ✨ New document: Part_47___Procedure_For_Assessment_Of_Costs_And_Default_Provisions___Part_chunk_004
+2026-01-17 11:36:56,751 - INFO - ✨ New document: Part_48___Part
+2026-01-17 11:36:56,752 - INFO - ✨ New document: Part_50___Application_Of_The_Schedules
+2026-01-17 11:36:56,752 - INFO - ✨ New document: Part_51___Transitional_Arrangements_And_Pilot_Schemes
+2026-01-17 11:36:56,752 - INFO - ✨ New document: Part_52___Appeals___Part_chunk_000
+2026-01-17 11:36:56,752 - INFO - ✨ New document: Part_52___Appeals___Part_chunk_001
+2026-01-17 11:36:56,752 - INFO - ✨ New document: Part_52___Appeals___Part_chunk_002
+2026-01-17 11:36:56,752 - INFO - ✨ New document: Part_52___Appeals___Part_chunk_003
+2026-01-17 11:36:56,752 - INFO - ✨ New document: Part_52___Appeals___Part_chunk_004
+2026-01-17 11:36:56,752 - INFO - ✨ New document: Part_52___Appeals___Part_chunk_005
+2026-01-17 11:36:56,752 - INFO - ✨ New document: Part_53___Media_And_Communications_Claims___Part
+2026-01-17 11:36:56,752 - INFO - ✨ New document: Part_54___Judicial_Review_And_Statutory_Review___Part_chunk_000
+2026-01-17 11:36:56,752 - INFO - ✨ New document: Part_54___Judicial_Review_And_Statutory_Review___Part_chunk_001
+2026-01-17 11:36:56,752 - INFO - ✨ New document: Part_54___Judicial_Review_And_Statutory_Review___Part_chunk_002
+2026-01-17 11:36:56,752 - INFO - ✨ New document: Part_54___Judicial_Review_And_Statutory_Review___Part_chunk_003
+2026-01-17 11:36:56,752 - INFO - ✨ New document: Part_54___Judicial_Review_And_Statutory_Review___Part_chunk_004
+2026-01-17 11:36:56,752 - INFO - ✨ New document: Part_54___Judicial_Review_And_Statutory_Review_chunk_000
+2026-01-17 11:36:56,752 - INFO - ✨ New document: Part_54___Judicial_Review_And_Statutory_Review_chunk_001
+2026-01-17 11:36:56,752 - INFO - ✨ New document: Part_54___Judicial_Review_And_Statutory_Review_chunk_002
+2026-01-17 11:36:56,752 - INFO - ✨ New document: Part_54___Judicial_Review_And_Statutory_Review_chunk_003
+2026-01-17 11:36:56,752 - INFO - ✨ New document: Part_54___Judicial_Review_And_Statutory_Review_chunk_004
+2026-01-17 11:36:56,752 - INFO - ✨ New document: Part_55___Possession_Claims___Part_chunk_000
+2026-01-17 11:36:56,752 - INFO - ✨ New document: Part_55___Possession_Claims___Part_chunk_001
+2026-01-17 11:36:56,752 - INFO - ✨ New document: Part_55___Possession_Claims___Part_chunk_002
+2026-01-17 11:36:56,752 - INFO - ✨ New document: Part_55___Possession_Claims___Part_chunk_003
+2026-01-17 11:36:56,752 - INFO - ✨ New document: Part_55___Possession_Claims___Part_chunk_004
+2026-01-17 11:36:56,752 - INFO - ✨ New document: Part_55___Possession_Claims___Part_chunk_005
+2026-01-17 11:36:56,752 - INFO - ✨ New document: Part_55___Possession_Claims___Part_chunk_006
+2026-01-17 11:36:56,752 - INFO - ✨ New document: Part_56___Landlord_And_Tenant_Claims_And_Miscellaneous_Provisions_About_Land_And_Claims_Under_The_Renting_Homes___Wales___Act_chunk_001
+2026-01-17 11:36:56,752 - INFO - ✨ New document: Part_57A___Business_And_Property_Courts___Part
+2026-01-17 11:36:56,753 - INFO - ✨ New document: Part_57___Probate_chunk_000
+2026-01-17 11:36:56,753 - INFO - ✨ New document: Part_57___Probate_chunk_001
+2026-01-17 11:36:56,753 - INFO - ✨ New document: Part_57___Probate_chunk_002
+2026-01-17 11:36:56,753 - INFO - ✨ New document: Part_57___Probate_chunk_003
+2026-01-17 11:36:56,753 - INFO - ✨ New document: Part_57___Probate_chunk_004
+2026-01-17 11:36:56,753 - INFO - ✨ New document: Part_58___Commercial_Court___Part
+2026-01-17 11:36:56,754 - INFO - Request URL: 'https://cpr-rag.search.windows.net/indexes('legal-court-rag-index-v2')/docs/search.post.search?api-version=REDACTED'
+Request method: 'POST'
+Request headers:
+    'Content-Type': 'application/json'
+    'Content-Length': '3381'
+    'Accept': 'application/json;odata.metadata=none'
+    'x-ms-client-request-id': 'd41a0a06-f398-11f0-b11e-92bc89cda245'
+    'User-Agent': 'azsdk-python-search-documents/11.7.0b2 Python/3.11.14 (macOS-26.2-arm64-arm-64bit)'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-01-17 11:36:56,878 - INFO - Response status: 200
+Response headers:
+    'Transfer-Encoding': 'chunked'
+    'Content-Type': 'application/json; odata.metadata=none; odata.streaming=true; charset=utf-8'
+    'Content-Encoding': 'REDACTED'
+    'Vary': 'REDACTED'
+    'Strict-Transport-Security': 'REDACTED'
+    'Preference-Applied': 'REDACTED'
+    'OData-Version': 'REDACTED'
+    'request-id': 'd41a0a06-f398-11f0-b11e-92bc89cda245'
+    'elapsed-time': 'REDACTED'
+    'Date': 'Sat, 17 Jan 2026 11:36:56 GMT'
+2026-01-17 11:36:56,880 - INFO - 📝 content changed: Part_69___Court
+2026-01-17 11:36:56,880 - INFO - 📝 content changed: Part_64___Estates
+2026-01-17 11:36:56,880 - INFO - ✨ New document: Part_59___Circuit_Commercial_Courts___Part
+2026-01-17 11:36:56,880 - INFO - ✨ New document: Part_5___Court_Documents___Part
+2026-01-17 11:36:56,880 - INFO - ✨ New document: Part_60___Technology_And_Construction_Court_Claims___Part
+2026-01-17 11:36:56,881 - INFO - ✨ New document: Part_61___Admiralty_Claims___Part_chunk_000
+2026-01-17 11:36:56,881 - INFO - ✨ New document: Part_61___Admiralty_Claims___Part_chunk_001
+2026-01-17 11:36:56,881 - INFO - ✨ New document: Part_61___Admiralty_Claims___Part_chunk_002
+2026-01-17 11:36:56,881 - INFO - ✨ New document: Part_61___Admiralty_Claims___Part_chunk_003
+2026-01-17 11:36:56,881 - INFO - ✨ New document: Part_61___Admiralty_Claims___Part_chunk_004
+2026-01-17 11:36:56,881 - INFO - ✨ New document: Part_61___Admiralty_Claims___Part_chunk_005
+2026-01-17 11:36:56,881 - INFO - ✨ New document: Part_62___Arbitration_Claims___Part_chunk_000
+2026-01-17 11:36:56,881 - INFO - ✨ New document: Part_62___Arbitration_Claims___Part_chunk_001
+2026-01-17 11:36:56,881 - INFO - ✨ New document: Part_62___Arbitration_Claims___Part_chunk_002
+2026-01-17 11:36:56,881 - INFO - ✨ New document: Part_62___Arbitration_Claims___Part_chunk_003
+2026-01-17 11:36:56,881 - INFO - ✨ New document: Part_62___Arbitration_Claims___Part_chunk_004
+2026-01-17 11:36:56,881 - INFO - ✨ New document: Part_63A___Financial_List___Part
+2026-01-17 11:36:56,881 - INFO - ✨ New document: Part_63___Intellectual_Property_Claims___Part_chunk_000
+2026-01-17 11:36:56,881 - INFO - ✨ New document: Part_63___Intellectual_Property_Claims___Part_chunk_001
+2026-01-17 11:36:56,881 - INFO - ✨ New document: Part_63___Intellectual_Property_Claims___Part_chunk_002
+2026-01-17 11:36:56,881 - INFO - ✨ New document: Part_63___Intellectual_Property_Claims___Part_chunk_003
+2026-01-17 11:36:56,881 - INFO - ✨ New document: Part_63___Intellectual_Property_Claims___Part_chunk_004
+2026-01-17 11:36:56,881 - INFO - ✨ New document: Part_65___Proceedings_Relating_To_Anti-Social_Behaviour_And_Harassment___Part_chunk_000
+2026-01-17 11:36:56,881 - INFO - ✨ New document: Part_65___Proceedings_Relating_To_Anti-Social_Behaviour_And_Harassment___Part_chunk_001
+2026-01-17 11:36:56,881 - INFO - ✨ New document: Part_65___Proceedings_Relating_To_Anti-Social_Behaviour_And_Harassment___Part_chunk_002
+2026-01-17 11:36:56,881 - INFO - ✨ New document: Part_65___Proceedings_Relating_To_Anti-Social_Behaviour_And_Harassment___Part_chunk_003
+2026-01-17 11:36:56,881 - INFO - ✨ New document: Part_65___Proceedings_Relating_To_Anti-Social_Behaviour_And_Harassment___Part_chunk_004
+2026-01-17 11:36:56,881 - INFO - ✨ New document: Part_66___Crown_Proceedings___Part
+2026-01-17 11:36:56,882 - INFO - ✨ New document: Part_67___Proceedings_Relating_To_Solicitors___Part
+2026-01-17 11:36:56,882 - INFO - ✨ New document: Part_68___Proceedings_under_the_European_Union___Withdrawal___Act_2018_chunk_000
+2026-01-17 11:36:56,882 - INFO - ✨ New document: Part_68___Proceedings_under_the_European_Union___Withdrawal___Act_2018_chunk_001
+2026-01-17 11:36:56,882 - INFO - ✨ New document: Part_6___Service_Of_Documents___Part_chunk_000
+2026-01-17 11:36:56,882 - INFO - ✨ New document: Part_6___Service_Of_Documents___Part_chunk_001
+2026-01-17 11:36:56,882 - INFO - ✨ New document: Part_6___Service_Of_Documents___Part_chunk_002
+2026-01-17 11:36:56,882 - INFO - ✨ New document: Part_6___Service_Of_Documents___Part_chunk_003
+2026-01-17 11:36:56,882 - INFO - ✨ New document: Part_6___Service_Of_Documents___Part_chunk_004
+2026-01-17 11:36:56,882 - INFO - ✨ New document: Part_6___Service_Of_Documents___Part_chunk_005
+2026-01-17 11:36:56,882 - INFO - ✨ New document: Part_6___Service_Of_Documents___Part_chunk_006
+2026-01-17 11:36:56,882 - INFO - ✨ New document: Part_6___Service_Of_Documents___Part_chunk_007
+2026-01-17 11:36:56,882 - INFO - ✨ New document: Part_70___General_Rules_About_Enforcement_Of_Judgments_And_Orders___Part
+2026-01-17 11:36:56,882 - INFO - ✨ New document: Part_71___Orders_To_Obtain_Information_From_Judgment_Debtors___Part
+2026-01-17 11:36:56,882 - INFO - ✨ New document: Part_72___Third_Party_Debt_Orders___Part_chunk_000
+2026-01-17 11:36:56,882 - INFO - ✨ New document: Part_72___Third_Party_Debt_Orders___Part_chunk_001
+2026-01-17 11:36:56,882 - INFO - ✨ New document: Part_72___Third_Party_Debt_Orders___Part_chunk_002
+2026-01-17 11:36:56,882 - INFO - ✨ New document: Part_73___Charging_Orders_chunk_000
+2026-01-17 11:36:56,882 - INFO - ✨ New document: Part_73___Charging_Orders_chunk_001
+2026-01-17 11:36:56,882 - INFO - ✨ New document: Part_74___Enforcement_Of_Judgments_In_Different_Jurisdictions___Part_chunk_000
+2026-01-17 11:36:56,882 - INFO - ✨ New document: Part_74___Enforcement_Of_Judgments_In_Different_Jurisdictions___Part_chunk_001
+2026-01-17 11:36:56,882 - INFO - ✨ New document: Part_74___Enforcement_Of_Judgments_In_Different_Jurisdictions___Part_chunk_002
+2026-01-17 11:36:56,882 - INFO - ✨ New document: Part_74___Enforcement_Of_Judgments_In_Different_Jurisdictions___Part_chunk_003
+2026-01-17 11:36:56,883 - INFO - Request URL: 'https://cpr-rag.search.windows.net/indexes('legal-court-rag-index-v2')/docs/search.post.search?api-version=REDACTED'
+Request method: 'POST'
+Request headers:
+    'Content-Type': 'application/json'
+    'Content-Length': '4006'
+    'Accept': 'application/json;odata.metadata=none'
+    'x-ms-client-request-id': 'd42dd112-f398-11f0-b11e-92bc89cda245'
+    'User-Agent': 'azsdk-python-search-documents/11.7.0b2 Python/3.11.14 (macOS-26.2-arm64-arm-64bit)'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-01-17 11:36:57,001 - INFO - Response status: 200
+Response headers:
+    'Transfer-Encoding': 'chunked'
+    'Content-Type': 'application/json; odata.metadata=none; odata.streaming=true; charset=utf-8'
+    'Content-Encoding': 'REDACTED'
+    'Vary': 'REDACTED'
+    'Strict-Transport-Security': 'REDACTED'
+    'Preference-Applied': 'REDACTED'
+    'OData-Version': 'REDACTED'
+    'request-id': 'd42dd112-f398-11f0-b11e-92bc89cda245'
+    'elapsed-time': 'REDACTED'
+    'Date': 'Sat, 17 Jan 2026 11:36:56 GMT'
+2026-01-17 11:36:57,003 - INFO - 📝 content changed: Part_81___Applications_and_Proceedings_in_Relation_to_Contempt_of_Court
+2026-01-17 11:36:57,003 - INFO - ✨ New document: Part_74___Enforcement_Of_Judgments_In_Different_Jurisdictions___Part_chunk_004
+2026-01-17 11:36:57,003 - INFO - ✨ New document: Part_75___Traffic_Enforcement___Part
+2026-01-17 11:36:57,003 - INFO - ✨ New document: Part_76___Proceedings_Under_The_Prevention_Of_Terrorism_Act_chunk_000
+2026-01-17 11:36:57,003 - INFO - ✨ New document: Part_76___Proceedings_Under_The_Prevention_Of_Terrorism_Act_chunk_001
+2026-01-17 11:36:57,003 - INFO - ✨ New document: Part_76___Proceedings_Under_The_Prevention_Of_Terrorism_Act_chunk_002
+2026-01-17 11:36:57,003 - INFO - ✨ New document: Part_76___Proceedings_Under_The_Prevention_Of_Terrorism_Act_chunk_003
+2026-01-17 11:36:57,003 - INFO - ✨ New document: Part_77___Provisions_In_Support_Of_Criminal_Justice___Part_chunk_000
+2026-01-17 11:36:57,003 - INFO - ✨ New document: Part_77___Provisions_In_Support_Of_Criminal_Justice___Part_chunk_001
+2026-01-17 11:36:57,003 - INFO - ✨ New document: Part_77___Provisions_In_Support_Of_Criminal_Justice___Part_chunk_002
+2026-01-17 11:36:57,003 - INFO - ✨ New document: Part_77___Provisions_In_Support_Of_Criminal_Justice___Part_chunk_003
+2026-01-17 11:36:57,003 - INFO - ✨ New document: Part_77___Provisions_In_Support_Of_Criminal_Justice___Part_chunk_004
+2026-01-17 11:36:57,003 - INFO - ✨ New document: Part_77___Provisions_In_Support_Of_Criminal_Justice___Part_chunk_005
+2026-01-17 11:36:57,003 - INFO - ✨ New document: Part_79___Proceedings_under_the_counter-terrorism_act_2008___part_1_of_the_terrorist_asset-freezing_etc___act_2010_and_part_1_of_the_sanctions_and_anti-money_laundering_act_2018_chunk_005
+2026-01-17 11:36:57,003 - INFO - ✨ New document: Part_7___How_To_Start_Proceedings
+2026-01-17 11:36:57,003 - INFO - ✨ New document: Part_80___Proceedings_under_the_Terrorism_Prevention_and_Investigation_Measures_Act_2011_chunk_000
+2026-01-17 11:36:57,004 - INFO - ✨ New document: Part_80___Proceedings_under_the_Terrorism_Prevention_and_Investigation_Measures_Act_2011_chunk_001
+2026-01-17 11:36:57,004 - INFO - ✨ New document: Part_80___Proceedings_under_the_Terrorism_Prevention_and_Investigation_Measures_Act_2011_chunk_002
+2026-01-17 11:36:57,004 - INFO - ✨ New document: Part_80___Proceedings_under_the_Terrorism_Prevention_and_Investigation_Measures_Act_2011_chunk_003
+2026-01-17 11:36:57,004 - INFO - ✨ New document: Part_80___Proceedings_under_the_Terrorism_Prevention_and_Investigation_Measures_Act_2011_chunk_004
+2026-01-17 11:36:57,004 - INFO - ✨ New document: Part_80___Proceedings_under_the_Terrorism_Prevention_and_Investigation_Measures_Act_2011_chunk_005
+2026-01-17 11:36:57,004 - INFO - ✨ New document: Part_82___Closed_Material_Procedure___Part_chunk_000
+2026-01-17 11:36:57,004 - INFO - ✨ New document: Part_82___Closed_Material_Procedure___Part_chunk_001
+2026-01-17 11:36:57,004 - INFO - ✨ New document: Part_82___Closed_Material_Procedure___Part_chunk_002
+2026-01-17 11:36:57,004 - INFO - ✨ New document: Part_82___Closed_Material_Procedure___Part_chunk_003
+2026-01-17 11:36:57,004 - INFO - ✨ New document: Part_82___Closed_Material_Procedure___Part_chunk_004
+2026-01-17 11:36:57,004 - INFO - ✨ New document: Part_82___Closed_Material_Procedure___Part_chunk_005
+2026-01-17 11:36:57,004 - INFO - ✨ New document: Part_82___Closed_Material_Procedure___Part_chunk_006
+2026-01-17 11:36:57,004 - INFO - ✨ New document: Part_83___Writs_And_Warrants_chunk_000
+2026-01-17 11:36:57,004 - INFO - ✨ New document: Part_83___Writs_And_Warrants_chunk_001
+2026-01-17 11:36:57,004 - INFO - ✨ New document: Part_83___Writs_And_Warrants_chunk_002
+2026-01-17 11:36:57,005 - INFO - ✨ New document: Part_83___Writs_And_Warrants_chunk_003
+2026-01-17 11:36:57,005 - INFO - ✨ New document: Part_83___Writs_And_Warrants_chunk_004
+2026-01-17 11:36:57,005 - INFO - ✨ New document: Part_83___Writs_And_Warrants_chunk_005
+2026-01-17 11:36:57,005 - INFO - ✨ New document: Part_83___Writs_And_Warrants_chunk_006
+2026-01-17 11:36:57,005 - INFO - ✨ New document: Part_83___Writs_And_Warrants_chunk_007
+2026-01-17 11:36:57,005 - INFO - ✨ New document: Part_84___Enforcement_By_Taking_Control_Of_Goods___Part_chunk_000
+2026-01-17 11:36:57,005 - INFO - ✨ New document: Part_84___Enforcement_By_Taking_Control_Of_Goods___Part_chunk_001
+2026-01-17 11:36:57,005 - INFO - ✨ New document: Part_84___Enforcement_By_Taking_Control_Of_Goods___Part_chunk_002
+2026-01-17 11:36:57,005 - INFO - ✨ New document: Part_84___Enforcement_By_Taking_Control_Of_Goods___Part_chunk_003
+2026-01-17 11:36:57,005 - INFO - ✨ New document: Part_85___Claims_On_Controlled_Goods_And_Executed_Goods___Part_chunk_000
+2026-01-17 11:36:57,005 - INFO - ✨ New document: Part_85___Claims_On_Controlled_Goods_And_Executed_Goods___Part_chunk_001
+2026-01-17 11:36:57,005 - INFO - ✨ New document: Part_85___Claims_On_Controlled_Goods_And_Executed_Goods___Part_chunk_002
+2026-01-17 11:36:57,005 - INFO - ✨ New document: Part_85___Claims_On_Controlled_Goods_And_Executed_Goods___Part_chunk_003
+2026-01-17 11:36:57,005 - INFO - ✨ New document: Part_85___Claims_On_Controlled_Goods_And_Executed_Goods___Part_chunk_004
+2026-01-17 11:36:57,005 - INFO - ✨ New document: Part_85___Claims_On_Controlled_Goods_And_Executed_Goods___Part_chunk_005
+2026-01-17 11:36:57,005 - INFO - ✨ New document: Part_86___Stakeholder_Claims_And_Applications___Part
+2026-01-17 11:36:57,005 - INFO - ✨ New document: Part_87___Applications_For_Writ_Of_Habeas_Corpus___Part
+2026-01-17 11:36:57,005 - INFO - ✨ New document: Part_88___Proceedings_Under_The_Counter-Terrorism_And_Security_Act_chunk_000
+2026-01-17 11:36:57,005 - INFO - ✨ New document: Part_88___Proceedings_Under_The_Counter-Terrorism_And_Security_Act_chunk_001
+2026-01-17 11:36:57,007 - INFO - Request URL: 'https://cpr-rag.search.windows.net/indexes('legal-court-rag-index-v2')/docs/search.post.search?api-version=REDACTED'
+Request method: 'POST'
+Request headers:
+    'Content-Type': 'application/json'
+    'Content-Length': '3925'
+    'Accept': 'application/json;odata.metadata=none'
+    'x-ms-client-request-id': 'd4409c2a-f398-11f0-b11e-92bc89cda245'
+    'User-Agent': 'azsdk-python-search-documents/11.7.0b2 Python/3.11.14 (macOS-26.2-arm64-arm-64bit)'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-01-17 11:36:57,125 - INFO - Response status: 200
+Response headers:
+    'Transfer-Encoding': 'chunked'
+    'Content-Type': 'application/json; odata.metadata=none; odata.streaming=true; charset=utf-8'
+    'Content-Encoding': 'REDACTED'
+    'Vary': 'REDACTED'
+    'Strict-Transport-Security': 'REDACTED'
+    'Preference-Applied': 'REDACTED'
+    'OData-Version': 'REDACTED'
+    'request-id': 'd4409c2a-f398-11f0-b11e-92bc89cda245'
+    'elapsed-time': 'REDACTED'
+    'Date': 'Sat, 17 Jan 2026 11:36:56 GMT'
+2026-01-17 11:36:57,127 - INFO - 📝 content changed: Practice_Direction_23A___Applications
+2026-01-17 11:36:57,127 - INFO - ✨ New document: Part_88___Proceedings_Under_The_Counter-Terrorism_And_Security_Act_chunk_002
+2026-01-17 11:36:57,127 - INFO - ✨ New document: Part_88___Proceedings_Under_The_Counter-Terrorism_And_Security_Act_chunk_003
+2026-01-17 11:36:57,127 - INFO - ✨ New document: Part_89___Attachment_Of_Earnings___Part_chunk_000
+2026-01-17 11:36:57,127 - INFO - ✨ New document: Part_89___Attachment_Of_Earnings___Part_chunk_001
+2026-01-17 11:36:57,127 - INFO - ✨ New document: Part_89___Attachment_Of_Earnings___Part_chunk_002
+2026-01-17 11:36:57,127 - INFO - ✨ New document: Part_89___Attachment_Of_Earnings___Part_chunk_003
+2026-01-17 11:36:57,127 - INFO - ✨ New document: Part_89___Attachment_Of_Earnings___Part_chunk_004
+2026-01-17 11:36:57,127 - INFO - ✨ New document: Part_8___Alternative_Procedure_For_Claims___Part
+2026-01-17 11:36:57,127 - INFO - ✨ New document: Part_9___Responding_To_Particulars_Of_Claim
+2026-01-17 11:36:57,127 - INFO - ✨ New document: Practice_Direction_16___Statements_Of_Case___Practice_Direction_chunk_000
+2026-01-17 11:36:57,127 - INFO - ✨ New document: Practice_Direction_16___Statements_Of_Case___Practice_Direction_chunk_001
+2026-01-17 11:36:57,127 - INFO - ✨ New document: Practice_Direction_16___Statements_Of_Case___Practice_Direction_chunk_002
+2026-01-17 11:36:57,128 - INFO - ✨ New document: Practice_Direction_16___Statements_Of_Case___Practice_Direction_chunk_003
+2026-01-17 11:36:57,128 - INFO - ✨ New document: Practice_Direction_16___Statements_Of_Case___Practice_Direction_chunk_004
+2026-01-17 11:36:57,128 - INFO - ✨ New document: Practice_Direction_17___Amendments_To_Statements_Of_Case
+2026-01-17 11:36:57,128 - INFO - ✨ New document: Practice_Direction_18___Further_Information
+2026-01-17 11:36:57,128 - INFO - ✨ New document: Practice_Direction_19A___Derivative_Claims
+2026-01-17 11:36:57,128 - INFO - ✨ New document: Practice_Direction_19B___Group_Litigation_chunk_000
+2026-01-17 11:36:57,128 - INFO - ✨ New document: Practice_Direction_19B___Group_Litigation_chunk_001
+2026-01-17 11:36:57,128 - INFO - ✨ New document: Practice_Direction_19B___Group_Litigation_chunk_002
+2026-01-17 11:36:57,128 - INFO - ✨ New document: Practice_Direction_19B___Group_Litigation_chunk_003
+2026-01-17 11:36:57,128 - INFO - ✨ New document: Practice_Direction_1A___Participation_Of_Vulnerable_Parties_Or_Witnesses___Practice_Direction
+2026-01-17 11:36:57,128 - INFO - ✨ New document: Practice_Direction_1A___Participation_Of_Vulnerable_Parties_Or_Witnesses___Practice_Direction_chunk_004
+2026-01-17 11:36:57,128 - INFO - ✨ New document: Practice_Direction_20___Counterclaims_And_Other_Additional_Claims
+2026-01-17 11:36:57,128 - INFO - ✨ New document: Practice_Direction_22___Statements_Of_Truth
+2026-01-17 11:36:57,128 - INFO - ✨ New document: Practice_Direction_26___Case_Management_chunk_000
+2026-01-17 11:36:57,128 - INFO - ✨ New document: Practice_Direction_26___Case_Management_chunk_001
+2026-01-17 11:36:57,128 - INFO - ✨ New document: Practice_Direction_26___Case_Management_chunk_002
+2026-01-17 11:36:57,128 - INFO - ✨ New document: Practice_Direction_26___Case_Management_chunk_003
+2026-01-17 11:36:57,128 - INFO - ✨ New document: Practice_Direction_27A___Small_Claims_Track_chunk_000
+2026-01-17 11:36:57,128 - INFO - ✨ New document: Practice_Direction_27A___Small_Claims_Track_chunk_001
+2026-01-17 11:36:57,128 - INFO - ✨ New document: Practice_Direction_27A___Small_Claims_Track_chunk_002
+2026-01-17 11:36:57,128 - INFO - ✨ New document: Practice_Direction_27A___Small_Claims_Track_chunk_003
+2026-01-17 11:36:57,129 - INFO - ✨ New document: Practice_Direction_28___The_Fast_Track_And_The_Intermediate_Track_chunk_000
+2026-01-17 11:36:57,129 - INFO - ✨ New document: Practice_Direction_28___The_Fast_Track_And_The_Intermediate_Track_chunk_001
+2026-01-17 11:36:57,129 - INFO - ✨ New document: Practice_Direction_28___The_Fast_Track_And_The_Intermediate_Track_chunk_002
+2026-01-17 11:36:57,129 - INFO - ✨ New document: Practice_Direction_28___The_Fast_Track_And_The_Intermediate_Track_chunk_003
+2026-01-17 11:36:57,129 - INFO - ✨ New document: Practice_Direction_28___The_Fast_Track_And_The_Intermediate_Track_chunk_004
+2026-01-17 11:36:57,129 - INFO - ✨ New document: Practice_Direction_29___The_Multi-Track_chunk_000
+2026-01-17 11:36:57,129 - INFO - ✨ New document: Practice_Direction_29___The_Multi-Track_chunk_001
+2026-01-17 11:36:57,129 - INFO - ✨ New document: Practice_Direction_29___The_Multi-Track_chunk_002
+2026-01-17 11:36:57,129 - INFO - ✨ New document: Practice_Direction_2A___Court_Offices___Practice_Direction
+2026-01-17 11:36:57,129 - INFO - ✨ New document: Practice_Direction_2B___Allocation_Of_Cases_To_Levels_Of_Judiciary___Practice_Direction_chunk_000
+2026-01-17 11:36:57,129 - INFO - ✨ New document: Practice_Direction_2B___Allocation_Of_Cases_To_Levels_Of_Judiciary___Practice_Direction_chunk_001
+2026-01-17 11:36:57,129 - INFO - ✨ New document: Practice_Direction_2B___Allocation_Of_Cases_To_Levels_Of_Judiciary___Practice_Direction_chunk_002
+2026-01-17 11:36:57,129 - INFO - ✨ New document: Practice_Direction_2B___Allocation_Of_Cases_To_Levels_Of_Judiciary___Practice_Direction_chunk_003
+2026-01-17 11:36:57,129 - INFO - ✨ New document: Practice_Direction_2B___Allocation_Of_Cases_To_Levels_Of_Judiciary___Practice_Direction_chunk_004
+2026-01-17 11:36:57,129 - INFO - ✨ New document: Practice_Direction_2C___Starting_Proceedings_In_The_County_Court___Practice_Direction
+2026-01-17 11:36:57,129 - INFO - ✨ New document: Practice_Direction_2E___Jurisdiction_Of_The_County_Court_That_May_Be_Exercised_By_A_Legal_Adviser___Practice_Direction
+2026-01-17 11:36:57,131 - INFO - Request URL: 'https://cpr-rag.search.windows.net/indexes('legal-court-rag-index-v2')/docs/search.post.search?api-version=REDACTED'
+Request method: 'POST'
+Request headers:
+    'Content-Type': 'application/json'
+    'Content-Length': '3579'
+    'Accept': 'application/json;odata.metadata=none'
+    'x-ms-client-request-id': 'd45383b2-f398-11f0-b11e-92bc89cda245'
+    'User-Agent': 'azsdk-python-search-documents/11.7.0b2 Python/3.11.14 (macOS-26.2-arm64-arm-64bit)'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-01-17 11:36:57,249 - INFO - Response status: 200
+Response headers:
+    'Transfer-Encoding': 'chunked'
+    'Content-Type': 'application/json; odata.metadata=none; odata.streaming=true; charset=utf-8'
+    'Content-Encoding': 'REDACTED'
+    'Vary': 'REDACTED'
+    'Strict-Transport-Security': 'REDACTED'
+    'Preference-Applied': 'REDACTED'
+    'OData-Version': 'REDACTED'
+    'request-id': 'd45383b2-f398-11f0-b11e-92bc89cda245'
+    'elapsed-time': 'REDACTED'
+    'Date': 'Sat, 17 Jan 2026 11:36:56 GMT'
+2026-01-17 11:36:57,250 - INFO - 📝 content changed: Practice_Direction_3E___Costs_Capping
+2026-01-17 11:36:57,251 - INFO - 📝 content changed: Practice_Direction_2F___Court_Sittings
+2026-01-17 11:36:57,251 - INFO - 📝 content changed: Practice_Direction_40E___Reserved_Judgments
+2026-01-17 11:36:57,251 - INFO - 📝 content changed: Practice_Direction_33___Civil_Evidence_Act
+2026-01-17 11:36:57,251 - INFO - 📝 content changed: Practice_Direction_41A___Provisional_Damages
+2026-01-17 11:36:57,251 - INFO - ✨ New document: Practice_Direction_30___Transfer
+2026-01-17 11:36:57,251 - INFO - ✨ New document: Practice_Direction_31A___Disclosure_And_Inspection
+2026-01-17 11:36:57,251 - INFO - ✨ New document: Practice_Direction_31B___Disclosure_Of_Electronic_Documents_chunk_000
+2026-01-17 11:36:57,251 - INFO - ✨ New document: Practice_Direction_31B___Disclosure_Of_Electronic_Documents_chunk_001
+2026-01-17 11:36:57,251 - INFO - ✨ New document: Practice_Direction_31B___Disclosure_Of_Electronic_Documents_chunk_002
+2026-01-17 11:36:57,251 - INFO - ✨ New document: Practice_Direction_31B___Disclosure_Of_Electronic_Documents_chunk_003
+2026-01-17 11:36:57,251 - INFO - ✨ New document: Practice_Direction_31B___Disclosure_Of_Electronic_Documents_chunk_004
+2026-01-17 11:36:57,251 - INFO - ✨ New document: Practice_Direction_31C___Disclosure_And_Inspection_In_Relation_To_Competition_Claims___Practice_Direction_chunk_002
+2026-01-17 11:36:57,251 - INFO - ✨ New document: Practice_Direction_32___Evidence_chunk_000
+2026-01-17 11:36:57,251 - INFO - ✨ New document: Practice_Direction_32___Evidence_chunk_001
+2026-01-17 11:36:57,251 - INFO - ✨ New document: Practice_Direction_32___Evidence_chunk_002
+2026-01-17 11:36:57,251 - INFO - ✨ New document: Practice_Direction_32___Evidence_chunk_003
+2026-01-17 11:36:57,251 - INFO - ✨ New document: Practice_Direction_32___Evidence_chunk_004
+2026-01-17 11:36:57,252 - INFO - ✨ New document: Practice_Direction_32___Evidence_chunk_005
+2026-01-17 11:36:57,252 - INFO - ✨ New document: Practice_Direction_34A___Depositions_And_Court_Attendance_By_Witnesses_chunk_000
+2026-01-17 11:36:57,252 - INFO - ✨ New document: Practice_Direction_34A___Depositions_And_Court_Attendance_By_Witnesses_chunk_001
+2026-01-17 11:36:57,252 - INFO - ✨ New document: Practice_Direction_34A___Depositions_And_Court_Attendance_By_Witnesses_chunk_002
+2026-01-17 11:36:57,252 - INFO - ✨ New document: Practice_Direction_34A___Depositions_And_Court_Attendance_By_Witnesses_chunk_003
+2026-01-17 11:36:57,252 - INFO - ✨ New document: Practice_Direction_34B___Fees_For_Examiners_Of_The_Court
+2026-01-17 11:36:57,252 - INFO - ✨ New document: Practice_Direction_35___Experts_And_Assessors_chunk_000
+2026-01-17 11:36:57,252 - INFO - ✨ New document: Practice_Direction_35___Experts_And_Assessors_chunk_001
+2026-01-17 11:36:57,252 - INFO - ✨ New document: Practice_Direction_35___Experts_And_Assessors_chunk_002
+2026-01-17 11:36:57,252 - INFO - ✨ New document: Practice_Direction_35___Experts_And_Assessors_chunk_003
+2026-01-17 11:36:57,252 - INFO - ✨ New document: Practice_Direction_36___Offers_To_Settle
+2026-01-17 11:36:57,252 - INFO - ✨ New document: Practice_Direction_37___Miscellaneous_Provisions_About_Payments_Into_Court_chunk_000
+2026-01-17 11:36:57,252 - INFO - ✨ New document: Practice_Direction_37___Miscellaneous_Provisions_About_Payments_Into_Court_chunk_001
+2026-01-17 11:36:57,252 - INFO - ✨ New document: Practice_Direction_37___Miscellaneous_Provisions_About_Payments_Into_Court_chunk_002
+2026-01-17 11:36:57,252 - INFO - ✨ New document: Practice_Direction_37___Miscellaneous_Provisions_About_Payments_Into_Court_chunk_003
+2026-01-17 11:36:57,252 - INFO - ✨ New document: Practice_Direction_3A___Striking_Out_A_Statement_Of_Case
+2026-01-17 11:36:57,252 - INFO - ✨ New document: Practice_Direction_3B___Sanctions_For_Non-Payment_Of_Fees
+2026-01-17 11:36:57,252 - INFO - ✨ New document: Practice_Direction_3C___Civil_Restraint_Orders_chunk_000
+2026-01-17 11:36:57,252 - INFO - ✨ New document: Practice_Direction_3C___Civil_Restraint_Orders_chunk_001
+2026-01-17 11:36:57,252 - INFO - ✨ New document: Practice_Direction_3C___Civil_Restraint_Orders_chunk_002
+2026-01-17 11:36:57,252 - INFO - ✨ New document: Practice_Direction_3C___Civil_Restraint_Orders_chunk_003
+2026-01-17 11:36:57,252 - INFO - ✨ New document: Practice_Direction_3D___Costs_Management_chunk_000
+2026-01-17 11:36:57,252 - INFO - ✨ New document: Practice_Direction_3D___Costs_Management_chunk_001
+2026-01-17 11:36:57,252 - INFO - ✨ New document: Practice_Direction_3D___Costs_Management_chunk_002
+2026-01-17 11:36:57,252 - INFO - ✨ New document: Practice_Direction_3D___Costs_Management_chunk_003
+2026-01-17 11:36:57,252 - INFO - ✨ New document: Practice_Direction_40A___Accounts
+2026-01-17 11:36:57,252 - INFO - ✨ New document: Practice_Direction_40B___Judgments_And_Orders_chunk_000
+2026-01-17 11:36:57,252 - INFO - ✨ New document: Practice_Direction_40B___Judgments_And_Orders_chunk_001
+2026-01-17 11:36:57,252 - INFO - ✨ New document: Practice_Direction_40B___Judgments_And_Orders_chunk_002
+2026-01-17 11:36:57,252 - INFO - ✨ New document: Practice_Direction_40B___Judgments_And_Orders_chunk_003
+2026-01-17 11:36:57,252 - INFO - ✨ New document: Practice_Direction_41B___Periodical_Payments_Under_The_Damages_Act
+2026-01-17 11:36:57,252 - INFO - ✨ New document: Practice_Direction_42___Change_Of_Solicitor
+2026-01-17 11:36:57,254 - INFO - Request URL: 'https://cpr-rag.search.windows.net/indexes('legal-court-rag-index-v2')/docs/search.post.search?api-version=REDACTED'
+Request method: 'POST'
+Request headers:
+    'Content-Type': 'application/json'
+    'Content-Length': '4332'
+    'Accept': 'application/json;odata.metadata=none'
+    'x-ms-client-request-id': 'd4664f7e-f398-11f0-b11e-92bc89cda245'
+    'User-Agent': 'azsdk-python-search-documents/11.7.0b2 Python/3.11.14 (macOS-26.2-arm64-arm-64bit)'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-01-17 11:36:57,396 - INFO - Response status: 200
+Response headers:
+    'Transfer-Encoding': 'chunked'
+    'Content-Type': 'application/json; odata.metadata=none; odata.streaming=true; charset=utf-8'
+    'Content-Encoding': 'REDACTED'
+    'Vary': 'REDACTED'
+    'Strict-Transport-Security': 'REDACTED'
+    'Preference-Applied': 'REDACTED'
+    'OData-Version': 'REDACTED'
+    'request-id': 'd4664f7e-f398-11f0-b11e-92bc89cda245'
+    'elapsed-time': 'REDACTED'
+    'Date': 'Sat, 17 Jan 2026 11:36:56 GMT'
+2026-01-17 11:36:57,397 - INFO - ✨ New document: Practice_Direction_44___General_Rules_About_Costs_chunk_000
+2026-01-17 11:36:57,397 - INFO - ✨ New document: Practice_Direction_44___General_Rules_About_Costs_chunk_001
+2026-01-17 11:36:57,397 - INFO - ✨ New document: Practice_Direction_44___General_Rules_About_Costs_chunk_002
+2026-01-17 11:36:57,397 - INFO - ✨ New document: Practice_Direction_44___General_Rules_About_Costs_chunk_003
+2026-01-17 11:36:57,397 - INFO - ✨ New document: Practice_Direction_44___General_Rules_About_Costs_chunk_004
+2026-01-17 11:36:57,397 - INFO - ✨ New document: Practice_Direction_45___Tables_Of_Fixed_Costs___chunk_000
+2026-01-17 11:36:57,397 - INFO - ✨ New document: Practice_Direction_45___Tables_Of_Fixed_Costs___chunk_001
+2026-01-17 11:36:57,397 - INFO - ✨ New document: Practice_Direction_45___Tables_Of_Fixed_Costs___chunk_002
+2026-01-17 11:36:57,397 - INFO - ✨ New document: Practice_Direction_45___Tables_Of_Fixed_Costs___chunk_003
+2026-01-17 11:36:57,397 - INFO - ✨ New document: Practice_Direction_45___Tables_Of_Fixed_Costs___chunk_004
+2026-01-17 11:36:57,397 - INFO - ✨ New document: Practice_Direction_45___Tables_Of_Fixed_Costs___chunk_005
+2026-01-17 11:36:57,397 - INFO - ✨ New document: Practice_Direction_45___Tables_Of_Fixed_Costs___chunk_006
+2026-01-17 11:36:57,397 - INFO - ✨ New document: Practice_Direction_46___Costs_Special_Cases_chunk_000
+2026-01-17 11:36:57,397 - INFO - ✨ New document: Practice_Direction_46___Costs_Special_Cases_chunk_001
+2026-01-17 11:36:57,397 - INFO - ✨ New document: Practice_Direction_46___Costs_Special_Cases_chunk_002
+2026-01-17 11:36:57,397 - INFO - ✨ New document: Practice_Direction_46___Costs_Special_Cases_chunk_003
+2026-01-17 11:36:57,397 - INFO - ✨ New document: Practice_Direction_46___Costs_Special_Cases_chunk_004
+2026-01-17 11:36:57,397 - INFO - ✨ New document: Practice_Direction_47___Procedure_For_Detailed_Assessment_Of_Costs_And_Default_Provisions___Practice_Direction_chunk_012
+2026-01-17 11:36:57,397 - INFO - ✨ New document: Practice_Direction_48___Part
+2026-01-17 11:36:57,397 - INFO - ✨ New document: Practice_Direction_49A___Applications_Under_The_Companies_Acts_And_Related_Legislation
+2026-01-17 11:36:57,398 - INFO - ✨ New document: Practice_Direction_49B___Mesothelioma_Claims___Practice_Direction
+2026-01-17 11:36:57,398 - INFO - ✨ New document: Practice_Direction_49C___Consumer_Credit_Act_chunk_000
+2026-01-17 11:36:57,398 - INFO - ✨ New document: Practice_Direction_49C___Consumer_Credit_Act_chunk_001
+2026-01-17 11:36:57,398 - INFO - ✨ New document: Practice_Direction_49C___Consumer_Credit_Act_chunk_002
+2026-01-17 11:36:57,398 - INFO - ✨ New document: Practice_Direction_49C___Consumer_Credit_Act_chunk_003
+2026-01-17 11:36:57,398 - INFO - ✨ New document: Practice_Direction_49C___Consumer_Credit_Act_chunk_004
+2026-01-17 11:36:57,398 - INFO - ✨ New document: Practice_Direction_49D___Claims_For_The_Recovery_Of_Taxes_And_Duties___Practice_Direction
+2026-01-17 11:36:57,398 - INFO - ✨ New document: Practice_Direction_49E___Alternative_Procedure_For_Claims___Practice_Direction_chunk_000
+2026-01-17 11:36:57,398 - INFO - ✨ New document: Practice_Direction_49E___Alternative_Procedure_For_Claims___Practice_Direction_chunk_001
+2026-01-17 11:36:57,398 - INFO - ✨ New document: Practice_Direction_49E___Alternative_Procedure_For_Claims___Practice_Direction_chunk_002
+2026-01-17 11:36:57,398 - INFO - ✨ New document: Practice_Direction_49E___Alternative_Procedure_For_Claims___Practice_Direction_chunk_003
+2026-01-17 11:36:57,398 - INFO - ✨ New document: Practice_Direction_49E___Alternative_Procedure_For_Claims___Practice_Direction_chunk_004
+2026-01-17 11:36:57,398 - INFO - ✨ New document: Practice_Direction_49E___Alternative_Procedure_For_Claims___Practice_Direction_chunk_005
+2026-01-17 11:36:57,398 - INFO - ✨ New document: Practice_Direction_49E___Alternative_Procedure_For_Claims___Practice_Direction_chunk_006
+2026-01-17 11:36:57,398 - INFO - ✨ New document: Practice_Direction_49E___Alternative_Procedure_For_Claims___Practice_Direction_chunk_007
+2026-01-17 11:36:57,398 - INFO - ✨ New document: Practice_Direction_49E___Alternative_Procedure_For_Claims___Practice_Direction_chunk_008
+2026-01-17 11:36:57,398 - INFO - ✨ New document: Practice_Direction_49F___Pre-Action_Protocol_For_Low_Value_Personal_Injury_Claims_In_Road_Traffic_Accidents_And_Low_Value_Personal_Injury___Employers_chunk_005
+2026-01-17 11:36:57,398 - INFO - ✨ New document: Practice_Direction_49G___Applications_Under_Part_Iii_Of_The_Family_Law_Reform_Act
+2026-01-17 11:36:57,398 - INFO - ✨ New document: Practice_Direction_51Y___Video_Or_Audio_Hearings_During_Coronavirus_Pandemic___Practice_Direction
+2026-01-17 11:36:57,398 - INFO - ✨ New document: Practice_Direction_51Zb___The_Damages_Claims_Pilot___Practice_Direction_chunk_000
+2026-01-17 11:36:57,398 - INFO - ✨ New document: Practice_Direction_51Zb___The_Damages_Claims_Pilot___Practice_Direction_chunk_001
+2026-01-17 11:36:57,398 - INFO - ✨ New document: Practice_Direction_51Zb___The_Damages_Claims_Pilot___Practice_Direction_chunk_002
+2026-01-17 11:36:57,398 - INFO - ✨ New document: Practice_Direction_51Zb___The_Damages_Claims_Pilot___Practice_Direction_chunk_003
+2026-01-17 11:36:57,398 - INFO - ✨ New document: Practice_Direction_51Zb___The_Damages_Claims_Pilot___Practice_Direction_chunk_004
+2026-01-17 11:36:57,398 - INFO - ✨ New document: Practice_Direction_51Zb___The_Damages_Claims_Pilot___Practice_Direction_chunk_005
+2026-01-17 11:36:57,398 - INFO - ✨ New document: Practice_Direction_51Zb___The_Damages_Claims_Pilot___Practice_Direction_chunk_006
+2026-01-17 11:36:57,399 - INFO - ✨ New document: Practice_Direction_51Zb___The_Damages_Claims_Pilot___Practice_Direction_chunk_007
+2026-01-17 11:36:57,399 - INFO - ✨ New document: Practice_Direction_51Zc___The_Small_Claims_Paper_Determination_Pilot
+2026-01-17 11:36:57,399 - INFO - ✨ New document: Practice_Direction_51Ze___Small_Claims_Track_Automatic_Referral_To_Mediation_Pilot_Scheme___Practice_Direction_chunk_003
+2026-01-17 11:36:57,399 - INFO - ✨ New document: Practice_Direction_51Zf___Part_chunk_000
+2026-01-17 11:36:57,400 - INFO - Request URL: 'https://cpr-rag.search.windows.net/indexes('legal-court-rag-index-v2')/docs/search.post.search?api-version=REDACTED'
+Request method: 'POST'
+Request headers:
+    'Content-Type': 'application/json'
+    'Content-Length': '4233'
+    'Accept': 'application/json;odata.metadata=none'
+    'x-ms-client-request-id': 'd47ca184-f398-11f0-b11e-92bc89cda245'
+    'User-Agent': 'azsdk-python-search-documents/11.7.0b2 Python/3.11.14 (macOS-26.2-arm64-arm-64bit)'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-01-17 11:36:57,518 - INFO - Response status: 200
+Response headers:
+    'Transfer-Encoding': 'chunked'
+    'Content-Type': 'application/json; odata.metadata=none; odata.streaming=true; charset=utf-8'
+    'Content-Encoding': 'REDACTED'
+    'Vary': 'REDACTED'
+    'Strict-Transport-Security': 'REDACTED'
+    'Preference-Applied': 'REDACTED'
+    'OData-Version': 'REDACTED'
+    'request-id': 'd47ca184-f398-11f0-b11e-92bc89cda245'
+    'elapsed-time': 'REDACTED'
+    'Date': 'Sat, 17 Jan 2026 11:36:56 GMT'
+2026-01-17 11:36:57,520 - INFO - 📝 content changed: Practice_Direction_54C___Administrative_Court___Venue
+2026-01-17 11:36:57,520 - INFO - ✨ New document: Practice_Direction_51Zf___Part_chunk_001
+2026-01-17 11:36:57,520 - INFO - ✨ New document: Practice_Direction_51Zf___Part_chunk_002
+2026-01-17 11:36:57,520 - INFO - ✨ New document: Practice_Direction_51Zf___Part_chunk_003
+2026-01-17 11:36:57,520 - INFO - ✨ New document: Practice_Direction_51Zf___Part_chunk_004
+2026-01-17 11:36:57,520 - INFO - ✨ New document: Practice_Direction_51Zf___Part_chunk_005
+2026-01-17 11:36:57,520 - INFO - ✨ New document: Practice_Direction_52A___Appeals___Practice_Direction_chunk_000
+2026-01-17 11:36:57,520 - INFO - ✨ New document: Practice_Direction_52A___Appeals___Practice_Direction_chunk_001
+2026-01-17 11:36:57,520 - INFO - ✨ New document: Practice_Direction_52A___Appeals___Practice_Direction_chunk_002
+2026-01-17 11:36:57,521 - INFO - ✨ New document: Practice_Direction_52A___Appeals___Practice_Direction_chunk_003
+2026-01-17 11:36:57,521 - INFO - ✨ New document: Practice_Direction_52A___Appeals___Practice_Direction_chunk_004
+2026-01-17 11:36:57,521 - INFO - ✨ New document: Practice_Direction_52B___Appeals_In_The_County_Court_And_High_Court_chunk_000
+2026-01-17 11:36:57,521 - INFO - ✨ New document: Practice_Direction_52B___Appeals_In_The_County_Court_And_High_Court_chunk_001
+2026-01-17 11:36:57,521 - INFO - ✨ New document: Practice_Direction_52B___Appeals_In_The_County_Court_And_High_Court_chunk_002
+2026-01-17 11:36:57,521 - INFO - ✨ New document: Practice_Direction_52B___Appeals_In_The_County_Court_And_High_Court_chunk_003
+2026-01-17 11:36:57,521 - INFO - ✨ New document: Practice_Direction_52C___Appeals_To_The_Court_Of_Appeal_chunk_000
+2026-01-17 11:36:57,521 - INFO - ✨ New document: Practice_Direction_52C___Appeals_To_The_Court_Of_Appeal_chunk_001
+2026-01-17 11:36:57,521 - INFO - ✨ New document: Practice_Direction_52C___Appeals_To_The_Court_Of_Appeal_chunk_002
+2026-01-17 11:36:57,521 - INFO - ✨ New document: Practice_Direction_52C___Appeals_To_The_Court_Of_Appeal_chunk_003
+2026-01-17 11:36:57,521 - INFO - ✨ New document: Practice_Direction_52C___Appeals_To_The_Court_Of_Appeal_chunk_004
+2026-01-17 11:36:57,521 - INFO - ✨ New document: Practice_Direction_52C___Appeals_To_The_Court_Of_Appeal_chunk_005
+2026-01-17 11:36:57,521 - INFO - ✨ New document: Practice_Direction_52C___Appeals_To_The_Court_Of_Appeal_chunk_006
+2026-01-17 11:36:57,521 - INFO - ✨ New document: Practice_Direction_52D___Statutory_Appeals_And_Appeals_Subject_To_Special_Provision_chunk_000
+2026-01-17 11:36:57,521 - INFO - ✨ New document: Practice_Direction_52D___Statutory_Appeals_And_Appeals_Subject_To_Special_Provision_chunk_001
+2026-01-17 11:36:57,521 - INFO - ✨ New document: Practice_Direction_52D___Statutory_Appeals_And_Appeals_Subject_To_Special_Provision_chunk_002
+2026-01-17 11:36:57,522 - INFO - ✨ New document: Practice_Direction_52D___Statutory_Appeals_And_Appeals_Subject_To_Special_Provision_chunk_003
+2026-01-17 11:36:57,522 - INFO - ✨ New document: Practice_Direction_52D___Statutory_Appeals_And_Appeals_Subject_To_Special_Provision_chunk_004
+2026-01-17 11:36:57,522 - INFO - ✨ New document: Practice_Direction_52D___Statutory_Appeals_And_Appeals_Subject_To_Special_Provision_chunk_005
+2026-01-17 11:36:57,522 - INFO - ✨ New document: Practice_Direction_52D___Statutory_Appeals_And_Appeals_Subject_To_Special_Provision_chunk_006
+2026-01-17 11:36:57,522 - INFO - ✨ New document: Practice_Direction_52D___Statutory_Appeals_And_Appeals_Subject_To_Special_Provision_chunk_007
+2026-01-17 11:36:57,522 - INFO - ✨ New document: Practice_Direction_52D___Statutory_Appeals_And_Appeals_Subject_To_Special_Provision_chunk_008
+2026-01-17 11:36:57,522 - INFO - ✨ New document: Practice_Direction_52E___Appeals_By_Way_Of_Case_Stated
+2026-01-17 11:36:57,522 - INFO - ✨ New document: Practice_Direction_53A___Transferring_Proceedings_To_And_From_The_Media_And_Communications_List
+2026-01-17 11:36:57,522 - INFO - ✨ New document: Practice_Direction_53B___Media_And_Communications_Claims_chunk_000
+2026-01-17 11:36:57,522 - INFO - ✨ New document: Practice_Direction_53B___Media_And_Communications_Claims_chunk_001
+2026-01-17 11:36:57,522 - INFO - ✨ New document: Practice_Direction_53B___Media_And_Communications_Claims_chunk_002
+2026-01-17 11:36:57,522 - INFO - ✨ New document: Practice_Direction_53B___Media_And_Communications_Claims_chunk_003
+2026-01-17 11:36:57,522 - INFO - ✨ New document: Practice_Direction_53B___Media_And_Communications_Claims_chunk_004
+2026-01-17 11:36:57,522 - INFO - ✨ New document: Practice_Direction_54A___Judicial_Review_chunk_000
+2026-01-17 11:36:57,522 - INFO - ✨ New document: Practice_Direction_54A___Judicial_Review_chunk_001
+2026-01-17 11:36:57,522 - INFO - ✨ New document: Practice_Direction_54A___Judicial_Review_chunk_002
+2026-01-17 11:36:57,522 - INFO - ✨ New document: Practice_Direction_54A___Judicial_Review_chunk_003
+2026-01-17 11:36:57,522 - INFO - ✨ New document: Practice_Direction_54A___Judicial_Review_chunk_004
+2026-01-17 11:36:57,523 - INFO - ✨ New document: Practice_Direction_54B___Urgent_Applications_And_Other_Applications_For_Interim_Relief
+2026-01-17 11:36:57,523 - INFO - ✨ New document: Practice_Direction_54D___Planning_Court_Claims_And_Appeals_To_The_Planning_Court_chunk_000
+2026-01-17 11:36:57,523 - INFO - ✨ New document: Practice_Direction_54D___Planning_Court_Claims_And_Appeals_To_The_Planning_Court_chunk_001
+2026-01-17 11:36:57,523 - INFO - ✨ New document: Practice_Direction_54D___Planning_Court_Claims_And_Appeals_To_The_Planning_Court_chunk_002
+2026-01-17 11:36:57,523 - INFO - ✨ New document: Practice_Direction_54D___Planning_Court_Claims_And_Appeals_To_The_Planning_Court_chunk_003
+2026-01-17 11:36:57,523 - INFO - ✨ New document: Practice_Direction_54D___Planning_Court_Claims_And_Appeals_To_The_Planning_Court_chunk_004
+2026-01-17 11:36:57,523 - INFO - ✨ New document: Practice_Direction_54D___Planning_Court_Claims_And_Appeals_To_The_Planning_Court_chunk_005
+2026-01-17 11:36:57,524 - INFO - Request URL: 'https://cpr-rag.search.windows.net/indexes('legal-court-rag-index-v2')/docs/search.post.search?api-version=REDACTED'
+Request method: 'POST'
+Request headers:
+    'Content-Type': 'application/json'
+    'Content-Length': '4302'
+    'Accept': 'application/json;odata.metadata=none'
+    'x-ms-client-request-id': 'd48f944c-f398-11f0-b11e-92bc89cda245'
+    'User-Agent': 'azsdk-python-search-documents/11.7.0b2 Python/3.11.14 (macOS-26.2-arm64-arm-64bit)'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-01-17 11:36:57,637 - INFO - Response status: 200
+Response headers:
+    'Transfer-Encoding': 'chunked'
+    'Content-Type': 'application/json; odata.metadata=none; odata.streaming=true; charset=utf-8'
+    'Content-Encoding': 'REDACTED'
+    'Vary': 'REDACTED'
+    'Strict-Transport-Security': 'REDACTED'
+    'Preference-Applied': 'REDACTED'
+    'OData-Version': 'REDACTED'
+    'request-id': 'd48f944c-f398-11f0-b11e-92bc89cda245'
+    'elapsed-time': 'REDACTED'
+    'Date': 'Sat, 17 Jan 2026 11:36:56 GMT'
+2026-01-17 11:36:57,639 - INFO - ✨ New document: Practice_Direction_54D___Planning_Court_Claims_And_Appeals_To_The_Planning_Court_chunk_006
+2026-01-17 11:36:57,639 - INFO - ✨ New document: Practice_Direction_54E___Environmental_Review_Claims___Practice_Direction_chunk_000
+2026-01-17 11:36:57,639 - INFO - ✨ New document: Practice_Direction_54E___Environmental_Review_Claims___Practice_Direction_chunk_001
+2026-01-17 11:36:57,639 - INFO - ✨ New document: Practice_Direction_54E___Environmental_Review_Claims___Practice_Direction_chunk_002
+2026-01-17 11:36:57,639 - INFO - ✨ New document: Practice_Direction_54E___Environmental_Review_Claims___Practice_Direction_chunk_003
+2026-01-17 11:36:57,639 - INFO - ✨ New document: Practice_Direction_55A___Possession_Claims_chunk_000
+2026-01-17 11:36:57,639 - INFO - ✨ New document: Practice_Direction_55A___Possession_Claims_chunk_001
+2026-01-17 11:36:57,639 - INFO - ✨ New document: Practice_Direction_55A___Possession_Claims_chunk_002
+2026-01-17 11:36:57,639 - INFO - ✨ New document: Practice_Direction_55A___Possession_Claims_chunk_003
+2026-01-17 11:36:57,640 - INFO - ✨ New document: Practice_Direction_55A___Possession_Claims_chunk_004
+2026-01-17 11:36:57,640 - INFO - ✨ New document: Practice_Direction_55B___Possession_Claims_Online_chunk_000
+2026-01-17 11:36:57,640 - INFO - ✨ New document: Practice_Direction_55B___Possession_Claims_Online_chunk_001
+2026-01-17 11:36:57,640 - INFO - ✨ New document: Practice_Direction_55B___Possession_Claims_Online_chunk_002
+2026-01-17 11:36:57,640 - INFO - ✨ New document: Practice_Direction_55B___Possession_Claims_Online_chunk_003
+2026-01-17 11:36:57,640 - INFO - ✨ New document: Practice_Direction_55B___Possession_Claims_Online_chunk_004
+2026-01-17 11:36:57,640 - INFO - ✨ New document: Practice_Direction_56A___Renting_Homes___Wales___Claims___Practice_Direction
+2026-01-17 11:36:57,640 - INFO - ✨ New document: Practice_Direction_56___Landlord_And_Tenant_Claims_And_Miscellaneous_Provisions_About_Land_chunk_000
+2026-01-17 11:36:57,640 - INFO - ✨ New document: Practice_Direction_56___Landlord_And_Tenant_Claims_And_Miscellaneous_Provisions_About_Land_chunk_001
+2026-01-17 11:36:57,640 - INFO - ✨ New document: Practice_Direction_56___Landlord_And_Tenant_Claims_And_Miscellaneous_Provisions_About_Land_chunk_002
+2026-01-17 11:36:57,640 - INFO - ✨ New document: Practice_Direction_56___Landlord_And_Tenant_Claims_And_Miscellaneous_Provisions_About_Land_chunk_003
+2026-01-17 11:36:57,640 - INFO - ✨ New document: Practice_Direction_56___Landlord_And_Tenant_Claims_And_Miscellaneous_Provisions_About_Land_chunk_004
+2026-01-17 11:36:57,640 - INFO - ✨ New document: Practice_Direction_56___Landlord_And_Tenant_Claims_And_Miscellaneous_Provisions_About_Land_chunk_005
+2026-01-17 11:36:57,640 - INFO - ✨ New document: Practice_Direction_56___Landlord_And_Tenant_Claims_And_Miscellaneous_Provisions_About_Land_chunk_006
+2026-01-17 11:36:57,640 - INFO - ✨ New document: Practice_Direction_56___Landlord_And_Tenant_Claims_And_Miscellaneous_Provisions_About_Land_chunk_007
+2026-01-17 11:36:57,640 - INFO - ✨ New document: Practice_Direction_57Ac___Trial_Witness_Statements_In_The_Business_And_Property_Courts_chunk_000
+2026-01-17 11:36:57,640 - INFO - ✨ New document: Practice_Direction_57Ac___Trial_Witness_Statements_In_The_Business_And_Property_Courts_chunk_001
+2026-01-17 11:36:57,640 - INFO - ✨ New document: Practice_Direction_57Ac___Trial_Witness_Statements_In_The_Business_And_Property_Courts_chunk_002
+2026-01-17 11:36:57,641 - INFO - ✨ New document: Practice_Direction_57Ad___Disclosure_In_The_Business_And_Property_Courts_chunk_000
+2026-01-17 11:36:57,641 - INFO - ✨ New document: Practice_Direction_57Ad___Disclosure_In_The_Business_And_Property_Courts_chunk_001
+2026-01-17 11:36:57,641 - INFO - ✨ New document: Practice_Direction_57Ad___Disclosure_In_The_Business_And_Property_Courts_chunk_002
+2026-01-17 11:36:57,641 - INFO - ✨ New document: Practice_Direction_57Ad___Disclosure_In_The_Business_And_Property_Courts_chunk_003
+2026-01-17 11:36:57,641 - INFO - ✨ New document: Practice_Direction_57Ad___Disclosure_In_The_Business_And_Property_Courts_chunk_004
+2026-01-17 11:36:57,641 - INFO - ✨ New document: Practice_Direction_57Ad___Disclosure_In_The_Business_And_Property_Courts_chunk_005
+2026-01-17 11:36:57,641 - INFO - ✨ New document: Practice_Direction_57Ad___Disclosure_In_The_Business_And_Property_Courts_chunk_006
+2026-01-17 11:36:57,641 - INFO - ✨ New document: Practice_Direction_57Ad___Disclosure_In_The_Business_And_Property_Courts_chunk_007
+2026-01-17 11:36:57,641 - INFO - ✨ New document: Practice_Direction_57B___Proceedings_Under_The_Presumption_Of_Death_Act_chunk_000
+2026-01-17 11:36:57,641 - INFO - ✨ New document: Practice_Direction_57B___Proceedings_Under_The_Presumption_Of_Death_Act_chunk_001
+2026-01-17 11:36:57,641 - INFO - ✨ New document: Practice_Direction_57___Probate_chunk_000
+2026-01-17 11:36:57,641 - INFO - ✨ New document: Practice_Direction_57___Probate_chunk_001
+2026-01-17 11:36:57,641 - INFO - ✨ New document: Practice_Direction_57___Probate_chunk_002
+2026-01-17 11:36:57,641 - INFO - ✨ New document: Practice_Direction_57___Probate_chunk_003
+2026-01-17 11:36:57,641 - INFO - ✨ New document: Practice_Direction_58___Commercial_Court
+2026-01-17 11:36:57,641 - INFO - ✨ New document: Practice_Direction_59___Circuit_Commercial_Courts
+2026-01-17 11:36:57,641 - INFO - ✨ New document: Practice_Direction_5A___Court_Documents_chunk_000
+2026-01-17 11:36:57,641 - INFO - ✨ New document: Practice_Direction_5A___Court_Documents_chunk_001
+2026-01-17 11:36:57,642 - INFO - ✨ New document: Practice_Direction_5A___Court_Documents_chunk_002
+2026-01-17 11:36:57,642 - INFO - ✨ New document: Practice_Direction_5A___Court_Documents_chunk_003
+2026-01-17 11:36:57,642 - INFO - ✨ New document: Practice_Direction_5A___Court_Documents_chunk_004
+2026-01-17 11:36:57,642 - INFO - ✨ New document: Practice_Direction_5B___Communication_And_Filing_Of_Documents_By_E-Mail
+2026-01-17 11:36:57,642 - INFO - ✨ New document: Practice_Direction_60___Technology_And_Construction_Court_Claims
+2026-01-17 11:36:57,643 - INFO - Request URL: 'https://cpr-rag.search.windows.net/indexes('legal-court-rag-index-v2')/docs/search.post.search?api-version=REDACTED'
+Request method: 'POST'
+Request headers:
+    'Content-Type': 'application/json'
+    'Content-Length': '3809'
+    'Accept': 'application/json;odata.metadata=none'
+    'x-ms-client-request-id': 'd4a1aff6-f398-11f0-b11e-92bc89cda245'
+    'User-Agent': 'azsdk-python-search-documents/11.7.0b2 Python/3.11.14 (macOS-26.2-arm64-arm-64bit)'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-01-17 11:36:57,762 - INFO - Response status: 200
+Response headers:
+    'Transfer-Encoding': 'chunked'
+    'Content-Type': 'application/json; odata.metadata=none; odata.streaming=true; charset=utf-8'
+    'Content-Encoding': 'REDACTED'
+    'Vary': 'REDACTED'
+    'Strict-Transport-Security': 'REDACTED'
+    'Preference-Applied': 'REDACTED'
+    'OData-Version': 'REDACTED'
+    'request-id': 'd4a1aff6-f398-11f0-b11e-92bc89cda245'
+    'elapsed-time': 'REDACTED'
+    'Date': 'Sat, 17 Jan 2026 11:36:56 GMT'
+2026-01-17 11:36:57,763 - INFO - ✨ New document: Practice_Direction_61___Admiralty_Claims_chunk_000
+2026-01-17 11:36:57,763 - INFO - ✨ New document: Practice_Direction_61___Admiralty_Claims_chunk_001
+2026-01-17 11:36:57,763 - INFO - ✨ New document: Practice_Direction_61___Admiralty_Claims_chunk_002
+2026-01-17 11:36:57,763 - INFO - ✨ New document: Practice_Direction_61___Admiralty_Claims_chunk_003
+2026-01-17 11:36:57,763 - INFO - ✨ New document: Practice_Direction_61___Admiralty_Claims_chunk_004
+2026-01-17 11:36:57,763 - INFO - ✨ New document: Practice_Direction_61___Admiralty_Claims_chunk_005
+2026-01-17 11:36:57,763 - INFO - ✨ New document: Practice_Direction_61___Admiralty_Claims_chunk_006
+2026-01-17 11:36:57,763 - INFO - ✨ New document: Practice_Direction_62___Arbitration_chunk_000
+2026-01-17 11:36:57,763 - INFO - ✨ New document: Practice_Direction_62___Arbitration_chunk_001
+2026-01-17 11:36:57,763 - INFO - ✨ New document: Practice_Direction_62___Arbitration_chunk_002
+2026-01-17 11:36:57,763 - INFO - ✨ New document: Practice_Direction_62___Arbitration_chunk_003
+2026-01-17 11:36:57,763 - INFO - ✨ New document: Practice_Direction_63A___Intellectual_Property_Claims_chunk_000
+2026-01-17 11:36:57,763 - INFO - ✨ New document: Practice_Direction_63A___Intellectual_Property_Claims_chunk_001
+2026-01-17 11:36:57,763 - INFO - ✨ New document: Practice_Direction_63A___Intellectual_Property_Claims_chunk_002
+2026-01-17 11:36:57,763 - INFO - ✨ New document: Practice_Direction_63A___Intellectual_Property_Claims_chunk_003
+2026-01-17 11:36:57,763 - INFO - ✨ New document: Practice_Direction_63A___Intellectual_Property_Claims_chunk_004
+2026-01-17 11:36:57,764 - INFO - ✨ New document: Practice_Direction_63A___Intellectual_Property_Claims_chunk_005
+2026-01-17 11:36:57,764 - INFO - ✨ New document: Practice_Direction_64A___Estates_chunk_000
+2026-01-17 11:36:57,764 - INFO - ✨ New document: Practice_Direction_64A___Estates_chunk_001
+2026-01-17 11:36:57,764 - INFO - ✨ New document: Practice_Direction_64B___Applications_To_The_Court_For_Directions_By_Trustees_In_Relation_To_The_Administration_Of_The_Trust
+2026-01-17 11:36:57,764 - INFO - ✨ New document: Practice_Direction_65___Anti-Social_Behaviour_And_Harassment_chunk_000
+2026-01-17 11:36:57,764 - INFO - ✨ New document: Practice_Direction_65___Anti-Social_Behaviour_And_Harassment_chunk_001
+2026-01-17 11:36:57,764 - INFO - ✨ New document: Practice_Direction_66___Crown_Proceedings
+2026-01-17 11:36:57,764 - INFO - ✨ New document: Practice_Direction_67___Proceedings_Relating_To_Solicitors
+2026-01-17 11:36:57,764 - INFO - ✨ New document: Practice_Direction_69___Court_chunk_000
+2026-01-17 11:36:57,764 - INFO - ✨ New document: Practice_Direction_69___Court_chunk_001
+2026-01-17 11:36:57,764 - INFO - ✨ New document: Practice_Direction_6A___Service_Within_The_United_Kingdom___Practice_Direction_chunk_000
+2026-01-17 11:36:57,764 - INFO - ✨ New document: Practice_Direction_6A___Service_Within_The_United_Kingdom___Practice_Direction_chunk_001
+2026-01-17 11:36:57,764 - INFO - ✨ New document: Practice_Direction_6A___Service_Within_The_United_Kingdom___Practice_Direction_chunk_002
+2026-01-17 11:36:57,764 - INFO - ✨ New document: Practice_Direction_6A___Service_Within_The_United_Kingdom___Practice_Direction_chunk_003
+2026-01-17 11:36:57,764 - INFO - ✨ New document: Practice_Direction_6B___Service_Out_Of_The_Jurisdiction_chunk_000
+2026-01-17 11:36:57,764 - INFO - ✨ New document: Practice_Direction_6B___Service_Out_Of_The_Jurisdiction_chunk_001
+2026-01-17 11:36:57,764 - INFO - ✨ New document: Practice_Direction_6B___Service_Out_Of_The_Jurisdiction_chunk_002
+2026-01-17 11:36:57,764 - INFO - ✨ New document: Practice_Direction_6B___Service_Out_Of_The_Jurisdiction_chunk_003
+2026-01-17 11:36:57,764 - INFO - ✨ New document: Practice_Direction_70A___Enforcement_Of_Judgments_And_Orders_chunk_000
+2026-01-17 11:36:57,764 - INFO - ✨ New document: Practice_Direction_70A___Enforcement_Of_Judgments_And_Orders_chunk_001
+2026-01-17 11:36:57,764 - INFO - ✨ New document: Practice_Direction_70A___Enforcement_Of_Judgments_And_Orders_chunk_002
+2026-01-17 11:36:57,765 - INFO - ✨ New document: Practice_Direction_70A___Enforcement_Of_Judgments_And_Orders_chunk_003
+2026-01-17 11:36:57,765 - INFO - ✨ New document: Practice_Direction_70B___Debt_Respite_Scheme_Under_The_Financial_Guidance_And_Claims_Act
+2026-01-17 11:36:57,765 - INFO - ✨ New document: Practice_Direction_71___Orders_To_Obtain_Information_From_Judgment_Debtors
+2026-01-17 11:36:57,765 - INFO - ✨ New document: Practice_Direction_72___Third_Party_Debt_Orders
+2026-01-17 11:36:57,765 - INFO - ✨ New document: Practice_Direction_73___Charging_Orders
+2026-01-17 11:36:57,765 - INFO - ✨ New document: Practice_Direction_74A___Enforcement_Of_Judgments_In_Different_Jurisdictions
+2026-01-17 11:36:57,765 - INFO - ✨ New document: Practice_Direction_75___Traffic_Enforcement_chunk_000
+2026-01-17 11:36:57,765 - INFO - ✨ New document: Practice_Direction_75___Traffic_Enforcement_chunk_001
+2026-01-17 11:36:57,765 - INFO - ✨ New document: Practice_Direction_75___Traffic_Enforcement_chunk_002
+2026-01-17 11:36:57,765 - INFO - ✨ New document: Practice_Direction_75___Traffic_Enforcement_chunk_003
+2026-01-17 11:36:57,765 - INFO - ✨ New document: Practice_Direction_77___Applications_For_And_Relating_To_Serious_Crime_Prevention_Orders_And_Referral_Of_Release_Decisions
+2026-01-17 11:36:57,765 - INFO - ✨ New document: Practice_Direction_7A___How_To_Start_Proceedings_chunk_000
+2026-01-17 11:36:57,765 - INFO - ✨ New document: Practice_Direction_7A___How_To_Start_Proceedings_chunk_001
+2026-01-17 11:36:57,766 - INFO - Request URL: 'https://cpr-rag.search.windows.net/indexes('legal-court-rag-index-v2')/docs/search.post.search?api-version=REDACTED'
+Request method: 'POST'
+Request headers:
+    'Content-Type': 'application/json'
+    'Content-Length': '1098'
+    'Accept': 'application/json;odata.metadata=none'
+    'x-ms-client-request-id': 'd4b48a2c-f398-11f0-b11e-92bc89cda245'
+    'User-Agent': 'azsdk-python-search-documents/11.7.0b2 Python/3.11.14 (macOS-26.2-arm64-arm-64bit)'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-01-17 11:36:57,879 - INFO - Response status: 200
+Response headers:
+    'Transfer-Encoding': 'chunked'
+    'Content-Type': 'application/json; odata.metadata=none; odata.streaming=true; charset=utf-8'
+    'Content-Encoding': 'REDACTED'
+    'Vary': 'REDACTED'
+    'Strict-Transport-Security': 'REDACTED'
+    'Preference-Applied': 'REDACTED'
+    'OData-Version': 'REDACTED'
+    'request-id': 'd4b48a2c-f398-11f0-b11e-92bc89cda245'
+    'elapsed-time': 'REDACTED'
+    'Date': 'Sat, 17 Jan 2026 11:36:57 GMT'
+2026-01-17 11:36:57,880 - INFO - ✨ New document: Practice_Direction_7B___Production_Centre_chunk_000
+2026-01-17 11:36:57,880 - INFO - ✨ New document: Practice_Direction_7B___Production_Centre_chunk_001
+2026-01-17 11:36:57,880 - INFO - ✨ New document: Practice_Direction_7B___Production_Centre_chunk_002
+2026-01-17 11:36:57,880 - INFO - ✨ New document: Practice_Direction_7C___Money_Claim_Online_chunk_000
+2026-01-17 11:36:57,881 - INFO - ✨ New document: Practice_Direction_7C___Money_Claim_Online_chunk_001
+2026-01-17 11:36:57,881 - INFO - ✨ New document: Practice_Direction_7C___Money_Claim_Online_chunk_002
+2026-01-17 11:36:57,881 - INFO - ✨ New document: Practice_Direction_7C___Money_Claim_Online_chunk_003
+2026-01-17 11:36:57,881 - INFO - ✨ New document: Practice_Direction_83___Writs_And_Warrants
+2026-01-17 11:36:57,881 - INFO - ✨ New document: Practice_Direction_84___Enforcement_By_Taking_Control_Of_Goods
+2026-01-17 11:36:57,881 - INFO - ✨ New document: Practice_Direction___27B___Claims_Under_The_Pre-Action_Protocol_For_Personal_Injury_Claims_Below_The_Small_Claims_Limit_In_Road_Traffic_Accidents_chunk_030
+2026-01-17 11:36:57,881 - INFO - ✨ New document: Practice_Direction___Competition_Law___claims_relating_to_the_application_of_chapters_I_and_II_of_part_I_of_the_Competition_Act_1998_and_claims_made_under_section_101_of_the_Digital_Markets___Competition_and_Consumers_Act_2024_chunk_001
+2026-01-17 11:36:57,883 - INFO - Upload plan written to /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/reports/upload_plan.txt
+2026-01-17 11:36:57,883 - INFO - 
+================================================================================
+2026-01-17 11:36:57,883 - INFO - 📊 DIFFERENTIAL UPLOAD STATISTICS
+2026-01-17 11:36:57,883 - INFO - ================================================================================
+2026-01-17 11:36:57,883 - INFO - ⚠️  STATUS: DIFFERENCES DETECTED - UPLOAD REQUIRED
+2026-01-17 11:36:57,883 - INFO - 
+Document Analysis:
+2026-01-17 11:36:57,883 - INFO -   Total Input Documents:        561
+2026-01-17 11:36:57,883 - INFO -   ✨ New Documents:              548  (97.7%)
+2026-01-17 11:36:57,883 - INFO -   📝 Changed Documents:           13  (2.3%)
+2026-01-17 11:36:57,883 - INFO -   ⏭️  Unchanged Documents:         0  (0.0%)
+2026-01-17 11:36:57,883 - INFO - 
+  🎯 Total Requiring Upload:     561
+2026-01-17 11:36:57,883 - INFO - ================================================================================
+
+2026-01-17 11:36:57,884 - INFO - 📄 Statistics written to /Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/data/legal-scraper/processed/upload_statistics.txt
+2026-01-17 11:36:57,884 - INFO - Generating embeddings for 561 updates...
+2026-01-17 11:36:57,884 - INFO - Generating embeddings for 561 documents...
+2026-01-17 11:36:57,884 - INFO - No environment configuration found.
+2026-01-17 11:36:57,885 - INFO - ManagedIdentityCredential will use IMDS
+2026-01-17 11:36:58,079 - INFO - Request URL: 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=REDACTED&resource=REDACTED'
+Request method: 'GET'
+Request headers:
+    'User-Agent': 'azsdk-python-identity/1.17.1 Python/3.11.14 (macOS-26.2-arm64-arm-64bit)'
+No body was attached to the request
+2026-01-17 11:36:59,965 - INFO - DefaultAzureCredential acquired a token from AzureCliCredential
+2026-01-17 11:37:05,393 - INFO - HTTP Request: POST https://cog-gz2m4s637t5me-us2.openai.azure.com/openai/deployments/text-embedding-3-large/embeddings?api-version=2023-05-15 "HTTP/1.1 200 OK"
+2026-01-17 11:37:06,778 - INFO - ✅ Generated embeddings: 100/561 (17.8%)
+2026-01-17 11:37:15,581 - INFO - HTTP Request: POST https://cog-gz2m4s637t5me-us2.openai.azure.com/openai/deployments/text-embedding-3-large/embeddings?api-version=2023-05-15 "HTTP/1.1 200 OK"
+2026-01-17 11:37:16,580 - INFO - ✅ Generated embeddings: 200/561 (35.7%)
+2026-01-17 11:37:21,958 - INFO - HTTP Request: POST https://cog-gz2m4s637t5me-us2.openai.azure.com/openai/deployments/text-embedding-3-large/embeddings?api-version=2023-05-15 "HTTP/1.1 200 OK"
+2026-01-17 11:37:22,958 - INFO - ✅ Generated embeddings: 300/561 (53.5%)
+2026-01-17 11:37:30,255 - INFO - HTTP Request: POST https://cog-gz2m4s637t5me-us2.openai.azure.com/openai/deployments/text-embedding-3-large/embeddings?api-version=2023-05-15 "HTTP/1.1 200 OK"
+2026-01-17 11:37:31,247 - INFO - ✅ Generated embeddings: 400/561 (71.3%)
+2026-01-17 11:37:35,879 - INFO - HTTP Request: POST https://cog-gz2m4s637t5me-us2.openai.azure.com/openai/deployments/text-embedding-3-large/embeddings?api-version=2023-05-15 "HTTP/1.1 200 OK"
+2026-01-17 11:37:36,872 - INFO - ✅ Generated embeddings: 500/561 (89.1%)
+2026-01-17 11:37:40,046 - INFO - HTTP Request: POST https://cog-gz2m4s637t5me-us2.openai.azure.com/openai/deployments/text-embedding-3-large/embeddings?api-version=2023-05-15 "HTTP/1.1 200 OK"
+2026-01-17 11:37:40,650 - INFO - ✅ Generated embeddings: 561/561 (100.0%)
+2026-01-17 11:37:40,650 - INFO - Embedding generation complete: 561/561 successful
+2026-01-17 11:37:40,650 - INFO - Uploading 561 valid updates...
+2026-01-17 11:37:40,789 - INFO - Request URL: 'https://cpr-rag.search.windows.net/indexes('legal-court-rag-index-v2')/docs/search.index?api-version=REDACTED'
+Request method: 'POST'
+Request headers:
+    'Content-Type': 'application/json'
+    'Content-Length': '7780569'
+    'Accept': 'application/json;odata.metadata=none'
+    'x-ms-client-request-id': 'ee5957fa-f398-11f0-b11e-92bc89cda245'
+    'User-Agent': 'azsdk-python-search-documents/11.7.0b2 Python/3.11.14 (macOS-26.2-arm64-arm-64bit)'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-01-17 11:37:43,631 - INFO - Response status: 200
+Response headers:
+    'Transfer-Encoding': 'chunked'
+    'Content-Type': 'application/json; odata.metadata=none; odata.streaming=true; charset=utf-8'
+    'Content-Encoding': 'REDACTED'
+    'Vary': 'REDACTED'
+    'Strict-Transport-Security': 'REDACTED'
+    'Preference-Applied': 'REDACTED'
+    'OData-Version': 'REDACTED'
+    'request-id': 'ee5957fa-f398-11f0-b11e-92bc89cda245'
+    'elapsed-time': 'REDACTED'
+    'Date': 'Sat, 17 Jan 2026 11:37:43 GMT'
+2026-01-17 11:37:43,636 - INFO - Batch 1/6: uploaded 100/100 documents
+2026-01-17 11:37:44,291 - INFO - Request URL: 'https://cpr-rag.search.windows.net/indexes('legal-court-rag-index-v2')/docs/search.index?api-version=REDACTED'
+Request method: 'POST'
+Request headers:
+    'Content-Type': 'application/json'
+    'Content-Length': '7787314'
+    'Accept': 'application/json;odata.metadata=none'
+    'x-ms-client-request-id': 'f06f99dc-f398-11f0-b11e-92bc89cda245'
+    'User-Agent': 'azsdk-python-search-documents/11.7.0b2 Python/3.11.14 (macOS-26.2-arm64-arm-64bit)'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-01-17 11:37:47,167 - INFO - Response status: 200
+Response headers:
+    'Transfer-Encoding': 'chunked'
+    'Content-Type': 'application/json; odata.metadata=none; odata.streaming=true; charset=utf-8'
+    'Content-Encoding': 'REDACTED'
+    'Vary': 'REDACTED'
+    'Strict-Transport-Security': 'REDACTED'
+    'Preference-Applied': 'REDACTED'
+    'OData-Version': 'REDACTED'
+    'request-id': 'f06f99dc-f398-11f0-b11e-92bc89cda245'
+    'elapsed-time': 'REDACTED'
+    'Date': 'Sat, 17 Jan 2026 11:37:47 GMT'
+2026-01-17 11:37:47,170 - INFO - Batch 2/6: uploaded 100/100 documents
+2026-01-17 11:37:47,806 - INFO - Request URL: 'https://cpr-rag.search.windows.net/indexes('legal-court-rag-index-v2')/docs/search.index?api-version=REDACTED'
+Request method: 'POST'
+Request headers:
+    'Content-Type': 'application/json'
+    'Content-Length': '7797055'
+    'Accept': 'application/json;odata.metadata=none'
+    'x-ms-client-request-id': 'f287fea8-f398-11f0-b11e-92bc89cda245'
+    'User-Agent': 'azsdk-python-search-documents/11.7.0b2 Python/3.11.14 (macOS-26.2-arm64-arm-64bit)'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-01-17 11:37:49,983 - INFO - Response status: 200
+Response headers:
+    'Transfer-Encoding': 'chunked'
+    'Content-Type': 'application/json; odata.metadata=none; odata.streaming=true; charset=utf-8'
+    'Content-Encoding': 'REDACTED'
+    'Vary': 'REDACTED'
+    'Strict-Transport-Security': 'REDACTED'
+    'Preference-Applied': 'REDACTED'
+    'OData-Version': 'REDACTED'
+    'request-id': 'f287fea8-f398-11f0-b11e-92bc89cda245'
+    'elapsed-time': 'REDACTED'
+    'Date': 'Sat, 17 Jan 2026 11:37:49 GMT'
+2026-01-17 11:37:49,990 - INFO - Batch 3/6: uploaded 100/100 documents
+2026-01-17 11:37:50,650 - INFO - Request URL: 'https://cpr-rag.search.windows.net/indexes('legal-court-rag-index-v2')/docs/search.index?api-version=REDACTED'
+Request method: 'POST'
+Request headers:
+    'Content-Type': 'application/json'
+    'Content-Length': '7717902'
+    'Accept': 'application/json;odata.metadata=none'
+    'x-ms-client-request-id': 'f439f8d2-f398-11f0-b11e-92bc89cda245'
+    'User-Agent': 'azsdk-python-search-documents/11.7.0b2 Python/3.11.14 (macOS-26.2-arm64-arm-64bit)'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-01-17 11:37:52,538 - INFO - Response status: 200
+Response headers:
+    'Transfer-Encoding': 'chunked'
+    'Content-Type': 'application/json; odata.metadata=none; odata.streaming=true; charset=utf-8'
+    'Content-Encoding': 'REDACTED'
+    'Vary': 'REDACTED'
+    'Strict-Transport-Security': 'REDACTED'
+    'Preference-Applied': 'REDACTED'
+    'OData-Version': 'REDACTED'
+    'request-id': 'f439f8d2-f398-11f0-b11e-92bc89cda245'
+    'elapsed-time': 'REDACTED'
+    'Date': 'Sat, 17 Jan 2026 11:37:52 GMT'
+2026-01-17 11:37:52,541 - INFO - Batch 4/6: uploaded 100/100 documents
+2026-01-17 11:37:53,203 - INFO - Request URL: 'https://cpr-rag.search.windows.net/indexes('legal-court-rag-index-v2')/docs/search.index?api-version=REDACTED'
+Request method: 'POST'
+Request headers:
+    'Content-Type': 'application/json'
+    'Content-Length': '7839447'
+    'Accept': 'application/json;odata.metadata=none'
+    'x-ms-client-request-id': 'f5bf770e-f398-11f0-b11e-92bc89cda245'
+    'User-Agent': 'azsdk-python-search-documents/11.7.0b2 Python/3.11.14 (macOS-26.2-arm64-arm-64bit)'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-01-17 11:37:55,303 - INFO - Response status: 200
+Response headers:
+    'Transfer-Encoding': 'chunked'
+    'Content-Type': 'application/json; odata.metadata=none; odata.streaming=true; charset=utf-8'
+    'Content-Encoding': 'REDACTED'
+    'Vary': 'REDACTED'
+    'Strict-Transport-Security': 'REDACTED'
+    'Preference-Applied': 'REDACTED'
+    'OData-Version': 'REDACTED'
+    'request-id': 'f5bf770e-f398-11f0-b11e-92bc89cda245'
+    'elapsed-time': 'REDACTED'
+    'Date': 'Sat, 17 Jan 2026 11:37:55 GMT'
+2026-01-17 11:37:55,308 - INFO - Batch 5/6: uploaded 100/100 documents
+2026-01-17 11:37:55,925 - INFO - Request URL: 'https://cpr-rag.search.windows.net/indexes('legal-court-rag-index-v2')/docs/search.index?api-version=REDACTED'
+Request method: 'POST'
+Request headers:
+    'Content-Type': 'application/json'
+    'Content-Length': '4721948'
+    'Accept': 'application/json;odata.metadata=none'
+    'x-ms-client-request-id': 'f75ed03c-f398-11f0-b11e-92bc89cda245'
+    'User-Agent': 'azsdk-python-search-documents/11.7.0b2 Python/3.11.14 (macOS-26.2-arm64-arm-64bit)'
+    'Authorization': 'REDACTED'
+A body is sent with the request
+2026-01-17 11:37:57,253 - INFO - Response status: 200
+Response headers:
+    'Transfer-Encoding': 'chunked'
+    'Content-Type': 'application/json; odata.metadata=none; odata.streaming=true; charset=utf-8'
+    'Content-Encoding': 'REDACTED'
+    'Vary': 'REDACTED'
+    'Strict-Transport-Security': 'REDACTED'
+    'Preference-Applied': 'REDACTED'
+    'OData-Version': 'REDACTED'
+    'request-id': 'f75ed03c-f398-11f0-b11e-92bc89cda245'
+    'elapsed-time': 'REDACTED'
+    'Date': 'Sat, 17 Jan 2026 11:37:57 GMT'
+2026-01-17 11:37:57,257 - INFO - Batch 6/6: uploaded 61/61 documents
+2026-01-17 11:37:57,762 - INFO - 
+================================================================================
+2026-01-17 11:37:57,763 - INFO - 📊 UPLOAD COMPLETION STATISTICS
+2026-01-17 11:37:57,763 - INFO - ================================================================================
+2026-01-17 11:37:57,763 - INFO -   Documents to Upload:     561
+2026-01-17 11:37:57,763 - INFO -   ✅ Successfully Uploaded:    561
+2026-01-17 11:37:57,763 - INFO - 
+  Breakdown by Change Type:
+2026-01-17 11:37:57,763 - INFO -     ✨ New:                    548
+2026-01-17 11:37:57,763 - INFO -     📝 Changed:                 13
+2026-01-17 11:37:57,763 - INFO - ================================================================================
+
+2026-01-17 11:37:57,764 - INFO - ✅ Upload complete: 561 documents updated
+2026-01-17 11:37:57,765 - INFO - 
+✅ Success! 561 documents uploaded

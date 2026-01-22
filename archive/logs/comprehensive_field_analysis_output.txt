@@ -1,0 +1,205 @@
+================================================================================
+COMPREHENSIVE FIELD COMPARISON ANALYSIS
+================================================================================
+
+Analyzing 278 documents...
+Checking fields: id, sourcefile, sourcepage, category, storageUrl, updated, content
+
+--------------------------------------------------------------------------------
+
+
+📄 Doc 1: Notes on Practice Directions
+   🔸 id:
+      Scraped: 'Notes on Practice Directions'
+      Indexed: 'Notes_on_Practice_Directions'
+      NOTE: ID field includes RAW scraped ID, not sanitized version
+      This is EXPECTED - ID in document != ID as Azure Search key
+   🔸 updated:
+      Scraped: '2017-01-30T00:00:00Z'
+      Indexed: ''
+   🔸 content:
+      Scraped length: 2111 chars
+      Indexed length: 2111 chars
+      Difference: +0 chars
+
+📄 Doc 2: Part 1 – Overriding Objective
+   🔸 id:
+      Scraped: 'Part 1 – Overriding Objective'
+      Indexed: 'Part_1___Overriding_Objective'
+      NOTE: ID field includes RAW scraped ID, not sanitized version
+      This is EXPECTED - ID in document != ID as Azure Search key
+   🔸 updated:
+      Scraped: '2024-10-01T00:00:00Z'
+      Indexed: ''
+   🔸 content:
+      Scraped length: 3187 chars
+      Indexed length: 3187 chars
+      Difference: +0 chars
+
+📄 Doc 3: Practice Direction 1A_ participation of vulnerable parties or wit
+   🔸 id:
+      Scraped: 'Practice Direction 1A_ participation of vulnerable parties or witnesses'
+      Indexed: 'Practice_Direction_1A___participation_of_vulnerable_parties_or_witnesses'
+      NOTE: ID field includes RAW scraped ID, not sanitized version
+      This is EXPECTED - ID in document != ID as Azure Search key
+   🔸 updated:
+      Scraped: '2022-05-31T00:00:00Z'
+      Indexed: ''
+   🔸 content:
+      Scraped length: 4490 chars
+      Indexed length: 4490 chars
+      Difference: +0 chars
+
+📄 Doc 4: Part 2 – Application and Interpretation of the Rules
+   🔸 id:
+      Scraped: 'Part 2 – Application and Interpretation of the Rules'
+      Indexed: 'Part_2___Application_and_Interpretation_of_the_Rules'
+      NOTE: ID field includes RAW scraped ID, not sanitized version
+      This is EXPECTED - ID in document != ID as Azure Search key
+   🔸 updated:
+      Scraped: '2023-10-01T00:00:00Z'
+      Indexed: ''
+   🔸 content:
+      Scraped length: 10441 chars
+      Indexed length: 10441 chars
+      Difference: +0 chars
+
+📄 Doc 5: Practice Direction 2A – Court Offices
+   🔸 id:
+      Scraped: 'Practice Direction 2A – Court Offices'
+      Indexed: 'Practice_Direction_2A___Court_Offices'
+      NOTE: ID field includes RAW scraped ID, not sanitized version
+      This is EXPECTED - ID in document != ID as Azure Search key
+   🔸 updated:
+      Scraped: '2023-08-14T00:00:00Z'
+      Indexed: ''
+   🔸 content:
+      Scraped length: 3637 chars
+      Indexed length: 3637 chars
+      Difference: +0 chars
+
+📄 Doc 6: Practice Direction 2B – Allocation of Cases to Levels of Judiciar
+   🔸 id:
+      Scraped: 'Practice Direction 2B – Allocation of Cases to Levels of Judiciary'
+      Indexed: 'Practice_Direction_2B___Allocation_of_Cases_to_Levels_of_Judiciary'
+      NOTE: ID field includes RAW scraped ID, not sanitized version
+      This is EXPECTED - ID in document != ID as Azure Search key
+   🔸 updated:
+      Scraped: '2023-10-01T00:00:00Z'
+      Indexed: ''
+   🔸 content:
+      Scraped length: 16442 chars
+      Indexed length: 16442 chars
+      Difference: +0 chars
+
+📄 Doc 7: Practice Direction 2C – Starting proceedings in the County Court
+   🔸 id:
+      Scraped: 'Practice Direction 2C – Starting proceedings in the County Court'
+      Indexed: 'Practice_Direction_2C___Starting_proceedings_in_the_County_Court'
+      NOTE: ID field includes RAW scraped ID, not sanitized version
+      This is EXPECTED - ID in document != ID as Azure Search key
+   🔸 updated:
+      Scraped: '2023-08-10T00:00:00Z'
+      Indexed: ''
+   🔸 content:
+      Scraped length: 4053 chars
+      Indexed length: 4053 chars
+      Difference: +0 chars
+
+📄 Doc 8: Practice Direction 2E – Jurisdiction of the county court that may
+   🔸 id:
+      Scraped: 'Practice Direction 2E – Jurisdiction of the county court that maybe be exercised by a legal adviser'
+      Indexed: 'Practice_Direction_2E___Jurisdiction_of_the_county_court_that_maybe_be_exercised_by_a_legal_adviser'
+      NOTE: ID field includes RAW scraped ID, not sanitized version
+      This is EXPECTED - ID in document != ID as Azure Search key
+   🔸 updated:
+      Scraped: '2023-10-01T00:00:00Z'
+      Indexed: ''
+   🔸 content:
+      Scraped length: 5722 chars
+      Indexed length: 5722 chars
+      Difference: +0 chars
+
+📄 Doc 9: Practice Direction 2F – Court Sittings
+   🔸 id:
+      Scraped: 'Practice Direction 2F – Court Sittings'
+      Indexed: 'Practice_Direction_2F___Court_Sittings'
+      NOTE: ID field includes RAW scraped ID, not sanitized version
+      This is EXPECTED - ID in document != ID as Azure Search key
+   🔸 updated:
+      Scraped: '2023-02-07T00:00:00Z'
+      Indexed: ''
+   🔸 content:
+      Scraped length: 5166 chars
+      Indexed length: 5166 chars
+      Difference: +0 chars
+
+📄 Doc 10: Part 3 – The Court’s Case Management Powers_chunk_001
+   🔸 id:
+      Scraped: 'Part 3 – The Court’s Case Management Powers_chunk_001'
+      Indexed: 'Part_3___The_Court_s_Case_Management_Powers_chunk_001'
+      NOTE: ID field includes RAW scraped ID, not sanitized version
+      This is EXPECTED - ID in document != ID as Azure Search key
+   🔸 updated:
+      Scraped: '2023-09-05T00:00:00Z'
+      Indexed: ''
+   🔸 content:
+      Scraped length: 40909 chars
+      Indexed length: 40909 chars
+      Difference: +0 chars
+
+================================================================================
+SUMMARY - FIELD DIFFERENCES
+================================================================================
+
+Documents analyzed: 30
+
+Differences by field:
+----------------------------------------
+  id               30/30 (100.0%) ████████████████████
+  sourcefile        0/30 (  0.0%) 
+  sourcepage        0/30 (  0.0%) 
+  category          0/30 (  0.0%) 
+  storageUrl        0/30 (  0.0%) 
+  updated          30/30 (100.0%) ████████████████████
+  content          30/30 (100.0%) ████████████████████
+
+================================================================================
+DIFFERENCE PATTERNS
+================================================================================
+
+Common field combinations that differ:
+----------------------------------------
+
+30 documents differ in: content, id, updated
+  - Notes on Practice Directions
+  - Part 1 – Overriding Objective
+  - Practice Direction 1A_ participation of vulnerable
+  ... and 27 more
+
+================================================================================
+CONCLUSIONS
+================================================================================
+
+PRIMARY CAUSE: 'id' field
+- Differs in 30/30 documents (100.0%)
+
+IMPACT:
+- These field differences cause hash mismatches
+- Documents are correctly identified as "changed"
+- Re-upload will sync the new metadata
+    
+
+SPECIFIC FINDING - 'updated' field:
+- Many documents have updated=None in index
+- Scraped documents have actual dates from CPR website
+- This is CORRECT - metadata is being enriched
+- Future uploads will only catch real changes
+    
+
+CONTENT CHANGES DETECTED:
+- 30 documents have actual content changes
+- These are legitimate updates from the CPR website
+- Differential upload is working as intended
+    
+================================================================================

@@ -44,6 +44,8 @@ from core.authentication import AuthenticationHelper
 
 # Import legal domain customizations
 from customizations.approaches import citation_builder, source_processor
+# CUSTOM: Feature flags for category fallback behavior
+from customizations import is_feature_enabled
 
 from dataclasses import dataclass
 from typing import Optional, Any
@@ -73,6 +75,8 @@ class Document:
     reranker_score: Optional[float] = None
     search_agent_query: Optional[str] = None
     updated: Optional[str] = None  # Add updated field
+    subsection_id: Optional[str] = None  # Primary subsection for citation label
+    subsections: Optional[list[str]] = None  # All subsections in chunk for frontend matching
 
     def serialize_for_results(self) -> dict[str, Any]:
         result_dict = {
@@ -98,6 +102,8 @@ class Document:
             ),
             "score": float(self.score) if self.score is not None else 0.0,
             "reranker_score": float(self.reranker_score) if self.reranker_score is not None else 0.0,
+            "subsection_id": str(self.subsection_id) if self.subsection_id is not None else "",
+            "subsections": self.subsections if self.subsections is not None else [],
             "search_agent_query": str(self.search_agent_query) if self.search_agent_query is not None else "",
             "updated": str(self.updated) if self.updated is not None else "",  # Include updated field
         }
@@ -454,16 +460,19 @@ class Approach(ABC):
             retrieval_effort = KnowledgeRetrievalMediumReasoningEffort()
         # If None or unrecognized, don't set reasoning effort (use API default)
         
+        def build_knowledge_source_params(filter_value: Optional[str], always_query: bool) -> SearchIndexKnowledgeSourceParams:
+            return SearchIndexKnowledgeSourceParams(
+                knowledge_source_name=search_index_name,
+                reranker_threshold=threshold,
+                filter_add_on=filter_value,
+                include_references=True,
+                include_reference_source_data=True,
+                always_query_source=always_query,
+            )
+
         request_kwargs: dict[str, Any] = {
             "knowledge_source_params": [
-                SearchIndexKnowledgeSourceParams(
-                    knowledge_source_name=search_index_name,
-                    reranker_threshold=threshold,
-                    filter_add_on=filter_add_on,
-                    include_references=True,
-                    include_reference_source_data=True,
-                    always_query_source=False,  # Let the reasoning decide
-                )
+                build_knowledge_source_params(filter_add_on, False),
             ],
             "include_activity": True,
         }
@@ -476,44 +485,91 @@ class Approach(ABC):
             retrieval_request=KnowledgeBaseRetrievalRequest(**request_kwargs)
         )
 
-        # STEP 2: Generate a contextual and content specific answer using the search results and chat history
-        activities = response.activity
-        activity_mapping = (
-            {
-                activity.id: activity.search_index_arguments.search if activity.search_index_arguments else ""
-                for activity in activities
-                if isinstance(activity, KnowledgeBaseSearchIndexActivityRecord)
-            }
-            if activities
-            else {}
-        )
+        def build_results(resp: KnowledgeBaseRetrievalResponse) -> tuple[list[Document], dict[str, str]]:
+            activities = resp.activity
+            activity_mapping = (
+                {
+                    activity.id: activity.search_index_arguments.search if activity.search_index_arguments else ""
+                    for activity in activities
+                    if isinstance(activity, KnowledgeBaseSearchIndexActivityRecord)
+                }
+                if activities
+                else {}
+            )
 
-        results = []
-        if response and response.references:
-            if results_merge_strategy == "interleaved":
-                # Use interleaved reference order
-                references = sorted(response.references, key=lambda reference: int(reference.id))
-            else:
-                # Default to descending strategy
-                references = response.references
-            for i, reference in enumerate(references):
-                if isinstance(reference, KnowledgeBaseSearchIndexReference) and reference.source_data:
-                    source_data = reference.source_data
-                    
-                    # Extract all available fields from source_data for proper citation building
-                    results.append(
-                        Document(
-                            id=reference.doc_key,
-                            content=source_data.get("content", ""),
-                            sourcepage=source_data.get("sourcepage", ""),
-                            sourcefile=source_data.get("sourcefile", ""),
-                            category=source_data.get("category", ""),
-                            storage_url=source_data.get("storageUrl", source_data.get("storage_url", "")),
-                            updated=source_data.get("updated", ""),
-                            search_agent_query=activity_mapping.get(reference.activity_source, ""),
+            results: list[Document] = []
+            if resp and resp.references:
+                if results_merge_strategy == "interleaved":
+                    # Use interleaved reference order
+                    references = sorted(resp.references, key=lambda reference: int(reference.id))
+                else:
+                    # Default to descending strategy
+                    references = resp.references
+                for reference in references:
+                    if isinstance(reference, KnowledgeBaseSearchIndexReference) and reference.source_data:
+                        source_data = reference.source_data
+                        results.append(
+                            Document(
+                                id=reference.doc_key,
+                                content=source_data.get("content", ""),
+                                sourcepage=source_data.get("sourcepage", ""),
+                                sourcefile=source_data.get("sourcefile", ""),
+                                category=source_data.get("category", ""),
+                                storage_url=source_data.get("storageUrl", source_data.get("storage_url", "")),
+                                updated=source_data.get("updated", ""),
+                                search_agent_query=activity_mapping.get(reference.activity_source, ""),
+                            )
                         )
-                    )
-                if top and len(results) == top:
+                    if top and len(results) == top:
+                        break
+
+            return results, activity_mapping
+
+        results, activity_mapping = build_results(response)
+
+        # CUSTOM: If no references returned, force querying sources
+        if not results and is_feature_enabled("agentic_force_query_on_empty"):
+            logging.info("CUSTOM: No agentic results; retrying with always_query_source=True.")
+            retry_kwargs = dict(request_kwargs)
+            retry_kwargs["knowledge_source_params"] = [
+                build_knowledge_source_params(filter_add_on, True),
+            ]
+            response = await agent_client.retrieve(
+                retrieval_request=KnowledgeBaseRetrievalRequest(**retry_kwargs)
+            )
+            results, activity_mapping = build_results(response)
+
+        # CUSTOM: If references are still missing, fall back to direct search using agentic query plan
+        if not results and is_feature_enabled("agentic_fallback_search"):
+            logging.info("CUSTOM: No agentic references; running fallback search using agentic queries.")
+            query_candidates = [q for q in activity_mapping.values() if q]
+            if not query_candidates and messages:
+                last_content = messages[-1]["content"] if messages else ""
+                if isinstance(last_content, str) and last_content:
+                    query_candidates = [last_content]
+
+            seen_ids = set()
+            for q in query_candidates:
+                docs = await self.search(
+                    top=top or 3,
+                    query_text=str(q),
+                    filter=filter_add_on,
+                    vectors=[],
+                    use_text_search=True,
+                    use_vector_search=False,
+                    use_semantic_ranker=True,
+                    use_semantic_captions=False,
+                    minimum_search_score=0,
+                    minimum_reranker_score=0,
+                    use_query_rewriting=False,
+                )
+                for doc in docs:
+                    if doc.id in seen_ids:
+                        continue
+                    seen_ids.add(doc.id)
+                    results.append(doc)
+                if top and len(results) >= top:
+                    results = results[:top]
                     break
 
         return response, results

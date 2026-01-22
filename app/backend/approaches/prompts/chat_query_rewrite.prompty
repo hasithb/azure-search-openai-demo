@@ -5,14 +5,10 @@ model:
     api: chat
     parameters:
         tools: ${file:chat_query_rewrite_tools.json}
-        temperature: 0.3
+        temperature: 0.0
 sample:
-    user_query: Does it include hearing?
-    past_messages:
-        - role: user
-          content: "What are the time limits for filing a defence?"
-        - role: assistant
-          content: "The time limit for filing a defence is 14 days after service of the particulars of claim under CPR Part 15.4, or 28 days if the defendant files an acknowledgment of service. [CPR.15.4, CPR Part 15 (p. 2), Civil Procedure Rules]"
+    user_query: What is the overriding objective?
+    past_messages: []
 ---
 system:
 You are an AI assistant helping lawyers and legal professionals in England and Wales find relevant information from Civil Procedure Rules (CPR), Practice Directions, and Court Guides.
@@ -130,16 +126,22 @@ If the question is not in English, translate the question to English before gene
 Use the search_sources function to provide both the search query and subsection identifier.
 
 user:
+What is the overriding objective in civil procedure?
+
+A:
+overriding objective Part 1 CPR deal with cases justly proportionate cost
+
+user:
 How long do I have to file a defence?
 
 A:
 time limit filing defence acknowledgment service CPR Part 15
 
 user:
-What are the rules for expert witnesses in the Circuit Commercial Court?
+What are the disclosure requirements in the Commercial Court?
 
 A:
-expert witness Circuit Commercial Court CPR Part 35 duties court permission
+disclosure Commercial Court documents standard CPR Part 31
 
 {% if past_messages %}
 {% for message in past_messages %}

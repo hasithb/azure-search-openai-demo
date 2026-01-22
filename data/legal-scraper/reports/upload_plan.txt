@@ -1,0 +1,22 @@
+============================================================
+        LEGAL DOCUMENT SCRAPER - DIFF REPORT
+============================================================
+
+Target Index: legal-court-rag-index-v2
+Timestamp:    2026-01-18 16:25:33
+
+------------------------------------------------------------
+                    SUMMARY
+------------------------------------------------------------
+Total Documents Scraped:    267
+✨ New Documents:           0
+📝 Changed Documents:       0
+⏭️  Unchanged Documents:     0
+------------------------------------------------------------
+
+============================================================
+✅ NO ACTION REQUIRED: INDEX IS UP TO DATE
+============================================================
+
+All scraped documents match the current Azure Search index.
+No embedding generation or upload is needed.

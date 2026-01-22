@@ -304,6 +304,15 @@ class ChatReadRetrieveReadApproach(ChatApproach):
         )
         tools: list[ChatCompletionToolParam] = self.query_rewrite_tools
 
+        # DEBUG: Log the query messages to understand what's being sent
+        logging.info(f"🔍 DEBUG: Original user query: '{original_user_query}'")
+        logging.info(f"🔍 DEBUG: Past messages count: {len(messages[:-1])}")
+        for i, qm in enumerate(query_messages[-3:]):  # Last 3 messages
+            role = qm.get("role") if isinstance(qm, dict) else "unknown"
+            content = qm.get("content") if isinstance(qm, dict) else str(qm)
+            content_preview = str(content)[:200] if content else "empty"
+            logging.info(f"🔍 DEBUG: Query message {i}: role={role}, content={content_preview}...")
+
         # STEP 1: Generate an optimized keyword search query based on the chat history and the last question
 
         logging.info("🔍 DIAGNOSTIC: STEP 1 - Calling OpenAI for query rewrite...")
@@ -569,6 +578,9 @@ class ChatReadRetrieveReadApproach(ChatApproach):
                         doc.storage_url = doc.storage_url or raw.get("storageUrl", raw.get("storage_url", raw.get("url", "")))
                         # updated could be named differently
                         doc.updated = doc.updated or raw.get("updated", raw.get("last_updated", raw.get("date_updated", "")))
+                        # Subsection fields for accurate citation navigation
+                        doc.subsection_id = doc.subsection_id or raw.get("subsection_id", "")
+                        doc.subsections = doc.subsections or raw.get("subsections", [])
                         # Content: keep agent content if present; otherwise hydrate
                         if not doc.content:
                             doc.content = raw.get(self.content_field, raw.get("content", ""))

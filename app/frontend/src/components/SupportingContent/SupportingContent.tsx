@@ -128,12 +128,65 @@ export const SupportingContent = ({ supportingContent, activeCitationReference, 
     // Add a tiny helper to remove only the optional leading "[n]: " prefix without touching other whitespace
     const stripLeadingIndexPrefix = (s: string) => s.replace(/^\[\d+\]:\s?/, "");
 
+    // Visual-only cleanup for supporting content display (preserves original for matching/highlighting)
+    const cleanSupportingContentForDisplay = (s: string) => {
+        // Visual-only cleanup: preserve line structure for readability
+        const lines = s.split(/\r?\n/);
+        const cleaned = lines.map(line => {
+            let updated = line;
+            // Remove markdown heading markers like "## 1.1" but keep the number/text
+            updated = updated.replace(/^##\s*/g, "");
+            // Remove inline bracketed metadata blocks, wherever they appear in the line
+            updated = updated.replace(/\[[^\]]*(PRACTICE\s*DIRECTION|PD\s*\d+|PART\s+\d+|SECTION\s+\d+|APPENDIX|>)[^\]]*\]\s*/gi, "");
+            return updated;
+        });
+
+        // Drop standalone bracketed metadata lines (e.g., [PRACTICE DIRECTION ... > 1.1 ...])
+        const filtered = cleaned.filter(line => {
+            const trimmed = line.trim();
+            if (!trimmed.startsWith("[") || !trimmed.endsWith("]")) {
+                return true;
+            }
+            // Keep numeric citations like [1] if they ever appear here
+            if (/^\[\d+\]$/.test(trimmed)) {
+                return true;
+            }
+            // Remove metadata lines with bracketed titles or section markers
+            const isMetadata = /\b(PRACTICE\s*DIRECTION|PD\s*\d+|PART\s+\d+|SECTION\s+\d+|APPENDIX|>)/i.test(trimmed);
+            return !isMetadata;
+        });
+
+        // Add a blank line between numbered subsections for readability
+        const withSpacing: string[] = [];
+        for (let i = 0; i < filtered.length; i++) {
+            const line = filtered[i];
+            const trimmed = line.trim();
+            const isNumbered = /^\d+(?:\.\d+)?\b/.test(trimmed);
+            const prev = withSpacing.length > 0 ? withSpacing[withSpacing.length - 1] : "";
+            const prevIsBlank = prev.trim() === "";
+            if (isNumbered && withSpacing.length > 0 && !prevIsBlank) {
+                withSpacing.push("");
+            }
+            withSpacing.push(line);
+        }
+
+        return withSpacing.join("\n");
+    };
+
+    const normalizeSubsectionToken = (s?: string) =>
+        (s || "")
+            .trim()
+            .replace(/\s+/g, " ")
+            .replace(/[\s.:]+$/, "")
+            .toLowerCase();
+
     // Enhanced content rendering with subsection highlighting
     const renderContent = (content: string, isHighlighted: boolean = false, targetSubsection?: string, sourceInfo?: string) => {
         if (!content) return null;
 
         // NO CLEANING - Use the original content structure as created in the search index
         const originalContent = stripLeadingIndexPrefix(content); // Only drop a leading "[n]: " if present
+        const displayContent = cleanSupportingContentForDisplay(originalContent);
 
         // If we have a target subsection and this item is highlighted, highlight that section within the full content
         if (isHighlighted && targetSubsection) {
@@ -156,7 +209,7 @@ export const SupportingContent = ({ supportingContent, activeCitationReference, 
                     `<mark id="highlighted-subsection" title="${escapedSourceInfo}" style="background-color:#3b82f6;color:#fff;padding:0 4px;border-radius:4px;display:inline;line-height:inherit;scroll-margin-top:20px;">` +
                     subsectionContent +
                     `</mark>`;
-                const highlightedContent = beforeSubsection + highlightedSubsection + afterSubsection;
+                const highlightedContent = cleanSupportingContentForDisplay(beforeSubsection + highlightedSubsection + afterSubsection);
 
                 return (
                     <div className={styles.itemContent}>
@@ -169,13 +222,18 @@ export const SupportingContent = ({ supportingContent, activeCitationReference, 
             } else {
                 console.warn(`Could not find subsection ${targetSubsection} in content`);
                 console.log(`Content starts with: ${originalContent.substring(0, 200)}...`);
+                return (
+                    <div className={styles.itemContent}>
+                        <pre style={{ whiteSpace: "pre-wrap", fontFamily: "inherit", margin: 0, lineHeight: "1.4" }}>{displayContent}</pre>
+                    </div>
+                );
             }
         }
 
         // Show original content without any cleaning to preserve index structure
         return (
             <div className={styles.itemContent}>
-                <pre style={{ whiteSpace: "pre-wrap", fontFamily: "inherit", margin: 0, lineHeight: "1.4" }}>{originalContent}</pre>
+                <pre style={{ whiteSpace: "pre-wrap", fontFamily: "inherit", margin: 0, lineHeight: "1.4" }}>{displayContent}</pre>
             </div>
         );
     };
@@ -191,6 +249,7 @@ export const SupportingContent = ({ supportingContent, activeCitationReference, 
 
         for (let i = 0; i < displayedItems.length; i++) {
             const parsedItem = parseSupportingContentItem(displayedItems[i]);
+            const rawItem: any = displayedItems[i];
             let score = 0;
 
             console.log(`Checking displayed item ${i}:`, {
@@ -245,11 +304,24 @@ export const SupportingContent = ({ supportingContent, activeCitationReference, 
                     const patterns = [new RegExp(`(^|\\n)\\s*${escaped}\\b`, "i"), new RegExp(`\\b${escaped}\\b`, "i")];
                     const found = patterns.some(p => p.test(content));
                     if (!found) {
-                        console.log(`Subsection '${subsection}' not found in item ${i} content, skipping`);
-                        continue; // do not consider this item at all
+                        const normalizedSubsection = normalizeSubsectionToken(subsection);
+                        const normalizedMetaSubsection = normalizeSubsectionToken(rawItem?.subsection_id);
+                        const sourcepageMatches =
+                            parsedItem.sourcepage === sourcePage ||
+                            (parsedItem.sourcepage && sourcePage && (parsedItem.sourcepage.includes(sourcePage) || sourcePage.includes(parsedItem.sourcepage)));
+                        const subsectionMetaMatch = normalizedSubsection && normalizedMetaSubsection && normalizedSubsection === normalizedMetaSubsection;
+
+                        if (sourcepageMatches || subsectionMetaMatch) {
+                            console.log(`Subsection '${subsection}' not found in content for item ${i}; using metadata fallback`);
+                            score += 15;
+                        } else {
+                            console.log(`Subsection '${subsection}' not found in item ${i} content, skipping`);
+                            continue; // do not consider this item at all
+                        }
+                    } else {
+                        // If present, add a high score
+                        score += 40;
                     }
-                    // If present, add a high score
-                    score += 40;
                 }
             } else if (citationParts.length === 2) {
                 // Two-part citation: could be (subsection, sourcefile) or (sourcepage, sourcefile)

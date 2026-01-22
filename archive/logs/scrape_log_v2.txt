@@ -1,0 +1,4 @@
+  File "/Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2/scripts/legal-scraper/scrape_cpr.py", line 273
+    frOptimized for embedding-3 models (8k limit) - using 4000 tokens per chunk
+                                        ^
+SyntaxError: invalid decimal literal

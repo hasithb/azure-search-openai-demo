@@ -35,6 +35,7 @@ class CitationBuilder:
     # Pattern for detecting subsection markers in content
     CONTENT_SUBSECTION_PATTERNS = [
         r'^([A-Z]\d+\.\d+)\b',           # A4.1, B2.3, etc.
+        r'^([A-Z]\.\d+(?:\.\d+)?)\b',   # C.2, F.1, A.1.1, etc.
         r'^(\d+\.\d+)\b',                # 1.1, 2.3, etc.
         r'^([A-Z]\d+)\b',                # A1, B2, etc.
         r'^(Rule \d+(?:\.\d+)?)\b',      # Rule 1, Rule 1.1
@@ -53,6 +54,7 @@ class CitationBuilder:
     # Pattern for direct subsection in sourcepage
     DIRECT_SUBSECTION_PATTERNS = [
         r'^([A-Z]\d+\.\d+)\b',           # A4.1, B2.3, etc.
+        r'^([A-Z]\.\d+(?:\.\d+)?)\b',   # C.2, F.1, A.1.1, etc.
         r'^(\d+\.\d+)\b',                # 1.1, 2.3, etc.
         r'^([A-Z]\d+)\b',                # A1, B2, etc.
         r'^(Rule \d+(?:\.\d+)?)\b',      # Rule 1, Rule 1.1
@@ -65,6 +67,7 @@ class CitationBuilder:
         r'(?P<rule>Rule\s+\d+(?:\.\d+)?)|'
         r'(?P<cpr>CPR\s+\d+(?:\.\d+)?)|'
         r'(?P<para>Para(?:graph)?\s+\d+(?:\.\d+)?)|'
+        r'(?P<alpha_dot_num>[A-Z]\.\d+(?:\.\d+)?)|'
         r'(?P<alpha_num_dotted>[A-Z]\d+\.\d+)|'
         r'(?P<num_dotted>\d+\.\d+)|'
         r'(?P<alpha_num>[A-Z]\d+)'
@@ -131,7 +134,8 @@ class CitationBuilder:
         Extract subsection identifier from document content or sourcepage.
         
         Priority:
-        1. Content text (first 20 lines)
+        0. Indexed subsection_id field (preferred)
+        1. Content text (first 30 lines)
         2. Encoded sourcepage (e.g., "PD3E-1.1")
         3. Direct sourcepage patterns
         
@@ -143,10 +147,17 @@ class CitationBuilder:
         Returns:
             Subsection string (e.g., "1.1", "A4.1", "Rule 31.1") or empty string
         """
+        # Priority 0: Use indexed subsection_id if available
+        indexed_subsection = getattr(doc, 'subsection_id', None)
+        if isinstance(indexed_subsection, str):
+            indexed_subsection = indexed_subsection.strip()
+            if indexed_subsection:
+                return indexed_subsection
+        
         content = getattr(doc, 'content', '') or ''
         sourcepage = getattr(doc, 'sourcepage', '') or ''
         
-        # Priority 1: Check content
+        # Priority 1: Check content (fallback for backward compatibility) (fallback for backward compatibility)
         if content:
             lines = content.split('\n')[:20]
             for line in lines:
@@ -216,7 +227,12 @@ class CitationBuilder:
             line = raw.strip()
             if not line or line == "---":
                 continue
-            m = self.MULTI_SUBSECTION_PATTERN.match(line)
+            
+            # Clean formatting for pattern matching (Markdown & Breadcrumbs)
+            clean_line = re.sub(r'^#+\s*', '', line)  # Strip Markdown headers
+            clean_line = re.sub(r'^\[.*?\]\s*', '', clean_line)  # Strip Breadcrumbs
+            
+            m = self.MULTI_SUBSECTION_PATTERN.match(clean_line)
             if not m:
                 continue
             label = m.group(0)
