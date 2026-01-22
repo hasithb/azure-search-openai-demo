@@ -2,6 +2,8 @@ import { ChatAppResponse } from "../../api";
 // CUSTOM: Import citation sanitization from isolated customizations folder
 // After upstream merge, ensure this import exists - it's the only change needed
 import { sanitizeCitations, collapseAdjacentCitations, fixMalformedCitations } from "../../customizations/citationSanitizer";
+// CUSTOM: Paragraph formatting for long single-block answers
+import { formatAnswerParagraphs, isFeatureEnabled } from "../../customizations";
 
 // Re-export for backward compatibility with existing tests
 export { sanitizeCitations, collapseAdjacentCitations, fixMalformedCitations };
@@ -43,6 +45,11 @@ export function parseAnswerToHtml(answer: ChatAppResponse, isStreaming: boolean)
             }
         }
         parsedAnswer = parsedAnswer.substring(0, lastIndex);
+    }
+
+    // CUSTOM: Add paragraph breaks to long single-block answers for readability
+    if (!isStreaming && isFeatureEnabled("answerParagraphs")) {
+        parsedAnswer = formatAnswerParagraphs(parsedAnswer);
     }
 
     // Check if we have enhanced citations but no numbered citations in content
@@ -163,15 +170,22 @@ function asDataPointsArray(contextDataPoints: any): any[] {
     return [];
 }
 
+// Helper: parse citation label with commas in sourcepage/sourcefile
+function parseCitationLabelParts(citation: string): { subsection: string; sourcePage: string; document: string; parts: string[] } {
+    const parts = (citation || "")
+        .split(",")
+        .map(p => p.trim())
+        .filter(Boolean);
+    const subsection = parts.length >= 3 ? parts[0] : "";
+    const sourcePage = parts.length >= 3 ? parts.slice(1, -1).join(", ") : parts.length === 2 ? parts[0] : "";
+    const document = parts.length >= 1 ? parts[parts.length - 1] : "";
+    return { subsection, sourcePage, document, parts };
+}
+
 // Helper: try to fix mixed/misaligned citation labels using index fields
 function fixInconsistentCitation(enhancedCitation: string, contextDataPoints: any): string {
-    const parts = (enhancedCitation || "").split(",").map(p => p.trim());
+    const { subsection, sourcePage, document, parts } = parseCitationLabelParts(enhancedCitation);
     if (parts.length < 2) return enhancedCitation;
-
-    // Extract subsection, sourcePage, document (if present)
-    const subsection = parts.length >= 3 ? parts[0] : "";
-    const sourcePage = parts.length >= 2 ? parts[parts.length - 2] : "";
-    const document = parts.length >= 1 ? parts[parts.length - 1] : "";
 
     // If we don’t have a subsection, nothing to validate
     if (!subsection) return enhancedCitation;
@@ -332,7 +346,7 @@ function getCitationContentFromContext(contextDataPoints: any, citation: string)
     }
 
     // Parse the citation format - handle both two-part and three-part citations
-    const citationParts = citation.split(",").map((p: string) => p.trim());
+    const { sourcePage, document, parts: citationParts } = parseCitationLabelParts(citation);
 
     if (citationParts.length < 2) {
         console.log("Citation has less than 2 parts, trying direct match");
@@ -354,9 +368,6 @@ function getCitationContentFromContext(contextDataPoints: any, citation: string)
     }
 
     // For multi-part citations, extract the last two parts as source page and document
-    const sourcePage = citationParts[citationParts.length - 2];
-    const document = citationParts[citationParts.length - 1];
-
     console.log("Looking for sourcePage:", sourcePage, "document:", document);
 
     // Match based on sourcepage and sourcefile from search results

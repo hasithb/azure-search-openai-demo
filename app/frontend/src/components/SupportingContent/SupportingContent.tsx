@@ -156,18 +156,40 @@ export const SupportingContent = ({ supportingContent, activeCitationReference, 
             return !isMetadata;
         });
 
+        const insertSubsectionBreaks = (line: string) => {
+            let updated = line;
+
+            // Insert breaks before inline numeric subsections like "1.2" when chained in one line
+            updated = updated.replace(/(\s)(\d+\.\d+(?:\.\d+)?)(?=\s+[^\d])/g, "$1\n\n$2");
+
+            // Insert breaks before inline court guide markers like "A.1", "A1.1", "D5.1"
+            updated = updated.replace(/(\s)([A-Z]\.??\d+(?:\.\d+)*)(?=\s+[^\d])/g, "$1\n\n$2");
+
+            // Insert breaks before single-level section headings like "3. Duties"
+            updated = updated.replace(/(\s)(\d+\.)(?=\s+[A-Z])/g, "$1\n\n$2");
+
+            // Insert breaks before inline structured markers like "Appendix 2" or "Part 7"
+            updated = updated.replace(/(\s)((?:Appendix|Part|Section|Chapter|Rule|Para)\s+\d+)(?=\s*[:–-]?\s+)/gi, "$1\n\n$2");
+
+            return updated;
+        };
+
         // Add a blank line between numbered subsections for readability
         const withSpacing: string[] = [];
         for (let i = 0; i < filtered.length; i++) {
-            const line = filtered[i];
-            const trimmed = line.trim();
-            const isNumbered = /^\d+(?:\.\d+)?\b/.test(trimmed);
-            const prev = withSpacing.length > 0 ? withSpacing[withSpacing.length - 1] : "";
-            const prevIsBlank = prev.trim() === "";
-            if (isNumbered && withSpacing.length > 0 && !prevIsBlank) {
-                withSpacing.push("");
+            const line = insertSubsectionBreaks(filtered[i]);
+            const splitLines = line.split(/\n/);
+            for (const part of splitLines) {
+                const trimmed = part.trim();
+                const isNumbered = /^\d+(?:\.\d+)?\b/.test(trimmed);
+                const isLettered = /^[A-Z]\.??\d+(?:\.\d+)*\b/.test(trimmed);
+                const prev = withSpacing.length > 0 ? withSpacing[withSpacing.length - 1] : "";
+                const prevIsBlank = prev.trim() === "";
+                if ((isNumbered || isLettered) && withSpacing.length > 0 && !prevIsBlank) {
+                    withSpacing.push("");
+                }
+                withSpacing.push(part);
             }
-            withSpacing.push(line);
         }
 
         return withSpacing.join("\n");
@@ -179,6 +201,27 @@ export const SupportingContent = ({ supportingContent, activeCitationReference, 
             .replace(/\s+/g, " ")
             .replace(/[\s.:]+$/, "")
             .toLowerCase();
+
+    const normalizeMatchText = (s?: string) => (s || "").toLowerCase().replace(/\s+/g, " ").trim();
+
+    // CUSTOM: Convert cleaned supporting content into paragraph HTML using \n\n or markdown-style spacing
+    const formatSupportingContentHtml = (text: string) => {
+        const normalized = text.replace(/\r\n/g, "\n").trim();
+        if (!normalized) return "";
+
+        const paragraphs = normalized.split(/\n\s*\n+/g);
+        return paragraphs
+            .map(paragraph => {
+                const lines = paragraph
+                    .split(/\n/g)
+                    .map(line => line.trimEnd())
+                    .filter(Boolean);
+                if (lines.length === 0) return "";
+                return `<p>${lines.join("<br/>")}</p>`;
+            })
+            .filter(Boolean)
+            .join("");
+    };
 
     // Enhanced content rendering with subsection highlighting
     const renderContent = (content: string, isHighlighted: boolean = false, targetSubsection?: string, sourceInfo?: string) => {
@@ -210,30 +253,33 @@ export const SupportingContent = ({ supportingContent, activeCitationReference, 
                     subsectionContent +
                     `</mark>`;
                 const highlightedContent = cleanSupportingContentForDisplay(beforeSubsection + highlightedSubsection + afterSubsection);
+                const formattedHighlightedContent = formatSupportingContentHtml(highlightedContent);
 
                 return (
                     <div className={styles.itemContent}>
                         <div
-                            style={{ whiteSpace: "pre-wrap", fontFamily: "inherit", margin: 0, lineHeight: "1.4" }}
-                            dangerouslySetInnerHTML={{ __html: highlightedContent }}
+                            style={{ fontFamily: "inherit", margin: 0, lineHeight: "1.4" }}
+                            dangerouslySetInnerHTML={{ __html: formattedHighlightedContent }}
                         />
                     </div>
                 );
             } else {
                 console.warn(`Could not find subsection ${targetSubsection} in content`);
                 console.log(`Content starts with: ${originalContent.substring(0, 200)}...`);
+                const formattedDisplayContent = formatSupportingContentHtml(displayContent);
                 return (
                     <div className={styles.itemContent}>
-                        <pre style={{ whiteSpace: "pre-wrap", fontFamily: "inherit", margin: 0, lineHeight: "1.4" }}>{displayContent}</pre>
+                        <div style={{ fontFamily: "inherit", margin: 0, lineHeight: "1.4" }} dangerouslySetInnerHTML={{ __html: formattedDisplayContent }} />
                     </div>
                 );
             }
         }
 
         // Show original content without any cleaning to preserve index structure
+        const formattedDisplayContent = formatSupportingContentHtml(displayContent);
         return (
             <div className={styles.itemContent}>
-                <pre style={{ whiteSpace: "pre-wrap", fontFamily: "inherit", margin: 0, lineHeight: "1.4" }}>{displayContent}</pre>
+                <div style={{ fontFamily: "inherit", margin: 0, lineHeight: "1.4" }} dangerouslySetInnerHTML={{ __html: formattedDisplayContent }} />
             </div>
         );
     };
@@ -258,21 +304,37 @@ export const SupportingContent = ({ supportingContent, activeCitationReference, 
                 category: parsedItem.category
             });
 
-            const citationParts = citation.split(",").map(p => p.trim());
+            const normalizedCitation = citation.replace(/^\s*\d+\.\s+/, "");
+            const citationParts = normalizedCitation
+                .split(",")
+                .map(p => p.trim())
+                .filter(Boolean);
+
+            const parsedSubsection = parseSubsectionFromCitation(normalizedCitation) || "";
 
             if (citationParts.length >= 3) {
                 const subsection = citationParts[0];
                 const sourcePage = citationParts[1];
-                const document = citationParts[2];
+                const document = citationParts.slice(2).join(", ");
 
                 console.log(`Citation parts:`, { subsection, sourcePage, document });
 
-                // Document must match
-                if (!(parsedItem.sourcefile === document || parsedItem.sourcefile?.includes(document))) {
+                const sourcepageMatches =
+                    normalizeMatchText(parsedItem.sourcepage) === normalizeMatchText(sourcePage) ||
+                    (parsedItem.sourcepage && sourcePage && normalizeMatchText(parsedItem.sourcepage).includes(normalizeMatchText(sourcePage))) ||
+                    (parsedItem.sourcepage && sourcePage && normalizeMatchText(sourcePage).includes(normalizeMatchText(parsedItem.sourcepage)));
+
+                const documentMatches =
+                    normalizeMatchText(parsedItem.sourcefile) === normalizeMatchText(document) ||
+                    (parsedItem.sourcefile && document && normalizeMatchText(parsedItem.sourcefile).includes(normalizeMatchText(document))) ||
+                    (document && normalizeMatchText(document).includes(normalizeMatchText(parsedItem.sourcefile || "")));
+
+                if (documentMatches) {
+                    score += 10;
+                } else if (!sourcepageMatches) {
                     console.log(`Document mismatch for item ${i}: expected '${document}', got '${parsedItem.sourcefile}'`);
                     continue;
                 }
-                score += 10;
 
                 // Sourcepage: prefer exact, otherwise light partial
                 if (parsedItem.sourcepage && sourcePage) {
@@ -294,17 +356,18 @@ export const SupportingContent = ({ supportingContent, activeCitationReference, 
                 }
 
                 // STRICT: if we have a subsection, it MUST appear in the content to be a valid match
-                if (subsection && subsection.length > 1) {
+                const subsectionToken = parsedSubsection || subsection;
+                if (subsectionToken && subsectionToken.length > 1) {
                     const content = parsedItem.content || "";
                     if (!content) {
                         console.log(`Item ${i} has no content to check subsection presence`);
                         continue;
                     }
-                    const escaped = subsection.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+                    const escaped = subsectionToken.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
                     const patterns = [new RegExp(`(^|\\n)\\s*${escaped}\\b`, "i"), new RegExp(`\\b${escaped}\\b`, "i")];
                     const found = patterns.some(p => p.test(content));
                     if (!found) {
-                        const normalizedSubsection = normalizeSubsectionToken(subsection);
+                        const normalizedSubsection = normalizeSubsectionToken(subsectionToken);
                         const normalizedMetaSubsection = normalizeSubsectionToken(rawItem?.subsection_id);
                         const sourcepageMatches =
                             parsedItem.sourcepage === sourcePage ||
@@ -327,28 +390,54 @@ export const SupportingContent = ({ supportingContent, activeCitationReference, 
                 // Two-part citation: could be (subsection, sourcefile) or (sourcepage, sourcefile)
                 const partA = citationParts[0];
                 const partB = citationParts[1];
+                const dashParts = partA.split(/\s*[-–]\s*/);
+                const dashSubsection = dashParts[0]?.trim() || "";
+                const dashDocument = dashParts.length > 1 ? dashParts.slice(1).join(" - ").trim() : "";
+                const subsectionToken = parsedSubsection || dashSubsection || partA;
+                const inferredDocument = dashDocument || "";
+                const inferredSourcePage = partB;
 
-                console.log(`Two-part citation:`, { partA, partB });
+                console.log(`Two-part citation:`, { partA, partB, dashSubsection, dashDocument, inferredDocument, inferredSourcePage });
 
-                // Check if partB matches sourcefile
-                if (parsedItem.sourcefile === partB || parsedItem.sourcefile?.includes(partB) || partB.includes(parsedItem.sourcefile || "")) {
+                const sourcepageMatches =
+                    normalizeMatchText(parsedItem.sourcepage) === normalizeMatchText(inferredSourcePage) ||
+                    (parsedItem.sourcepage &&
+                        inferredSourcePage &&
+                        normalizeMatchText(parsedItem.sourcepage).includes(normalizeMatchText(inferredSourcePage))) ||
+                    (parsedItem.sourcepage && inferredSourcePage && normalizeMatchText(inferredSourcePage).includes(normalizeMatchText(parsedItem.sourcepage)));
+
+                const documentMatches =
+                    !!inferredDocument &&
+                    (normalizeMatchText(parsedItem.sourcefile) === normalizeMatchText(inferredDocument) ||
+                        (parsedItem.sourcefile && normalizeMatchText(parsedItem.sourcefile).includes(normalizeMatchText(inferredDocument))) ||
+                        normalizeMatchText(inferredDocument).includes(normalizeMatchText(parsedItem.sourcefile || "")));
+
+                if (documentMatches) {
                     score += 30;
                     console.log(`Document match for two-part citation`);
+                } else if (sourcepageMatches) {
+                    score += 25;
+                    console.log(`Sourcepage match for two-part citation`);
+                } else {
+                    console.log(`Document/sourcepage mismatch for two-part citation`);
+                    continue;
+                }
 
-                    // Check if partA is in the content (subsection) or matches sourcepage
-                    if (parsedItem.sourcepage === partA) {
-                        score += 20;
-                    } else if (parsedItem.content) {
-                        const escaped = partA.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-                        const patterns = [new RegExp(`(^|\\n)\\s*${escaped}\\b`, "i"), new RegExp(`\\b${escaped}\\b`, "i")];
-                        if (patterns.some(p => p.test(parsedItem.content || ""))) {
-                            score += 25;
-                            console.log(`Subsection '${partA}' found in content`);
+                // Check subsection presence in content or metadata
+                if (subsectionToken && parsedItem.content) {
+                    const escaped = subsectionToken.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+                    const patterns = [new RegExp(`(^|\\n)\\s*${escaped}\\b`, "i"), new RegExp(`\\b${escaped}\\b`, "i")];
+                    if (patterns.some(p => p.test(parsedItem.content || ""))) {
+                        score += 25;
+                        console.log(`Subsection '${subsectionToken}' found in content`);
+                    } else if (parsedSubsection) {
+                        const normalizedSubsection = normalizeSubsectionToken(subsectionToken);
+                        const normalizedMetaSubsection = normalizeSubsectionToken(rawItem?.subsection_id);
+                        if (normalizedSubsection && normalizedMetaSubsection && normalizedSubsection === normalizedMetaSubsection) {
+                            score += 15;
+                            console.log(`Subsection '${subsectionToken}' matched metadata`);
                         }
                     }
-                } else {
-                    console.log(`Document mismatch for two-part citation`);
-                    continue;
                 }
             } else {
                 // Single-part or legacy format

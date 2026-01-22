@@ -148,6 +148,8 @@ export function extractSubsectionContent(fullContent: string, targetSubsection: 
         new RegExp(`(^|\\n)\\s*#{1,6}\\s*${escapedSubsection}\\s*(\\n|\\s|$)`, "i"),
         // Breadcrumb format: [PART 35 > 35.1] or [CPR > 35.1]
         new RegExp(`(^|\\n)\\s*\\[[^\\]]*>\\s*${escapedSubsection}\\s*\\]\\s*(\\n|\\s|$)`, "i"),
+        // Bracketed subsection markers used in some court guides: [D5.6] or [A.1]
+        new RegExp(`(^|\\n)\\s*\\[\\s*${escapedSubsection}\\s*\\]\\s*(\\n|\\s|$)`, "i"),
         // Exact match at start of line or after newline
         new RegExp(`(^|\\n)\\s*${escapedSubsection}\\s*(\\n|\\s|$)`, "i"),
         // Match with optional formatting and punctuation
@@ -212,7 +214,10 @@ export function extractSubsectionContent(fullContent: string, targetSubsection: 
         /\n\s*===+/i,
 
         // Double newlines preceding another structured identifier (e.g., "D5.2" or "Rule 3.1")
-        /\n\s*\n\s*((?:[A-Z]\.?(?:\d+(?:\.\d+)*))|(?:\d+\.\d+(?:\.\d+)?)|(?:Rule\s+\d+)|(?:Para\s+\d+)|(?:Section\s+\d+)|(?:Chapter\s+\d+)|(?:Part\s+\d+))/i
+        /\n\s*\n\s*((?:[A-Z]\.?\d+(?:\.\d+)*)|(?:\d+\.\d+(?:\.\d+)?)|(?:Rule\s+\d+)|(?:Para\s+\d+)|(?:Section\s+\d+)|(?:Chapter\s+\d+)|(?:Part\s+\d+))/i,
+
+        // Court guide style: subsection markers separated by blank lines
+        /\n\s*\n\s*((?:[A-Z]\.?\d+(?:\.\d+)*)|(?:\d+\.\d+(?:\.\d+)?)|(?:Rule\s+\d+)|(?:Para\s+\d+))/i
     ];
 
     // Search for the earliest boundary across all patterns (not the first that happens to match)
@@ -273,12 +278,19 @@ function escapeRegExp(string: string): string {
 export function parseSubsectionFromCitation(citation: string): string | null {
     if (!citation) return null;
 
+    const normalizedCitation = citation.replace(/^\s*\d+\.\s+/, "");
+
     // Parse three-part citation format: [subsection, source, document]
-    const citationParts = citation.split(",").map(p => p.trim());
+    const citationParts = normalizedCitation
+        .split(",")
+        .map(p => p.trim())
+        .filter(Boolean);
+    const rawSubsection = citationParts.length > 0 ? citationParts[0] : "";
 
-    if (citationParts.length >= 3) {
-        const subsection = citationParts[0].trim();
+    // Support display labels like "D.7.5 - D. Case Management..." (dash-delimited)
+    const subsection = rawSubsection.split(/\s*[-–]\s*/)[0].trim();
 
+    if (subsection) {
         // Comprehensive validation for all legal document subsection formats
         const subsectionPatterns = [
             // Numeric patterns
@@ -286,6 +298,7 @@ export function parseSubsectionFromCitation(citation: string): string | null {
 
             // Letter-Number combinations
             /^([A-Z]\.\d+)$/i, // A.1, B.2, D.5, E.3
+            /^([A-Z]\.\d+(?:\.\d+)*)$/i, // D.7.1, A.1.2
             /^([A-Z]\d+\.?\d*)$/i, // A1, B2, D5, A1.1, B2.3
 
             // Letter-Dot-Word patterns (with flexible spacing)

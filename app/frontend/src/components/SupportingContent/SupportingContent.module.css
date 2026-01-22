@@ -65,6 +65,14 @@
     line-height: 1.4;
 }
 
+.itemContent p {
+    margin: 0 0 0.75rem 0;
+}
+
+.itemContent p:last-child {
+    margin-bottom: 0;
+}
+
 .itemContent pre {
     white-space: pre-wrap;
     word-wrap: break-word;

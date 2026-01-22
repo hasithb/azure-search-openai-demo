@@ -132,6 +132,31 @@ export const Answer = ({
         return [];
     };
 
+    // Parse citation label into stable parts (handles commas in sourcepage/sourcefile)
+    const parseCitationLabel = (citation: string) => {
+        const parts = citation
+            .split(",")
+            .map(p => p.trim())
+            .filter(Boolean);
+
+        if (parts.length >= 3) {
+            return {
+                subsection: parts[0],
+                sourcePage: parts.slice(1, -1).join(", "),
+                sourceFile: parts[parts.length - 1]
+            };
+        }
+
+        if (parts.length === 2) {
+            return {
+                partA: parts[0],
+                partB: parts[1]
+            };
+        }
+
+        return { single: citation };
+    };
+
     // Enhanced function to find matching content for a citation
     const findMatchingSupportingContent = useCallback(
         (citation: string) => {
@@ -140,19 +165,22 @@ export const Answer = ({
             }
 
             const dataPointsArray = getDataPointsArray(answer.context.data_points);
-            const citationParts = citation.split(",").map(p => p.trim());
+            const parsedCitation = parseCitationLabel(citation);
 
             console.log("Finding matching content for citation:", {
                 citation,
-                parts: citationParts,
+                parsedCitation,
                 dataPointsLength: dataPointsArray.length
             });
 
+            const isCourtGuideCategory = (value?: string) => {
+                if (!value) return false;
+                return value.toLowerCase() !== "civil procedure rules and practice directions".toLowerCase();
+            };
+
             // Three-part citations: subsection, sourcePage, sourceFile
-            if (citationParts.length >= 3) {
-                const subsection = citationParts[0];
-                const sourcePage = citationParts[citationParts.length - 2];
-                const sourceFile = citationParts[citationParts.length - 1];
+            if ("subsection" in parsedCitation && "sourcePage" in parsedCitation && "sourceFile" in parsedCitation) {
+                const { subsection, sourcePage, sourceFile } = parsedCitation;
 
                 // 0) Exact match on all three (subsection_id + sourcepage + sourcefile)
                 const exactAll = dataPointsArray.find(dp => {
@@ -207,13 +235,28 @@ export const Answer = ({
                     return fuzzy;
                 }
 
+                // 4) Court guide fallback: match by sourcefile and optional sourcepage
+                const courtGuideCandidate = dataPointsArray.find(dp => {
+                    const dpSourcefile = String(dp.sourcefile || "").trim();
+                    const dpSourcepage = String(dp.sourcepage || "").trim();
+                    const dpCategory = String(dp.category || "").trim();
+                    if (!isCourtGuideCategory(dpCategory)) return false;
+                    if (!dpSourcefile || dpSourcefile !== sourceFile) return false;
+                    if (!sourcePage) return true;
+                    return dpSourcepage.includes(sourcePage) || sourcePage.includes(dpSourcepage);
+                });
+                if (courtGuideCandidate) {
+                    console.log("Found court guide fallback match:", courtGuideCandidate);
+                    return courtGuideCandidate;
+                }
+
                 console.log("No matching data point found for three-part citation");
                 return undefined;
             }
 
             // Two-part legacy citations
-            if (citationParts.length === 2) {
-                const [partA, partB] = citationParts;
+            if ("partA" in parsedCitation && "partB" in parsedCitation) {
+                const { partA, partB } = parsedCitation;
                 const twoPartExact = dataPointsArray.find(dp => {
                     const dpSourcepage = String(dp.sourcepage || "").trim();
                     const dpSourcefile = String(dp.sourcefile || "").trim();
@@ -285,11 +328,9 @@ export const Answer = ({
 
                     // Build normalized label strictly from citation parts + index fields
                     let normalizedLabel = citationText;
-                    const parts = citationText.split(",").map(p => p.trim());
-                    if (parts.length >= 3) {
-                        const subsection = parts[0]; // keep original subsection like "D5.6"
-                        const sourcePage = parts[parts.length - 2];
-                        const sourceFile = parts[parts.length - 1];
+                    const parsedCitation = parseCitationLabel(citationText);
+                    if ("subsection" in parsedCitation && "sourcePage" in parsedCitation && "sourceFile" in parsedCitation) {
+                        const { subsection, sourcePage, sourceFile } = parsedCitation;
                         normalizedLabel = [subsection, sourcePage, sourceFile].filter(Boolean).join(", ");
                     } else if (matchingSupportingContent) {
                         const sourcePage = matchingSupportingContent.sourcepage || "";
@@ -378,10 +419,16 @@ export const Answer = ({
                             const displayIndex = i + 1;
 
                             // Build normalized label from the citation's own parts (preserve subsection like "D5.6")
-                            const parts = citation.split(",").map(p => p.trim());
-                            let subsection = parts.length >= 3 ? parts[0] : "";
-                            let sourcePage = parts.length >= 2 ? parts[parts.length - 2] : "";
-                            let sourceFile = parts.length >= 1 ? parts[parts.length - 1] : "";
+                            const parsedCitation = parseCitationLabel(citation);
+                            let subsection = "";
+                            let sourcePage = "";
+                            let sourceFile = "";
+
+                            if ("subsection" in parsedCitation && "sourcePage" in parsedCitation && "sourceFile" in parsedCitation) {
+                                subsection = parsedCitation.subsection;
+                                sourcePage = parsedCitation.sourcePage;
+                                sourceFile = parsedCitation.sourceFile;
+                            }
 
                             // If matching content exists, sync sourcepage/sourcefile from it (but keep subsection from citation)
                             if (matchingSupportingContent) {

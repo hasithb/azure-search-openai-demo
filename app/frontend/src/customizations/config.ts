@@ -18,7 +18,10 @@ export const CUSTOM_FEATURES = {
     adminMode: false,
 
     // Show citations panel at bottom of answers (separate from inline citations which always show)
-    showCitationsPanel: true
+    showCitationsPanel: true,
+
+    // Answer formatting - adds paragraph breaks to long single-block answers
+    answerParagraphs: true
 };
 
 export function isFeatureEnabled(featureName: keyof typeof CUSTOM_FEATURES): boolean {

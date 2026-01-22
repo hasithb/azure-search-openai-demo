@@ -18,6 +18,9 @@ export { CUSTOM_FEATURES, isFeatureEnabled, isAdminMode } from "./config";
 // Citation sanitization
 export { sanitizeCitations, fixMalformedCitations, collapseAdjacentCitations } from "./citationSanitizer";
 
+// Answer paragraph formatting
+export { formatAnswerParagraphs } from "./answerParagraphs";
+
 // Category filtering
 export { useCategories } from "./useCategories";
 export type { Category } from "./useCategories";
