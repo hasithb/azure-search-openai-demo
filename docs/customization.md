@@ -9,11 +9,7 @@ This guide provides more details for customizing the RAG chat app.
 - [Using your own data](#using-your-own-data)
 - [Customizing the UI](#customizing-the-ui)
 - [Customizing the backend](#customizing-the-backend)
-  - [Chat/Ask approaches](#chatask-approaches)
-
-    - [Chat approach](#chat-approach)
-    - [Ask approach](#ask-approach)
-
+  - [Chat approach](#chat-approach)
 - [Improving answer quality](#improving-answer-quality)
   - [Identify the problem point](#identify-the-problem-point)
   - [Improving OpenAI ChatCompletion results](#improving-openai-chatcompletion-results)
@@ -32,47 +28,26 @@ The frontend is built using [React](https://reactjs.org/) and [Fluent UI compone
 
 The backend is built using [Quart](https://quart.palletsprojects.com/), a Python framework for asynchronous web applications. The backend code is stored in the `app/backend` folder. The frontend and backend communicate over HTTP using JSON or streamed NDJSON responses. Learn more in the [HTTP Protocol guide](http_protocol.md).
 
-### Chat/Ask approaches
+### Chat approach
 
-Typically, the primary backend code you'll want to customize is the `app/backend/approaches` folder, which contains the classes powering the Chat and Ask tabs. Each class uses a different RAG (Retrieval Augmented Generation) approach, which include system messages that should be changed to match your data
+Typically, the primary backend code you'll want to customize is the `app/backend/approaches` folder, which contains the code and prompts powering the RAG flow.
 
-#### Chat approach
+The RAG flow is implemented in [chatreadretrieveread.py](https://github.com/Azure-Samples/azure-search-openai-demo/blob/main/app/backend/approaches/chatreadretrieveread.py).
 
-The chat tab uses the approach programmed in [chatreadretrieveread.py](https://github.com/Azure-Samples/azure-search-openai-demo/blob/main/app/backend/approaches/chatreadretrieveread.py).
+1. **Query rewriting**: It calls the OpenAI ChatCompletion API to turn the user question into a good search query, using the prompt from [query_rewrite.system.jinja2](https://github.com/Azure-Samples/azure-search-openai-demo/blob/main/app/backend/approaches/prompts/query_rewrite.system.jinja2) and tools from [chat_query_rewrite_tools.json](https://github.com/Azure-Samples/azure-search-openai-demo/blob/main/app/backend/approaches/prompts/chat_query_rewrite_tools.json).
+2. **Search**: It queries Azure AI Search for search results for that query (optionally using the vector embeddings for that query).
+3. **Answering**: It then calls the OpenAI ChatCompletion API to answer the question based on the sources, using the prompts from [chat_answer.system.jinja2](https://github.com/Azure-Samples/azure-search-openai-demo/blob/main/app/backend/approaches/prompts/chat_answer.system.jinja2) and [chat_answer.user.jinja2](https://github.com/Azure-Samples/azure-search-openai-demo/blob/main/app/backend/approaches/prompts/chat_answer.user.jinja2). That call includes the past message history as well (or as many messages fit inside the model's token limit).
 
-1. **Query rewriting**: It calls the OpenAI ChatCompletion API to turn the user question into a good search query, using the prompt and tools from [chat_query_rewrite.prompty](https://github.com/Azure-Samples/azure-search-openai-demo/blob/main/app/backend/approaches/prompts/chat_query_rewrite.prompty).
-1. **Search**: It queries Azure AI Search for search results for that query (optionally using the vector embeddings for that query).
-1. **Answering**: It then calls the OpenAI ChatCompletion API to answer the question based on the sources, using the prompt from [chat_answer_question.prompty](https://github.com/Azure-Samples/azure-search-openai-demo/blob/main/app/backend/approaches/prompts/chat_answer_question.prompty). That call includes the past message history as well (or as many messages fit inside the model's token limit).
+The prompts are currently tailored to the sample data since they start with "Assistant helps the company employees with their healthcare plan questions, and questions about the employee handbook." Modify the [query_rewrite.system.jinja2](https://github.com/Azure-Samples/azure-search-openai-demo/blob/main/app/backend/approaches/prompts/query_rewrite.system.jinja2), [chat_answer.system.jinja2](https://github.com/Azure-Samples/azure-search-openai-demo/blob/main/app/backend/approaches/prompts/chat_answer.system.jinja2), and [chat_answer.user.jinja2](https://github.com/Azure-Samples/azure-search-openai-demo/blob/main/app/backend/approaches/prompts/chat_answer.user.jinja2) prompts to match your data.
 
-The prompts are currently tailored to the sample data since they start with "Assistant helps the company employees with their healthcare plan questions, and questions about the employee handbook." Modify the [chat_query_rewrite.prompty](https://github.com/Azure-Samples/azure-search-openai-demo/blob/main/app/backend/approaches/prompts/chat_query_rewrite.prompty) and [chat_answer_question.prompty](https://github.com/Azure-Samples/azure-search-openai-demo/blob/main/app/backend/approaches/prompts/chat_answer_question.prompty) prompts to match your data.
-
-##### Chat with multimodal feature
+#### Chat with multimodal feature
 
 If you followed the instructions in [the multimodal guide](multimodal.md) to enable multimodal RAG,
 there are several differences in the chat approach:
 
 1. **Query rewriting**: Unchanged.
-1. **Search**: For this step, it calculates a vector embedding for the user question using [the Azure AI Vision vectorize text API](https://learn.microsoft.com/azure/ai-services/computer-vision/how-to/image-retrieval#call-the-vectorize-text-api), and passes that to the Azure AI Search to compare against the image embedding fields in the indexed documents. For each matching document, it downloads each associated image from Azure Blob Storage and converts it to a base 64 encoding.
-1. **Answering**: When it combines the search results and user question, it includes the base 64 encoded images, and sends along both the text and images to the multimodal LLM. The model generates a response that includes citations to the images, and the UI renders the images when a citation is clicked.
-
-The settings can be customized to disable calculating the image vector embeddings or to disable sending image inputs to the LLM, if desired.
-
-#### Ask approach
-
-The ask tab uses the approach programmed in [retrievethenread.py](https://github.com/Azure-Samples/azure-search-openai-demo/blob/main/app/backend/approaches/retrievethenread.py).
-
-1. **Search**: It queries Azure AI Search for search results for the user question (optionally using the vector embeddings for that question).
-1. **Answering**: It then combines the search results and user question, and calls the OpenAI ChatCompletion API to answer the question based on the sources, using the prompt from [ask_answer_question.prompty](https://github.com/Azure-Samples/azure-search-openai-demo/blob/main/app/backend/approaches/prompts/ask_answer_question.prompty).
-
-The prompt for step 2 is currently tailored to the sample data since it starts with "Assistant helps the company employees with their questions about internal documents." Modify [ask_answer_question.prompty](https://github.com/Azure-Samples/azure-search-openai-demo/blob/main/app/backend/approaches/prompts/ask_answer_question.prompty) to match your data.
-
-#### Ask with multimodal feature
-
-If you followed the instructions in [the multimodal guide](multimodal.md) to enable multimodal RAG,
-there are several differences in the ask approach:
-
-1. **Search**: For this step, it also calculates a vector embedding for the user question using [the Azure AI Vision vectorize text API](https://learn.microsoft.com/azure/ai-services/computer-vision/how-to/image-retrieval#call-the-vectorize-text-api), and passes that to the Azure AI Search to compare against the image embedding fields in the indexed documents. For each matching document, it downloads each associated image from Azure Blob Storage and converts it to a base 64 encoding.
-1. **Answering**: When it combines the search results and user question, it includes the base 64 encoded images, and sends along both the text and images to the multimodal LLM. The model generates a response that includes citations to the images, and the UI renders the images when a citation is clicked.
+2. **Search**: For this step, it calculates a vector embedding for the user question using [the Azure AI Vision vectorize text API](https://learn.microsoft.com/azure/ai-services/computer-vision/how-to/image-retrieval#call-the-vectorize-text-api), and passes that to the Azure AI Search to compare against the image embedding fields in the indexed documents. For each matching document, it downloads each associated image from Azure Blob Storage and converts it to a base 64 encoding.
+3. **Answering**: When it combines the search results and user question, it includes the base 64 encoded images, and sends along both the text and images to the multimodal LLM. The model generates a response that includes citations to the images, and the UI renders the images when a citation is clicked.
 
 The settings can be customized to disable calculating the image vector embeddings or to disable sending image inputs to the LLM, if desired.
 
@@ -82,21 +57,21 @@ The UI provides a "Developer Settings" menu for customizing the approaches, like
 Those settings are passed in the "context" field of the request to the backend, and are not saved permanently.
 However, if you find a setting that you do want to make permanent, there are two approaches:
 
-1. Change the defaults in the frontend. You'll find the defaults in `Chat.tsx` and `Ask.tsx`. For example, this line of code sets the default retrieval mode to Hybrid:
+1. Change the defaults in the frontend. You'll find the defaults in `Chat.tsx`. For example, this line of code sets the default retrieval mode to Hybrid:
 
-```typescript
+    ```typescript
     const [retrievalMode, setRetrievalMode] = useState<RetrievalMode>(RetrievalMode.Hybrid);
     ```
 
     You can change the default to Text by changing the code to:
 
-```typescript
+    ```typescript
     const [retrievalMode, setRetrievalMode] = useState<RetrievalMode>(RetrievalMode.Text);
     ```
 
-1. Change the overrides in the backend. Each of the approaches has a `run` method that takes a `context` parameter, and the first line of code extracts the overrides from that `context`. That's where you can override any of the settings. For example, to change the retrieval mode to text:
+2. Change the overrides in the backend. Each of the approaches has a `run` method that takes a `context` parameter, and the first line of code extracts the overrides from that `context`. That's where you can override any of the settings. For example, to change the retrieval mode to text:
 
-```python
+    ```python
     overrides = context.get("overrides", {})
     overrides["retrieval_mode"] = "text"
     ```
@@ -114,8 +89,8 @@ If you notice any answers that aren't as good as you'd like, here's a process fo
 The first step is to identify where the problem is occurring. For example, if using the Chat tab, the problem could be:
 
 1. OpenAI ChatCompletion API is not generating a good search query based on the user question
-1. Azure AI Search is not returning good search results for the query
-1. OpenAI ChatCompletion API is not generating a good answer based on the search results and user question
+2. Azure AI Search is not returning good search results for the query
+3. OpenAI ChatCompletion API is not generating a good answer based on the search results and user question
 
 You can look at the "Thought process" tab in the chat app to see each of those steps,
 and determine which one is the problem.

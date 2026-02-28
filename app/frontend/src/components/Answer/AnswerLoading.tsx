@@ -1,4 +1,3 @@
-import { Stack } from "@fluentui/react";
 import { animated, useSpring } from "@react-spring/web";
 import { useTranslation } from "react-i18next";
 
@@ -8,16 +7,20 @@ import { AnswerIcon } from "./AnswerIcon";
 export const AnswerLoading = () => {
     const { t, i18n } = useTranslation();
     const animatedStyles = useSpring({
-        from: { opacity: 0, transform: "translateY(8px)" },
-        to: { opacity: 1, transform: "translateY(0)" }
+        from: { opacity: 0 },
+        to: { opacity: 1 }
     });
 
     return (
         <animated.div style={{ ...animatedStyles }}>
-            <div className={styles.loadingAnswer}>
-                <div className={styles.loadingDot} />
-                <div className={styles.loadingDot} />
-                <div className={styles.loadingDot} />
+            <div className={styles.answerContainer} style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                <AnswerIcon />
+                <div style={{ flexGrow: 1 }}>
+                    <p className={styles.answerText}>
+                        {t("generatingAnswer")}
+                        <span className={styles.loadingdots} />
+                    </p>
+                </div>
             </div>
         </animated.div>
     );

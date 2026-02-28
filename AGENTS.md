@@ -5,111 +5,18 @@ This file contains instructions for developers working on the Azure Search and O
 Always keep this file up to date with any changes to the codebase or development process.
 If necessary, edit this file to ensure it accurately reflects the current state of the project.
 
-## Custom Features (This Fork)
-
-This fork includes customizations for legal document RAG. See [CUSTOMIZATIONS_README.md](docs/customizations/README.md) for details.
-See [MAINTENANCE_GUIDE.md](docs/MAINTENANCE_GUIDE.md) for operations and update workflows.
-
-Key custom folders:
-
-* app/backend/customizations/: Backend feature flags and custom API routes
-* app/frontend/src/customizations/: Frontend utilities and components
-* evals/: Legal RAG evaluation framework (see below)
-
-These folders are designed to be merge-safe when updating from upstream.
-
-## Legal RAG Evaluation
-
-This fork includes a comprehensive evaluation framework for measuring legal RAG quality. The evaluation achieves **96% precedent matching** across 62 ground truth questions.
-
-### Running Evaluations
-
-```bash
-cd evals
-../.venv/bin/python run_direct_evaluation.py
-```
-
-### Key Metrics
-
-| Metric | Score | Description |
-|--------|-------|-------------|
-| precedent_matching | 96% | Correct source document cited |
-| legal_terminology | 100% | UK legal terms used correctly |
-| statute_citation | 65% | CPR Part/Rule numbers cited |
-
-### Evaluation Files
-
-* evals/run_direct_evaluation.py: Main evaluation script (Azure Search + OpenAI)
-* evals/ground_truth_cpr.jsonl: 62 legal Q&A pairs with source references
-* evals/test_legal_metrics.py: 41 unit tests for legal metrics
-* docs/legal_evaluation.md: Comprehensive evaluation documentation
-
-## Enhanced Feedback System (v1.0)
-
-This fork includes an enhanced feedback system that captures comprehensive diagnostic data while protecting sensitive system prompts from end users.
-
-### Feedback Capabilities
-
-**Deployment Tracking**: Automatically captures:
-
-- Deployment ID and version information
-- Git commit hash for version tracking
-- Model name (gpt-4, gpt-4-turbo, etc.)
-- Environment (production/development)
-
-**Thought Filtering**: Protects system prompts by:
-
-- Automatically filtering admin-only thoughts from API responses
-- Removing `raw_messages` containing system instructions
-- Preserving user-safe thoughts (search queries, retrieved documents)
-- Storing admin-only information separately for debugging
-
-**Data Storage**: Saves feedback with:
-
-- User-visible context (no system prompts)
-- Separate admin files containing full diagnostic data
-- Consent-based storage (respects user privacy choices)
-- Local and Azure Blob Storage support
-
-### Key Files
-
-* app/backend/customizations/thought_filter.py: Filters system prompts from thoughts
-* app/backend/customizations/routes/feedback.py: Enhanced feedback API endpoint with metadata
-* app/backend/customizations/config.py: Deployment metadata functions
-* tests/test_feedback.py: Comprehensive feedback endpoint tests
-* tests/test_thought_filter.py: Unit tests for thought filtering logic
-
-### Running Feedback Tests
-
-```bash
-# Run all feedback tests
-pytest tests/test_feedback.py tests/test_thought_filter.py -v
-
-# Run specific test
-pytest tests/test_feedback.py::test_feedback_filters_admin_only_thoughts -v
-
-# Run with coverage
-pytest tests/test_feedback.py tests/test_thought_filter.py --cov=customizations --cov=app/backend/customizations
-```
-
 ## Overall code layout
 
 * app: Contains the main application code, including frontend and backend.
   * app/backend: Contains the Python backend code, written with Quart framework.
-
     * app/backend/approaches: Contains the different approaches
       * app/backend/approaches/approach.py: Base class for all approaches
-      * app/backend/approaches/retrievethenread.py: Ask approach, just searches and answers
       * app/backend/approaches/chatreadretrieveread.py: Chat approach, includes query rewriting step first
-      * app/backend/approaches/prompts/ask_answer_question.prompty: Prompt used by the Ask approach to answer the question based off sources (CUSTOMIZED for legal domain)
-      * app/backend/approaches/prompts/chat_query_rewrite.prompty: Prompt used to rewrite the query based off search history into a better search query (CUSTOMIZED for legal domain)
+      * app/backend/approaches/promptmanager.py: Manages loading and rendering of Jinja2 prompt templates
+      * app/backend/approaches/prompts/query_rewrite.system.jinja2: Jinja2 template used to rewrite the query based off search history into a better search query
       * app/backend/approaches/prompts/chat_query_rewrite_tools.json: Tools used by the query rewriting prompt
-      * app/backend/approaches/prompts/chat_answer_question.prompty: Prompt used by the Chat approach to actually answer the question based off sources (CUSTOMIZED for legal domain)
-    * app/backend/customizations/: Custom features isolated for merge-safety
-      * app/backend/customizations/config.py: Feature flags and deployment metadata functions
-      * app/backend/customizations/thought_filter.py: Utility for filtering system prompts from thoughts
-      * app/backend/customizations/routes/categories.py: Dynamic categories API endpoint
-      * app/backend/customizations/routes/feedback.py: Enhanced feedback endpoint with deployment tracking (CUSTOM)
+      * app/backend/approaches/prompts/chat_answer.system.jinja2: Jinja2 template for the system message used by the Chat approach to answer questions
+      * app/backend/approaches/prompts/chat_answer.user.jinja2: Jinja2 template for the user message used by the Chat approach, including sources
     * app/backend/prepdocslib: Contains the document ingestion library used by both local and cloud ingestion
       * app/backend/prepdocslib/blobmanager.py: Manages uploads to Azure Blob Storage
       * app/backend/prepdocslib/cloudingestionstrategy.py: Builds the Azure AI Search indexer and skillset for the cloud ingestion pipeline
@@ -133,10 +40,8 @@ pytest tests/test_feedback.py tests/test_thought_filter.py --cov=customizations 
       * app/backend/prepdocslib/textprocessor.py: Processes text chunks for cloud ingestion (merges figures, generates embeddings)
       * app/backend/prepdocslib/textsplitter.py: Splits text into chunks using different strategies
     * app/backend/app.py: The main entry point for the backend application.
-
   * app/functions: Azure Functions used for cloud ingestion custom skills (document extraction, figure processing, text processing). Each function bundles a synchronized copy of `prepdocslib`; run `python scripts/copy_prepdocslib.py` to refresh the local copies if you modify the library.
   * app/frontend: Contains the React frontend code, built with TypeScript, built with vite.
-
     * app/frontend/src/api: Contains the API client code for communicating with the backend.
     * app/frontend/src/components: Contains the React components for the frontend.
     * app/frontend/src/locales: Contains the translation files for internationalization.
@@ -150,11 +55,6 @@ pytest tests/test_feedback.py tests/test_thought_filter.py --cov=customizations 
       * app/frontend/src/locales/ptBR/translation.json: Portuguese translations
       * app/frontend/src/locales/tr/translation.json: Turkish translations
     * app/frontend/src/pages: Contains the main pages of the application
-    * app/frontend/src/customizations/: Custom features isolated for merge-safety
-      * app/frontend/src/customizations/citationSanitizer.ts: Fixes malformed citation formats
-      * app/frontend/src/customizations/useCategories.ts: Hook for dynamic category fetching
-      * app/frontend/src/customizations/config.ts: Frontend feature flags
-
 * infra: Contains the Bicep templates for provisioning Azure resources.
 * tests: Contains the test code, including e2e tests, app integration tests, and unit tests.
 
@@ -186,11 +86,9 @@ When adding a new developer setting, update:
   * app/frontend/src/components/Settings.tsx : Add a UI element for the setting
   * app/frontend/src/locales/*/translations.json: Add a translation for the setting label/tooltip for all languages
   * app/frontend/src/pages/chat/Chat.tsx: Add the setting to the component, pass it to Settings
-  * app/frontend/src/pages/ask/Ask.tsx: Add the setting to the component, pass it to Settings
 
 * backend:
   * app/backend/approaches/chatreadretrieveread.py :  Retrieve from overrides parameter
-  * app/backend/approaches/retrievethenread.py : Retrieve from overrides parameter
   * app/backend/app.py: Some settings may need to be sent down in the /config route.
 
 ## When adding tests for a new feature
@@ -198,7 +96,7 @@ When adding a new developer setting, update:
 All tests are in the `tests` folder and use the pytest framework.
 There are three styles of tests:
 
-* e2e tests: These use playwright to run the app in a browser and test the UI end-to-end. They are in e2e.py and they mock the backend using the snapshots from the app tests.
+* e2e tests: These use playwright to run the app in a browser and test the UI end-to-end. They are in e2e.py and they mock the backend using the snapshots from the app tests. (Before running e2e tests, make sure to run `npm run build` in app/frontend first to build the frontend code.)
 * app integration tests: Mostly in test_app.py, these test the app's API endpoints and use mocks for services like Azure OpenAI and Azure Search.
 * unit tests: The rest of the tests are unit tests that test individual functions and methods. They are in test_*.py files.
 
@@ -232,22 +130,72 @@ When sending pull requests, make sure to follow the PULL_REQUEST_TEMPLATE.md for
 
 ## Upgrading dependencies
 
+### Python backend dependencies
+
 To upgrade a particular package in the backend, use the following command, replacing `<package-name>` with the name of the package you want to upgrade:
 
 ```shell
-cd app/backend && uv pip compile requirements.in -o requirements.txt --python-version 3.10 --upgrade-package package-name
+cd app/backend && uv pip compile requirements.in -o requirements.txt --python-version 3.10 --upgrade-package <package-name>
 ```
+
+After upgrading, run tests to verify compatibility:
+
+```shell
+source .venv/bin/activate
+pytest tests/
+```
+
+### npm frontend dependencies
+
+To upgrade a particular package in the frontend:
+
+1. **Navigate to the frontend directory**:
+
+   ```shell
+   cd app/frontend
+   ```
+
+2. **Upgrade the package** (replace `<package-name>` with the package you want to upgrade):
+
+   ```shell
+   npm install <package-name>@latest
+   ```
+
+3. **Build the frontend** to verify the upgrade works:
+
+   ```shell
+   npm run build
+   ```
+
+4. **Run all tests** to ensure nothing broke:
+
+   ```shell
+   # Run e2e tests from the root directory
+   cd ../..
+   source .venv/bin/activate
+   pytest tests/e2e.py
+   ```
+
+5. **Commit changes** if the upgrade is successful:
+
+   ```shell
+   git add package.json package-lock.json
+   git commit -m "chore: upgrade <package-name> to <version>"
+   ```
+
+**Important notes for frontend upgrades**:
+
+* When upgrading React or related core packages, you may need to upgrade multiple packages together (e.g., `react`, `react-dom`, `@types/react`, `@types/react-dom`)
+* Some upgrades may require code changes for API compatibility - check the package's changelog
+* For major version upgrades of UI libraries like Fluent UI or MSAL, review breaking changes carefully. Manual tests are required for any MSAL changes since the E2E tests do not cover authentication flows.
+* If npm reports peer dependency conflicts, the `.npmrc` file has `legacy-peer-deps=true` which allows the install to proceed. This is currently needed because `react-helmet-async` declares peer dependencies on React 17/18, but works fine with React 19.
 
 ## Checking Python type hints
 
 To check Python type hints, use the following command:
 
 ```shell
-cd app/backend && mypy . --config-file=../../pyproject.toml
-```
-
-```shell
-cd scripts && mypy . --config-file=../pyproject.toml
+ty check
 ```
 
 Note that we do not currently enforce type hints in the tests folder, as it would require adding a lot of `# type: ignore` comments to the existing tests.

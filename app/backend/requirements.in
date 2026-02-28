@@ -1,4 +1,4 @@
-setuptools
+azure-functions>=1.24.0
 azure-identity
 quart
 quart-cors
@@ -29,6 +29,6 @@ beautifulsoup4
 types-beautifulsoup4
 msgraph-sdk
 python-dotenv
-prompty
+jinja2
 rich
 typing-extensions

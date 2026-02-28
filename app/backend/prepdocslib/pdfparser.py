@@ -1,9 +1,10 @@
 import html
 import io
 import logging
+import uuid
 from collections.abc import AsyncGenerator
 from enum import Enum
-from typing import IO, Union
+from typing import IO, Optional
 
 import pymupdf
 from azure.ai.documentintelligence.aio import DocumentIntelligenceClient
@@ -19,8 +20,7 @@ from azure.core.exceptions import HttpResponseError
 from PIL import Image
 from pypdf import PdfReader
 
-from .mediadescriber import ContentUnderstandingDescriber
-from .page import Page
+from .page import ImageOnPage, Page
 from .parser import Parser
 
 logger = logging.getLogger("scripts")
@@ -53,16 +53,14 @@ class DocumentAnalysisParser(Parser):
     def __init__(
         self,
         endpoint: str,
-        credential: Union[AsyncTokenCredential, AzureKeyCredential],
-        model_id="prebuilt-layout",
-        use_content_understanding=True,
-        content_understanding_endpoint: Union[str, None] = None,
-    ):
+        credential: AsyncTokenCredential | AzureKeyCredential,
+        model_id: str = "prebuilt-layout",
+        process_figures: bool = False,
+    ) -> None:
         self.model_id = model_id
         self.endpoint = endpoint
         self.credential = credential
-        self.use_content_understanding = use_content_understanding
-        self.content_understanding_endpoint = content_understanding_endpoint
+        self.process_figures = process_figures
 
     async def parse(self, content: IO) -> AsyncGenerator[Page, None]:
         logger.info("Extracting text from '%s' using Azure Document Intelligence", content.name)
@@ -70,16 +68,17 @@ class DocumentAnalysisParser(Parser):
         async with DocumentIntelligenceClient(
             endpoint=self.endpoint, credential=self.credential
         ) as document_intelligence_client:
-            file_analyzed = False
-            if self.use_content_understanding:
-                if self.content_understanding_endpoint is None:
-                    raise ValueError("Content Understanding is enabled but no endpoint was provided")
-                if isinstance(self.credential, AzureKeyCredential):
-                    raise ValueError(
-                        "AzureKeyCredential is not supported for Content Understanding, use keyless auth instead"
-                    )
-                cu_describer = ContentUnderstandingDescriber(self.content_understanding_endpoint, self.credential)
-                content_bytes = content.read()
+            # Always convert to bytes up front to avoid passing a FileStorage/stream object
+            try:
+                content.seek(0)
+            except Exception:
+                pass
+            content_bytes = content.read()
+
+            poller = None
+            doc_for_pymupdf = None
+
+            if self.process_figures:
                 try:
                     poller = await document_intelligence_client.begin_analyze_document(
                         model_id="prebuilt-layout",
@@ -89,9 +88,7 @@ class DocumentAnalysisParser(Parser):
                         output_content_format="markdown",
                     )
                     doc_for_pymupdf = pymupdf.open(stream=io.BytesIO(content_bytes))
-                    file_analyzed = True
                 except HttpResponseError as e:
-                    content.seek(0)
                     if e.error and e.error.code == "InvalidArgument":
                         logger.error(
                             "This document type does not support media description. Proceeding with standard analysis."
@@ -101,14 +98,17 @@ class DocumentAnalysisParser(Parser):
                             "Unexpected error analyzing document for media description: %s. Proceeding with standard analysis.",
                             e,
                         )
+                    poller = None
 
-            if file_analyzed is False:
+            if poller is None:
                 poller = await document_intelligence_client.begin_analyze_document(
-                    model_id=self.model_id, body=content, content_type="application/octet-stream"
+                    model_id=self.model_id,
+                    body=AnalyzeDocumentRequest(bytes_source=content_bytes),
                 )
             analyze_result: AnalyzeResult = await poller.result()
 
             offset = 0
+
             for page in analyze_result.pages:
                 tables_on_page = [
                     table
@@ -116,21 +116,25 @@ class DocumentAnalysisParser(Parser):
                     if table.bounding_regions and table.bounding_regions[0].page_number == page.page_number
                 ]
                 figures_on_page = []
-                if self.use_content_understanding:
+                if self.process_figures:
                     figures_on_page = [
                         figure
                         for figure in (analyze_result.figures or [])
                         if figure.bounding_regions and figure.bounding_regions[0].page_number == page.page_number
                     ]
+                page_images: list[ImageOnPage] = []
+                page_tables: list[str] = []
 
                 class ObjectType(Enum):
                     NONE = -1
                     TABLE = 0
                     FIGURE = 1
 
+                MaskEntry = tuple[ObjectType, Optional[int]]
+
                 page_offset = page.spans[0].offset
                 page_length = page.spans[0].length
-                mask_chars: list[tuple[ObjectType, Union[int, None]]] = [(ObjectType.NONE, None)] * page_length
+                mask_chars: list[MaskEntry] = [(ObjectType.NONE, None)] * page_length
                 # mark all positions of the table spans in the page
                 for table_idx, table in enumerate(tables_on_page):
                     for span in table.spans:
@@ -150,7 +154,7 @@ class DocumentAnalysisParser(Parser):
 
                 # build page text by replacing characters in table spans with table html
                 page_text = ""
-                added_objects = set()  # set of object types todo mypy
+                added_objects: set[MaskEntry] = set()
                 for idx, mask_char in enumerate(mask_chars):
                     object_type, object_idx = mask_char
                     if object_type == ObjectType.NONE:
@@ -159,36 +163,57 @@ class DocumentAnalysisParser(Parser):
                         if object_idx is None:
                             raise ValueError("Expected object_idx to be set")
                         if mask_char not in added_objects:
-                            page_text += DocumentAnalysisParser.table_to_html(tables_on_page[object_idx])
+                            table_html = DocumentAnalysisParser.table_to_html(tables_on_page[object_idx])
+                            page_tables.append(table_html)
+                            page_text += table_html
                             added_objects.add(mask_char)
                     elif object_type == ObjectType.FIGURE:
-                        if cu_describer is None:
-                            raise ValueError("cu_describer should not be None, unable to describe figure")
                         if object_idx is None:
                             raise ValueError("Expected object_idx to be set")
+                        if doc_for_pymupdf is None:  # pragma: no cover
+                            raise ValueError("Expected doc_for_pymupdf to be set for figure processing")
                         if mask_char not in added_objects:
-                            figure_html = await DocumentAnalysisParser.figure_to_html(
-                                doc_for_pymupdf, figures_on_page[object_idx], cu_describer
+                            image_on_page = await DocumentAnalysisParser.figure_to_image(
+                                doc_for_pymupdf, figures_on_page[object_idx]
                             )
-                            page_text += figure_html
+                            page_images.append(image_on_page)
+                            page_text += image_on_page.placeholder
                             added_objects.add(mask_char)
+
                 # We remove these comments since they are not needed and skew the page numbers
                 page_text = page_text.replace("<!-- PageBreak -->", "")
                 # We remove excess newlines at the beginning and end of the page
                 page_text = page_text.strip()
-                yield Page(page_num=page.page_number - 1, offset=offset, text=page_text)
+                yield Page(
+                    page_num=page.page_number - 1,
+                    offset=offset,
+                    text=page_text,
+                    images=page_images,
+                    tables=page_tables,
+                )
                 offset += len(page_text)
 
     @staticmethod
-    async def figure_to_html(
-        doc: pymupdf.Document, figure: DocumentFigure, cu_describer: ContentUnderstandingDescriber
-    ) -> str:
-        figure_title = (figure.caption and figure.caption.content) or ""
-        logger.info("Describing figure %s with title '%s'", figure.id, figure_title)
+    async def figure_to_image(doc: pymupdf.Document, figure: DocumentFigure) -> ImageOnPage:
+        figure_title = figure.caption.content if figure.caption and figure.caption.content else ""
+        # Generate a random UUID if figure.id is None
+        figure_id = figure.id or f"fig_{uuid.uuid4().hex[:8]}"
+        figure_filename = f"figure{figure_id.replace('.', '_')}.png"
+        logger.info("Cropping figure %s with title '%s'", figure_id, figure_title)
+        placeholder = f'<figure id="{figure_id}"></figure>'
         if not figure.bounding_regions:
-            return f"<figure><figcaption>{figure_title}</figcaption></figure>"
+            return ImageOnPage(
+                bytes=b"",
+                page_num=0,  # 0-indexed
+                figure_id=figure_id,
+                bbox=(0, 0, 0, 0),
+                filename=figure_filename,
+                title=figure_title,
+                placeholder=placeholder,
+                mime_type="image/png",
+            )
         if len(figure.bounding_regions) > 1:
-            logger.warning("Figure %s has more than one bounding region, using the first one", figure.id)
+            logger.warning("Figure %s has more than one bounding region, using the first one", figure_id)
         first_region = figure.bounding_regions[0]
         # To learn more about bounding regions, see https://aka.ms/bounding-region
         bounding_box = (
@@ -198,9 +223,17 @@ class DocumentAnalysisParser(Parser):
             first_region.polygon[5],  # y1 (bottom)
         )
         page_number = first_region["pageNumber"]  # 1-indexed
-        cropped_img = DocumentAnalysisParser.crop_image_from_pdf_page(doc, page_number - 1, bounding_box)
-        figure_description = await cu_describer.describe_image(cropped_img)
-        return f"<figure><figcaption>{figure_title}<br>{figure_description}</figcaption></figure>"
+        cropped_img, bbox_pixels = DocumentAnalysisParser.crop_image_from_pdf_page(doc, page_number - 1, bounding_box)
+        return ImageOnPage(
+            bytes=cropped_img,
+            page_num=page_number - 1,  # Convert to 0-indexed
+            figure_id=figure_id,
+            bbox=bbox_pixels,
+            filename=figure_filename,
+            title=figure_title,
+            placeholder=placeholder,
+            mime_type="image/png",
+        )
 
     @staticmethod
     def table_to_html(table: DocumentTable):
@@ -226,18 +259,20 @@ class DocumentAnalysisParser(Parser):
     @staticmethod
     def crop_image_from_pdf_page(
         doc: pymupdf.Document, page_number: int, bbox_inches: tuple[float, float, float, float]
-    ) -> bytes:
+    ) -> tuple[bytes, tuple[float, float, float, float]]:
         """
         Crops a region from a given page in a PDF and returns it as an image.
 
         :param pdf_path: Path to the PDF file.
         :param page_number: The page number to crop from (0-indexed).
         :param bbox_inches: A tuple of (x0, y0, x1, y1) coordinates for the bounding box, in inches.
-        :return: A PIL Image of the cropped area.
+        :return: A tuple of (image_bytes, bbox_pixels).
         """
         # Scale the bounding box to 72 DPI
         bbox_dpi = 72
-        bbox_pixels = [x * bbox_dpi for x in bbox_inches]
+        # We multiply using unpacking to ensure the resulting tuple has the correct number of elements
+        x0, y0, x1, y1 = (round(x * bbox_dpi, 2) for x in bbox_inches)
+        bbox_pixels = (x0, y0, x1, y1)
         rect = pymupdf.Rect(bbox_pixels)
         # Assume that the PDF has 300 DPI,
         # and use the matrix to convert between the 2 DPIs
@@ -248,4 +283,4 @@ class DocumentAnalysisParser(Parser):
         img = Image.frombytes("RGB", (pix.width, pix.height), pix.samples)
         bytes_io = io.BytesIO()
         img.save(bytes_io, format="PNG")
-        return bytes_io.getvalue()
+        return bytes_io.getvalue(), bbox_pixels

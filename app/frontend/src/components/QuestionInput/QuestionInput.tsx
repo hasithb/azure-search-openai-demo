@@ -1,6 +1,5 @@
-import { useState, useEffect, useContext } from "react";
-import { Stack, TextField } from "@fluentui/react";
-import { Button, Tooltip } from "@fluentui/react-components";
+import { useState, useEffect, useContext, useCallback, useRef } from "react";
+import { Button, Textarea, Tooltip } from "@fluentui/react-components";
 import { Send28Filled } from "@fluentui/react-icons";
 import { useTranslation } from "react-i18next";
 
@@ -9,6 +8,13 @@ import { SpeechInput } from "./SpeechInput";
 import { LoginContext } from "../../loginContext";
 import { requireLogin } from "../../authConfig";
 
+const StopCircleIcon = () => (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="14" cy="14" r="12.5" stroke="black" strokeWidth="2" fill="none" />
+        <rect x="9" y="9" width="10" height="10" rx="1" fill="black" />
+    </svg>
+);
+
 interface Props {
     onSend: (question: string) => void;
     disabled: boolean;
@@ -16,15 +22,33 @@ interface Props {
     placeholder?: string;
     clearOnSend?: boolean;
     showSpeechInput?: boolean;
-    leftOfSend?: React.ReactNode;
-    autoFocus?: boolean;
+    onStop: () => void;
+    isStreaming: boolean;
+    isLoading: boolean;
 }
 
-export const QuestionInput = ({ onSend, disabled, placeholder, clearOnSend, initQuestion, showSpeechInput, leftOfSend, autoFocus }: Props) => {
+export const QuestionInput = ({ onSend, onStop, disabled, placeholder, clearOnSend, initQuestion, showSpeechInput, isStreaming, isLoading }: Props) => {
     const [question, setQuestion] = useState<string>("");
     const { loggedIn } = useContext(LoginContext);
     const { t } = useTranslation();
     const [isComposing, setIsComposing] = useState(false);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    const autoResize = useCallback(() => {
+        const el = textareaRef.current;
+        if (!el) return;
+        const wrapper = el.parentElement;
+        el.style.height = "auto";
+        const maxH = wrapper ? parseFloat(getComputedStyle(wrapper).maxHeight) : Infinity;
+        const atMax = el.scrollHeight > maxH;
+        el.style.height = (atMax ? maxH : el.scrollHeight) + "px";
+        el.style.overflowY = atMax ? "auto" : "hidden";
+        if (wrapper) wrapper.style.overflow = atMax ? "visible" : "hidden";
+    }, []);
+
+    useEffect(() => {
+        autoResize();
+    }, [question, autoResize]);
 
     useEffect(() => {
         initQuestion && setQuestion(initQuestion);
@@ -32,13 +56,11 @@ export const QuestionInput = ({ onSend, disabled, placeholder, clearOnSend, init
 
     const sendQuestion = () => {
         if (disabled || !question.trim()) {
-            return; // Don't send if disabled or no question
+            return;
         }
 
         onSend(question);
 
-        // Only clear if clearOnSend is true - let parent handle clearing on success
-        // This prevents clearing the question when validation fails
         if (clearOnSend) {
             setQuestion("");
         }
@@ -60,12 +82,8 @@ export const QuestionInput = ({ onSend, disabled, placeholder, clearOnSend, init
         setIsComposing(false);
     };
 
-    const onQuestionChange = (_ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
-        if (!newValue) {
-            setQuestion("");
-        } else if (newValue.length <= 1000) {
-            setQuestion(newValue);
-        }
+    const onQuestionChange = (_ev: React.ChangeEvent<HTMLTextAreaElement>, data: { value: string }) => {
+        setQuestion(data.value);
     };
 
     const disableRequiredAccessControl = requireLogin && !loggedIn;
@@ -73,76 +91,39 @@ export const QuestionInput = ({ onSend, disabled, placeholder, clearOnSend, init
 
     if (disableRequiredAccessControl) {
         placeholder = "Please login to continue...";
-    } else if (disabled && placeholder?.includes("category")) {
-        // Keep the category-related placeholder if that's why it's disabled
-        // placeholder already set by parent component
     }
 
     return (
-        <Stack horizontal className={styles.questionInputContainer} tokens={{ childrenGap: 8 }}>
-            <TextField
+        <div className={styles.questionInputContainer} style={{ display: "flex", gap: "0.25rem" }}>
+            <Textarea
+                textarea={{ ref: textareaRef }}
                 className={styles.questionInputTextArea}
                 disabled={disableRequiredAccessControl}
                 placeholder={placeholder}
-                multiline
-                resizable={false}
-                borderless
-                autoFocus={autoFocus}
+                resize="none"
                 value={question}
                 onChange={onQuestionChange}
                 onKeyDown={onEnterPress}
                 onCompositionStart={handleCompositionStart}
                 onCompositionEnd={handleCompositionEnd}
-                styles={{
-                    root: { flex: 1, minWidth: 0 },
-                    fieldGroup: { minHeight: 44 },
-                    field: {
-                        minHeight: 44,
-                        maxHeight: 120,
-                        overflowY: "auto",
-                        overflowX: "hidden"
-                    }
-                }}
             />
             <div className={styles.questionInputButtonsContainer}>
-                {leftOfSend && <div style={{ marginRight: 8 }}>{leftOfSend}</div>}
-                <Tooltip content={t("tooltips.submitQuestion")} relationship="label">
-                    <Button
-                        icon={<Send28Filled primaryFill="rgba(115, 118, 225, 1)" />}
-                        disabled={sendQuestionDisabled}
-                        onClick={sendQuestion}
-                        style={{
-                            backgroundColor: "transparent",
-                            border: "none",
-                            borderRadius: "4px",
-                            padding: "4px",
-                            minWidth: "auto",
-                            minHeight: "auto",
-                            transition: "all 0.15s ease",
-                            cursor: sendQuestionDisabled ? "not-allowed" : "pointer",
-                            opacity: sendQuestionDisabled ? 0.4 : 1,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center"
-                        }}
-                        onMouseEnter={e => {
-                            if (!sendQuestionDisabled) {
-                                const currentIcon = e.currentTarget.querySelector("svg");
-                                if (currentIcon) {
-                                    currentIcon.style.fill = "rgba(95, 98, 205, 1)";
-                                }
-                            }
-                        }}
-                        onMouseLeave={e => {
-                            const currentIcon = e.currentTarget.querySelector("svg");
-                            if (currentIcon) {
-                                currentIcon.style.fill = "rgba(115, 118, 225, 1)";
-                            }
-                        }}
-                    />
-                </Tooltip>
+                {isStreaming || isLoading ? (
+                    <Tooltip content={t("tooltips.stopStreaming")} relationship="label">
+                        <Button size="large" icon={<StopCircleIcon />} onClick={onStop} />
+                    </Tooltip>
+                ) : (
+                    <Tooltip content={t("tooltips.submitQuestion")} relationship="label">
+                        <Button
+                            size="large"
+                            icon={<Send28Filled primaryFill="rgba(115, 118, 225, 1)" />}
+                            disabled={sendQuestionDisabled}
+                            onClick={sendQuestion}
+                        />
+                    </Tooltip>
+                )}
             </div>
             {showSpeechInput && <SpeechInput updateQuestion={setQuestion} />}
-        </Stack>
+        </div>
     );
 };
