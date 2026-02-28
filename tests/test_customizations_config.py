@@ -52,6 +52,8 @@ class TestFeatureFlags:
             "citation_sanitizer",
             "custom_evals",
             "enhanced_feedback",
+            "agentic_force_query_on_empty",
+            "agentic_fallback_search",
         }
         assert set(CUSTOM_FEATURES.keys()) == expected_keys
 
