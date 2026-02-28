@@ -2,76 +2,100 @@
 // ==============================
 // Provides comprehensive help, usage instructions, and privacy information
 // for non-technical users of the Civil Procedure Copilot.
+// Migrated from @fluentui/react v8 to @fluentui/react-components v9.
 
 import React, { useState } from "react";
+import { OverlayDrawer, DrawerBody, DrawerHeader, DrawerHeaderTitle, Button, Text, TabList, Tab, Tooltip, Link, makeStyles } from "@fluentui/react-components";
 import {
-    Panel,
-    PanelType,
-    IconButton,
-    Text,
-    Stack,
-    Pivot,
-    PivotItem,
-    Icon,
-    mergeStyles,
-    IIconProps,
-    TooltipHost,
-    DirectionalHint,
-    Link
-} from "@fluentui/react";
+    DismissRegular,
+    QuestionCircleRegular,
+    InfoRegular,
+    LightbulbRegular,
+    GridRegular,
+    FlashRegular,
+    ShieldRegular,
+    CheckmarkRegular,
+    CursorClickRegular,
+    OpenRegular,
+    DocumentRegular,
+    ThumbLikeRegular,
+    ThumbDislikeRegular,
+    WarningRegular
+} from "@fluentui/react-icons";
 
-// Styles
-const helpButtonStyle = mergeStyles({
-    position: "fixed",
-    bottom: "24px",
-    right: "24px",
-    zIndex: 100,
-    backgroundColor: "#0078d4",
-    borderRadius: "50%",
-    width: "44px",
-    height: "44px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
-    ":hover": {
-        backgroundColor: "#106ebe"
-    }
-});
-
-const panelContentStyle = mergeStyles({
-    padding: "0 24px 24px 24px",
-    "@media (max-width: 768px)": {
-        padding: "0 12px 12px 12px"
-    }
-});
-
-const sectionStyle = mergeStyles({
-    marginBottom: "24px",
-    padding: "16px",
-    backgroundColor: "#f8f9fa",
-    borderRadius: "8px",
-    "@media (max-width: 768px)": {
-        marginBottom: "12px",
-        padding: "12px",
-        fontSize: "14px"
+// Styles using makeStyles (v9 replacement for mergeStyles)
+const useStyles = makeStyles({
+    helpButton: {
+        position: "fixed",
+        bottom: "24px",
+        right: "24px",
+        zIndex: 100,
+        backgroundColor: "#0078d4",
+        borderRadius: "50%",
+        width: "44px",
+        height: "44px",
+        minWidth: "44px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
+        color: "#fff",
+        ":hover": {
+            backgroundColor: "#106ebe",
+            color: "#fff"
+        }
     },
-    border: "1px solid #e1e4e8"
-});
-
-const featureBoxStyle = mergeStyles({
-    padding: "16px",
-    backgroundColor: "#fff",
-    borderRadius: "8px",
-    border: "1px solid #e1e4e8",
-    marginBottom: "12px",
-    "@media (max-width: 768px)": {
-        padding: "12px",
-        marginBottom: "8px"
+    panelContent: {
+        paddingTop: "0",
+        paddingRight: "24px",
+        paddingBottom: "24px",
+        paddingLeft: "24px"
+    },
+    section: {
+        marginBottom: "24px",
+        paddingTop: "16px",
+        paddingRight: "16px",
+        paddingBottom: "16px",
+        paddingLeft: "16px",
+        backgroundColor: "#f8f9fa",
+        borderRadius: "8px",
+        border: "1px solid #e1e4e8"
+    },
+    featureBox: {
+        paddingTop: "16px",
+        paddingRight: "16px",
+        paddingBottom: "16px",
+        paddingLeft: "16px",
+        backgroundColor: "#fff",
+        borderRadius: "8px",
+        border: "1px solid #e1e4e8",
+        marginBottom: "12px"
+    },
+    tipBox: {
+        paddingTop: "12px",
+        paddingRight: "16px",
+        paddingBottom: "12px",
+        paddingLeft: "16px",
+        backgroundColor: "#fff4ce",
+        borderLeft: "4px solid #ffb900",
+        borderTopRightRadius: "8px",
+        borderBottomRightRadius: "8px",
+        marginBottom: "12px"
+    },
+    warningBox: {
+        paddingTop: "12px",
+        paddingRight: "16px",
+        paddingBottom: "12px",
+        paddingLeft: "16px",
+        backgroundColor: "#fde7e9",
+        borderLeft: "4px solid #d13438",
+        borderTopRightRadius: "8px",
+        borderBottomRightRadius: "8px",
+        marginBottom: "12px"
     }
 });
 
-const iconBoxStyle = mergeStyles({
+const iconBoxStyle: React.CSSProperties = {
     width: "48px",
     height: "48px",
     borderRadius: "8px",
@@ -80,50 +104,9 @@ const iconBoxStyle = mergeStyles({
     justifyContent: "center",
     marginRight: "16px",
     flexShrink: 0
-});
+};
 
-const visualDiagramStyle = mergeStyles({
-    padding: "20px",
-    backgroundColor: "#fff",
-    borderRadius: "8px",
-    border: "2px solid #0078d4",
-    fontFamily: "monospace",
-    fontSize: "12px",
-    lineHeight: "1.6",
-    overflowX: "auto",
-    whiteSpace: "pre",
-    "@media (max-width: 768px)": {
-        padding: "12px",
-        fontSize: "10px",
-        lineHeight: "1.4"
-    }
-});
-
-const tipBoxStyle = mergeStyles({
-    padding: "12px 16px",
-    backgroundColor: "#fff4ce",
-    borderLeft: "4px solid #ffb900",
-    borderRadius: "0 8px 8px 0",
-    marginBottom: "12px",
-    "@media (max-width: 768px)": {
-        padding: "8px 12px",
-        fontSize: "13px"
-    }
-});
-
-const warningBoxStyle = mergeStyles({
-    padding: "12px 16px",
-    backgroundColor: "#fde7e9",
-    borderLeft: "4px solid #d13438",
-    borderRadius: "0 8px 8px 0",
-    marginBottom: "12px",
-    "@media (max-width: 768px)": {
-        padding: "8px 12px",
-        fontSize: "13px"
-    }
-});
-
-const stepNumberStyle = mergeStyles({
+const stepNumberStyle: React.CSSProperties = {
     width: "32px",
     height: "32px",
     borderRadius: "50%",
@@ -135,32 +118,33 @@ const stepNumberStyle = mergeStyles({
     fontWeight: 600,
     marginRight: "12px",
     flexShrink: 0
-});
+};
 
 interface FeatureCardProps {
-    icon: string;
+    icon: React.ReactElement;
     iconColor: string;
     title: string;
     description: string;
 }
 
-const FeatureCard: React.FC<FeatureCardProps> = ({ icon, iconColor, title, description }) => (
-    <div className={featureBoxStyle}>
-        <Stack horizontal verticalAlign="start">
-            <div className={iconBoxStyle} style={{ backgroundColor: iconColor + "20" }}>
-                <Icon iconName={icon} styles={{ root: { fontSize: 24, color: iconColor } }} />
+const FeatureCard: React.FC<FeatureCardProps> = ({ icon, iconColor, title, description }) => {
+    const classes = useStyles();
+    return (
+        <div className={classes.featureBox}>
+            <div style={{ display: "flex", flexDirection: "row", alignItems: "flex-start" }}>
+                <div style={{ ...iconBoxStyle, backgroundColor: iconColor + "20" }}>{icon}</div>
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                    <Text size={400} weight="semibold" style={{ marginBottom: 4 }}>
+                        {title}
+                    </Text>
+                    <Text size={200} style={{ color: "#605e5c" }}>
+                        {description}
+                    </Text>
+                </div>
             </div>
-            <Stack>
-                <Text variant="mediumPlus" styles={{ root: { fontWeight: 600, marginBottom: 4 } }}>
-                    {title}
-                </Text>
-                <Text variant="small" styles={{ root: { color: "#605e5c" } }}>
-                    {description}
-                </Text>
-            </Stack>
-        </Stack>
-    </div>
-);
+        </div>
+    );
+};
 
 interface StepProps {
     number: number;
@@ -169,68 +153,76 @@ interface StepProps {
 }
 
 const Step: React.FC<StepProps> = ({ number, title, description }) => (
-    <Stack horizontal verticalAlign="start" styles={{ root: { marginBottom: 16 } }}>
-        <div className={stepNumberStyle}>{number}</div>
-        <Stack>
-            <Text variant="medium" styles={{ root: { fontWeight: 600 } }}>
+    <div style={{ display: "flex", flexDirection: "row", alignItems: "flex-start", marginBottom: 16 }}>
+        <div style={stepNumberStyle}>{number}</div>
+        <div style={{ display: "flex", flexDirection: "column" }}>
+            <Text size={300} weight="semibold">
                 {title}
             </Text>
-            <Text variant="small" styles={{ root: { color: "#605e5c" } }}>
+            <Text size={200} style={{ color: "#605e5c" }}>
                 {description}
             </Text>
-        </Stack>
-    </Stack>
+        </div>
+    </div>
 );
 
 export const HelpAboutPanel: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
-
-    const helpIcon: IIconProps = { iconName: "Help", styles: { root: { color: "#fff", fontSize: 20 } } };
+    const [selectedTab, setSelectedTab] = useState("about");
+    const classes = useStyles();
 
     return (
         <>
             {/* Help Button - Bottom Right */}
-            <TooltipHost content="Help & About" directionalHint={DirectionalHint.leftCenter}>
-                <div className={helpButtonStyle}>
-                    <IconButton
-                        iconProps={helpIcon}
-                        onClick={() => setIsOpen(true)}
-                        ariaLabel="Help and About"
-                        styles={{
-                            root: {
-                                backgroundColor: "transparent",
-                                border: "none"
-                            },
-                            rootHovered: {
-                                backgroundColor: "transparent"
-                            },
-                            rootPressed: {
-                                backgroundColor: "transparent"
-                            }
-                        }}
-                    />
-                </div>
-            </TooltipHost>
+            <Tooltip content="Help & About" relationship="label" positioning="before">
+                <Button
+                    icon={<QuestionCircleRegular />}
+                    onClick={() => setIsOpen(true)}
+                    aria-label="Help and About"
+                    appearance="transparent"
+                    className={classes.helpButton}
+                />
+            </Tooltip>
 
-            {/* Main Panel */}
-            <Panel
-                isOpen={isOpen}
-                onDismiss={() => setIsOpen(false)}
-                type={PanelType.medium}
-                headerText="Civil Procedure Copilot"
-                closeButtonAriaLabel="Close"
-                styles={{
-                    main: { maxWidth: "600px" },
-                    headerText: { fontSize: "20px", fontWeight: 600 }
+            {/* Main Drawer */}
+            <OverlayDrawer
+                open={isOpen}
+                onOpenChange={(_, { open }) => {
+                    if (!open) setIsOpen(false);
                 }}
+                position="end"
+                size="medium"
             >
-                <div className={panelContentStyle}>
-                    <Pivot>
+                <DrawerHeader>
+                    <DrawerHeaderTitle action={<Button appearance="subtle" icon={<DismissRegular />} onClick={() => setIsOpen(false)} aria-label="Close" />}>
+                        Civil Procedure Copilot
+                    </DrawerHeaderTitle>
+                </DrawerHeader>
+                <DrawerBody>
+                    <div className={classes.panelContent}>
+                        <TabList selectedValue={selectedTab} onTabSelect={(_, data) => setSelectedTab(data.value as string)}>
+                            <Tab value="about" icon={<InfoRegular />}>
+                                About
+                            </Tab>
+                            <Tab value="howItWorks" icon={<LightbulbRegular />}>
+                                How It Works
+                            </Tab>
+                            <Tab value="features" icon={<GridRegular />}>
+                                Features
+                            </Tab>
+                            <Tab value="tips" icon={<FlashRegular />}>
+                                Tips
+                            </Tab>
+                            <Tab value="privacy" icon={<ShieldRegular />}>
+                                Privacy
+                            </Tab>
+                        </TabList>
+
                         {/* About Tab */}
-                        <PivotItem headerText="About" itemIcon="Info">
-                            <Stack tokens={{ childrenGap: 16 }} styles={{ root: { marginTop: 16 } }}>
-                                <div className={sectionStyle}>
-                                    <Text variant="large" styles={{ root: { fontWeight: 600, marginBottom: 12, display: "block" } }}>
+                        {selectedTab === "about" && (
+                            <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginTop: 16 }}>
+                                <div className={classes.section}>
+                                    <Text size={400} weight="semibold" style={{ marginBottom: 12, display: "block" }}>
                                         🔨 What is this tool?
                                     </Text>
                                     <Text>
@@ -239,28 +231,28 @@ export const HelpAboutPanel: React.FC = () => {
                                     </Text>
                                 </div>
 
-                                <div className={sectionStyle}>
-                                    <Text variant="large" styles={{ root: { fontWeight: 600, marginBottom: 12, display: "block" } }}>
+                                <div className={classes.section}>
+                                    <Text size={400} weight="semibold" style={{ marginBottom: 12, display: "block" }}>
                                         📚 Available Documents
                                     </Text>
-                                    <Stack tokens={{ childrenGap: 8 }}>
-                                        <Text variant="small">• Civil Procedure Rules (Parts 1-89) and Practice Directions</Text>
-                                        <Text variant="small">• Commercial Court Guide (11th Edition, July 2023)</Text>
-                                        <Text variant="small">• King's Bench Division Guide (2025 Edition)</Text>
-                                        <Text variant="small">• Chancery Guide (2022 Edition)</Text>
-                                        <Text variant="small">• Patents Court Guide (February 2025)</Text>
-                                        <Text variant="small">• Technology & Construction Court Guide (October 2022)</Text>
-                                        <Text variant="small">• Circuit Commercial Court Guide (August 2023)</Text>
-                                    </Stack>
+                                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                        <Text size={200}>• Civil Procedure Rules (Parts 1-89) and Practice Directions</Text>
+                                        <Text size={200}>• Commercial Court Guide (11th Edition, July 2023)</Text>
+                                        <Text size={200}>• King's Bench Division Guide (2025 Edition)</Text>
+                                        <Text size={200}>• Chancery Guide (2022 Edition)</Text>
+                                        <Text size={200}>• Patents Court Guide (February 2025)</Text>
+                                        <Text size={200}>• Technology & Construction Court Guide (October 2022)</Text>
+                                        <Text size={200}>• Circuit Commercial Court Guide (August 2023)</Text>
+                                    </div>
                                 </div>
-                            </Stack>
-                        </PivotItem>
+                            </div>
+                        )}
 
                         {/* How It Works Tab */}
-                        <PivotItem headerText="How It Works" itemIcon="Lightbulb">
-                            <Stack tokens={{ childrenGap: 20 }} styles={{ root: { marginTop: 16 } }}>
-                                <div className={sectionStyle}>
-                                    <Text variant="large" styles={{ root: { fontWeight: 600, marginBottom: 16, display: "block" } }}>
+                        {selectedTab === "howItWorks" && (
+                            <div style={{ display: "flex", flexDirection: "column", gap: "20px", marginTop: 16 }}>
+                                <div className={classes.section}>
+                                    <Text size={400} weight="semibold" style={{ marginBottom: 16, display: "block" }}>
                                         🔄 Quick Start Guide
                                     </Text>
                                     <Step
@@ -286,49 +278,49 @@ export const HelpAboutPanel: React.FC = () => {
                                 </div>
 
                                 {/* Visual Guide: The Interface */}
-                                <div className={sectionStyle}>
-                                    <Text variant="large" styles={{ root: { fontWeight: 600, marginBottom: 12, display: "block" } }}>
+                                <div className={classes.section}>
+                                    <Text size={400} weight="semibold" style={{ marginBottom: 12, display: "block" }}>
                                         🖥️ Understanding the Interface
                                     </Text>
 
                                     {/* Source Dropdown */}
-                                    <Stack tokens={{ childrenGap: 12 }} styles={{ root: { marginBottom: 16 } }}>
-                                        <Text styles={{ root: { fontWeight: 600 } }}>Source Filter (Optional)</Text>
+                                    <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: 16 }}>
+                                        <Text weight="semibold">Source Filter (Optional)</Text>
                                         <div style={{ padding: "12px", backgroundColor: "#f8f9fa", borderRadius: "6px", border: "1px solid #e1e4e8" }}>
-                                            <Text variant="small">
+                                            <Text size={200}>
                                                 Use the dropdown next to the input box to filter by document source: CPR & Practice Directions, or specific
                                                 Court Guides (e.g., Commercial Court Guide, Chancery Guide). Select "All Sources" to search across all
                                                 documents.
                                             </Text>
                                         </div>
-                                    </Stack>
+                                    </div>
 
                                     {/* Search Depth */}
-                                    <Stack tokens={{ childrenGap: 12 }} styles={{ root: { marginBottom: 16 } }}>
-                                        <Text styles={{ root: { fontWeight: 600 } }}>Search Depth</Text>
+                                    <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: 16 }}>
+                                        <Text weight="semibold">Search Depth</Text>
                                         <div style={{ padding: "12px", backgroundColor: "#f8f9fa", borderRadius: "6px", border: "1px solid #e1e4e8" }}>
-                                            <Stack tokens={{ childrenGap: 8 }}>
-                                                <Text variant="small">
+                                            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                                <Text size={200}>
                                                     <strong>Quick:</strong> Fast single search - best for simple lookups like "What is CPR Part 31?"
                                                 </Text>
-                                                <Text variant="small">
+                                                <Text size={200}>
                                                     <strong>Standard:</strong> Balanced search depth - recommended for most legal questions
                                                 </Text>
-                                                <Text variant="small">
+                                                <Text size={200}>
                                                     <strong>Thorough:</strong> Comprehensive multi-source search - best for complex analysis spanning multiple
                                                     rules
                                                 </Text>
-                                            </Stack>
+                                            </div>
                                         </div>
-                                    </Stack>
+                                    </div>
                                 </div>
 
                                 {/* Understanding Citations */}
-                                <div className={sectionStyle}>
-                                    <Text variant="large" styles={{ root: { fontWeight: 600, marginBottom: 12, display: "block" } }}>
+                                <div className={classes.section}>
+                                    <Text size={400} weight="semibold" style={{ marginBottom: 12, display: "block" }}>
                                         📖 Understanding Citations
                                     </Text>
-                                    <Text variant="small" styles={{ root: { marginBottom: 12, display: "block", color: "#666" } }}>
+                                    <Text size={200} style={{ marginBottom: 12, display: "block", color: "#666" }}>
                                         Every answer includes numbered citations that link to source documents:
                                     </Text>
                                     <div
@@ -377,52 +369,52 @@ export const HelpAboutPanel: React.FC = () => {
                                             ."
                                         </div>
                                     </div>
-                                    <Stack horizontal verticalAlign="center" tokens={{ childrenGap: 8 }}>
-                                        <Icon iconName="HandPointer" styles={{ root: { color: "#0078d4" } }} />
-                                        <Text variant="small">Click any blue citation number to view the supporting content from the source document</Text>
-                                    </Stack>
+                                    <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "8px" }}>
+                                        <CursorClickRegular style={{ color: "#0078d4" }} />
+                                        <Text size={200}>Click any blue citation number to view the supporting content from the source document</Text>
+                                    </div>
                                 </div>
 
                                 {/* Supporting Content Panel */}
-                                <div className={sectionStyle}>
-                                    <Text variant="large" styles={{ root: { fontWeight: 600, marginBottom: 12, display: "block" } }}>
+                                <div className={classes.section}>
+                                    <Text size={400} weight="semibold" style={{ marginBottom: 12, display: "block" }}>
                                         📄 Supporting Content Panel
                                     </Text>
                                     <div style={{ padding: "12px", backgroundColor: "#f8f9fa", borderRadius: "6px", border: "1px solid #e1e4e8" }}>
-                                        <Text variant="small">
+                                        <Text size={200}>
                                             When you click a citation, a panel opens on the right showing the exact text from CPR, Practice Directions, or Court
                                             Guides that the AI used. This is your primary source for verification - always check that the AI's interpretation
                                             matches the original text.
                                         </Text>
                                     </div>
-                                    <Stack horizontal verticalAlign="center" tokens={{ childrenGap: 8 }} styles={{ root: { marginTop: 12 } }}>
-                                        <Icon iconName="OpenInNewTab" styles={{ root: { color: "#0078d4" } }} />
-                                        <Text variant="small">Click "View Source in New Tab" to open the full source document</Text>
-                                    </Stack>
+                                    <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "8px", marginTop: 12 }}>
+                                        <OpenRegular style={{ color: "#0078d4" }} />
+                                        <Text size={200}>Click "View Source in New Tab" to open the full source document</Text>
+                                    </div>
                                 </div>
 
                                 {/* Feedback */}
-                                <div className={sectionStyle}>
-                                    <Text variant="large" styles={{ root: { fontWeight: 600, marginBottom: 12, display: "block" } }}>
+                                <div className={classes.section}>
+                                    <Text size={400} weight="semibold" style={{ marginBottom: 12, display: "block" }}>
                                         👍 Providing Feedback
                                     </Text>
-                                    <Text variant="small" styles={{ root: { marginBottom: 12, display: "block" } }}>
+                                    <Text size={200} style={{ marginBottom: 12, display: "block" }}>
                                         Use the thumbs up/down buttons below each answer to rate the response quality. Your feedback helps improve the accuracy
                                         of future answers.
                                     </Text>
                                 </div>
-                            </Stack>
-                        </PivotItem>
+                            </div>
+                        )}
 
                         {/* Features Tab */}
-                        <PivotItem headerText="Features" itemIcon="ViewAll">
-                            <Stack tokens={{ childrenGap: 16 }} styles={{ root: { marginTop: 16 } }}>
+                        {selectedTab === "features" && (
+                            <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginTop: 16 }}>
                                 {/* Citations */}
-                                <Text variant="large" styles={{ root: { fontWeight: 600 } }}>
+                                <Text size={400} weight="semibold">
                                     📝 Understanding Citations
                                 </Text>
-                                <div className={sectionStyle}>
-                                    <Text styles={{ root: { marginBottom: 12, display: "block" } }}>
+                                <div className={classes.section}>
+                                    <Text style={{ marginBottom: 12, display: "block" }}>
                                         Every answer includes numbered citations like <strong>[1]</strong>, <strong>[2]</strong>, <strong>[3]</strong> that link
                                         to source documents.
                                     </Text>
@@ -434,7 +426,7 @@ export const HelpAboutPanel: React.FC = () => {
                                             border: "1px solid #0078d4"
                                         }}
                                     >
-                                        <Text styles={{ root: { fontStyle: "italic" } }}>
+                                        <Text style={{ fontStyle: "italic" }}>
                                             "Standard disclosure requires a party to disclose documents on which it relies{" "}
                                             <span style={{ backgroundColor: "#deecf9", padding: "2px 6px", borderRadius: "4px" }}>[1]</span>, documents which
                                             adversely affect its case{" "}
@@ -444,20 +436,20 @@ export const HelpAboutPanel: React.FC = () => {
                                             ."
                                         </Text>
                                     </div>
-                                    <Stack horizontal tokens={{ childrenGap: 8 }} styles={{ root: { marginTop: 12 } }}>
-                                        <Icon iconName="TouchPointer" styles={{ root: { color: "#0078d4" } }} />
-                                        <Text variant="small">
+                                    <div style={{ display: "flex", flexDirection: "row", gap: "8px", marginTop: 12 }}>
+                                        <CursorClickRegular style={{ color: "#0078d4" }} />
+                                        <Text size={200}>
                                             <strong>Click any citation number</strong> to view the source document
                                         </Text>
-                                    </Stack>
+                                    </div>
                                 </div>
 
                                 {/* Supporting Content */}
-                                <Text variant="large" styles={{ root: { fontWeight: 600 } }}>
+                                <Text size={400} weight="semibold">
                                     📄 Supporting Content Panel
                                 </Text>
-                                <div className={sectionStyle}>
-                                    <Stack horizontal tokens={{ childrenGap: 16 }}>
+                                <div className={classes.section}>
+                                    <div style={{ display: "flex", flexDirection: "row", gap: "16px" }}>
                                         <div
                                             style={{
                                                 width: "60px",
@@ -470,228 +462,228 @@ export const HelpAboutPanel: React.FC = () => {
                                                 justifyContent: "center"
                                             }}
                                         >
-                                            <Icon iconName="TextDocument" styles={{ root: { fontSize: 24, color: "#666" } }} />
+                                            <DocumentRegular style={{ fontSize: 24, color: "#666" }} />
                                         </div>
-                                        <Stack>
-                                            <Text styles={{ root: { fontWeight: 600 } }}>What is it?</Text>
-                                            <Text variant="small">The exact text passages from CPR documents that the AI used to generate its answer.</Text>
-                                            <Text variant="small" styles={{ root: { marginTop: 8 } }}>
+                                        <div style={{ display: "flex", flexDirection: "column" }}>
+                                            <Text weight="semibold">What is it?</Text>
+                                            <Text size={200}>The exact text passages from CPR documents that the AI used to generate its answer.</Text>
+                                            <Text size={200} style={{ marginTop: 8 }}>
                                                 <strong>This is the PRIMARY SOURCE</strong> - always verify the AI's interpretation against these original
                                                 passages.
                                             </Text>
-                                        </Stack>
-                                    </Stack>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 {/* Source Filter */}
-                                <Text variant="large" styles={{ root: { fontWeight: 600 } }}>
+                                <Text size={400} weight="semibold">
                                     🏷️ Source Filter
                                 </Text>
-                                <div className={sectionStyle}>
-                                    <Text styles={{ root: { marginBottom: 12, display: "block" } }}>
+                                <div className={classes.section}>
+                                    <Text style={{ marginBottom: 12, display: "block" }}>
                                         Use the dropdown to narrow your search to specific document sources:
                                     </Text>
-                                    <Stack tokens={{ childrenGap: 4 }}>
-                                        <Text variant="small">• CPR & Practice Directions</Text>
-                                        <Text variant="small">• Commercial Court Guide</Text>
-                                        <Text variant="small">• Other Court Guides (Chancery, TCC, etc.)</Text>
-                                        <Text variant="small">• All Sources (default)</Text>
-                                    </Stack>
+                                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                                        <Text size={200}>• CPR & Practice Directions</Text>
+                                        <Text size={200}>• Commercial Court Guide</Text>
+                                        <Text size={200}>• Other Court Guides (Chancery, TCC, etc.)</Text>
+                                        <Text size={200}>• All Sources (default)</Text>
+                                    </div>
                                 </div>
 
                                 {/* Feedback */}
-                                <Text variant="large" styles={{ root: { fontWeight: 600 } }}>
+                                <Text size={400} weight="semibold">
                                     👍👎 Feedback Buttons
                                 </Text>
-                                <div className={sectionStyle}>
-                                    <Text styles={{ root: { marginBottom: 12, display: "block" } }}>Help improve the tool by rating responses:</Text>
-                                    <Stack horizontal tokens={{ childrenGap: 24 }}>
-                                        <Stack horizontal verticalAlign="center" tokens={{ childrenGap: 8 }}>
-                                            <Icon iconName="Like" styles={{ root: { color: "#107c10", fontSize: 20 } }} />
-                                            <Text variant="small">Accurate & helpful</Text>
-                                        </Stack>
-                                        <Stack horizontal verticalAlign="center" tokens={{ childrenGap: 8 }}>
-                                            <Icon iconName="Dislike" styles={{ root: { color: "#d13438", fontSize: 20 } }} />
-                                            <Text variant="small">Inaccurate or unhelpful</Text>
-                                        </Stack>
-                                    </Stack>
-                                    <Text variant="small" styles={{ root: { marginTop: 12, color: "#605e5c" } }}>
+                                <div className={classes.section}>
+                                    <Text style={{ marginBottom: 12, display: "block" }}>Help improve the tool by rating responses:</Text>
+                                    <div style={{ display: "flex", flexDirection: "row", gap: "24px" }}>
+                                        <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "8px" }}>
+                                            <ThumbLikeRegular style={{ color: "#107c10", fontSize: 20 }} />
+                                            <Text size={200}>Accurate & helpful</Text>
+                                        </div>
+                                        <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "8px" }}>
+                                            <ThumbDislikeRegular style={{ color: "#d13438", fontSize: 20 }} />
+                                            <Text size={200}>Inaccurate or unhelpful</Text>
+                                        </div>
+                                    </div>
+                                    <Text size={200} style={{ marginTop: 12, color: "#605e5c" }}>
                                         You can optionally share your query to help us understand issues.
                                     </Text>
                                 </div>
-                            </Stack>
-                        </PivotItem>
+                            </div>
+                        )}
 
                         {/* Tips Tab */}
-                        <PivotItem headerText="Tips" itemIcon="LightningBolt">
-                            <Stack tokens={{ childrenGap: 16 }} styles={{ root: { marginTop: 16 } }}>
-                                <Text variant="large" styles={{ root: { fontWeight: 600 } }}>
+                        {selectedTab === "tips" && (
+                            <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginTop: 16 }}>
+                                <Text size={400} weight="semibold">
                                     ✅ Best Practices
                                 </Text>
 
-                                <div className={tipBoxStyle}>
-                                    <Stack horizontal verticalAlign="center" tokens={{ childrenGap: 8 }}>
-                                        <Icon iconName="CheckMark" styles={{ root: { color: "#107c10" } }} />
-                                        <Text variant="small">
+                                <div className={classes.tipBox}>
+                                    <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "8px" }}>
+                                        <CheckmarkRegular style={{ color: "#107c10" }} />
+                                        <Text size={200}>
                                             <strong>Be specific:</strong> "What is the time limit for filing an acknowledgment of service?"
                                         </Text>
-                                    </Stack>
+                                    </div>
                                 </div>
 
-                                <div className={tipBoxStyle}>
-                                    <Stack horizontal verticalAlign="center" tokens={{ childrenGap: 8 }}>
-                                        <Icon iconName="CheckMark" styles={{ root: { color: "#107c10" } }} />
-                                        <Text variant="small">
+                                <div className={classes.tipBox}>
+                                    <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "8px" }}>
+                                        <CheckmarkRegular style={{ color: "#107c10" }} />
+                                        <Text size={200}>
                                             <strong>Use legal terminology:</strong> "disclosure obligations" rather than "sharing documents"
                                         </Text>
-                                    </Stack>
+                                    </div>
                                 </div>
 
-                                <div className={tipBoxStyle}>
-                                    <Stack horizontal verticalAlign="center" tokens={{ childrenGap: 8 }}>
-                                        <Icon iconName="CheckMark" styles={{ root: { color: "#107c10" } }} />
-                                        <Text variant="small">
+                                <div className={classes.tipBox}>
+                                    <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "8px" }}>
+                                        <CheckmarkRegular style={{ color: "#107c10" }} />
+                                        <Text size={200}>
                                             <strong>Always verify:</strong> Click citations to check the source text matches the AI's summary
                                         </Text>
-                                    </Stack>
+                                    </div>
                                 </div>
 
-                                <div className={tipBoxStyle}>
-                                    <Stack horizontal verticalAlign="center" tokens={{ childrenGap: 8 }}>
-                                        <Icon iconName="CheckMark" styles={{ root: { color: "#107c10" } }} />
-                                        <Text variant="small">
+                                <div className={classes.tipBox}>
+                                    <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "8px" }}>
+                                        <CheckmarkRegular style={{ color: "#107c10" }} />
+                                        <Text size={200}>
                                             <strong>Use follow-up questions:</strong> The chat remembers context from your conversation
                                         </Text>
-                                    </Stack>
+                                    </div>
                                 </div>
 
-                                <Text variant="large" styles={{ root: { fontWeight: 600, marginTop: 12 } }}>
+                                <Text size={400} weight="semibold" style={{ marginTop: 12 }}>
                                     ⚠️ Important Warnings
                                 </Text>
 
-                                <div className={warningBoxStyle}>
-                                    <Stack horizontal verticalAlign="center" tokens={{ childrenGap: 8 }}>
-                                        <Icon iconName="Warning" styles={{ root: { color: "#d13438" } }} />
-                                        <Text variant="small">
+                                <div className={classes.warningBox}>
+                                    <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "8px" }}>
+                                        <WarningRegular style={{ color: "#d13438" }} />
+                                        <Text size={200}>
                                             <strong>Not for deadline calculations:</strong> Always verify deadlines via official court channels
                                         </Text>
-                                    </Stack>
+                                    </div>
                                 </div>
 
-                                <div className={warningBoxStyle}>
-                                    <Stack horizontal verticalAlign="center" tokens={{ childrenGap: 8 }}>
-                                        <Icon iconName="Warning" styles={{ root: { color: "#d13438" } }} />
-                                        <Text variant="small">
+                                <div className={classes.warningBox}>
+                                    <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "8px" }}>
+                                        <WarningRegular style={{ color: "#d13438" }} />
+                                        <Text size={200}>
                                             <strong>AI can make mistakes:</strong> Responses are assistive, not authoritative legal advice
                                         </Text>
-                                    </Stack>
+                                    </div>
                                 </div>
 
-                                <div className={warningBoxStyle}>
-                                    <Stack horizontal verticalAlign="center" tokens={{ childrenGap: 8 }}>
-                                        <Icon iconName="Warning" styles={{ root: { color: "#d13438" } }} />
-                                        <Text variant="small">
+                                <div className={classes.warningBox}>
+                                    <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "8px" }}>
+                                        <WarningRegular style={{ color: "#d13438" }} />
+                                        <Text size={200}>
                                             <strong>Check currency:</strong> Verify Practice Direction dates are current before relying on them
                                         </Text>
-                                    </Stack>
+                                    </div>
                                 </div>
 
-                                <Text variant="large" styles={{ root: { fontWeight: 600, marginTop: 12 } }}>
+                                <Text size={400} weight="semibold" style={{ marginTop: 12 }}>
                                     💡 Example Queries
                                 </Text>
-                                <div className={sectionStyle}>
-                                    <Stack tokens={{ childrenGap: 8 }}>
-                                        <Text variant="small" styles={{ root: { fontStyle: "italic" } }}>
+                                <div className={classes.section}>
+                                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                        <Text size={200} style={{ fontStyle: "italic" }}>
                                             "What are the requirements for standard disclosure under CPR Part 31?"
                                         </Text>
-                                        <Text variant="small" styles={{ root: { fontStyle: "italic" } }}>
+                                        <Text size={200} style={{ fontStyle: "italic" }}>
                                             "How do I apply for summary judgment?"
                                         </Text>
-                                        <Text variant="small" styles={{ root: { fontStyle: "italic" } }}>
+                                        <Text size={200} style={{ fontStyle: "italic" }}>
                                             "What are the cost budgeting requirements in the Commercial Court?"
                                         </Text>
-                                        <Text variant="small" styles={{ root: { fontStyle: "italic" } }}>
+                                        <Text size={200} style={{ fontStyle: "italic" }}>
                                             "Explain the pre-action protocol requirements for professional negligence claims"
                                         </Text>
-                                    </Stack>
+                                    </div>
                                 </div>
-                            </Stack>
-                        </PivotItem>
+                            </div>
+                        )}
 
                         {/* Privacy Tab */}
-                        <PivotItem headerText="Privacy" itemIcon="Shield">
-                            <Stack tokens={{ childrenGap: 16 }} styles={{ root: { marginTop: 16 } }}>
-                                <Text variant="large" styles={{ root: { fontWeight: 600 } }}>
+                        {selectedTab === "privacy" && (
+                            <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginTop: 16 }}>
+                                <Text size={400} weight="semibold">
                                     🛡️ Data Protection
                                 </Text>
 
-                                <div className={sectionStyle}>
-                                    <Stack tokens={{ childrenGap: 12 }}>
-                                        <Stack horizontal verticalAlign="center" tokens={{ childrenGap: 8 }}>
-                                            <Icon iconName="CheckMark" styles={{ root: { color: "#107c10" } }} />
-                                            <Text variant="small">
+                                <div className={classes.section}>
+                                    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                                        <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "8px" }}>
+                                            <CheckmarkRegular style={{ color: "#107c10" }} />
+                                            <Text size={200}>
                                                 <strong>NOT used for AI training:</strong> Your queries never train AI models
                                             </Text>
-                                        </Stack>
-                                        <Stack horizontal verticalAlign="center" tokens={{ childrenGap: 8 }}>
-                                            <Icon iconName="CheckMark" styles={{ root: { color: "#107c10" } }} />
-                                            <Text variant="small">
+                                        </div>
+                                        <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "8px" }}>
+                                            <CheckmarkRegular style={{ color: "#107c10" }} />
+                                            <Text size={200}>
                                                 <strong>NOT shared:</strong> Your queries are isolated - others cannot see them
                                             </Text>
-                                        </Stack>
-                                        <Stack horizontal verticalAlign="center" tokens={{ childrenGap: 8 }}>
-                                            <Icon iconName="CheckMark" styles={{ root: { color: "#107c10" } }} />
-                                            <Text variant="small">
+                                        </div>
+                                        <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "8px" }}>
+                                            <CheckmarkRegular style={{ color: "#107c10" }} />
+                                            <Text size={200}>
                                                 <strong>NOT sent to OpenAI:</strong> Uses Azure OpenAI (separate enterprise service)
                                             </Text>
-                                        </Stack>
-                                        <Stack horizontal verticalAlign="center" tokens={{ childrenGap: 8 }}>
-                                            <Icon iconName="CheckMark" styles={{ root: { color: "#107c10" } }} />
-                                            <Text variant="small">
+                                        </div>
+                                        <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "8px" }}>
+                                            <CheckmarkRegular style={{ color: "#107c10" }} />
+                                            <Text size={200}>
                                                 <strong>NOT stored:</strong> No chat history is retained after your session
                                             </Text>
-                                        </Stack>
-                                    </Stack>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <Text variant="large" styles={{ root: { fontWeight: 600 } }}>
+                                <Text size={400} weight="semibold">
                                     💾 What is Stored
                                 </Text>
-                                <div className={sectionStyle}>
-                                    <Stack tokens={{ childrenGap: 8 }}>
-                                        <Text variant="small">
+                                <div className={classes.section}>
+                                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                        <Text size={200}>
                                             <strong>Legal documents:</strong> CPR, Practice Directions, Court Guides (permanent)
                                         </Text>
-                                        <Text variant="small">
+                                        <Text size={200}>
                                             <strong>Feedback (optional):</strong> Only if you submit feedback and consent to share your query
                                         </Text>
-                                        <Text variant="small">
+                                        <Text size={200}>
                                             <strong>Your queries:</strong> NOT stored - discarded after processing
                                         </Text>
-                                    </Stack>
+                                    </div>
                                 </div>
 
-                                <Text variant="large" styles={{ root: { fontWeight: 600 } }}>
+                                <Text size={400} weight="semibold">
                                     ⚙️ Technical Details
                                 </Text>
-                                <div className={sectionStyle}>
-                                    <Stack tokens={{ childrenGap: 8 }}>
-                                        <Text variant="small">
+                                <div className={classes.section}>
+                                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                        <Text size={200}>
                                             <strong>AI Model:</strong> GPT-5-nano via Azure OpenAI
                                         </Text>
-                                        <Text variant="small">
+                                        <Text size={200}>
                                             <strong>Region:</strong> East US 2 (test environment)
                                         </Text>
-                                        <Text variant="small">
+                                        <Text size={200}>
                                             <strong>Encryption:</strong> TLS 1.2+ in transit, AES-256 at rest
                                         </Text>
-                                    </Stack>
+                                    </div>
                                 </div>
 
-                                <Text variant="large" styles={{ root: { fontWeight: 600 } }}>
+                                <Text size={400} weight="semibold">
                                     📚 Official Documentation
                                 </Text>
-                                <Stack tokens={{ childrenGap: 8 }}>
+                                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                                     <Link
                                         href="https://learn.microsoft.com/en-gb/legal/cognitive-services/openai/data-privacy"
                                         target="_blank"
@@ -702,12 +694,12 @@ export const HelpAboutPanel: React.FC = () => {
                                     <Link href="https://www.microsoft.com/en-gb/trust-center" target="_blank" rel="noopener noreferrer">
                                         Microsoft Trust Center (UK) →
                                     </Link>
-                                </Stack>
-                            </Stack>
-                        </PivotItem>
-                    </Pivot>
-                </div>
-            </Panel>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </DrawerBody>
+            </OverlayDrawer>
         </>
     );
 };

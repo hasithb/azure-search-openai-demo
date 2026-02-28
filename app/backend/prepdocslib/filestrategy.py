@@ -1,15 +1,19 @@
 import logging
 from typing import Optional
 
-from azure.core.credentials import AzureKeyCredential
-
-from .blobmanager import BlobManager
+from .blobmanager import AdlsBlobManager, BaseBlobManager, BlobManager
 from .embeddings import ImageEmbeddings, OpenAIEmbeddings
+from .figureprocessor import (
+    FigureProcessor,
+    MediaDescriptionStrategy,
+    process_page_image,
+)
 from .fileprocessor import FileProcessor
 from .listfilestrategy import File, ListFileStrategy
 from .mediadescriber import ContentUnderstandingDescriber
 from .searchmanager import SearchManager, Section
 from .strategy import DocumentAction, SearchInfo, Strategy
+from .textprocessor import process_text
 
 logger = logging.getLogger("scripts")
 
@@ -18,8 +22,12 @@ async def parse_file(
     file: File,
     file_processors: dict[str, FileProcessor],
     category: Optional[str] = None,
-    image_embeddings: Optional[ImageEmbeddings] = None,
+    blob_manager: Optional[BaseBlobManager] = None,
+    image_embeddings_client: Optional[ImageEmbeddings] = None,
+    figure_processor: Optional[FigureProcessor] = None,
+    user_oid: Optional[str] = None,
 ) -> list[Section]:
+
     key = file.file_extension().lower()
     processor = file_processors.get(key)
     if processor is None:
@@ -27,12 +35,18 @@ async def parse_file(
         return []
     logger.info("Ingesting '%s'", file.filename())
     pages = [page async for page in processor.parser.parse(content=file.content)]
-    logger.info("Splitting '%s' into sections", file.filename())
-    if image_embeddings:
-        logger.warning("Each page will be split into smaller chunks of text, but images will be of the entire page.")
-    sections = [
-        Section(split_page, content=file, category=category) for split_page in processor.splitter.split_pages(pages)
-    ]
+    for page in pages:
+        for image in page.images:
+            logger.info("Processing image '%s' on page %d", image.filename, page.page_num)
+            await process_page_image(
+                image=image,
+                document_filename=file.filename(),
+                blob_manager=blob_manager,
+                image_embeddings_client=image_embeddings_client,
+                figure_processor=figure_processor,
+                user_oid=user_oid,
+            )
+    sections = process_text(pages, file, processor.splitter, category)
     return sections
 
 
@@ -54,8 +68,10 @@ class FileStrategy(Strategy):
         search_field_name_embedding: Optional[str] = None,
         use_acls: bool = False,
         category: Optional[str] = None,
-        use_content_understanding: bool = False,
-        content_understanding_endpoint: Optional[str] = None,
+        figure_processor: Optional[FigureProcessor] = None,
+        enforce_access_control: bool = False,
+        use_web_source: bool = False,
+        use_sharepoint_source: bool = False,
     ):
         self.list_file_strategy = list_file_strategy
         self.blob_manager = blob_manager
@@ -68,33 +84,37 @@ class FileStrategy(Strategy):
         self.search_info = search_info
         self.use_acls = use_acls
         self.category = category
-        self.use_content_understanding = use_content_understanding
-        self.content_understanding_endpoint = content_understanding_endpoint
+        self.figure_processor = figure_processor
+        self.enforce_access_control = enforce_access_control
+        self.use_web_source = use_web_source
+        self.use_sharepoint_source = use_sharepoint_source
 
     def setup_search_manager(self):
         self.search_manager = SearchManager(
             self.search_info,
             self.search_analyzer_name,
             self.use_acls,
-            False,
+            False,  # use_parent_index_projection disabled for file-based ingestion
             self.embeddings,
             field_name_embedding=self.search_field_name_embedding,
             search_images=self.image_embeddings is not None,
+            enforce_access_control=self.enforce_access_control,
+            use_web_source=self.use_web_source,
+            use_sharepoint_source=self.use_sharepoint_source,
         )
 
     async def setup(self):
         self.setup_search_manager()
         await self.search_manager.create_index()
 
-        if self.use_content_understanding:
-            if self.content_understanding_endpoint is None:
-                raise ValueError("Content Understanding is enabled but no endpoint was provided")
-            if isinstance(self.search_info.credential, AzureKeyCredential):
-                raise ValueError(
-                    "AzureKeyCredential is not supported for Content Understanding, use keyless auth instead"
-                )
-            cu_manager = ContentUnderstandingDescriber(self.content_understanding_endpoint, self.search_info.credential)
-            await cu_manager.create_analyzer()
+        if (
+            self.figure_processor is not None
+            and self.figure_processor.strategy == MediaDescriptionStrategy.CONTENTUNDERSTANDING
+        ):
+            media_describer = await self.figure_processor.get_media_describer()
+            if isinstance(media_describer, ContentUnderstandingDescriber):
+                await media_describer.create_analyzer()
+                self.figure_processor.mark_content_understanding_ready()
 
     async def run(self):
         self.setup_search_manager()
@@ -102,13 +122,17 @@ class FileStrategy(Strategy):
             files = self.list_file_strategy.list()
             async for file in files:
                 try:
-                    sections = await parse_file(file, self.file_processors, self.category, self.image_embeddings)
+                    blob_url = await self.blob_manager.upload_blob(file)
+                    sections = await parse_file(
+                        file,
+                        self.file_processors,
+                        self.category,
+                        self.blob_manager,
+                        self.image_embeddings,
+                        figure_processor=self.figure_processor,
+                    )
                     if sections:
-                        blob_sas_uris = await self.blob_manager.upload_blob(file)
-                        blob_image_embeddings: Optional[list[list[float]]] = None
-                        if self.image_embeddings and blob_sas_uris:
-                            blob_image_embeddings = await self.image_embeddings.create_embeddings(blob_sas_uris)
-                        await self.search_manager.update_content(sections, blob_image_embeddings, url=file.url)
+                        await self.search_manager.update_content(sections, url=blob_url)
                 finally:
                     if file:
                         file.close()
@@ -131,29 +155,41 @@ class UploadUserFileStrategy:
         self,
         search_info: SearchInfo,
         file_processors: dict[str, FileProcessor],
+        blob_manager: AdlsBlobManager,
+        search_field_name_embedding: Optional[str] = None,
         embeddings: Optional[OpenAIEmbeddings] = None,
         image_embeddings: Optional[ImageEmbeddings] = None,
-        search_field_name_embedding: Optional[str] = None,
+        enforce_access_control: bool = False,
+        figure_processor: Optional[FigureProcessor] = None,
     ):
         self.file_processors = file_processors
         self.embeddings = embeddings
         self.image_embeddings = image_embeddings
         self.search_info = search_info
+        self.blob_manager = blob_manager
+        self.figure_processor = figure_processor
         self.search_manager = SearchManager(
             search_info=self.search_info,
             search_analyzer_name=None,
             use_acls=True,
-            use_int_vectorization=False,
+            use_parent_index_projection=False,
             embeddings=self.embeddings,
             field_name_embedding=search_field_name_embedding,
-            search_images=False,
+            search_images=image_embeddings is not None,
+            enforce_access_control=enforce_access_control,
         )
         self.search_field_name_embedding = search_field_name_embedding
 
-    async def add_file(self, file: File):
-        if self.image_embeddings:
-            logging.warning("Image embeddings are not currently supported for the user upload feature")
-        sections = await parse_file(file, self.file_processors)
+    async def add_file(self, file: File, user_oid: str):
+        sections = await parse_file(
+            file,
+            self.file_processors,
+            None,
+            self.blob_manager,
+            self.image_embeddings,
+            figure_processor=self.figure_processor,
+            user_oid=user_oid,
+        )
         if sections:
             await self.search_manager.update_content(sections, url=file.url)
 

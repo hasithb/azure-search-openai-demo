@@ -20,11 +20,6 @@
   "include": ["src"],
   "exclude": [
     "src/**/__tests__/**",
-    "src/**/*.test.*",
-    "src/components/GPT4VSettings",
-    "src/components/CategoryDropdown",
-    "src/components/SearchBoxWithCategories",
-    "src/customizations/DataPrivacyNotice.tsx",
-    "src/customizations/HelpAboutPanel.tsx"
+    "src/**/*.test.*"
   ]
 }

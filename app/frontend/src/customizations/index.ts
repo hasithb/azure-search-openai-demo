@@ -35,8 +35,7 @@ export { LegalFeedback } from "./LegalFeedback";
 export { isIframeBlocked } from "./externalSourceHandler";
 
 // Help & About Panel (replaces DataPrivacyNotice)
-// NOTE: Excluded from build (uses @fluentui/react v8). Uncomment after migrating to v9.
-// export { HelpAboutPanel } from "./HelpAboutPanel";
+export { HelpAboutPanel } from "./HelpAboutPanel";
 
 // Splash Screen (animated intro with morph-to-header effect)
 export { SplashScreen } from "./SplashScreen";
