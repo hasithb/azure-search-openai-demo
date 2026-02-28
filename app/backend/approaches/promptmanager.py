@@ -103,3 +103,21 @@ class PromptManager:
         """Load tools from a JSON file."""
         with open(self.PROMPTS_DIRECTORY / path) as f:
             return cast(list[ChatCompletionToolParam], json.load(f))
+
+    # CUSTOM: Helper to convert messages to human-readable format for thought steps
+    def messages_to_readable(self, messages: list[ChatCompletionMessageParam]) -> str:
+        """Convert a list of ChatCompletionMessageParam to a readable string for debugging."""
+        parts: list[str] = []
+        for msg in messages:
+            role = msg.get("role", "unknown") if isinstance(msg, dict) else getattr(msg, "role", "unknown")
+            content = msg.get("content", "") if isinstance(msg, dict) else getattr(msg, "content", "")
+            if isinstance(content, list):
+                # Handle multi-part content (text + images)
+                text_parts = [p.get("text", "") for p in content if isinstance(p, dict) and p.get("type") == "text"]
+                content = " ".join(text_parts)
+            content_str = str(content) if content else ""
+            # Truncate long content
+            if len(content_str) > 500:
+                content_str = content_str[:500] + "..."
+            parts.append(f"[{role}]: {content_str}")
+        return "\n".join(parts)

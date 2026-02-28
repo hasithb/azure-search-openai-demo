@@ -49,6 +49,10 @@ from approaches.promptmanager import PromptManager
 from prepdocslib.blobmanager import AdlsBlobManager, BlobManager
 from prepdocslib.embeddings import ImageEmbeddings
 
+# CUSTOM: Import legal domain customizations
+from customizations.approaches import citation_builder, source_processor
+from customizations import is_feature_enabled
+
 
 @dataclass
 class ActivityDetail:
@@ -282,15 +286,50 @@ class Approach(ABC):
         self.global_blob_manager = global_blob_manager
         self.user_blob_manager = user_blob_manager
 
+    # CUSTOM: Fuzzy search operator for typo tolerance
+    def add_fuzzy_operators(self, query_text: str, edit_distance: int = 1) -> str:
+        """Add fuzzy operators (~1 or ~2) to search terms for typo tolerance."""
+        words = re.findall(r"\b\w+\b|AND|OR|NOT", query_text)
+        fuzzy_words = []
+        for word in words:
+            if word in ("AND", "OR", "NOT") or len(word) <= 2:
+                fuzzy_words.append(word)
+            else:
+                fuzzy_words.append(f"{word}~{edit_distance}")
+        return " ".join(fuzzy_words)
+
+    # CUSTOM: Enhanced build_filter with multi-category support
     def build_filter(self, overrides: dict[str, Any]) -> Optional[str]:
         include_category = overrides.get("include_category")
         exclude_category = overrides.get("exclude_category")
         filters = []
-        if include_category:
-            filters.append("category eq '{}'".format(include_category.replace("'", "''")))
+        if include_category and include_category not in ("All", ""):
+            if "," in include_category:
+                cat_filters = [
+                    "category eq '{}'".format(p.strip().replace("'", "''"))
+                    for p in include_category.split(",")
+                    if p.strip()
+                ]
+                if cat_filters:
+                    filters.append(f"({' or '.join(cat_filters)})")
+            else:
+                filters.append("category eq '{}'".format(include_category.replace("'", "''")))
         if exclude_category:
             filters.append("category ne '{}'".format(exclude_category.replace("'", "''")))
         return None if not filters else " and ".join(filters)
+
+    # CUSTOM: Subsection delegation methods for citation_builder
+    def _get_subsection_sort_key(self, subsection_id: str) -> tuple:
+        """Generate sort key for subsection ordering - delegates to customizations module"""
+        return citation_builder.get_subsection_sort_key(subsection_id)
+
+    def _extract_subsection_from_document(self, doc: Document) -> str:
+        """Extract subsection from document - delegates to customizations module"""
+        return citation_builder.extract_subsection(doc)
+
+    def _extract_multiple_subsections_from_document(self, doc: Document) -> list[dict[str, str]]:
+        """Extract multiple subsections from document - delegates to customizations module"""
+        return citation_builder.extract_multiple_subsections(doc)
 
     async def search(
         self,
@@ -661,6 +700,76 @@ class Approach(ABC):
                 # Replace all ref_id tokens (web -> URL, documents -> sourcepage, SharePoint -> web_url)
                 if raw_answer:
                     answer = self.replace_all_ref_ids(raw_answer, document_results, web_results, sharepoint_results)
+
+        # CUSTOM: If no document references returned, force querying sources
+        if not document_results and is_feature_enabled("agentic_force_query_on_empty"):
+            import logging
+
+            logging.info("CUSTOM: No agentic results; retrying with always_query_source=True.")
+            retry_source_params: list[KnowledgeSourceParams] = [
+                SearchIndexKnowledgeSourceParams(
+                    knowledge_source_name=search_index_name,
+                    filter_add_on=filter_add_on,
+                    include_references=True,
+                    include_reference_source_data=True,
+                    always_query_source=True,
+                    reranker_threshold=minimum_reranker_score,
+                )
+            ]
+            retry_kwargs: dict[str, Any] = dict(request_kwargs)
+            retry_kwargs["knowledge_source_params"] = retry_source_params
+            retry_response = await knowledgebase_client.retrieve(
+                retrieval_request=KnowledgeBaseRetrievalRequest(**retry_kwargs),
+                x_ms_query_source_authorization=access_token,
+            )
+            retry_refs = retry_response.references or []
+            for ref in retry_refs:
+                if isinstance(ref, KnowledgeBaseSearchIndexReference) and ref.source_data and ref.doc_key:
+                    document_results.append(
+                        Document(
+                            id=cast(str, ref.doc_key),
+                            ref_id=ref.id,
+                            content=ref.source_data.get("content"),
+                            category=ref.source_data.get("category"),
+                            sourcepage=ref.source_data.get("sourcepage"),
+                            sourcefile=ref.source_data.get("sourcefile"),
+                            oids=ref.source_data.get("oids"),
+                            groups=ref.source_data.get("groups"),
+                            reranker_score=getattr(ref, "reranker_score", None),
+                            images=ref.source_data.get("images"),
+                        )
+                    )
+
+        # CUSTOM: If references are still missing, fall back to direct search using agentic query plan
+        if not document_results and is_feature_enabled("agentic_fallback_search"):
+            import logging
+
+            logging.info("CUSTOM: No agentic references; running fallback search using agentic queries.")
+            query_candidates = [ad.query for ad in activity_details_by_id.values() if ad.query]
+            if not query_candidates and messages:
+                last_content = messages[-1]["content"] if messages else ""
+                if isinstance(last_content, str) and last_content:
+                    query_candidates = [last_content]
+
+            seen_ids: set[str] = set()
+            for q in query_candidates:
+                docs = await self.search(
+                    top=3,
+                    query_text=str(q),
+                    filter=filter_add_on,
+                    vectors=[],
+                    use_text_search=True,
+                    use_vector_search=False,
+                    use_semantic_ranker=True,
+                    use_semantic_captions=False,
+                    minimum_search_score=0,
+                    minimum_reranker_score=0,
+                    use_query_rewriting=False,
+                )
+                for doc in docs:
+                    if doc.id and doc.id not in seen_ids:
+                        seen_ids.add(doc.id)
+                        document_results.append(doc)
 
         thoughts.append(
             ThoughtStep(

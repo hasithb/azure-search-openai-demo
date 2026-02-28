@@ -34,6 +34,8 @@ import { TokenClaimsDisplay } from "../../components/TokenClaimsDisplay";
 import { LoginContext } from "../../loginContext";
 import { LanguagePicker } from "../../i18n/LanguagePicker";
 import { Settings } from "../../components/Settings/Settings";
+// CUSTOM: Import from customizations folder for merge-safe architecture
+import { useCategories } from "../../customizations";
 
 const Chat = () => {
     const [isConfigPanelOpen, setIsConfigPanelOpen] = useState(false);
@@ -78,6 +80,9 @@ const Chat = () => {
     const [answers, setAnswers] = useState<[user: string, response: ChatAppResponse][]>([]);
     const [streamedAnswers, setStreamedAnswers] = useState<[user: string, response: ChatAppResponse][]>([]);
     const [speechUrls, setSpeechUrls] = useState<(string | null)[]>([]);
+
+    // CUSTOM: Load categories for dropdown
+    const { categories = [] } = useCategories();
 
     const [showMultimodalOptions, setShowMultimodalOptions] = useState<boolean>(false);
     const [showSemanticRankerOption, setShowSemanticRankerOption] = useState<boolean>(false);
@@ -729,6 +734,7 @@ const Chat = () => {
                             useSharePointSource={sharePointSourceEnabled}
                             showSharePointSourceOption={sharePointSourceSupported}
                             hideMinimalRetrievalReasoningOption={hideMinimalRetrievalReasoningOption}
+                            categories={categories}
                             onChange={handleSettingsChange}
                         />
                         {useLogin && <TokenClaimsDisplay />}

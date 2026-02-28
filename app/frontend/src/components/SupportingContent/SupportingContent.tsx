@@ -10,13 +10,30 @@ import { isIframeBlocked, isAdminMode } from "../../customizations";
 const adminMode = isAdminMode();
 
 interface SupportingContentProps {
-    supportingContent: any[];
+    supportingContent: any;
     activeCitationReference?: string;
     activeCitationContent?: string;
     onViewSourceDocument?: (citation: string) => void;
 }
 
-export const SupportingContent = ({ supportingContent, activeCitationReference, activeCitationContent, onViewSourceDocument }: SupportingContentProps) => {
+// CUSTOM: Helper to normalize DataPoints object or legacy array into a flat array
+const toContentArray = (input: any): any[] => {
+    if (!input) return [];
+    if (Array.isArray(input)) return input;
+    // New DataPoints object: merge text + external results
+    const items: any[] = [];
+    if (Array.isArray(input.text)) items.push(...input.text);
+    if (Array.isArray(input.external_results_metadata)) items.push(...input.external_results_metadata);
+    return items;
+};
+
+export const SupportingContent = ({
+    supportingContent: rawSupportingContent,
+    activeCitationReference,
+    activeCitationContent,
+    onViewSourceDocument
+}: SupportingContentProps) => {
+    const supportingContent = toContentArray(rawSupportingContent);
     const { t } = useTranslation();
     const containerRef = useRef<HTMLDivElement>(null);
     const [activeCitation, setActiveCitation] = useState<string>();

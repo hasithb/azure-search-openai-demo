@@ -48,6 +48,8 @@ export interface SettingsProps {
     showWebSourceOption?: boolean;
     useSharePointSource?: boolean;
     showSharePointSourceOption?: boolean;
+    // CUSTOM: Dynamic categories from /api/categories endpoint
+    categories?: { key: string; text: string }[];
 }
 
 export const Settings = ({
@@ -90,7 +92,8 @@ export const Settings = ({
     useWebSource = false,
     showWebSourceOption = false,
     useSharePointSource = false,
-    showSharePointSourceOption = false
+    showSharePointSourceOption = false,
+    categories = []
 }: SettingsProps) => {
     const { t } = useTranslation();
 
@@ -355,6 +358,12 @@ export const Settings = ({
                     aria-labelledby={includeCategoryId}
                 >
                     <Option value="">{t("labels.includeCategoryOptions.all")}</Option>
+                    {/* CUSTOM: Dynamic categories from API */}
+                    {categories.map(cat => (
+                        <Option key={cat.key} value={cat.key}>
+                            {cat.text}
+                        </Option>
+                    ))}
                 </Dropdown>
             </div>
             <div className={styles.settingsField}>
