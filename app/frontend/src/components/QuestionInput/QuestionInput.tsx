@@ -25,9 +25,22 @@ interface Props {
     onStop: () => void;
     isStreaming: boolean;
     isLoading: boolean;
+    // CUSTOM: Optional content rendered to the left of the send button (e.g. category/depth dropdowns)
+    leftOfSend?: React.ReactNode;
 }
 
-export const QuestionInput = ({ onSend, onStop, disabled, placeholder, clearOnSend, initQuestion, showSpeechInput, isStreaming, isLoading }: Props) => {
+export const QuestionInput = ({
+    onSend,
+    onStop,
+    disabled,
+    placeholder,
+    clearOnSend,
+    initQuestion,
+    showSpeechInput,
+    isStreaming,
+    isLoading,
+    leftOfSend
+}: Props) => {
     const [question, setQuestion] = useState<string>("");
     const { loggedIn } = useContext(LoginContext);
     const { t } = useTranslation();
@@ -107,6 +120,7 @@ export const QuestionInput = ({ onSend, onStop, disabled, placeholder, clearOnSe
                 onCompositionStart={handleCompositionStart}
                 onCompositionEnd={handleCompositionEnd}
             />
+            {leftOfSend}
             <div className={styles.questionInputButtonsContainer}>
                 {isStreaming || isLoading ? (
                     <Tooltip content={t("tooltips.stopStreaming")} relationship="label">

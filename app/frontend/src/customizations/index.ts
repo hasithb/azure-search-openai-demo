@@ -39,3 +39,6 @@ export { HelpAboutPanel } from "./HelpAboutPanel";
 
 // Splash Screen (animated intro with morph-to-header effect)
 export { SplashScreen } from "./SplashScreen";
+
+// Chat Input Controls (category filter + depth dropdowns, FluentUI v9)
+export { ChatInputControls, MobileDropdownPanel } from "./ChatInputControls";

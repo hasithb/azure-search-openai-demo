@@ -42,7 +42,9 @@ export default defineConfig({
             "/list_uploaded": "http://localhost:50505",
             "/chat_history": "http://localhost:50505",
             // CUSTOM: Category filter API route
-            "/api/categories": "http://localhost:50505"
+            "/api/categories": "http://localhost:50505",
+            // CUSTOM: Legal feedback API route
+            "/api/feedback": "http://localhost:50505"
         }
     }
 });

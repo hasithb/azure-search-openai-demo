@@ -7,6 +7,8 @@ import { MsalProvider } from "@azure/msal-react";
 import { AuthenticationResult, EventType, PublicClientApplication } from "@azure/msal-browser";
 
 import "./index.css";
+// CUSTOM: Mobile-responsive styles for legal RAG app
+import "./customizations/mobile.css";
 
 import Chat from "./pages/chat/Chat";
 import LayoutWrapper from "./layoutWrapper";

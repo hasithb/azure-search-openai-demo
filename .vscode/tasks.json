@@ -55,9 +55,9 @@
         {
             "label": "Backend: quart run",
             "type": "shell",
-            "command": "${workspaceFolder}/.venv/bin/python",
+            "command": "${workspaceFolder}/.venv-upgrade/bin/python",
             "windows": {
-                "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe"
+                "command": "${workspaceFolder}\\.venv-upgrade\\Scripts\\python.exe"
             },
             "args": ["-m", "quart", "run", "--reload", "-p", "50505"],
             "options": {

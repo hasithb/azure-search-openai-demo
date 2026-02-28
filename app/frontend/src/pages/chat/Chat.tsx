@@ -35,9 +35,19 @@ import { LoginContext } from "../../loginContext";
 import { LanguagePicker } from "../../i18n/LanguagePicker";
 import { Settings } from "../../components/Settings/Settings";
 // CUSTOM: Import from customizations folder for merge-safe architecture
-import { useCategories } from "../../customizations";
+import { useCategories } from "../../customizations/useCategories";
+import { LegalFeedback } from "../../customizations/LegalFeedback";
+import { ChatInputControls, MobileDropdownPanel } from "../../customizations/ChatInputControls";
+import { isFeatureEnabled, isAdminMode } from "../../customizations/config";
+import { useIsMobile } from "../../customizations/useMobile";
+
+// CUSTOM: Check if admin mode is enabled (via config or ?admin=true URL parameter)
+const adminMode = isAdminMode();
 
 const Chat = () => {
+    // CUSTOM: Mobile detection for responsive UI
+    const isMobile = useIsMobile();
+
     const [isConfigPanelOpen, setIsConfigPanelOpen] = useState(false);
     const [isHistoryPanelOpen, setIsHistoryPanelOpen] = useState(false);
     const [promptTemplate, setPromptTemplate] = useState<string>("");
@@ -58,6 +68,12 @@ const Chat = () => {
     const [useSemanticCaptions, setUseSemanticCaptions] = useState<boolean>(false);
     const [includeCategory, setIncludeCategory] = useState<string>("");
     const [excludeCategory, setExcludeCategory] = useState<string>("");
+    // CUSTOM: Category filter and mobile dropdown state
+    const [allCategoriesSelected, setAllCategoriesSelected] = useState<boolean>(false);
+    const [showMobileDropdown, setShowMobileDropdown] = useState<boolean>(false);
+    const [userHasInteracted, setUserHasInteracted] = useState<boolean>(false);
+    const [userTriedToSearch, setUserTriedToSearch] = useState<boolean>(false);
+    const [showCategoryFilter, setShowCategoryFilter] = useState<boolean>(false);
     const [useSuggestFollowupQuestions, setUseSuggestFollowupQuestions] = useState<boolean>(false);
     const [searchTextEmbeddings, setSearchTextEmbeddings] = useState<boolean>(true);
     const [searchImageEmbeddings, setSearchImageEmbeddings] = useState<boolean>(false);
@@ -158,6 +174,8 @@ const Chat = () => {
             const defaultRetrievalEffort = config.defaultRetrievalReasoningEffort ?? "minimal";
             setHideMinimalRetrievalReasoningOption(config.webSourceEnabled);
             setRetrievalReasoningEffort(defaultRetrievalEffort);
+            // CUSTOM: Enable category filter from frontend feature flag
+            setShowCategoryFilter(isFeatureEnabled("categoryFilter"));
         });
     };
 
@@ -260,6 +278,17 @@ const Chat = () => {
     };
 
     const makeApiRequest = async (question: string) => {
+        // CUSTOM: Block search if no category is selected and "All" isn't ticked
+        if (showCategoryFilter && includeCategory.trim() === "" && !allCategoriesSelected) {
+            setUserTriedToSearch(true);
+            if (isMobile) {
+                setShowMobileDropdown(true);
+            }
+            return;
+        }
+        setUserTriedToSearch(false);
+        setUserHasInteracted(true);
+
         const controller = new AbortController();
         setAbortController(controller);
         lastQuestionRef.current = question;
@@ -549,7 +578,8 @@ const Chat = () => {
                 <div className={styles.commandsContainer}>
                     <ClearChatButton className={styles.commandButton} onClick={clearChat} disabled={!lastQuestionRef.current || isLoading} />
                     {showUserUpload && <UploadFile className={styles.commandButton} disabled={!loggedIn} />}
-                    <SettingsButton className={styles.commandButton} onClick={() => setIsConfigPanelOpen(!isConfigPanelOpen)} />
+                    {/* CUSTOM: Only show developer settings in admin mode (add ?admin=true to URL) */}
+                    {adminMode && <SettingsButton className={styles.commandButton} onClick={() => setIsConfigPanelOpen(!isConfigPanelOpen)} />}
                 </div>
             </div>
             <div className={styles.chatRoot} style={{ marginLeft: isHistoryPanelOpen ? "300px" : "0" }}>
@@ -609,6 +639,19 @@ const Chat = () => {
                                                 showSpeechOutputAzure={showSpeechOutputAzure}
                                                 showSpeechOutputBrowser={showSpeechOutputBrowser}
                                             />
+                                            {/* CUSTOM: Legal feedback thumbs for completed answers */}
+                                            <div style={{ marginTop: 8, display: "flex", justifyContent: "flex-end" }}>
+                                                <LegalFeedback
+                                                    messageId={`msg-${index}-${answer[0].slice(0, 24).replace(/\s+/g, "-")}`}
+                                                    userPrompt={answer[0]}
+                                                    aiResponse={answer[1].message?.content ?? ""}
+                                                    conversationHistory={answers.slice(0, index + 1).flatMap(item => [
+                                                        { role: "user" as const, content: item[0] },
+                                                        { role: "assistant" as const, content: item[1].message?.content ?? "" }
+                                                    ])}
+                                                    thoughts={answer[1].context?.thoughts ?? []}
+                                                />
+                                            </div>
                                         </div>
                                     </div>
                                 ))}
@@ -635,7 +678,7 @@ const Chat = () => {
                     <div className={styles.chatInput}>
                         <QuestionInput
                             clearOnSend
-                            placeholder={t("defaultExamples.placeholder")}
+                            placeholder={isMobile ? t("defaultExamples.placeholder") : t("defaultExamples.placeholder")}
                             disabled={isLoading}
                             onSend={question => makeApiRequest(question)}
                             showSpeechInput={showSpeechInput}
@@ -643,7 +686,70 @@ const Chat = () => {
                             isLoading={isLoading}
                             onStop={onStopClick}
                             initQuestion={restoredQuestion}
+                            leftOfSend={
+                                <ChatInputControls
+                                    categories={categories}
+                                    categoriesLoading={false}
+                                    includeCategory={includeCategory}
+                                    setIncludeCategory={(val: string) => {
+                                        setIncludeCategory(val);
+                                        setUserHasInteracted(true);
+                                        setUserTriedToSearch(false);
+                                    }}
+                                    allCategoriesSelected={allCategoriesSelected}
+                                    setAllCategoriesSelected={(val: boolean) => {
+                                        setAllCategoriesSelected(val);
+                                        setUserHasInteracted(true);
+                                        setUserTriedToSearch(false);
+                                    }}
+                                    agenticReasoningEffort={agenticReasoningEffort}
+                                    setAgenticReasoningEffort={val => setRetrievalReasoningEffort(val)}
+                                    showCategoryFilter={showCategoryFilter}
+                                    showAgenticRetrievalOption={showAgenticRetrievalOption}
+                                    useAgenticRetrieval={useAgenticKnowledgeBase}
+                                    isLoading={isLoading}
+                                    isMobile={isMobile}
+                                    showMobileDropdown={showMobileDropdown}
+                                    setShowMobileDropdown={setShowMobileDropdown}
+                                />
+                            }
                         />
+                        {/* CUSTOM: Mobile dropdown panel - shown when settings button is clicked */}
+                        {isMobile && showMobileDropdown && (
+                            <MobileDropdownPanel
+                                categories={categories}
+                                categoriesLoading={false}
+                                includeCategory={includeCategory}
+                                setIncludeCategory={(val: string) => {
+                                    setIncludeCategory(val);
+                                    setUserHasInteracted(true);
+                                    setUserTriedToSearch(false);
+                                }}
+                                allCategoriesSelected={allCategoriesSelected}
+                                setAllCategoriesSelected={(val: boolean) => {
+                                    setAllCategoriesSelected(val);
+                                    setUserHasInteracted(true);
+                                    setUserTriedToSearch(false);
+                                }}
+                                agenticReasoningEffort={agenticReasoningEffort}
+                                setAgenticReasoningEffort={val => setRetrievalReasoningEffort(val)}
+                                showCategoryFilter={showCategoryFilter}
+                                showAgenticRetrievalOption={showAgenticRetrievalOption}
+                                useAgenticRetrieval={useAgenticKnowledgeBase}
+                                isLoading={isLoading}
+                            />
+                        )}
+                        {/* CUSTOM: Category validation warning */}
+                        {showCategoryFilter && userTriedToSearch && !userHasInteracted && (
+                            <div
+                                className={styles.categoryWarning}
+                                onClick={() => isMobile && setShowMobileDropdown(true)}
+                                style={isMobile ? { cursor: "pointer" } : {}}
+                            >
+                                Please select a source before searching. Choose &quot;All Sources&quot; to search all documents.
+                                {isMobile && " Tap the settings icon above to select a source."}
+                            </div>
+                        )}
                     </div>
                 </div>
 
