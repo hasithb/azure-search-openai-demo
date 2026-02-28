@@ -34,52 +34,41 @@ const createResponse = (overrides: Partial<TestResponse>): TestResponse => {
 };
 
 describe("parseAnswerToHtml", () => {
-    it("constructs three-part citations from subsection-aware data points", () => {
+    it("creates citation details for valid citations matching data_points.citations", () => {
         const response = createResponse({
-            message: { content: "See this guidance [1]", role: "assistant" },
+            message: { content: "See this guidance [doc1.pdf]", role: "assistant" },
             context: {
                 data_points: {
-                    text: [
-                        {
-                            content: "D5.1 Filing deadlines\n\nThe parties must exchange schedules of loss before listing.",
-                            sourcepage: "D5 - Filing deadlines (p. 210)",
-                            sourcefile: "Commercial Court Guide",
-                            subsection_id: "D5.1"
-                        }
-                    ]
+                    text: ["Some source text"],
+                    citations: ["doc1.pdf"]
                 }
             } as any
         });
 
-        const result = parseAnswerToHtml(response as any, false);
+        const result = parseAnswerToHtml(response as any, false, () => {});
 
-        expect(result.citations).toEqual(["D5.1, D5 - Filing deadlines (p. 210), Commercial Court Guide"]);
+        expect(result.citations).toHaveLength(1);
+        expect(result.citations[0].reference).toBe("doc1.pdf");
+        expect(result.citations[0].index).toBe(1);
         expect(result.answerHtml).toContain("<sup");
     });
 
-    it("fixes mismatched citation metadata by aligning with indexed subsection", () => {
+    it("returns empty citations when no matching citation exists in data_points", () => {
         const response = createResponse({
-            message: { content: "Requirements are listed in [1]", role: "assistant" },
+            message: { content: "Requirements are listed in [unknown.pdf]", role: "assistant" },
             context: {
-                citation_map: {
-                    "1": "D5.1, Part 63, Practice Direction 63"
-                },
                 data_points: {
-                    text: [
-                        {
-                            content: "D5.1 Requirements\n\nFull paragraph text.",
-                            sourcepage: "D5 - Requirements (p. 75)",
-                            sourcefile: "Technology and Construction Court Guide",
-                            subsection_id: "D5.1"
-                        }
-                    ]
+                    text: ["Some text"],
+                    citations: ["other.pdf"]
                 }
             } as any
         });
 
-        const result = parseAnswerToHtml(response as any, false);
+        const result = parseAnswerToHtml(response as any, false, () => {});
 
-        expect(result.citations).toEqual(["D5.1, D5 - Requirements (p. 75), Technology and Construction Court Guide"]);
+        expect(result.citations).toHaveLength(0);
+        // The unmatched citation is rendered as plain text
+        expect(result.answerHtml).toContain("[unknown.pdf]");
     });
 });
 
