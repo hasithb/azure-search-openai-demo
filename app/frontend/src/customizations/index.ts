@@ -28,6 +28,9 @@ export type { Category } from "./useCategories";
 // Mobile detection and abbreviations (source names and responsive hooks)
 export { useIsMobile, getAbbreviatedCategory, getDepthLabel, DEPTH_OPTIONS } from "./useMobile";
 
+// Data privacy notice (fixed-position shield button + dismissible banner)
+export { DataPrivacyNotice } from "./DataPrivacyNotice";
+
 // Legal Feedback
 export { LegalFeedback } from "./LegalFeedback";
 

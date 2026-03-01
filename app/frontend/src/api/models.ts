@@ -111,6 +111,8 @@ export type ChatAppRequest = {
 export type Config = {
     defaultReasoningEffort: string;
     defaultRetrievalReasoningEffort: string;
+    // CUSTOM: Category filter flag from backend customizations
+    showCategoryFilter?: boolean;
     showMultimodalOptions: boolean;
     showSemanticRankerOption: boolean;
     showQueryRewritingOption: boolean;

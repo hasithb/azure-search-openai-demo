@@ -174,8 +174,8 @@ const Chat = () => {
             const defaultRetrievalEffort = config.defaultRetrievalReasoningEffort ?? "minimal";
             setHideMinimalRetrievalReasoningOption(config.webSourceEnabled);
             setRetrievalReasoningEffort(defaultRetrievalEffort);
-            // CUSTOM: Enable category filter from frontend feature flag
-            setShowCategoryFilter(isFeatureEnabled("categoryFilter"));
+            // CUSTOM: Enable category filter from backend config (with frontend feature flag fallback)
+            setShowCategoryFilter(config.showCategoryFilter ?? isFeatureEnabled("categoryFilter"));
         });
     };
 
