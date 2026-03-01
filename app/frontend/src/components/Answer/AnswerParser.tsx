@@ -176,7 +176,8 @@ const collectCitations = (answer: ChatAppResponse, isStreaming: boolean): { frag
     return { fragments, citations: citationList };
 };
 
-const renderCitation = (detail: CitationDetail, onCitationClicked: (citationFilePath: string) => void) => {
+// CUSTOM: 2-arg signature allows passing citation content for display enrichment
+const renderCitation = (detail: CitationDetail, onCitationClicked: (citationFilePath: string, content?: string) => void) => {
     const stepBadgeLabel = detail.stepSource ?? detail.stepLabel;
     const stepBadgeTitle =
         detail.stepNumber !== undefined
@@ -221,7 +222,7 @@ const renderCitation = (detail: CitationDetail, onCitationClicked: (citationFile
     );
 };
 
-export function parseAnswerToHtml(answer: ChatAppResponse, isStreaming: boolean, onCitationClicked: (citationFilePath: string) => void): HtmlParsedAnswer {
+export function parseAnswerToHtml(answer: ChatAppResponse, isStreaming: boolean, onCitationClicked: (citationFilePath: string, content?: string) => void): HtmlParsedAnswer {
     const { fragments, citations } = collectCitations(answer, isStreaming);
     const answerHtml = fragments.map(fragment => (fragment.type === "text" ? fragment.value : renderCitation(fragment.detail, onCitationClicked))).join("");
 

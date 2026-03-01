@@ -20,7 +20,8 @@ interface Props {
     speechConfig: SpeechConfig;
     isSelected?: boolean;
     isStreaming: boolean;
-    onCitationClicked: (filePath: string) => void;
+    // CUSTOM: Optional second arg passes citation content for display enrichment
+    onCitationClicked: (filePath: string, content?: string) => void;
     onThoughtProcessClicked: () => void;
     onSupportingContentClicked: () => void;
     onFollowupQuestionClicked?: (question: string) => void;

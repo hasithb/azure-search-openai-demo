@@ -10,6 +10,8 @@ import { SupportingContent } from "../SupportingContent";
 import styles from "./AnalysisPanel.module.css";
 import { AnalysisPanelTabs } from "./AnalysisPanelTabs";
 import { ThoughtProcess } from "./ThoughtProcess";
+// CUSTOM: Import external source handler for iframe blocking detection
+import { isIframeBlocked } from "../../customizations";
 
 interface Props {
     className: string;
@@ -19,9 +21,26 @@ interface Props {
     citationHeight: string;
     answer: ChatAppResponse;
     onCitationClicked?: (citationFilePath: string) => void;
+    // CUSTOM: Extra props for enhanced citation handling
+    activeCitationLabel?: string | undefined;
+    activeCitationContent?: string | undefined;
+    enableCitationTab?: boolean;
+    onCitationChanged?: (citation: string) => void;
 }
 
-export const AnalysisPanel = ({ answer, activeTab, activeCitation, citationHeight, className, onActiveTabChanged, onCitationClicked }: Props) => {
+export const AnalysisPanel = ({
+    answer,
+    activeTab,
+    activeCitation,
+    citationHeight,
+    className,
+    onActiveTabChanged,
+    onCitationClicked,
+    activeCitationLabel,
+    activeCitationContent,
+    enableCitationTab = false,
+    onCitationChanged
+}: Props) => {
     const isDisabledThoughtProcessTab: boolean = !answer.context.thoughts;
     const dataPoints = answer.context.data_points;
     const hasSupportingContent = Boolean(
@@ -31,7 +50,9 @@ export const AnalysisPanel = ({ answer, activeTab, activeCitation, citationHeigh
                 (dataPoints.external_results_metadata && dataPoints.external_results_metadata.length > 0))
     );
     const isDisabledSupportingContentTab: boolean = !hasSupportingContent;
-    const isDisabledCitationTab: boolean = !activeCitation;
+    // CUSTOM: Disable citation tab if blocked from iframe embedding or not enabled
+    const isBlocked = activeCitation ? isIframeBlocked(activeCitation) : false;
+    const isDisabledCitationTab: boolean = !activeCitation || !enableCitationTab || isBlocked;
     const [citation, setCitation] = useState("");
 
     const client = useLogin ? useMsal().instance : undefined;
@@ -58,7 +79,7 @@ export const AnalysisPanel = ({ answer, activeTab, activeCitation, citationHeigh
     };
     useEffect(() => {
         fetchCitation();
-    }, []);
+    }, [activeCitation]);
 
     const renderFileViewer = () => {
         if (!activeCitation) {

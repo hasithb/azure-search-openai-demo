@@ -40,6 +40,8 @@ import { LegalFeedback } from "../../customizations/LegalFeedback";
 import { ChatInputControls, MobileDropdownPanel } from "../../customizations/ChatInputControls";
 import { isFeatureEnabled, isAdminMode } from "../../customizations/config";
 import { useIsMobile } from "../../customizations/useMobile";
+import { isIframeBlocked } from "../../customizations/externalSourceHandler";
+import { HelpAboutPanel } from "../../customizations/HelpAboutPanel";
 
 // CUSTOM: Check if admin mode is enabled (via config or ?admin=true URL parameter)
 const adminMode = isAdminMode();
@@ -90,6 +92,10 @@ const Chat = () => {
     const [error, setError] = useState<unknown>();
 
     const [activeCitation, setActiveCitation] = useState<string>();
+    // CUSTOM: Extra citation state for enhanced citation handling (iframe blocking, label, content)
+    const [activeCitationContent, setActiveCitationContent] = useState<string>("");
+    const [activeCitationLabel, setActiveCitationLabel] = useState<string>("");
+    const [enableCitationTab, setEnableCitationTab] = useState<boolean>(false);
     const [activeAnalysisPanelTab, setActiveAnalysisPanelTab] = useState<AnalysisPanelTabs | undefined>(undefined);
 
     const [selectedAnswer, setSelectedAnswer] = useState<number>(0);
@@ -530,11 +536,21 @@ const Chat = () => {
         makeApiRequest(example);
     };
 
-    const onShowCitation = (citation: string, index: number) => {
+    // CUSTOM: Enhanced citation handler — opens external/blocked citations in new tab
+    const onShowCitation = (citation: string, index: number, citationContent?: string) => {
+        // CUSTOM: If citation is blocked from iframe embedding, open in new tab
+        if (isIframeBlocked(citation)) {
+            window.open(citation, "_blank", "noopener,noreferrer");
+            return;
+        }
+
         if (activeCitation === citation && activeAnalysisPanelTab === AnalysisPanelTabs.CitationTab && selectedAnswer === index) {
             setActiveAnalysisPanelTab(undefined);
         } else {
             setActiveCitation(citation);
+            setActiveCitationContent(citationContent || "");
+            setActiveCitationLabel(citation);
+            setEnableCitationTab(true);
             setActiveAnalysisPanelTab(AnalysisPanelTabs.CitationTab);
         }
 
@@ -608,7 +624,7 @@ const Chat = () => {
                                                 index={index}
                                                 speechConfig={speechConfig}
                                                 isSelected={false}
-                                                onCitationClicked={c => onShowCitation(c, index)}
+                                                onCitationClicked={(c, content) => onShowCitation(c, index, content)}
                                                 onThoughtProcessClicked={() => onToggleTab(AnalysisPanelTabs.ThoughtProcessTab, index)}
                                                 onSupportingContentClicked={() => onToggleTab(AnalysisPanelTabs.SupportingContentTab, index)}
                                                 onFollowupQuestionClicked={q => makeApiRequest(q)}
@@ -631,7 +647,7 @@ const Chat = () => {
                                                 index={index}
                                                 speechConfig={speechConfig}
                                                 isSelected={selectedAnswer === index && activeAnalysisPanelTab !== undefined}
-                                                onCitationClicked={c => onShowCitation(c, index)}
+                                                onCitationClicked={(c, content) => onShowCitation(c, index, content)}
                                                 onThoughtProcessClicked={() => onToggleTab(AnalysisPanelTabs.ThoughtProcessTab, index)}
                                                 onSupportingContentClicked={() => onToggleTab(AnalysisPanelTabs.SupportingContentTab, index)}
                                                 onFollowupQuestionClicked={q => makeApiRequest(q)}
@@ -762,6 +778,10 @@ const Chat = () => {
                         answer={answers[selectedAnswer][1]}
                         activeTab={activeAnalysisPanelTab}
                         onCitationClicked={c => onShowCitation(c, selectedAnswer)}
+                        activeCitationLabel={activeCitationLabel}
+                        activeCitationContent={activeCitationContent}
+                        enableCitationTab={enableCitationTab}
+                        onCitationChanged={citation => { setActiveCitation(citation); setEnableCitationTab(true); }}
                     />
                 )}
 
