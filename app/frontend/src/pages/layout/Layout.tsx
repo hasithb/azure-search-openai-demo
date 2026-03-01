@@ -10,8 +10,6 @@ import { LoginButton } from "../../components/LoginButton";
 import { HelpAboutPanel } from "../../customizations/HelpAboutPanel";
 // CUSTOM: Animated splash screen on first load
 import { SplashScreen } from "../../customizations/SplashScreen";
-// CUSTOM: Data privacy notice - fixed-position shield button + dismissible banner
-import { DataPrivacyNotice } from "../../customizations/DataPrivacyNotice";
 
 const Layout = () => {
     const { t } = useTranslation();
@@ -21,8 +19,6 @@ const Layout = () => {
         <div className={styles.layout}>
             {/* CUSTOM: Animated intro splash screen */}
             {!splashComplete && <SplashScreen onComplete={() => setSplashComplete(true)} />}
-            {/* CUSTOM: Data privacy notice - renders fixed-position button and dismissible banner */}
-            <DataPrivacyNotice />
 
             <header className={styles.header} role={"banner"}>
                 <div className={styles.headerContainer}>
