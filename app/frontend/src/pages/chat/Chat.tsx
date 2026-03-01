@@ -602,13 +602,15 @@ const Chat = () => {
                 <div className={styles.chatContainer}>
                     {!lastQuestionRef.current ? (
                         <div className={styles.chatEmptyState}>
-                            <img src={appLogo} alt="App logo" width="120" height="120" />
-
-                            <h1 className={styles.chatEmptyStateTitle}>{t("chatEmptyStateTitle")}</h1>
-                            <h2 className={styles.chatEmptyStateSubtitle}>{t("chatEmptyStateSubtitle")}</h2>
+                            {/* CUSTOM: Animated intro - logo with floating animation, title, subtitle */}
+                            <div className={styles.introContent}>
+                                <img src={appLogo} alt="App logo" width="48" height="48" className={styles.introLogo} />
+                                <h1 className={styles.introTitle}>{t("chatEmptyStateTitle")}</h1>
+                                <p className={styles.introSubtitle}>{t("chatEmptyStateSubtitle")}</p>
+                            </div>
                             {showLanguagePicker && <LanguagePicker onLanguageChange={newLang => i18n.changeLanguage(newLang)} />}
 
-                            <ExampleList onExampleClicked={onExampleClicked} useMultimodalAnswering={showMultimodalOptions} />
+                            <ExampleList onExampleClicked={onExampleClicked} useGPT4V={showMultimodalOptions} />
                         </div>
                     ) : (
                         <div className={styles.chatMessageStream}>
@@ -762,19 +764,54 @@ const Chat = () => {
                                 onClick={() => isMobile && setShowMobileDropdown(true)}
                                 style={isMobile ? { cursor: "pointer" } : {}}
                             >
-                                Please select a source before searching. Choose &quot;All Sources&quot; to search all documents.
-                                {isMobile && " Tap the settings icon above to select a source."}
+                                Please select a source before searching. Choose "All Sources" to search all documents.
+                                {isMobile && " Tap the settings icon (⚙️) above to select a source."}
                             </div>
                         )}
                     </div>
                 </div>
 
-                {answers.length > 0 && activeAnalysisPanelTab && (
+                {/* CUSTOM: Analysis Panel shown as modal overlay on mobile for better UX */}
+                {isMobile && answers.length > 0 && activeAnalysisPanelTab && (
+                    <>
+                        {/* Overlay backdrop */}
+                        <div className={styles.mobileAnalysisOverlay} onClick={() => setActiveAnalysisPanelTab(undefined)} />
+                        {/* Modal panel */}
+                        <div className={styles.mobileAnalysisModal}>
+                            {/* Close button */}
+                            <div className={styles.mobileAnalysisHeader}>
+                                <button
+                                    className={styles.mobileAnalysisCloseButton}
+                                    onClick={() => setActiveAnalysisPanelTab(undefined)}
+                                    aria-label="Close supporting content"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                            <AnalysisPanel
+                                className={styles.chatAnalysisPanelMobile}
+                                activeCitation={activeCitation}
+                                onActiveTabChanged={x => onToggleTab(x, selectedAnswer)}
+                                citationHeight="calc(85vh - 60px)"
+                                answer={answers[selectedAnswer][1]}
+                                activeTab={activeAnalysisPanelTab}
+                                onCitationClicked={c => onShowCitation(c, selectedAnswer)}
+                                activeCitationLabel={activeCitationLabel}
+                                activeCitationContent={activeCitationContent}
+                                enableCitationTab={enableCitationTab}
+                                onCitationChanged={citation => { setActiveCitation(citation); setEnableCitationTab(true); }}
+                            />
+                        </div>
+                    </>
+                )}
+
+                {/* Desktop: Analysis Panel on the right side */}
+                {!isMobile && answers.length > 0 && activeAnalysisPanelTab && (
                     <AnalysisPanel
                         className={styles.chatAnalysisPanel}
                         activeCitation={activeCitation}
                         onActiveTabChanged={x => onToggleTab(x, selectedAnswer)}
-                        citationHeight="810px"
+                        citationHeight="600px"
                         answer={answers[selectedAnswer][1]}
                         activeTab={activeAnalysisPanelTab}
                         onCitationClicked={c => onShowCitation(c, selectedAnswer)}

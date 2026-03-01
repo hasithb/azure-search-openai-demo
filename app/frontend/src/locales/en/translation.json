@@ -2,8 +2,9 @@
     "pageTitle": "Civil Procedure Copilot",
     "headerTitle": "Civil Procedure Copilot",
     "chat": "Chat",
-    "login": "Login",
-    "logout": "Logout",
+    "qa": "Ask a question",
+    "login": "Sign in",
+    "logout": "Sign out",
     "clearChat": "Clear chat",
     "history": {
         "chatHistory": "Chat history",
@@ -25,7 +26,7 @@
         "loading": "Loading...",
         "manageFileUploads": "Manage file uploads",
         "uploadingFiles": "Uploading files...",
-        "uploadedFileError": "Error uploading file - please try again or contact admin.",
+        "uploadedFileError": "Error uploading file - please try again or contact support.",
         "deleteFile": "Delete file",
         "deletingFile": "Deleting file...",
         "errorDeleting": "Error deleting.",
@@ -36,17 +37,18 @@
     "chatEmptyStateTitle": "Civil Procedure Copilot",
     "chatEmptyStateSubtitle": "Your AI assistant for Civil Procedure Rules, Practice Directions, and Court Guides",
     "defaultExamples": {
-        "1": "What are the general rules about costs under CPR Part 44?",
-        "2": "What is the procedure for service of documents out of the jurisdiction?",
-        "3": "What are the rules on summary judgment under CPR Part 24?",
-        "placeholder": "Ask a question about CPR, Practice Directions, and/or Court Guides..."
+        "1": "What documents are required for a CMC in the Circuit Commercial Court?",
+        "2": "What are the deadlines for filing in the Circuit Commercial Court?",
+        "3": "In one sentence, what is the overriding objective?",
+        "placeholder": "Ask a question on Civil Procedure",
+        "placeholderDesktop": "Ask a question about CPR, Practice Directions, and/or Court Guides..."
     },
-    "askTitle": "Ask your data",
-    "multimodalExamples": {
-        "1": "Compare the impact of interest rates and GDP in financial markets.",
-        "2": "What is the expected trend for the S&P 500 index over the next five years? Compare it to the past S&P 500 performance",
-        "3": "Can you identify any correlation between oil prices and stock market trends?",
-        "placeholder": "Example: Does my plan cover annual eye exams?"
+    "askTitle": "Civil Procedure Copilot",
+    "gpt4vExamples": {
+        "1": "What documents are required for a CMC in the Circuit Commercial Court?",
+        "2": "What are the deadlines for filing in the Circuit Commercial Court?",
+        "3": "What are the rules of service?",
+        "placeholder": "Ask a question about CPR, Practice Directions, and/or Court Guides..."
     },
     "generatingAnswer": "Generating answer",
     "citationWithColon": "Citation:",
@@ -83,29 +85,44 @@
         "minimumSearchScore": "Minimum search score",
         "minimumRerankerScore": "Minimum reranker score",
         "retrieveCount": "Retrieve this many search results:",
-        "agenticReasoningEffort": "Retrieval reasoning effort",
-        "agenticReasoningEffortOptions": {
-            "minimal": "Minimal",
-            "low": "Low",
-            "medium": "Medium"
+        "maxSubqueryCount": "Max subqueries",
+        "resultsMergeStrategy": "Results merge strategy",
+        "resultsMergeStrategyOptions": {
+            "interleaved": "Interleaved",
+            "descending": "Descending"
         },
-        "includeCategory": "Include category",
+        "agenticReasoningEffort": "Search depth",
+        "agenticReasoningEffortOptions": {
+            "minimal": "Quick",
+            "low": "Standard",
+            "medium": "Thorough"
+        },
+        "includeCategory": "Include source",
         "includeCategoryOptions": {
             "all": "All"
         },
-        "excludeCategory": "Exclude category",
+        "excludeCategory": "Exclude source",
         "useSemanticRanker": "Use semantic ranker for retrieval",
         "useSemanticCaptions": "Use semantic captions",
         "useQueryRewriting": "Use query rewriting for retrieval",
         "reasoningEffort": "Reasoning effort",
         "reasoningEffortOptions": {
-            "minimal": "Minimal (GPT-5 only)",
             "low": "Low",
             "medium": "Medium",
             "high": "High"
         },
         "useSuggestFollowupQuestions": "Suggest follow-up questions",
         "useAgenticKnowledgeBase": "Use agentic retrieval",
+        "useAgenticRetrieval": "Use agentic retrieval",
+        "useGPT4V": "Use GPT vision model",
+        "gpt4VInput": {
+            "label": "GPT vision model inputs",
+            "options": {
+                "textAndImages": "Images and text",
+                "images": "Images",
+                "texts": "Text"
+            }
+        },
         "useWebSource": "Include web source",
         "useSharePointSource": "Include Sharepoint source",
         "llmInputs": "LLM input sources",
@@ -123,10 +140,11 @@
             }
         },
         "vector": {
-            "label": "Included vector fields",
+            "label": "Vector fields (Multi-query vector search)",
             "options": {
-                "embedding": "Text embeddings",
-                "imageEmbedding": "Image embeddings"
+                "embedding": "Text Embeddings",
+                "imageEmbedding": "Image Embeddings",
+                "both": "Text and Image embeddings"
             }
         },
         "useOidSecurityFilter": "Use oid security filter",
@@ -147,11 +165,15 @@
         "retrieveNumber":
              "Sets the number of search results to retrieve from Azure AI search. More results may increase the likelihood of finding the correct answer, but may lead to the model getting 'lost in the middle'.",
         "agenticReasoningEffort":
-            "Controls the amount of reasoning the agent uses while planning retrieval subqueries. Higher effort can improve recall at the cost of additional latency and tokens.",
+            "Controls how thoroughly the system plans and executes search queries. MINIMAL: Single search query, fastest and cheapest - best for simple lookups like 'What is CPR Part 31?'. LOW (Recommended): Expands queries for better coverage - good for most legal questions. MEDIUM: Most thorough multi-query planning - best for complex questions comparing courts, rules, or applying facts to law.",
         "includeCategory":
-            "Specifies a category to include in the search results. There are no categories used in the default data set.",
+            "Specifies a source to include in the search results (e.g., Commercial Court Guide, CPR & Practice Directions).",
          "excludeCategory":
-            "Specifies a category to exclude from the search results. There are no categories used in the default data set.",
+            "Specifies a source to exclude from the search results.",
+        "maxSubqueryCount":
+            "Sets the maximum number of subqueries to use for the agentic retrieval query plan.",
+        "resultsMergeStrategy":
+            "Sets the strategy for merging results from multiple subqueries. Interleaved picks the top results from each subquery in round robin order, while descending sorts all results by reranker score.",
          "useSemanticReranker":
             "Enables the Azure AI Search semantic ranker, a model that re-ranks search results based on semantic similarity to the user's query.",
         "useQueryRewriting":
@@ -161,6 +183,11 @@
         "useSemanticCaptions":
              "Sends semantic captions to the LLM instead of the full search result. A semantic caption is extracted from a search result during the process of semantic ranking.",
         "suggestFollowupQuestions": "Asks the LLM to suggest follow-up questions based on the user's query.",
+        "useGPT4Vision": "Uses GPT-4-Turbo with Vision to generate responses based on images and text from the index.",
+        "vectorFields":
+            "Specifies which embedding fields in the Azure AI Search Index will be searched, both the 'Images and text' embeddings, 'Images' only, or 'Text' only.",
+        "gpt4VisionInputs":
+            "Sets what will be sent to the vision model. 'Images and text' sends both images and text to the model, 'Images' sends only images, and 'Text' sends only text.",
         "textEmbeddings": "When selected, search will use embeddings from the text-only embeddings model of extracted text chunks.",
         "imageEmbeddings": "When selected, search will use embeddings from the multimodal embeddings model of extracted images.",
         "llmTextInputs": "When selected, text content from the search results will be sent to the LLM as context.",
@@ -171,6 +198,7 @@
         "useOidSecurityFilter": "Filter search results based on the authenticated user's OID.",
         "useGroupsSecurityFilter": "Filter search results based on the authenticated user's groups.",
         "useAgenticKnowledgeBase": "Use agentic retrieval from Azure AI Search for multi-query planning. Always uses semantic ranker.",
+        "useAgenticRetrieval": "Use agentic retrieval from Azure AI Search for multi-query planning. Always uses semantic ranker.",
         "useWebSource": "Augment retrieval with web search results alongside your indexed data set.",
         "useSharePointSource": "Augment retrieval with SharePoint content alongside your indexed data set."
     },

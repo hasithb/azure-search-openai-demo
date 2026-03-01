@@ -156,6 +156,9 @@ export const Answer = ({
                 </div>
             )}
 
+            {/* CUSTOM: Subtle AI disclaimer for legal compliance */}
+            <div className={styles.aiDisclaimer}>AI-generated content may be incorrect. Always verify with the primary source documents cited above.</div>
+
             {!!followupQuestions?.length && showFollowupQuestions && onFollowupQuestionClicked && (
                 <div>
                     <div
