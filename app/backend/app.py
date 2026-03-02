@@ -466,10 +466,18 @@ async def setup_clients():
     USE_SPEECH_OUTPUT_AZURE = os.getenv("USE_SPEECH_OUTPUT_AZURE", "").lower() == "true"
     USE_CHAT_HISTORY_BROWSER = os.getenv("USE_CHAT_HISTORY_BROWSER", "").lower() == "true"
     USE_CHAT_HISTORY_COSMOS = os.getenv("USE_CHAT_HISTORY_COSMOS", "").lower() == "true"
-    USE_AGENTIC_KNOWLEDGEBASE = os.getenv("USE_AGENTIC_KNOWLEDGEBASE", "").lower() == "true"
+    # CUSTOM: Check both upstream (USE_AGENTIC_KNOWLEDGEBASE) and deployed (USE_AGENTIC_RETRIEVAL) env var names
+    USE_AGENTIC_KNOWLEDGEBASE = (
+        os.getenv("USE_AGENTIC_KNOWLEDGEBASE", "").lower() == "true"
+        or os.getenv("USE_AGENTIC_RETRIEVAL", "").lower() == "true"
+    )
     USE_WEB_SOURCE = os.getenv("USE_WEB_SOURCE", "").lower() == "true"
     USE_SHAREPOINT_SOURCE = os.getenv("USE_SHAREPOINT_SOURCE", "").lower() == "true"
-    AGENTIC_KNOWLEDGEBASE_REASONING_EFFORT = os.getenv("AGENTIC_KNOWLEDGEBASE_REASONING_EFFORT", "low")
+    AGENTIC_KNOWLEDGEBASE_REASONING_EFFORT = os.getenv(
+        "AGENTIC_KNOWLEDGEBASE_REASONING_EFFORT",
+        os.getenv("AGENTIC_RETRIEVAL_REASONING_EFFORT",
+                   os.getenv("AZURE_SEARCH_KNOWLEDGEBASE_RETRIEVAL_REASONING_EFFORT", "low"))
+    )
     USE_VECTORS = os.getenv("USE_VECTORS", "").lower() != "false"
 
     # WEBSITE_HOSTNAME is always set by App Service, RUNNING_IN_PRODUCTION is set in main.bicep
