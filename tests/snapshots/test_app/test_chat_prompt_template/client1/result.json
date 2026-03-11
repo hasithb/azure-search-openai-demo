@@ -2,12 +2,23 @@
     "context": {
         "data_points": {
             "citations": [
-                "Benefit_Options-2.pdf"
+                "Benefit_Options-2.pdf, Benefit_Options.pdf"
             ],
             "external_results_metadata": [],
             "images": [],
             "text": [
-                "Benefit_Options-2.pdf: There is a whistleblower policy."
+                {
+                    "category": "",
+                    "citation": "Benefit_Options-2.pdf, Benefit_Options.pdf",
+                    "content": "There is a whistleblower policy.",
+                    "full_content": "There is a whistleblower policy.",
+                    "id": "file-Benefit_Options_pdf-42656E656669745F4F7074696F6E732E706466-page-2",
+                    "sourcefile": "Benefit_Options.pdf",
+                    "sourcepage": "Benefit_Options-2.pdf",
+                    "storageurl": "",
+                    "subsection_id": "",
+                    "updated": ""
+                }
             ]
         },
         "followup_questions": null,
@@ -80,7 +91,7 @@
                         "role": "system"
                     },
                     {
-                        "content": "What is the capital of France?\n\n\nSources:\n\nBenefit_Options-2.pdf: There is a whistleblower policy.",
+                        "content": "What is the capital of France?\n\n\nSources:\n\n[1]: There is a whistleblower policy.",
                         "role": "user"
                     }
                 ],

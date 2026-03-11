@@ -8,7 +8,6 @@ import React, { useState } from "react";
 import { OverlayDrawer, DrawerBody, DrawerHeader, DrawerHeaderTitle, Button, Text, TabList, Tab, Tooltip, Link, makeStyles } from "@fluentui/react-components";
 import {
     DismissRegular,
-    QuestionCircleRegular,
     InfoRegular,
     LightbulbRegular,
     GridRegular,
@@ -32,18 +31,24 @@ const useStyles = makeStyles({
         zIndex: 100,
         backgroundColor: "#0078d4",
         borderRadius: "50%",
-        width: "44px",
-        height: "44px",
-        minWidth: "44px",
+        width: "42px",
+        height: "42px",
+        minWidth: "42px",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
         color: "#fff",
+        fontSize: "20px",
+        fontWeight: 700,
         ":hover": {
             backgroundColor: "#106ebe",
             color: "#fff"
         }
+    },
+    helpButtonGlyph: {
+        lineHeight: 1,
+        transform: "translateY(-1px)"
     },
     panelContent: {
         paddingTop: "0",
@@ -176,7 +181,11 @@ export const HelpAboutPanel: React.FC = () => {
             {/* Help Button - Bottom Right */}
             <Tooltip content="Help & About" relationship="label" positioning="before">
                 <Button
-                    icon={<QuestionCircleRegular />}
+                    icon={
+                        <span aria-hidden="true" className={classes.helpButtonGlyph}>
+                            ?
+                        </span>
+                    }
                     onClick={() => setIsOpen(true)}
                     aria-label="Help and About"
                     appearance="transparent"

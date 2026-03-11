@@ -38,6 +38,11 @@ def is_feature_enabled(feature_name: str) -> bool:
     return CUSTOM_FEATURES.get(feature_name, False)
 
 
+def is_deployed_ui_compat_enabled() -> bool:
+    """Enable deployed UI-compatible responses without disabling newer upstream features."""
+    return os.getenv("DEPLOYED_UI_COMPAT", "false").lower() == "true"
+
+
 def get_deployment_metadata() -> dict[str, str]:
     """
     Get deployment and version metadata for feedback tracking.

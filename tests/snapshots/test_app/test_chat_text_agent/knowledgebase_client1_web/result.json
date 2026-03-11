@@ -2,7 +2,7 @@
     "context": {
         "data_points": {
             "citation_activity_details": {
-                "Benefit_Options-2.pdf": {
+                "Benefit_Options-2.pdf, Benefit_Options.pdf": {
                     "id": 1,
                     "number": 2,
                     "query": "whistleblower query",
@@ -18,7 +18,7 @@
                 }
             },
             "citations": [
-                "Benefit_Options-2.pdf",
+                "Benefit_Options-2.pdf, Benefit_Options.pdf",
                 "https://contoso.example"
             ],
             "external_results_metadata": [
@@ -37,7 +37,18 @@
             ],
             "images": [],
             "text": [
-                "Benefit_Options-2.pdf: There is a whistleblower policy."
+                {
+                    "category": "",
+                    "citation": "Benefit_Options-2.pdf, Benefit_Options.pdf",
+                    "content": "There is a whistleblower policy.",
+                    "full_content": "There is a whistleblower policy.",
+                    "id": "file-Benefit_Options_pdf-42656E656669745F4F7074696F6E732E706466-page-2",
+                    "sourcefile": "Benefit_Options.pdf",
+                    "sourcepage": "Benefit_Options-2.pdf",
+                    "storageurl": "",
+                    "subsection_id": "",
+                    "updated": ""
+                }
             ]
         },
         "followup_questions": null,

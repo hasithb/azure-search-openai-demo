@@ -13,7 +13,7 @@ from quart import Blueprint, current_app, jsonify
 
 from config import CONFIG_SEARCH_CLIENT
 
-from ..config import is_feature_enabled
+from ..config import is_deployed_ui_compat_enabled, is_feature_enabled
 
 categories_bp = Blueprint("categories", __name__, url_prefix="/api")
 
@@ -64,6 +64,8 @@ async def get_categories():
             select=["id"]  # Minimal field selection
         )
 
+        use_deployed_ui_labels = is_deployed_ui_compat_enabled()
+
         # Extract categories from facets and map to display names
         categories = []
         facets = await results.get_facets()
@@ -71,8 +73,7 @@ async def get_categories():
             for facet in facets["category"]:
                 if facet.get("value"):
                     category_key = facet["value"]
-                    # Use display name mapping, fallback to original value
-                    display_name = SOURCE_DISPLAY_NAMES.get(category_key, category_key)
+                    display_name = category_key if use_deployed_ui_labels else SOURCE_DISPLAY_NAMES.get(category_key, category_key)
                     categories.append({
                         "key": category_key,
                         "text": display_name,
@@ -82,10 +83,10 @@ async def get_categories():
         # Sort alphabetically by display name
         categories.sort(key=lambda x: x["text"])
 
-        # Add "All Sources" option at the beginning
+        # Add first option at the beginning
         categories.insert(0, {
             "key": "",
-            "text": "All Sources",
+            "text": "All Categories" if use_deployed_ui_labels else "All Sources",
             "count": None
         })
 

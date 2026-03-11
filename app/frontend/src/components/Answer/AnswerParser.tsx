@@ -3,7 +3,7 @@ import { ChatAppResponse, getCitationFilePath } from "../../api";
 import { QueryPlanStep, getStepLabel, activityTypeLabels } from "../AnalysisPanel/agentPlanUtils";
 
 // CUSTOM: Import citation sanitization from isolated customizations folder
-import { sanitizeCitations, collapseAdjacentCitations, fixMalformedCitations } from "../../customizations/citationSanitizer";
+import { sanitizeCitations, collapseAdjacentCitations, fixMalformedCitations, findMatchingCitation } from "../../customizations/citationSanitizer";
 // CUSTOM: Paragraph formatting for long single-block answers
 import { formatAnswerParagraphs, isFeatureEnabled } from "../../customizations";
 
@@ -14,6 +14,7 @@ export type CitationDetail = {
     reference: string;
     index: number;
     isWeb: boolean;
+    content?: string;
     activityId?: string;
     stepNumber?: number;
     stepLabel?: string;
@@ -32,12 +33,180 @@ type ActivityStepMeta = {
     stepLabel: string;
 };
 
+type NestedSubsectionSegment = {
+    label: string;
+    content: string;
+};
+
 type HtmlParsedAnswer = {
     answerHtml: string;
     citations: CitationDetail[];
 };
 
 const isWebCitation = (reference: string) => reference.startsWith("http://") || reference.startsWith("https://");
+
+const extractSubsectionFromContent = (content: string): string => {
+    if (!content) {
+        return "";
+    }
+
+    const lines = content.split("\n");
+    const firstLine = lines[0]?.trim();
+
+    if (firstLine && firstLine.length < 100) {
+        const cleaned = firstLine.replace(/^#+\s*/, "").trim();
+
+        if (/^PART\s+\d+/i.test(cleaned)) {
+            return cleaned;
+        }
+
+        if (/^\d+\.\d+/.test(cleaned) || /^Rule \d+/i.test(cleaned)) {
+            return cleaned;
+        }
+
+        if (cleaned.length > 3 && cleaned.length < 80) {
+            return cleaned;
+        }
+    }
+
+    const partMatch = content.match(/PART\s+\d+[^.\n]*/i);
+    if (partMatch) {
+        return partMatch[0].trim();
+    }
+
+    const ruleMatch = content.match(/(?:Rule\s+)?(\d+\.\d+(?:\(\d+\))?(?:\([a-z]\))?)/i);
+    if (ruleMatch) {
+        return ruleMatch[0];
+    }
+
+    return content.substring(0, 50).trim() + (content.length > 50 ? "..." : "");
+};
+
+const normalizeContextTokens = (text: string): string[] => {
+    return text
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, " ")
+        .split(/\s+/)
+        .filter(token => token.length > 2 && !["the", "and", "for", "that", "with", "must", "file", "after"].includes(token));
+};
+
+const extractNestedSubsectionSegments = (baseSubsection: string, content: string): NestedSubsectionSegment[] => {
+    if (!baseSubsection || !content) {
+        return [];
+    }
+
+    const escapedBase = baseSubsection.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const startsWithNestedSubsections = new RegExp(`^\\s*${escapedBase}\\s*\\((\\d+|[a-z])\\)`, "i").test(content);
+    if (!startsWithNestedSubsections) {
+        return [];
+    }
+
+    const markerRegex = /\((\d+|[a-z])\)\s+/gi;
+    const matches = Array.from(content.matchAll(markerRegex));
+    if (matches.length < 2) {
+        return [];
+    }
+
+    return matches.map((match, index) => {
+        const token = match[1];
+        const start = (match.index ?? 0) + match[0].length;
+        const end = matches[index + 1]?.index ?? content.length;
+        return {
+            label: `${baseSubsection}(${token})`,
+            content: content.slice(start, end).trim()
+        };
+    });
+};
+
+const getSentenceContext = (text: string): string => {
+    const paragraphs = text
+        .split(/\n+/)
+        .map(part => part.trim())
+        .filter(Boolean);
+    const lastParagraph = paragraphs[paragraphs.length - 1] ?? text.trim();
+    const sentenceParts = lastParagraph.split(/(?<=[.!?])\s+/).filter(Boolean);
+    return (sentenceParts[sentenceParts.length - 1] ?? lastParagraph).trim();
+};
+
+const resolveNestedSubsectionLabel = (baseSubsection: string, content: string, occurrenceIndex: number, answerContext: string): string | undefined => {
+    const nestedSegments = extractNestedSubsectionSegments(baseSubsection, content);
+    if (nestedSegments.length === 0) {
+        return undefined;
+    }
+
+    const contextTokens = normalizeContextTokens(answerContext);
+    if (contextTokens.length > 0) {
+        let bestMatch: NestedSubsectionSegment | undefined;
+        let bestScore = 0;
+
+        for (const segment of nestedSegments) {
+            const segmentTokens = new Set(normalizeContextTokens(segment.content));
+            const score = contextTokens.reduce((total, token) => total + (segmentTokens.has(token) ? 1 : 0), 0);
+            if (score > bestScore) {
+                bestScore = score;
+                bestMatch = segment;
+            }
+        }
+
+        if (bestMatch && bestScore > 0) {
+            return bestMatch.label;
+        }
+    }
+
+    return nestedSegments[Math.min(occurrenceIndex - 1, nestedSegments.length - 1)]?.label;
+};
+
+const buildCitationFromDataPoint = (dataPoint: any, fallbackIndex: number, occurrenceIndex = 1, answerContext = ""): string | undefined => {
+    if (!dataPoint || typeof dataPoint !== "object") {
+        return undefined;
+    }
+
+    if (typeof dataPoint.citation === "string" && dataPoint.citation.trim()) {
+        return dataPoint.citation.trim();
+    }
+
+    const dpContent = String(dataPoint.content || "");
+    const baseSubsection = String(dataPoint.subsection_id || extractSubsectionFromContent(dpContent)).trim();
+    const dpSubsection = resolveNestedSubsectionLabel(baseSubsection, dpContent, occurrenceIndex, answerContext) ?? baseSubsection;
+    const dpSourcepage = String(dataPoint.sourcepage || "").trim();
+    const dpSourcefile = String(dataPoint.sourcefile || "").trim();
+
+    if (dpSubsection && dpSourcepage && dpSourcefile) {
+        return `${dpSubsection}, ${dpSourcepage}, ${dpSourcefile}`;
+    }
+
+    if (dpSourcepage && dpSourcefile) {
+        return `${dpSourcepage}, ${dpSourcefile}`;
+    }
+
+    if (dpSourcefile) {
+        return dpSourcefile;
+    }
+
+    return `Source ${fallbackIndex}`;
+};
+
+const dataPointMatchesCitation = (dataPoint: any, citation: string): boolean => {
+    if (!dataPoint || typeof dataPoint !== "object" || !citation) {
+        return false;
+    }
+
+    const explicitCitation = typeof dataPoint.citation === "string" ? dataPoint.citation.trim() : "";
+    if (explicitCitation && explicitCitation === citation) {
+        return true;
+    }
+
+    const dpContent = String(dataPoint.content || "");
+    const baseSubsection = String(dataPoint.subsection_id || extractSubsectionFromContent(dpContent)).trim();
+    const sourcePage = String(dataPoint.sourcepage || "").trim();
+    const sourceFile = String(dataPoint.sourcefile || "").trim();
+
+    if (baseSubsection && sourcePage && sourceFile && `${baseSubsection}, ${sourcePage}, ${sourceFile}` === citation) {
+        return true;
+    }
+
+    return extractNestedSubsectionSegments(baseSubsection, dpContent).some(segment => `${segment.label}, ${sourcePage}, ${sourceFile}` === citation);
+};
 
 const normalizeAnswerText = (answer: ChatAppResponse, isStreaming: boolean): string => {
     let parsedAnswer = answer.message.content.trim();
@@ -93,12 +262,45 @@ const buildActivityStepMap = (answer: ChatAppResponse): Record<string, ActivityS
     return mapping;
 };
 
+const getLegacyCitationContext = (answer: ChatAppResponse): { enhancedCitations: string[]; citationMap: Record<string, string> } => {
+    const legacyContext = (answer.context ?? {}) as Record<string, any>;
+    return {
+        enhancedCitations: Array.isArray(legacyContext.enhanced_citations) ? legacyContext.enhanced_citations : [],
+        citationMap: legacyContext.citation_map && typeof legacyContext.citation_map === "object" ? legacyContext.citation_map : {}
+    };
+};
+
 const collectCitations = (answer: ChatAppResponse, isStreaming: boolean): { fragments: CitationFragment[]; citations: CitationDetail[] } => {
-    const possibleCitations = answer.context.data_points.citations || [];
+    const legacyCitationContext = getLegacyCitationContext(answer);
+    const possibleCitations = answer.context.data_points.citations || legacyCitationContext.enhancedCitations || [];
+    const textDataPoints: any[] = answer.context.data_points?.text || [];
     const citationActivityDetails = answer.context.data_points.citation_activity_details ?? {};
     const activitySteps = buildActivityStepMap(answer);
     const externalResults = answer.context.data_points.external_results_metadata || [];
     const parsedAnswer = normalizeAnswerText(answer, isStreaming);
+
+    if (!isStreaming && !/\[[^\]]+\]/.test(parsedAnswer) && legacyCitationContext.enhancedCitations.length > 0) {
+        const citationList: CitationDetail[] = [];
+        const seen = new Set<string>();
+
+        for (const reference of legacyCitationContext.enhancedCitations) {
+            if (!reference || seen.has(reference)) {
+                continue;
+            }
+            seen.add(reference);
+            citationList.push({
+                reference,
+                index: citationList.length + 1,
+                isWeb: isWebCitation(reference)
+            });
+        }
+
+        return {
+            fragments: [{ type: "text", value: parsedAnswer }],
+            citations: citationList
+        };
+    }
+
     const parts = parsedAnswer.split(/\[([^\]]+)\]/g);
 
     // Helper to resolve SharePoint filename to URL
@@ -128,6 +330,7 @@ const collectCitations = (answer: ChatAppResponse, isStreaming: boolean): { frag
     const fragments: CitationFragment[] = [];
     const citationMap = new Map<string, CitationDetail>();
     const citationList: CitationDetail[] = [];
+    const numericCitationOccurrences = new Map<number, number>();
 
     parts.forEach((part, index) => {
         if (index % 2 === 0) {
@@ -135,14 +338,47 @@ const collectCitations = (answer: ChatAppResponse, isStreaming: boolean): { frag
             return;
         }
 
-        const isValidCitation = possibleCitations.some(citation => citation.endsWith(part));
-        if (!isValidCitation) {
+        // CUSTOM: Handle numbered citations [1], [2], [3] from the prompt pipeline.
+        // The backend formats sources as "[1]: content" so the LLM outputs simple numbers.
+        // We resolve the number to the enhanced citation string via data_points.text[n-1].citation.
+        let matchedCitation: string | undefined;
+        const numericMatch = part.match(/^\d+$/);
+        if (numericMatch) {
+            const citationIndex = parseInt(part) - 1;
+            if (citationIndex >= 0 && citationIndex < textDataPoints.length) {
+                const dp = textDataPoints[citationIndex];
+                const occurrenceIndex = (numericCitationOccurrences.get(citationIndex) ?? 0) + 1;
+                numericCitationOccurrences.set(citationIndex, occurrenceIndex);
+                const answerContext = getSentenceContext(parts[index - 1] ?? "");
+                matchedCitation = buildCitationFromDataPoint(dp, citationIndex + 1, occurrenceIndex, answerContext);
+            }
+
+            if (!matchedCitation) {
+                matchedCitation = legacyCitationContext.citationMap[part] || legacyCitationContext.citationMap[`[${part}]`];
+            }
+
+            if (!matchedCitation && citationIndex >= 0 && citationIndex < legacyCitationContext.enhancedCitations.length) {
+                matchedCitation = legacyCitationContext.enhancedCitations[citationIndex];
+            }
+        }
+
+        // Fallback: try matching against possibleCitations for upstream named citations
+        if (!matchedCitation) {
+            matchedCitation = legacyCitationContext.citationMap[part] || legacyCitationContext.citationMap[`[${part}]`];
+        }
+        if (!matchedCitation) {
+            matchedCitation = findMatchingCitation(part, possibleCitations);
+        }
+        if (!matchedCitation) {
             fragments.push({ type: "text", value: `[${part}]` });
             return;
         }
 
+        // Use part for exact endsWith matches (backward compat), matchedCitation for fuzzy/numeric
+        const citationRef = matchedCitation.endsWith(part) ? part : matchedCitation;
+
         // Resolve SharePoint filename to URL if applicable
-        const resolvedReference = resolveSharePointUrl(part);
+        const resolvedReference = resolveSharePointUrl(citationRef);
 
         // Check if this resolved reference already exists
         const existing = citationMap.get(resolvedReference);
@@ -151,17 +387,21 @@ const collectCitations = (answer: ChatAppResponse, isStreaming: boolean): { frag
             return;
         }
 
-        const backendDetail = citationActivityDetails?.[part];
+        // Try both keys for activity details lookup (fuzzy match may differ from LLM text)
+        const backendDetail = citationActivityDetails?.[matchedCitation] ?? citationActivityDetails?.[part];
         const activityId = backendDetail?.id;
         const stepMeta = activityId ? activitySteps[String(activityId)] : undefined;
 
         // Get label from backend type using our mapping, or fallback to stepMeta
         const activityLabel = backendDetail?.type ? activityTypeLabels[backendDetail.type] || backendDetail.type : undefined;
 
+        const matchingDataPoint = textDataPoints.find((dataPoint: any) => dataPointMatchesCitation(dataPoint, matchedCitation));
+
         const detail: CitationDetail = {
             reference: resolvedReference,
             index: citationList.length + 1,
             isWeb: isWebCitation(resolvedReference),
+            content: typeof matchingDataPoint?.content === "string" ? matchingDataPoint.content : undefined,
             activityId: activityId !== undefined ? String(activityId) : undefined,
             stepNumber: backendDetail?.number ?? stepMeta?.stepNumber,
             stepLabel: activityLabel ?? stepMeta?.stepLabel,
@@ -193,6 +433,8 @@ const renderCitation = (detail: CitationDetail, onCitationClicked: (citationFile
                 <a
                     className="supContainer"
                     title={detail.reference}
+                    data-citation-text={detail.reference}
+                    data-citation-content={detail.content ?? ""}
                     href={detail.reference}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -210,11 +452,9 @@ const renderCitation = (detail: CitationDetail, onCitationClicked: (citationFile
             <a
                 className="supContainer"
                 title={detail.reference}
-                onClick={e => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    onCitationClicked(path);
-                }}
+                data-citation-path={path}
+                data-citation-text={detail.reference}
+                data-citation-content={detail.content ?? ""}
             >
                 {supElement}
             </a>
@@ -222,7 +462,11 @@ const renderCitation = (detail: CitationDetail, onCitationClicked: (citationFile
     );
 };
 
-export function parseAnswerToHtml(answer: ChatAppResponse, isStreaming: boolean, onCitationClicked: (citationFilePath: string, content?: string) => void): HtmlParsedAnswer {
+export function parseAnswerToHtml(
+    answer: ChatAppResponse,
+    isStreaming: boolean,
+    onCitationClicked: (citationFilePath: string, content?: string) => void
+): HtmlParsedAnswer {
     const { fragments, citations } = collectCitations(answer, isStreaming);
     const answerHtml = fragments.map(fragment => (fragment.type === "text" ? fragment.value : renderCitation(fragment.detail, onCitationClicked))).join("");
 

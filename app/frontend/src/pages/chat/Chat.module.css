@@ -289,6 +289,10 @@
     max-height: 85vh;
     margin-left: 1.25rem;
     margin-right: 1.25rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border: 1px solid #e1e5eb;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 /* CUSTOM: Mobile analysis panel - shown as modal overlay */

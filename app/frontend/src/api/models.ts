@@ -68,8 +68,21 @@ export type CitationActivityDetail = {
     query?: string;
 };
 
+export type SourceTextItem = {
+    id?: string;
+    citation?: string;
+    content?: string;
+    full_content?: string;
+    sourcepage?: string;
+    sourcefile?: string;
+    category?: string;
+    storageurl?: string;
+    updated?: string;
+    subsection_id?: string;
+};
+
 export type DataPoints = {
-    text: string[];
+    text: Array<string | SourceTextItem>;
     images: string[];
     citations: string[];
     citation_activity_details?: Record<string, CitationActivityDetail>;

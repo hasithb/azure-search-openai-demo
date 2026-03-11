@@ -34,6 +34,25 @@ class ChatReadRetrieveReadApproach(Approach):
 
     NO_RESPONSE = Approach.QUERY_REWRITE_NO_RESPONSE
 
+    @staticmethod
+    def format_text_sources_for_prompt(text_sources: list) -> list[str]:
+        """Convert text_sources (which may be dicts or strings) into numbered prompt-friendly strings.
+
+        The data_points.text field stores dicts with metadata for the frontend SupportingContent,
+        but the Jinja2 prompt template needs plain strings. We use numbered format [1]: content
+        so the LLM produces simple [1], [2], [3] citations instead of trying to reproduce
+        complex citation strings (which it tends to humanize/simplify, breaking matching).
+        The frontend maps these numbers back to the enhanced citation strings via data_points.text.
+        """
+        formatted = []
+        for i, source in enumerate(text_sources or [], 1):
+            if isinstance(source, dict):
+                content = source.get("content", "")
+            else:
+                content = str(source)
+            formatted.append(f"[{i}]: {content}")
+        return formatted
+
     def __init__(
         self,
         *,
@@ -301,12 +320,15 @@ class ChatReadRetrieveReadApproach(Approach):
             | {
                 "include_follow_up_questions": bool(overrides.get("suggest_followup_questions")),
                 "image_sources": extra_info.data_points.images,
-                "citations": extra_info.data_points.citations,
+                # CUSTOM: Pass numbered citations so the LLM uses [1], [2], [3] format
+                # instead of trying to reproduce complex enhanced citation strings
+                "citations": [str(i) for i in range(1, len(extra_info.data_points.text or []) + 1)],
             },
             user_template_path="chat_answer.user.jinja2",
             user_template_variables={
                 "user_query": original_user_query,
-                "text_sources": extra_info.data_points.text,
+                # CUSTOM: Format dict text_sources as numbered "[1]: content" strings for the Jinja2 template
+                "text_sources": self.format_text_sources_for_prompt(extra_info.data_points.text),
             },
             user_image_sources=extra_info.data_points.images,
             past_messages=messages[:-1],

@@ -34,6 +34,53 @@ export type ParsedSupportingContentItem = {
     id?: string;
 };
 
+function extractInlineMetadata(content: string): {
+    sourcefile?: string;
+    sourcepage?: string;
+    category?: string;
+    cleanedContent: string;
+} {
+    if (!content) {
+        return { cleanedContent: content };
+    }
+
+    const contentHead = content.slice(0, 2000);
+
+    const extractField = (fieldName: "SOURCE" | "SOURCEPAGE" | "CATEGORY") => {
+        const pattern = new RegExp(`\\b${fieldName}:\\s*(.+?)(?=\\s+\\b(?:SOURCE|SOURCEPAGE|CATEGORY|SECTION):|\\r?\\n|$)`, "i");
+        const match = contentHead.match(pattern);
+        return match?.[1]?.trim() || "";
+    };
+
+    const sourcefile = extractField("SOURCE");
+    const sourcepage = extractField("SOURCEPAGE");
+    const category = extractField("CATEGORY");
+
+    let cleanedContent = content;
+    if (sourcefile || sourcepage || category) {
+        const markers = ["\n## ", "## ", "\nPart ", "Part 1 of", "Part 2 of"];
+        const sourceTagIndex = cleanedContent.search(/\bSOURCE:\s*/i);
+        const markerIndices = markers.map(marker => cleanedContent.indexOf(marker)).filter(index => index >= 0);
+        const firstMarkerIndex = markerIndices.length ? Math.min(...markerIndices) : -1;
+
+        if (sourceTagIndex >= 0 && firstMarkerIndex > sourceTagIndex) {
+            cleanedContent = cleanedContent.slice(firstMarkerIndex).trimStart();
+        } else {
+            cleanedContent = cleanedContent
+                .replace(/\bSOURCE:\s*.+?\bSOURCEPAGE:\s*.+?(?=(\n## |## |\nPart |Part 1 of|Part 2 of|$))/is, "")
+                .replace(/\bCATEGORY:\s*.+?(?=(\n## |## |\nPart |Part 1 of|Part 2 of|$))/is, "")
+                .trim();
+        }
+    }
+
+    return {
+        sourcefile: sourcefile || undefined,
+        sourcepage: sourcepage || undefined,
+        category: category || undefined,
+        cleanedContent
+    };
+}
+
 export function parseSupportingContentItem(item: any): ParsedSupportingContentItem {
     // Handle null/undefined cases
     if (!item) {
@@ -43,30 +90,21 @@ export function parseSupportingContentItem(item: any): ParsedSupportingContentIt
         };
     }
 
-    console.log("Parsing item:", item);
-
     // For structured object format (which should be the primary format)
     if (typeof item === "object" && item !== null) {
-        const sourcepage = item.sourcepage || "";
-        const sourcefile = item.sourcefile || "";
-        const category = item.category || "";
+        const inlineContent = item.full_content || item.content || "";
+        const inlineMetadata = extractInlineMetadata(inlineContent);
+
+        const sourcepage = item.sourcepage || inlineMetadata.sourcepage || "";
+        const sourcefile = item.sourcefile || inlineMetadata.sourcefile || "";
+        const category = item.category || inlineMetadata.category || "";
         const updated = item.updated || item.last_updated || item.date_updated || "";
         const storageurl = item.storageurl || item.storageUrl || item.storage_url || item.url || "";
         // Prefer full content if present
-        const content = item.full_content || item.content || "";
+        const content = inlineMetadata.cleanedContent;
 
         // Create title from available fields
         const title = sourcefile || sourcepage || category || "Document Source";
-
-        console.log("Parsed from object:", {
-            sourcepage,
-            sourcefile,
-            category,
-            title,
-            hasContent: !!content,
-            updated,
-            storageurl
-        });
 
         return {
             title: title,
@@ -109,14 +147,6 @@ export function parseSupportingContentItem(item: any): ParsedSupportingContentIt
 
         const title = sourcefile || sourcepage || "Document Source";
 
-        console.log("Parsed from string:", {
-            sourcepage,
-            sourcefile,
-            category,
-            title,
-            hasContent: !!content
-        });
-
         return {
             title: title,
             content: DOMPurify.sanitize(content),
@@ -137,8 +167,6 @@ export function extractSubsectionContent(fullContent: string, targetSubsection: 
     if (!fullContent || !targetSubsection) {
         return null;
     }
-
-    console.log("Extracting subsection:", targetSubsection, "from content length:", fullContent.length);
 
     // Enhanced patterns to find the target subsection with more flexibility
     // Handles markdown headings (## 35.1), breadcrumbs ([PART 35 > 35.1]), and bare text
@@ -169,13 +197,11 @@ export function extractSubsectionContent(fullContent: string, targetSubsection: 
         targetMatch = fullContent.match(patterns[i]);
         if (targetMatch) {
             patternUsed = i;
-            console.log(`Found subsection using pattern ${i}:`, targetMatch[0]);
             break;
         }
     }
 
     if (!targetMatch) {
-        console.log("Target subsection not found with any pattern");
         return null;
     }
 
@@ -239,22 +265,11 @@ export function extractSubsectionContent(fullContent: string, targetSubsection: 
     if (bestMatch) {
         // End at the earliest boundary (e.g., just before '---' or the next title/subsection)
         endIndex = startIndex + targetSubsection.length + bestBoundaryIndex;
-        console.log(`Found next subsection boundary at index ${endIndex}, pattern: ${boundaryPatternUsed}`);
     } else {
         endIndex = fullContent.length;
-        console.log("No next subsection found, taking to end of content");
     }
 
     const extractedContent = fullContent.substring(startIndex, endIndex).trim();
-
-    console.log("Found subsection:", {
-        subsection: targetSubsection,
-        startIndex,
-        endIndex,
-        contentLength: extractedContent.length,
-        contentPreview: extractedContent.substring(0, 200) + "...",
-        patternUsed: boundaryPatternUsed
-    });
 
     return {
         content: extractedContent,
@@ -325,12 +340,9 @@ export function parseSubsectionFromCitation(citation: string): string | null {
 
         for (const pattern of subsectionPatterns) {
             if (pattern.test(subsection)) {
-                console.log(`Subsection "${subsection}" matched pattern:`, pattern);
                 return subsection;
             }
         }
-
-        console.log("Subsection format not recognized:", subsection);
     }
 
     return null;
@@ -340,8 +352,6 @@ export function parseSupportingContent(supportingContent: SupportingContent[]): 
     const parsedContent: ParsedSupportingContent[] = [];
 
     for (const item of supportingContent) {
-        console.log("Parsing item:", item);
-
         // Do NOT group/concatenate subsections. Return each item as a standalone entry
         const content = item.full_content || item.content || "";
         parsedContent.push({
@@ -357,7 +367,6 @@ export function parseSupportingContent(supportingContent: SupportingContent[]): 
         });
     }
 
-    console.log("Parsed supporting content (no grouping):", parsedContent);
     return parsedContent;
 }
 

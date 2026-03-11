@@ -48,7 +48,7 @@ from approaches.approach import Approach, DataPoints
 from approaches.chatreadretrieveread import ChatReadRetrieveReadApproach
 from approaches.promptmanager import PromptManager
 from chat_history.cosmosdb import chat_history_cosmosdb_bp
-from customizations.config import is_feature_enabled
+from customizations.config import is_deployed_ui_compat_enabled, is_feature_enabled
 from customizations.routes import categories_bp, feedback_bp
 from config import (
     CONFIG_AGENTIC_KNOWLEDGEBASE_ENABLED,
@@ -275,10 +275,12 @@ def auth_setup():
 
 @bp.route("/config", methods=["GET"])
 def config():
+    deployed_ui_compat = is_deployed_ui_compat_enabled()
     return jsonify(
         {
             # CUSTOM: Category filter flag from customizations feature config
             "showCategoryFilter": is_feature_enabled("category_filter"),
+            "showGPT4VOptions": False,
             "showMultimodalOptions": current_app.config[CONFIG_MULTIMODAL_ENABLED],
             "showSemanticRankerOption": current_app.config[CONFIG_SEMANTIC_RANKER_DEPLOYED],
             "showQueryRewritingOption": current_app.config[CONFIG_QUERY_REWRITING_ENABLED],
@@ -301,6 +303,7 @@ def config():
             "ragSendImageSources": current_app.config[CONFIG_RAG_SEND_IMAGE_SOURCES],
             "webSourceEnabled": current_app.config[CONFIG_WEB_SOURCE_ENABLED],
             "sharepointSourceEnabled": current_app.config[CONFIG_SHAREPOINT_SOURCE_ENABLED],
+            "deployedUiCompat": deployed_ui_compat,
         }
     )
 

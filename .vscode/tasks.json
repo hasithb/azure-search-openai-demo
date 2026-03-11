@@ -53,8 +53,23 @@
             }
         },
         {
+            "label": "Frontend: npm run build",
+            "type": "npm",
+            "script": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/app/frontend"
+            },
+            "presentation": {
+                "reveal": "always",
+                "group": "buildWatchers",
+                "panel": "dedicated"
+            },
+            "problemMatcher": []
+        },
+        {
             "label": "Backend: quart run",
             "type": "shell",
+            "dependsOn": ["Frontend: npm run build"],
             "command": "${workspaceFolder}/.venv-upgrade/bin/python",
             "windows": {
                 "command": "${workspaceFolder}\\.venv-upgrade\\Scripts\\python.exe"

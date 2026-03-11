@@ -64,6 +64,7 @@ export const SupportingContent = ({
             bestFullText: string;
             segments: Segment[];
             seenTexts: Set<string>;
+            bestUpdated: string;
         };
         const byDoc = new Map<string, DocRecord>();
 
@@ -73,16 +74,24 @@ export const SupportingContent = ({
             const docKey = it.original_doc_id || docUrl || (parsed.sourcefile || "").toLowerCase();
 
             let rec = byDoc.get(docKey);
+            // Grab `updated` from whichever field name the backend uses
+            const itemUpdated = (it.updated || it.last_updated || it.date_updated || "") as string;
+
             if (!rec) {
                 rec = {
                     bestItem: it,
                     hasAnyFull: Boolean(it.full_content && it.full_content.length > 0),
                     bestFullText: (it.full_content || "") as string,
                     segments: [],
-                    seenTexts: new Set<string>()
+                    seenTexts: new Set<string>(),
+                    bestUpdated: itemUpdated
                 };
                 byDoc.set(docKey, rec);
             } else {
+                // Preserve the updated date from any item in the group
+                if (itemUpdated && !rec.bestUpdated) {
+                    rec.bestUpdated = itemUpdated;
+                }
                 // Prefer the item that has storageurl/sourcefile/sourcepage populated; otherwise keep first
                 const existingParsed = parseSupportingContentItem(rec.bestItem);
                 const currentScore = (existingParsed.storageurl ? 1 : 0) + (existingParsed.sourcefile ? 1 : 0) + (existingParsed.sourcepage ? 1 : 0);
@@ -109,9 +118,13 @@ export const SupportingContent = ({
             }
         }
 
-        // Finalize merged entries with injected full_content
+        // Finalize merged entries with injected full_content and preserved metadata
         return Array.from(byDoc.values()).map(rec => {
             const merged = { ...rec.bestItem };
+            // Ensure `updated` is preserved even if bestItem didn't have it
+            if (rec.bestUpdated && !merged.updated && !merged.last_updated && !merged.date_updated) {
+                merged.updated = rec.bestUpdated;
+            }
             if (rec.hasAnyFull && rec.bestFullText && rec.bestFullText.length > 0) {
                 merged.full_content = rec.bestFullText;
             } else {
@@ -250,8 +263,6 @@ export const SupportingContent = ({
 
         // If we have a target subsection and this item is highlighted, highlight that section within the full content
         if (isHighlighted && targetSubsection) {
-            console.log(`Attempting to highlight subsection: ${targetSubsection} in content length: ${originalContent.length}`);
-
             // Use the robust extractor to find the subsection block
             const section = extractSubsectionContent(originalContent, targetSubsection);
 
@@ -260,33 +271,30 @@ export const SupportingContent = ({
                 const subsectionContent = section.content;
                 const afterSubsection = originalContent.substring(section.endIndex);
 
-                // Reduce vertical padding to avoid overlapping the previous line
-                // Add id for scrolling and title for hover tooltip with full source information
-                // Escape quotes and HTML entities for the title attribute
-                const escapedSourceInfo = (sourceInfo || "").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-                console.log("Setting highlight tooltip - sourceInfo:", sourceInfo, "escaped:", escapedSourceInfo);
+                // CUSTOM: Use CSS class-based highlight with a styled box appearance
                 const highlightedSubsection =
-                    `<mark id="highlighted-subsection" title="${escapedSourceInfo}" style="background-color:#3b82f6;color:#fff;padding:0 4px;border-radius:4px;display:inline;line-height:inherit;scroll-margin-top:20px;">` +
-                    subsectionContent +
-                    `</mark>`;
+                    `<div class="highlightedSubsectionBox" id="highlighted-subsection">` +
+                    `<div class="highlightedSubsectionLabel">` +
+                    `<span class="highlightedSubsectionIcon">📍</span> Cited Section: ${targetSubsection}` +
+                    `</div>` +
+                    `<div class="highlightedSubsectionContent">${subsectionContent}</div>` +
+                    `</div>`;
                 const highlightedContent = cleanSupportingContentForDisplay(beforeSubsection + highlightedSubsection + afterSubsection);
                 const formattedHighlightedContent = formatSupportingContentHtml(highlightedContent);
 
                 return (
                     <div className={styles.itemContent}>
                         <div
-                            style={{ fontFamily: "inherit", margin: 0, lineHeight: "1.4" }}
+                            style={{ fontFamily: "inherit", margin: 0, lineHeight: "1.5" }}
                             dangerouslySetInnerHTML={{ __html: formattedHighlightedContent }}
                         />
                     </div>
                 );
             } else {
-                console.warn(`Could not find subsection ${targetSubsection} in content`);
-                console.log(`Content starts with: ${originalContent.substring(0, 200)}...`);
                 const formattedDisplayContent = formatSupportingContentHtml(displayContent);
                 return (
                     <div className={styles.itemContent}>
-                        <div style={{ fontFamily: "inherit", margin: 0, lineHeight: "1.4" }} dangerouslySetInnerHTML={{ __html: formattedDisplayContent }} />
+                        <div style={{ fontFamily: "inherit", margin: 0, lineHeight: "1.5" }} dangerouslySetInnerHTML={{ __html: formattedDisplayContent }} />
                     </div>
                 );
             }
@@ -296,7 +304,7 @@ export const SupportingContent = ({
         const formattedDisplayContent = formatSupportingContentHtml(displayContent);
         return (
             <div className={styles.itemContent}>
-                <div style={{ fontFamily: "inherit", margin: 0, lineHeight: "1.4" }} dangerouslySetInnerHTML={{ __html: formattedDisplayContent }} />
+                <div style={{ fontFamily: "inherit", margin: 0, lineHeight: "1.5" }} dangerouslySetInnerHTML={{ __html: formattedDisplayContent }} />
             </div>
         );
     };
@@ -305,7 +313,22 @@ export const SupportingContent = ({
     const findMatchingContentIndex = (citation: string): number => {
         if (!citation) return -1;
 
-        console.log("Finding match for citation:", citation);
+        // CUSTOM: Fast direct match — with the numbered citation pipeline, the citation
+        // reference is the exact enhanced citation string (e.g., "35.1, Part 35, Part_35.pdf")
+        // which matches the `citation` field on data points directly.
+        const normalizedCitationFull = normalizeMatchText(citation);
+        for (let i = 0; i < displayedItems.length; i++) {
+            const itemCitation = normalizeMatchText(displayedItems[i]?.citation);
+            if (itemCitation && itemCitation === normalizedCitationFull) {
+                return i;
+            }
+            // Also check sourcepage match for simpler citations
+            const parsedItem = parseSupportingContentItem(displayedItems[i]);
+            const itemSourcepage = normalizeMatchText(parsedItem.sourcepage);
+            if (itemSourcepage && itemSourcepage === normalizedCitationFull) {
+                return i;
+            }
+        }
 
         let bestMatchIndex = -1;
         let bestMatchScore = 0;
@@ -314,12 +337,6 @@ export const SupportingContent = ({
             const parsedItem = parseSupportingContentItem(displayedItems[i]);
             const rawItem: any = displayedItems[i];
             let score = 0;
-
-            console.log(`Checking displayed item ${i}:`, {
-                sourcepage: parsedItem.sourcepage,
-                sourcefile: parsedItem.sourcefile,
-                category: parsedItem.category
-            });
 
             const normalizedCitation = citation.replace(/^\s*\d+\.\s+/, "");
             const citationParts = normalizedCitation
@@ -334,8 +351,6 @@ export const SupportingContent = ({
                 const sourcePage = citationParts[1];
                 const document = citationParts.slice(2).join(", ");
 
-                console.log(`Citation parts:`, { subsection, sourcePage, document });
-
                 const sourcepageMatches =
                     normalizeMatchText(parsedItem.sourcepage) === normalizeMatchText(sourcePage) ||
                     (parsedItem.sourcepage && sourcePage && normalizeMatchText(parsedItem.sourcepage).includes(normalizeMatchText(sourcePage))) ||
@@ -349,7 +364,6 @@ export const SupportingContent = ({
                 if (documentMatches) {
                     score += 10;
                 } else if (!sourcepageMatches) {
-                    console.log(`Document mismatch for item ${i}: expected '${document}', got '${parsedItem.sourcefile}'`);
                     continue;
                 }
 
@@ -368,7 +382,6 @@ export const SupportingContent = ({
                     }
                 } else {
                     // If we can't compare sourcepage, skip early for strictness
-                    console.log(`Missing sourcepage for strict match on item ${i}`);
                     continue;
                 }
 
@@ -377,7 +390,6 @@ export const SupportingContent = ({
                 if (subsectionToken && subsectionToken.length > 1) {
                     const content = parsedItem.content || "";
                     if (!content) {
-                        console.log(`Item ${i} has no content to check subsection presence`);
                         continue;
                     }
                     const escaped = subsectionToken.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -392,10 +404,8 @@ export const SupportingContent = ({
                         const subsectionMetaMatch = normalizedSubsection && normalizedMetaSubsection && normalizedSubsection === normalizedMetaSubsection;
 
                         if (sourcepageMatches || subsectionMetaMatch) {
-                            console.log(`Subsection '${subsection}' not found in content for item ${i}; using metadata fallback`);
                             score += 15;
                         } else {
-                            console.log(`Subsection '${subsection}' not found in item ${i} content, skipping`);
                             continue; // do not consider this item at all
                         }
                     } else {
@@ -414,8 +424,6 @@ export const SupportingContent = ({
                 const inferredDocument = dashDocument || "";
                 const inferredSourcePage = partB;
 
-                console.log(`Two-part citation:`, { partA, partB, dashSubsection, dashDocument, inferredDocument, inferredSourcePage });
-
                 const sourcepageMatches =
                     normalizeMatchText(parsedItem.sourcepage) === normalizeMatchText(inferredSourcePage) ||
                     (parsedItem.sourcepage &&
@@ -431,12 +439,9 @@ export const SupportingContent = ({
 
                 if (documentMatches) {
                     score += 30;
-                    console.log(`Document match for two-part citation`);
                 } else if (sourcepageMatches) {
                     score += 25;
-                    console.log(`Sourcepage match for two-part citation`);
                 } else {
-                    console.log(`Document/sourcepage mismatch for two-part citation`);
                     continue;
                 }
 
@@ -446,13 +451,11 @@ export const SupportingContent = ({
                     const patterns = [new RegExp(`(^|\\n)\\s*${escaped}\\b`, "i"), new RegExp(`\\b${escaped}\\b`, "i")];
                     if (patterns.some(p => p.test(parsedItem.content || ""))) {
                         score += 25;
-                        console.log(`Subsection '${subsectionToken}' found in content`);
                     } else if (parsedSubsection) {
                         const normalizedSubsection = normalizeSubsectionToken(subsectionToken);
                         const normalizedMetaSubsection = normalizeSubsectionToken(rawItem?.subsection_id);
                         if (normalizedSubsection && normalizedMetaSubsection && normalizedSubsection === normalizedMetaSubsection) {
                             score += 15;
-                            console.log(`Subsection '${subsectionToken}' matched metadata`);
                         }
                     }
                 }
@@ -474,11 +477,9 @@ export const SupportingContent = ({
         }
 
         if (bestMatchIndex >= 0 && bestMatchScore >= 15) {
-            console.log(`Best match (displayedItems) found at index ${bestMatchIndex} with score ${bestMatchScore}`);
             return bestMatchIndex;
         }
 
-        console.log("No valid match found for citation (strict subsection check)");
         return -1;
     };
 
@@ -486,13 +487,6 @@ export const SupportingContent = ({
     useEffect(() => {
         if ((activeCitationReference || activeCitationContent) && containerRef.current) {
             const matchIndex = findMatchingContentIndex(activeCitationReference || "");
-
-            console.log("Auto-scroll effect (displayedItems):", {
-                activeCitationReference,
-                activeCitationContent,
-                matchIndex,
-                displayedItemsLength: displayedItems.length
-            });
 
             if (matchIndex >= 0) {
                 const targetElement = containerRef.current.children[matchIndex] as HTMLElement;
@@ -543,11 +537,14 @@ export const SupportingContent = ({
 
     const targetSubsection = activeCitationReference ? parseSubsectionFromCitation(activeCitationReference) : null;
 
+    // CUSTOM: Compute once instead of per-item to avoid O(n²) matching
+    const activeMatchIndex = activeCitationReference ? findMatchingContentIndex(activeCitationReference) : -1;
+
     return (
         <div className={styles.supportingContent} ref={containerRef}>
             {displayedItems.map((item, index) => {
                 const parsedItem = parseSupportingContentItem(item);
-                const isActive = !!(activeCitationReference && findMatchingContentIndex(activeCitationReference) === index);
+                const isActive = activeMatchIndex === index;
 
                 const getDisplayTitle = () => {
                     const parts: string[] = [];
@@ -559,15 +556,6 @@ export const SupportingContent = ({
                     if (sourcepage) parts.push(sourcepage);
                     if (category) parts.push(category);
                     const title = parts.length > 0 ? parts.join(", ") : "Document Source";
-                    console.log("getDisplayTitle:", {
-                        sourcefile: parsedItem.sourcefile,
-                        sourcepage: parsedItem.sourcepage,
-                        category: parsedItem.category,
-                        rawSourcefile: rawItem?.sourcefile,
-                        rawSourcepage: rawItem?.sourcepage,
-                        rawCategory: rawItem?.category,
-                        title
-                    });
                     return title;
                 };
 

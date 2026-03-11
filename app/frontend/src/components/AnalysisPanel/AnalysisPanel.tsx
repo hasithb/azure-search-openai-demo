@@ -1,17 +1,14 @@
-import { useMsal } from "@azure/msal-react";
 import { Tab, TabList, SelectTabData, SelectTabEvent } from "@fluentui/react-components";
-import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { ChatAppResponse, getHeaders } from "../../api";
-import { getToken, useLogin } from "../../authConfig";
+import { ChatAppResponse } from "../../api";
+import { isAdminMode } from "../../customizations/config";
+import { isIframeBlocked } from "../../customizations/externalSourceHandler";
 import { MarkdownViewer } from "../MarkdownViewer";
 import { SupportingContent } from "../SupportingContent";
 import styles from "./AnalysisPanel.module.css";
 import { AnalysisPanelTabs } from "./AnalysisPanelTabs";
 import { ThoughtProcess } from "./ThoughtProcess";
-// CUSTOM: Import external source handler for iframe blocking detection
-import { isIframeBlocked } from "../../customizations";
 
 interface Props {
     className: string;
@@ -21,12 +18,14 @@ interface Props {
     citationHeight: string;
     answer: ChatAppResponse;
     onCitationClicked?: (citationFilePath: string) => void;
-    // CUSTOM: Extra props for enhanced citation handling
+    onViewSourceDocument?: (citationFilePath: string) => void;
+    enableCitationTab?: boolean;
+    // CUSTOM: Props for subsection highlighting in Supporting Content
     activeCitationLabel?: string | undefined;
     activeCitationContent?: string | undefined;
-    enableCitationTab?: boolean;
-    onCitationChanged?: (citation: string) => void;
 }
+
+const adminMode = isAdminMode();
 
 export const AnalysisPanel = ({
     answer,
@@ -36,10 +35,10 @@ export const AnalysisPanel = ({
     className,
     onActiveTabChanged,
     onCitationClicked,
-    activeCitationLabel,
-    activeCitationContent,
+    onViewSourceDocument,
     enableCitationTab = false,
-    onCitationChanged
+    activeCitationLabel,
+    activeCitationContent
 }: Props) => {
     const isDisabledThoughtProcessTab: boolean = !answer.context.thoughts;
     const dataPoints = answer.context.data_points;
@@ -50,72 +49,84 @@ export const AnalysisPanel = ({
                 (dataPoints.external_results_metadata && dataPoints.external_results_metadata.length > 0))
     );
     const isDisabledSupportingContentTab: boolean = !hasSupportingContent;
-    // CUSTOM: Disable citation tab if blocked from iframe embedding or not enabled
-    const isBlocked = activeCitation ? isIframeBlocked(activeCitation) : false;
-    const isDisabledCitationTab: boolean = !activeCitation || !enableCitationTab || isBlocked;
-    const [citation, setCitation] = useState("");
+    const isBlockedCitation = Boolean(
+        activeCitation && (activeCitation.startsWith("http://") || activeCitation.startsWith("https://")) && isIframeBlocked(activeCitation)
+    );
+    const isDisabledCitationTab: boolean = !activeCitation || isBlockedCitation;
+    const showThoughtProcessTab = adminMode;
+    const showCitationTab = adminMode && enableCitationTab && !isDisabledCitationTab;
+    const effectiveActiveTab =
+        activeTab === AnalysisPanelTabs.ThoughtProcessTab && !showThoughtProcessTab
+            ? AnalysisPanelTabs.SupportingContentTab
+            : activeTab === AnalysisPanelTabs.CitationTab && !showCitationTab
+              ? AnalysisPanelTabs.SupportingContentTab
+              : activeTab;
 
-    const client = useLogin ? useMsal().instance : undefined;
     const { t } = useTranslation();
 
-    const fetchCitation = async () => {
-        const token = client ? await getToken(client) : undefined;
-        if (activeCitation) {
-            // Get hash from the URL as it may contain #page=N
-            // which helps browser PDF renderer jump to correct page N
-            const originalHash = activeCitation.indexOf("#") ? activeCitation.split("#")[1] : "";
-            const response = await fetch(activeCitation, {
-                method: "GET",
-                headers: await getHeaders(token)
-            });
-            const citationContent = await response.blob();
-            let citationObjectUrl = URL.createObjectURL(citationContent);
-            // Add hash back to the new blob URL
-            if (originalHash) {
-                citationObjectUrl += "#" + originalHash;
-            }
-            setCitation(citationObjectUrl);
-        }
-    };
-    useEffect(() => {
-        fetchCitation();
-    }, [activeCitation]);
-
-    const renderFileViewer = () => {
+    const renderCitationViewer = () => {
         if (!activeCitation) {
             return null;
         }
 
-        const fileExtension = activeCitation.split(".").pop()?.toLowerCase();
-        switch (fileExtension) {
-            case "png":
-                return <img src={citation} className={styles.citationImg} alt="Citation Image" />;
-            case "md":
-                return <MarkdownViewer src={activeCitation} />;
-            default:
-                return <iframe title="Citation" src={citation} width="100%" height={citationHeight} />;
+        if (isBlockedCitation) {
+            return (
+                <div style={{ padding: "1rem" }}>
+                    <p>{t("headerTexts.citation")}</p>
+                    <a href={activeCitation} target="_blank" rel="noopener noreferrer">
+                        {activeCitation}
+                    </a>
+                </div>
+            );
         }
+
+        const citationWithoutQuery = activeCitation.split("?")[0].split("#")[0];
+        const fileExtension = citationWithoutQuery.split(".").pop()?.toLowerCase();
+
+        if (fileExtension === "md") {
+            return <MarkdownViewer src={activeCitation} />;
+        }
+
+        if (["png", "jpg", "jpeg", "gif", "webp", "svg"].includes(fileExtension || "")) {
+            return <img src={activeCitation} className={styles.citationImg} alt={t("headerTexts.citation")} />;
+        }
+
+        return <iframe title={t("headerTexts.citation")} src={activeCitation} width="100%" height={citationHeight} style={{ border: "none" }} />;
     };
 
     return (
         <div className={className}>
-            <TabList selectedValue={activeTab} onTabSelect={(_ev: SelectTabEvent, data: SelectTabData) => onActiveTabChanged(data.value as AnalysisPanelTabs)}>
-                <Tab value={AnalysisPanelTabs.ThoughtProcessTab} disabled={isDisabledThoughtProcessTab}>
-                    {t("headerTexts.thoughtProcess")}
-                </Tab>
+            <TabList
+                selectedValue={effectiveActiveTab}
+                onTabSelect={(_ev: SelectTabEvent, data: SelectTabData) => onActiveTabChanged(data.value as AnalysisPanelTabs)}
+            >
+                {showThoughtProcessTab && (
+                    <Tab value={AnalysisPanelTabs.ThoughtProcessTab} disabled={isDisabledThoughtProcessTab}>
+                        {t("headerTexts.thoughtProcess")}
+                    </Tab>
+                )}
                 <Tab value={AnalysisPanelTabs.SupportingContentTab} disabled={isDisabledSupportingContentTab}>
                     {t("headerTexts.supportingContent")}
                 </Tab>
-                <Tab value={AnalysisPanelTabs.CitationTab} disabled={isDisabledCitationTab}>
-                    {t("headerTexts.citation")}
-                </Tab>
+                {showCitationTab && (
+                    <Tab value={AnalysisPanelTabs.CitationTab} disabled={isDisabledCitationTab}>
+                        {t("headerTexts.citation")}
+                    </Tab>
+                )}
             </TabList>
             <div>
-                {activeTab === AnalysisPanelTabs.ThoughtProcessTab && (
+                {effectiveActiveTab === AnalysisPanelTabs.ThoughtProcessTab && showThoughtProcessTab && (
                     <ThoughtProcess thoughts={answer.context.thoughts || []} onCitationClicked={onCitationClicked} />
                 )}
-                {activeTab === AnalysisPanelTabs.SupportingContentTab && <SupportingContent supportingContent={answer.context.data_points} />}
-                {activeTab === AnalysisPanelTabs.CitationTab && renderFileViewer()}
+                {effectiveActiveTab === AnalysisPanelTabs.SupportingContentTab && (
+                    <SupportingContent
+                        supportingContent={answer.context.data_points}
+                        activeCitationReference={activeCitationLabel}
+                        activeCitationContent={activeCitationContent}
+                        onViewSourceDocument={onViewSourceDocument}
+                    />
+                )}
+                {effectiveActiveTab === AnalysisPanelTabs.CitationTab && showCitationTab && renderCitationViewer()}
             </div>
         </div>
     );

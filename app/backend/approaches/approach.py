@@ -50,7 +50,7 @@ from prepdocslib.blobmanager import AdlsBlobManager, BlobManager
 from prepdocslib.embeddings import ImageEmbeddings
 
 # CUSTOM: Import legal domain customizations
-from customizations.approaches import citation_builder, source_processor
+from customizations.approaches import citation_builder
 from customizations import is_feature_enabled
 
 
@@ -78,6 +78,10 @@ class Document:
     reranker_score: Optional[float] = None
     activity: Optional[ActivityDetail] = None
     images: Optional[list[dict[str, Any]]] = None
+    # CUSTOM: Legal search index fields for SupportingContent display
+    storage_url: Optional[str] = None
+    updated: Optional[str] = None
+    subsection_id: Optional[str] = None
 
     def serialize_for_results(self) -> dict[str, Any]:
         result_dict = {
@@ -184,11 +188,24 @@ class AgenticRetrievalResults:
 
 @dataclass
 class DataPoints:
-    text: Optional[list[str]] = None
+    text: Optional[list[str | "TextSourceItem"]] = None
     images: Optional[list] = None
     citations: Optional[list[str]] = None
     external_results_metadata: Optional[list[dict[str, Any]]] = None
     citation_activity_details: Optional[dict[str, dict[str, Any]]] = None
+
+
+class TextSourceItem(TypedDict, total=False):
+    id: Optional[str]
+    citation: str
+    content: str
+    full_content: str
+    sourcepage: str
+    sourcefile: str
+    category: str
+    storageurl: str
+    updated: str
+    subsection_id: str
 
 
 @dataclass
@@ -388,6 +405,10 @@ class Approach(ABC):
                         score=document.get("@search.score"),
                         reranker_score=document.get("@search.reranker_score"),
                         images=document.get("images"),
+                        # CUSTOM: Legal search index fields
+                        storage_url=document.get("storageUrl"),
+                        updated=document.get("updated"),
+                        subsection_id=document.get("subsection_id"),
                     )
                 )
 
@@ -649,6 +670,10 @@ class Approach(ABC):
                         reranker_score=getattr(ref, "reranker_score", None),
                         images=ref.source_data.get("images"),
                         activity=activity_details_by_id[ref.activity_source],
+                        # CUSTOM: Legal search index fields
+                        storage_url=ref.source_data.get("storageUrl"),
+                        updated=ref.source_data.get("updated"),
+                        subsection_id=ref.source_data.get("subsection_id"),
                     )
                 )
 
@@ -737,6 +762,10 @@ class Approach(ABC):
                             groups=ref.source_data.get("groups"),
                             reranker_score=getattr(ref, "reranker_score", None),
                             images=ref.source_data.get("images"),
+                            # CUSTOM: Legal search index fields
+                            storage_url=ref.source_data.get("storageUrl"),
+                            updated=ref.source_data.get("updated"),
+                            subsection_id=ref.source_data.get("subsection_id"),
                         )
                     )
 
@@ -848,24 +877,30 @@ class Approach(ABC):
             sharepoint_results: Optional list of SharePoint retrieval results to expose to clients.
 
         Returns:
-            DataPoints: with text (list[str]), images (list[str - base64 data URI]), citations (list[str]).
+            DataPoints: with text (structured source objects and legacy strings), images (list[str - base64 data URI]), citations (list[str]).
         """
 
         def clean_source(s: str) -> str:
             s = s.replace("\n", " ").replace("\r", " ")  # normalize newlines to spaces
             s = s.replace(":::", "&#58;&#58;&#58;")  # escape DocFX/markdown triple colons
+            # Remove inline metadata prefixes that can leak into supporting content text
+            # Example: "SOURCE: ... SOURCEPAGE: ... CATEGORY: ... SECTION: ..."
+            s = re.sub(r"\bSOURCE:\s*.*?\bSOURCEPAGE:\s*.*?\bCATEGORY:\s*.*?\bSECTION:\s*", "", s, flags=re.IGNORECASE)
+            s = re.sub(r"\s+", " ", s).strip()
             return s
 
         citations = []
-        text_sources = []
+        text_sources: list[str | TextSourceItem] = []
         image_sources = []
         seen_urls = set()
         external_results_metadata: list[dict[str, Any]] = []
         citation_activity_details: dict[str, dict[str, Any]] = {}
 
         for doc in results:
-            # Get the citation for the source page
-            citation = self.get_citation(doc.sourcepage)
+            # Build enhanced legal citation for documents so subsection matching works in the frontend
+            citation = citation_builder.build_enhanced_citation(doc, len(citations) + 1)
+            if not citation:
+                citation = self.get_citation(doc.sourcepage)
             if citation not in citations:
                 citations.append(citation)
                 # Add activity details if available
@@ -876,9 +911,25 @@ class Approach(ABC):
             if include_text_sources:
                 if use_semantic_captions and doc.captions:
                     cleaned = clean_source(" . ".join([cast(str, c.text) for c in doc.captions]))
+                    full_content = clean_source(doc.content or "")
                 else:
                     cleaned = clean_source(doc.content or "")
-                text_sources.append(f"{citation}: {cleaned}")
+                    full_content = cleaned
+
+                text_sources.append(
+                    {
+                        "id": doc.id,
+                        "citation": citation,
+                        "content": cleaned,
+                        "full_content": full_content,
+                        "sourcepage": doc.sourcepage or "",
+                        "sourcefile": doc.sourcefile or "",
+                        "category": doc.category or "",
+                        "storageurl": getattr(doc, "storage_url", "") or "",
+                        "updated": getattr(doc, "updated", "") or getattr(doc, "last_updated", "") or "",
+                        "subsection_id": getattr(doc, "subsection_id", "") or "",
+                    }
+                )
 
             if download_image_sources and hasattr(doc, "images") and doc.images:
                 for img in doc.images:
@@ -918,7 +969,7 @@ class Approach(ABC):
                     if sp.activity:
                         citation_activity_details[citation] = asdict(sp.activity)
                 if include_text_sources and sp.content:
-                    text_sources.append(f"{citation}: {clean_source(sp.content)}")
+                    text_sources.append(f"[{citation}]: {clean_source(sp.content)}")
                 external_results_metadata.append(
                     {
                         "id": sp.id,
