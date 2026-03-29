@@ -16,6 +16,8 @@ import logging
 import re
 from typing import Any, Optional
 
+from customizations.subsection_extractor import SubsectionExtractor
+
 
 class CitationBuilder:
     """
@@ -32,17 +34,8 @@ class CitationBuilder:
     - Direct patterns (e.g., "Rule 31.1", "Para 5.2", "A4.1")
     """
 
-    # Pattern for detecting subsection markers in content
-    CONTENT_SUBSECTION_PATTERNS = [
-        r'^([A-Z]\d+\.\d+)\b',           # A4.1, B2.3, etc.
-        r'^([A-Z]\.\d+(?:\.\d+)?)\b',   # C.2, F.1, A.1.1, etc.
-        r'^(\d+\.\d+)\b',                # 1.1, 2.3, etc.
-        r'^([A-Z]\d+)\b',                # A1, B2, etc.
-        r'^(Rule \d+(?:\.\d+)?)\b',      # Rule 1, Rule 1.1
-        r'^(Para \d+(?:\.\d+)?)\b',      # Para 1.1
-        r'^(Part \d+)\b',                # Part 1, Part 2, etc.
-        r'^(\d+\.\d+)$',                 # Standalone subsection number
-    ]
+    # Content subsection patterns are defined in SubsectionExtractor (single source of truth)
+    CONTENT_SUBSECTION_PATTERNS = SubsectionExtractor.CONTENT_SUBSECTION_PATTERNS
 
     # Pattern for extracting subsection from encoded sourcepage (e.g., "PD3E-1.1")
     ENCODED_SUBSECTION_PATTERNS = [
@@ -324,43 +317,9 @@ class CitationBuilder:
         Extract subsection from raw content text.
         
         Used when processing content outside of a Document object.
-        
-        Handles markdown formatting like:
-        - # 1.1 Heading (markdown headings)
-        - **1.1** Bold text
-        - __1.1__ Underline bold
+        Delegates to SubsectionExtractor for consistent behavior.
         """
-        if not content:
-            return ""
-            
-        lines = content.split('\n')[:20]
-        for line in lines:
-            line = line.strip()
-            if not line or line == "---":
-                continue
-            
-            # Strip markdown formatting before pattern matching
-            # 1. Remove markdown heading prefixes (# ## ### etc.)
-            cleaned_line = re.sub(r'^#+\s*', '', line)
-            # 2. Remove bold markers (**text** or __text__)
-            cleaned_line = re.sub(r'^\*\*([^*]+)\*\*', r'\1', cleaned_line)
-            cleaned_line = re.sub(r'^__([^_]+)__', r'\1', cleaned_line)
-            # 3. Strip any remaining leading/trailing whitespace
-            cleaned_line = cleaned_line.strip()
-            
-            # Try matching with cleaned line
-            for pattern in self.CONTENT_SUBSECTION_PATTERNS:
-                match = re.match(pattern, cleaned_line, re.IGNORECASE)
-                if match:
-                    return match.group(1)
-            
-            # Also try original line in case cleaning removed something important
-            if cleaned_line != line:
-                for pattern in self.CONTENT_SUBSECTION_PATTERNS:
-                    match = re.match(pattern, line, re.IGNORECASE)
-                    if match:
-                        return match.group(1)
-        return ""
+        return SubsectionExtractor.extract_first_subsection(content)
 
     def get_subsection_sort_key(self, subsection_id: str) -> tuple:
         """
