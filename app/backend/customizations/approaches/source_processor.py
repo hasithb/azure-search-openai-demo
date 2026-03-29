@@ -69,7 +69,7 @@ class SourceProcessor:
         Returns:
             List of structured source dictionaries for frontend consumption
         """
-        logging.info(f"🔍 DEBUG: SourceProcessor processing {len(documents)} documents")
+        logging.debug(f"SourceProcessor processing {len(documents)} documents")
         
         structured_results = []
         
@@ -81,8 +81,8 @@ class SourceProcessor:
             doc_sourcepage = getattr(doc, 'sourcepage', '')
             doc_sourcefile = getattr(doc, 'sourcefile', '')
             doc_content_preview = (getattr(doc, 'content', '') or '')[:100]
-            logging.info(f"🔍 DEBUG: SourceProcessor doc {i+1}: id='{doc_id}', sourcepage='{doc_sourcepage}', "
-                        f"sourcefile='{doc_sourcefile}', content_preview='{doc_content_preview}...'")
+            logging.debug(f"SourceProcessor doc {i+1}: id='{doc_id}', sourcepage='{doc_sourcepage}', "
+                         f"sourcefile='{doc_sourcefile}', content_preview='{doc_content_preview}...'")
             
             # Check if document contains multiple subsections
             subsections = self.citation_builder.extract_multiple_subsections(doc)
@@ -93,10 +93,10 @@ class SourceProcessor:
                     subsections = subsections[:max_unfocused_subsections]
             
             if len(subsections) > 1:
-                logging.info(f"🎯 DEBUG: Document {getattr(doc, 'id', 'unknown')} will be split into {len(subsections)} sources")
+                logging.debug(f"Document {getattr(doc, 'id', 'unknown')} will be split into {len(subsections)} sources")
                 document_groups.append((doc, subsections))
             else:
-                logging.info(f"❌ DEBUG: Document {getattr(doc, 'id', 'unknown')} not split - using original logic")
+                logging.debug(f"Document {getattr(doc, 'id', 'unknown')} not split - using original logic")
                 document_groups.append((doc, []))
         
         # Second pass: process groups to create structured results
@@ -108,7 +108,7 @@ class SourceProcessor:
                 # Single document
                 self._process_single_document(doc, structured_results, use_semantic_captions)
         
-        logging.info(f"🔍 DEBUG: Returning {len(structured_results)} structured sources (original: {len(documents)})")
+        logging.debug(f"Returning {len(structured_results)} structured sources (original: {len(documents)})")
         return structured_results
 
     def _focus_subsections(
@@ -206,7 +206,7 @@ class SourceProcessor:
             }
             
             results.append(result_obj)
-            logging.info(f"🎯 DEBUG: Added subsection source {j+1}: {subsection_id}")
+            logging.debug(f"Added subsection source {j+1}: {subsection_id}")
 
     def _deduplicate_subsections(self, subsections: list[dict[str, str]]) -> list[dict[str, str]]:
         """Collapse repeated subsection labels from the same document into a single best chunk."""
@@ -251,7 +251,7 @@ class SourceProcessor:
         storage_url = str(getattr(doc, 'storage_url', '')) if getattr(doc, 'storage_url', None) else ""
         updated = str(getattr(doc, 'updated', '')) if getattr(doc, 'updated', None) else ""
         
-        logging.info(f"🔍 DEBUG: _process_single_document - id='{doc_id}', sourcepage='{sourcepage}', sourcefile='{sourcefile}'")
+        logging.debug(f"_process_single_document - id='{doc_id}', sourcepage='{sourcepage}', sourcefile='{sourcefile}'")
         
         # Generate citation
         citation = self.citation_builder.build_enhanced_citation(doc, len(results) + 1)

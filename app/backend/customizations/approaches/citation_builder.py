@@ -157,7 +157,7 @@ class CitationBuilder:
         content = getattr(doc, 'content', '') or ''
         sourcepage = getattr(doc, 'sourcepage', '') or ''
         
-        # Priority 1: Check content (fallback for backward compatibility) (fallback for backward compatibility)
+        # Priority 1: Check content (fallback for backward compatibility)
         if content:
             lines = content.split('\n')[:20]
             deferred_part_heading = ""

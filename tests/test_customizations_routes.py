@@ -24,7 +24,7 @@ class TestCategoriesEndpoint:
         with mock.patch("customizations.config.CUSTOM_FEATURES", {"category_filter": True}):
             # Mock the search client
             mock_search_results = mock.AsyncMock()
-            mock_search_results.get_facets = mock.MagicMock(
+            mock_search_results.get_facets = mock.AsyncMock(
                 return_value={
                     "category": [
                         {"value": "Commercial Court", "count": 42},
@@ -36,9 +36,9 @@ class TestCategoriesEndpoint:
             mock_search_client = mock.AsyncMock()
             mock_search_client.search = mock.AsyncMock(return_value=mock_search_results)
 
-            with mock.patch("quart.current_app.config.get") as mock_config_get:
-                mock_config_get.return_value = mock_search_client
-
+            original = client.app.config.get("search_client")
+            client.app.config["search_client"] = mock_search_client
+            try:
                 response = await client.get("/api/categories")
 
                 # Response should be successful
@@ -47,21 +47,23 @@ class TestCategoriesEndpoint:
                 # Should be JSON
                 data = await response.get_json()
                 assert isinstance(data, dict)
+            finally:
+                client.app.config["search_client"] = original
 
     async def test_categories_endpoint_includes_all_sources_option(self, client):
         """Test that categories response includes 'All Sources' option."""
         with mock.patch("customizations.config.CUSTOM_FEATURES", {"category_filter": True}):
             mock_search_results = mock.AsyncMock()
-            mock_search_results.get_facets = mock.MagicMock(
+            mock_search_results.get_facets = mock.AsyncMock(
                 return_value={"category": [{"value": "Court A", "count": 10}]}
             )
 
             mock_search_client = mock.AsyncMock()
             mock_search_client.search = mock.AsyncMock(return_value=mock_search_results)
 
-            with mock.patch("quart.current_app.config.get") as mock_config_get:
-                mock_config_get.return_value = mock_search_client
-
+            original = client.app.config.get("search_client")
+            client.app.config["search_client"] = mock_search_client
+            try:
                 response = await client.get("/api/categories")
                 data = await response.get_json()
 
@@ -73,32 +75,38 @@ class TestCategoriesEndpoint:
                 assert len(categories) > 0
                 assert categories[0]["key"] == ""
                 assert categories[0]["text"] == "All Sources"
+            finally:
+                client.app.config["search_client"] = original
 
     async def test_categories_endpoint_returns_500_when_search_client_missing(self, client):
         """Test that endpoint returns 500 when search client is not configured."""
         with mock.patch("customizations.config.CUSTOM_FEATURES", {"category_filter": True}):
-            with mock.patch("quart.current_app.config.get") as mock_config_get:
-                mock_config_get.return_value = None
-
+            original = client.app.config.get("search_client")
+            client.app.config["search_client"] = None
+            try:
                 response = await client.get("/api/categories")
                 assert response.status_code == 500
+            finally:
+                client.app.config["search_client"] = original
 
     async def test_categories_endpoint_uses_faceted_search(self, client):
         """Test that endpoint uses faceted search for efficiency."""
         with mock.patch("customizations.config.CUSTOM_FEATURES", {"category_filter": True}):
             mock_search_results = mock.AsyncMock()
-            mock_search_results.get_facets = mock.MagicMock(return_value={"category": []})
+            mock_search_results.get_facets = mock.AsyncMock(return_value={"category": []})
 
             mock_search_client = mock.AsyncMock()
             mock_search_client.search = mock.AsyncMock(return_value=mock_search_results)
 
-            with mock.patch("quart.current_app.config.get") as mock_config_get:
-                mock_config_get.return_value = mock_search_client
-
+            original = client.app.config.get("search_client")
+            client.app.config["search_client"] = mock_search_client
+            try:
                 response = await client.get("/api/categories")
 
                 # Verify search was called with facets
                 mock_search_client.search.assert_called_once()
+            finally:
+                client.app.config["search_client"] = original
 
 
 class TestCategoriesEndpointDisplayNames:
@@ -279,13 +287,15 @@ class TestEndpointErrorHandling:
             mock_search_client = mock.AsyncMock()
             mock_search_client.search = mock.AsyncMock(side_effect=Exception("Search failed"))
 
-            with mock.patch("quart.current_app.config.get") as mock_config_get:
-                mock_config_get.return_value = mock_search_client
-
+            original = client.app.config.get("search_client")
+            client.app.config["search_client"] = mock_search_client
+            try:
                 response = await client.get("/api/categories")
 
                 # Should return error response
                 assert response.status_code >= 400
+            finally:
+                client.app.config["search_client"] = original
 
     async def test_feedback_endpoint_handles_invalid_json(self, client):
         """Test that feedback endpoint handles invalid JSON gracefully."""
