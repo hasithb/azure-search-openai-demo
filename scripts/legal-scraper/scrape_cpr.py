@@ -128,11 +128,15 @@ class CPRScraper:
               # Normalize URL
               full_url = urljoin(BASE_URL, href)
             
-              # Filter for likely CPR Part links or protocol
-              is_part = "procedure-rules/civil/rules/" in full_url and ("part" in full_url.lower() or "part" in text.lower())
+              # Filter for CPR Part links, Practice Direction links, or protocol links
+              # PDs may use descriptive URLs (e.g. practice-direction-57ab-shorter-and-flexible-trials-schemes)
+              # without 'part' in the URL, so we match on 'practice-direction' separately
+              in_rules = "procedure-rules/civil/rules/" in full_url
+              is_part = in_rules and ("part" in full_url.lower() or "part" in text.lower())
+              is_pd = in_rules and ("practice-direction" in full_url.lower() or "pd_" in full_url.lower() or "practice direction" in text.lower())
               is_protocol = "procedure-rules/civil/protocol" in full_url or "/protocol/" in full_url or "pd_pre-action_conduct" in full_url or "pd_pre_action_conduct" in full_url.lower()
 
-              if is_part or is_protocol:
+              if is_part or is_pd or is_protocol:
                   links.append({
                       "url": full_url,
                       "title": text,
@@ -265,7 +269,7 @@ class CPRScraper:
         # Strategy: Flatten the DOM into a list of significant elements (headings and paragraphs)
         
         # We will iterate through all distinct elements in document order
-        all_elements = content_div.find_all(['h1', 'h2', 'h3', 'h4', 'p', 'div', 'li'])
+        all_elements = content_div.find_all(['h1', 'h2', 'h3', 'h4', 'p', 'div', 'li', 'table'])
         
         for elem in all_elements:
             # Skip if element no longer strictly exists (was decomposed)
@@ -274,6 +278,22 @@ class CPRScraper:
 
             # Skip if element is just a container for other elements we will process
             if elem.name == 'div' and (elem.find('p') or elem.find('h1') or elem.find('h2')):
+                continue
+
+            # Convert table elements to text rows to preserve tabular data
+            if elem.name == 'table':
+                rows = elem.find_all('tr')
+                if rows:
+                    breadcrumb = ""
+                    if context_part or context_rule:
+                        parts = [c for c in [context_part, context_rule] if c]
+                        breadcrumb = f"[{' > '.join(parts)}] "
+                    for row in rows:
+                        cells = row.find_all(['th', 'td'])
+                        cell_texts = [c.get_text(" ", strip=True) for c in cells]
+                        row_text = " | ".join(cell_texts)
+                        if row_text.strip():
+                            extracted_paragraphs.append(f"{breadcrumb}{row_text}")
                 continue
 
             text = elem.get_text(" ", strip=True)

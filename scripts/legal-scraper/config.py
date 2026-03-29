@@ -72,7 +72,7 @@ class Config:
     # Prefer RBAC: Don't auto-load keys from AZD. Only use if explicitly set in environment.
     AZURE_SEARCH_KEY = os.getenv('AZURE_SEARCH_KEY', '')
 
-    AZURE_SEARCH_INDEX = os.getenv('AZURE_SEARCH_INDEX', 'legal-court-rag-index-v2')
+    AZURE_SEARCH_INDEX = os.getenv('AZURE_SEARCH_INDEX', 'legal-court-rag-index-v3')
     AZURE_SEARCH_INDEX_STAGING = os.getenv('AZURE_SEARCH_INDEX_STAGING', 'legal-court-rag-staging')
     
     # Azure OpenAI settings for embeddings

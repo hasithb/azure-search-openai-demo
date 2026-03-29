@@ -6,10 +6,14 @@ from azure.search.documents.knowledgebases.aio import KnowledgeBaseRetrievalClie
 from azure.search.documents.knowledgebases.models import (
     KnowledgeBaseMessage,
     KnowledgeBaseRetrievalResponse,
+    KnowledgeBaseSearchIndexActivityArguments,
+    KnowledgeBaseSearchIndexActivityRecord,
+    KnowledgeBaseSearchIndexReference,
+    KnowledgeBaseModelQueryPlanningActivityRecord,
 )
 from openai.types.chat import ChatCompletion
 
-from approaches.approach import RewriteQueryResult
+from approaches.approach import Document, RewriteQueryResult
 
 from .conftest import create_mock_retrieve
 
@@ -185,3 +189,159 @@ async def test_agentic_retrieval_minimal_requires_string(chat_approach):
             search_index_name="test-index",
             retrieval_reasoning_effort="minimal",
         )
+
+
+@pytest.mark.asyncio
+async def test_agentic_retrieval_retries_when_matches_are_weak(chat_approach, monkeypatch):
+    async def weak_retrieve(*args, **kwargs):
+        return KnowledgeBaseRetrievalResponse(
+            activity=[
+                KnowledgeBaseModelQueryPlanningActivityRecord(id=0, input_tokens=10, output_tokens=20, elapsed_ms=100),
+                KnowledgeBaseSearchIndexActivityRecord(
+                    id=1,
+                    knowledge_source_name="index",
+                    search_index_arguments=KnowledgeBaseSearchIndexActivityArguments(search="patents guide"),
+                    count=1,
+                    elapsed_ms=50,
+                ),
+            ],
+            references=[
+                KnowledgeBaseSearchIndexReference(
+                    id=0,
+                    activity_source=1,
+                    doc_key="weak-doc",
+                    reranker_score=1.0,
+                    source_data={
+                        "id": "weak-doc",
+                        "content": "General introduction to the Patents Court Guide.",
+                        "sourcepage": "The Patents Court Guide",
+                        "sourcefile": "The Patents Court Guide",
+                        "category": "Patents Court",
+                    },
+                )
+            ],
+        )
+
+    search_calls: list[str] = []
+
+    async def fake_search(*args, **kwargs):
+        search_calls.append(kwargs["query_text"])
+        return [
+            Document(
+                id="strong-doc",
+                content="Urgent applications are handled by the applications judge.",
+                sourcepage="Urgent applications",
+                sourcefile="The Patents Court Guide",
+                category="Patents Court",
+                subsection_id="3.4",
+            )
+        ]
+
+    monkeypatch.setattr(KnowledgeBaseRetrievalClient, "retrieve", weak_retrieve)
+    monkeypatch.setattr(chat_approach, "search", fake_search)
+
+    knowledgebase_client = KnowledgeBaseRetrievalClient(
+        endpoint="", knowledge_base_name="", credential=AzureKeyCredential("")
+    )
+
+    agentic_results = await chat_approach.run_agentic_retrieval(
+        messages=[{"role": "user", "content": "What does the Patents Court Guide say about urgent applications?"}],
+        knowledgebase_client=knowledgebase_client,
+        search_index_name="test-index",
+    )
+
+    assert search_calls == [
+        "patents guide",
+        "What does the Patents Court Guide say about urgent applications?",
+    ]
+    assert agentic_results.documents[0].id == "strong-doc"
+
+
+@pytest.mark.asyncio
+async def test_agentic_retrieval_targets_missing_legal_references(chat_approach, monkeypatch):
+    async def weak_retrieve(*args, **kwargs):
+        return KnowledgeBaseRetrievalResponse(
+            activity=[
+                KnowledgeBaseModelQueryPlanningActivityRecord(id=0, input_tokens=10, output_tokens=20, elapsed_ms=100),
+                KnowledgeBaseSearchIndexActivityRecord(
+                    id=1,
+                    knowledge_source_name="index",
+                    search_index_arguments=KnowledgeBaseSearchIndexActivityArguments(
+                        search="construction pre action summary judgment"
+                    ),
+                    count=1,
+                    elapsed_ms=50,
+                ),
+            ],
+            references=[
+                KnowledgeBaseSearchIndexReference(
+                    id=0,
+                    activity_source=1,
+                    doc_key="pre-doc",
+                    reranker_score=1.0,
+                    source_data={
+                        "id": "pre-doc",
+                        "content": "Construction disputes are subject to the pre-action protocol.",
+                        "sourcepage": "Pre-Action Protocol for the Construction and Engineering Disputes",
+                        "sourcefile": "Pre",
+                        "category": "Civil Procedure Rules and Practice Directions",
+                    },
+                )
+            ],
+        )
+
+    search_calls: list[str] = []
+
+    async def fake_search(*args, **kwargs):
+        query_text = kwargs["query_text"]
+        search_calls.append(query_text)
+        if query_text == "Practice Direction 27B":
+            return [
+                Document(
+                    id="pd27b",
+                    content="Claims under the personal injury pre-action protocol must be started under Part 7 or Part 8.",
+                    sourcepage="Practice Direction 27B",
+                    sourcefile="Practice Direction 27B",
+                    category="Civil Procedure Rules and Practice Directions",
+                )
+            ]
+        if query_text == "24.3 summary judgment no real prospect of succeeding no other compelling reason":
+            return [
+                Document(
+                    id="part24",
+                    content="The court may give summary judgment where a party has no real prospect of succeeding.",
+                    sourcepage="Part 24",
+                    sourcefile="Part 24 - Summary judgment",
+                    category="Civil Procedure Rules and Practice Directions",
+                    subsection_id="24.3",
+                )
+            ]
+        return []
+
+    monkeypatch.setattr(KnowledgeBaseRetrievalClient, "retrieve", weak_retrieve)
+    monkeypatch.setattr(chat_approach, "search", fake_search)
+
+    knowledgebase_client = KnowledgeBaseRetrievalClient(
+        endpoint="", knowledge_base_name="", credential=AzureKeyCredential("")
+    )
+
+    agentic_results = await chat_approach.run_agentic_retrieval(
+        messages=[
+            {
+                "role": "user",
+                "content": "Before commencing construction proceedings, what pre-action steps apply, when can summary judgment be granted, and what Practice Direction 27B point is relevant?",
+            }
+        ],
+        knowledgebase_client=knowledgebase_client,
+        search_index_name="test-index",
+    )
+
+    assert search_calls == [
+        "construction pre action summary judgment",
+        "Before commencing construction proceedings, what pre-action steps apply, when can summary judgment be granted, and what Practice Direction 27B point is relevant?",
+        "Practice Direction 27B",
+        "24.3 summary judgment no real prospect of succeeding no other compelling reason",
+    ]
+    sourcefiles = [document.sourcefile for document in agentic_results.documents]
+    assert "Practice Direction 27B" in sourcefiles
+    assert "Part 24 - Summary judgment" in sourcefiles

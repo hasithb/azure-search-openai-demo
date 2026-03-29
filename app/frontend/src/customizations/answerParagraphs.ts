@@ -19,7 +19,8 @@ function groupSentences(sentences: string[]): string {
 }
 
 function splitByCitations(text: string): string[] | null {
-    const sentenceRegex = /[\s\S]*?\[\d+\](?=\s+|$)/g;
+    // Match sentences ending with numbered [1] or filename-based [doc.pdf] citations
+    const sentenceRegex = /[\s\S]*?\[[^\]]+\](?=\s+|$)/g;
     const matches = [...text.matchAll(sentenceRegex)];
     if (matches.length < 2) return null;
 
@@ -45,11 +46,23 @@ function splitByCitations(text: string): string[] | null {
 }
 
 function splitByPunctuation(text: string): string[] | null {
+    // Replace citation brackets temporarily to prevent splitting on periods inside them
+    // e.g. [Employment_Rights_Act_1996-5.pdf] should not be split at ".pdf"
+    const placeholders: string[] = [];
+    const masked = text.replace(/\[[^\]]+\]/g, match => {
+        placeholders.push(match);
+        return `\x00CIT${placeholders.length - 1}\x00`;
+    });
+
     const sentenceRegex = /[^.!?]+[.!?]+(?=\s+|$)/g;
-    const matches = text.match(sentenceRegex) || [];
+    const matches = masked.match(sentenceRegex) || [];
     if (matches.length < 3) return null;
 
-    const sentences = matches.map(s => s.trim()).filter(Boolean);
+    // Restore citation placeholders
+    const sentences = matches
+        .map(s => s.replace(/\x00CIT(\d+)\x00/g, (_, idx) => placeholders[parseInt(idx)]))
+        .map(s => s.trim())
+        .filter(Boolean);
     return sentences.length >= 3 ? sentences : null;
 }
 

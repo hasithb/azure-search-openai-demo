@@ -239,16 +239,24 @@ def mock_openai_chatcompletion(monkeypatch):
             },
         }
         last_message_content = messages[-1]["content"]
-        # Handle both old format (user message) and new format (system message with query at end)
         if isinstance(last_message_content, str):
-            last_question = last_message_content
+            last_question = last_message_content.strip()
         else:
             last_question = ""
-        if last_question.endswith("Generate search query for: What is the capital of France?"):
+        if last_question in {
+            "What is the capital of France?",
+            "Generate search query for: What is the capital of France?",
+        }:
             answer = "capital of France"
-        elif last_question.endswith("Generate search query for: Are interest rates high?"):
+        elif last_question in {
+            "Are interest rates high?",
+            "Generate search query for: Are interest rates high?",
+        }:
             answer = "interest rates"
-        elif last_question.endswith("Generate search query for: Flowers in westbrae nursery logo?"):
+        elif last_question in {
+            "Flowers in westbrae nursery logo?",
+            "Generate search query for: Flowers in westbrae nursery logo?",
+        }:
             answer = "westbrae nursery logo"
         elif isinstance(last_message_content, list) and any([part.get("image_url") for part in last_message_content]):
             answer = "From the provided sources, the impact of interest rates and GDP growth on financial markets can be observed through the line graph. [Financial Market Analysis Report 2023-7.png]"
@@ -764,6 +772,9 @@ async def auth_client(
     monkeypatch.setenv("USE_LOCAL_PDF_PARSER", "true")
     monkeypatch.setenv("USE_LOCAL_HTML_PARSER", "true")
     monkeypatch.setenv("AZURE_DOCUMENTINTELLIGENCE_SERVICE", "test-documentintelligence-service")
+    # Prevent env var leakage from azd .env or prior tests
+    monkeypatch.delenv("USE_AGENTIC_RETRIEVAL", raising=False)
+    monkeypatch.delenv("USE_AGENTIC_KNOWLEDGEBASE", raising=False)
     for key, value in request.param.items():
         monkeypatch.setenv(key, value)
 
@@ -807,6 +818,9 @@ async def auth_public_documents_client(
     monkeypatch.setenv("AZURE_CHAT_HISTORY_DATABASE", "test-cosmosdb-database")
     monkeypatch.setenv("AZURE_CHAT_HISTORY_CONTAINER", "test-cosmosdb-container")
     monkeypatch.setenv("AZURE_CHAT_HISTORY_VERSION", "cosmosdb-v2")
+    # Prevent env var leakage from azd .env or prior tests
+    monkeypatch.delenv("USE_AGENTIC_RETRIEVAL", raising=False)
+    monkeypatch.delenv("USE_AGENTIC_KNOWLEDGEBASE", raising=False)
 
     for key, value in request.param.items():
         monkeypatch.setenv(key, value)

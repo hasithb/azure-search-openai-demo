@@ -12,6 +12,7 @@ from approaches.approach import (
     DataPoints,
     Document,
     ExtraInfo,
+    RewriteQueryResult,
     SharePointResult,
     ThoughtStep,
     WebResult,
@@ -155,6 +156,166 @@ def test_extract_rewritten_query_invalid_json(chat_approach):
     assert result == "fallback query"
 
 
+@pytest.mark.asyncio
+async def test_rewrite_query_sends_live_query_as_user_message_and_forces_tool(chat_approach, monkeypatch):
+    captured: dict[str, object] = {}
+
+    async def fake_create_chat_completion(*_args, **kwargs):
+        captured["messages"] = kwargs["messages"]
+        captured["tools"] = kwargs.get("tools")
+        captured["tool_choice"] = kwargs.get("tool_choice")
+        return ChatCompletion.model_validate(
+            {
+                "id": "rewrite-structured",
+                "object": "chat.completion",
+                "created": 0,
+                "model": "gpt-4.1-mini",
+                "choices": [
+                    {
+                        "index": 0,
+                        "finish_reason": "tool_calls",
+                        "message": {
+                            "role": "assistant",
+                            "tool_calls": [
+                                {
+                                    "id": "tool-1",
+                                    "type": "function",
+                                    "function": {
+                                        "name": "search_sources",
+                                        "arguments": json.dumps(
+                                            {"search_query": "CPR Part 3 extend shorten time compliance", "subsection_hint": ""}
+                                        ),
+                                    },
+                                }
+                            ],
+                        },
+                    }
+                ],
+                "usage": {"completion_tokens": 1, "prompt_tokens": 1, "total_tokens": 2},
+            },
+            strict=False,
+        )
+
+    monkeypatch.setattr(chat_approach, "create_chat_completion", fake_create_chat_completion)
+
+    result = await chat_approach.rewrite_query(
+        prompt_template="query_rewrite.system.jinja2",
+        prompt_variables={
+            "user_query": "What power does the court have under CPR Part 3 to extend or shorten time for compliance?",
+            "past_messages": [{"role": "assistant", "content": "Earlier answer"}],
+        },
+        overrides={},
+        chatgpt_model=chat_approach.chatgpt_model,
+        chatgpt_deployment=chat_approach.chatgpt_deployment,
+        user_query="What power does the court have under CPR Part 3 to extend or shorten time for compliance?",
+        response_token_limit=100,
+        tools=chat_approach.query_rewrite_tools,
+        temperature=0.0,
+        no_response_token=chat_approach.NO_RESPONSE,
+    )
+
+    messages = captured["messages"]
+    assert isinstance(messages, list)
+    assert messages[0]["role"] == "system"
+    assert "What power does the court have under CPR Part 3" not in messages[0]["content"]
+    assert messages[1] == {"role": "assistant", "content": "Earlier answer"}
+    assert messages[2] == {
+        "role": "user",
+        "content": "Generate search query for: What power does the court have under CPR Part 3 to extend or shorten time for compliance?",
+    }
+    assert captured["tools"] == chat_approach.query_rewrite_tools
+    assert captured["tool_choice"] == {"type": "function", "function": {"name": "search_sources"}}
+    assert result.query == "CPR Part 3 extend shorten time compliance"
+    assert result.subsection_hint is None
+
+
+def test_merge_rewritten_query_preserves_explicit_legal_references(chat_approach):
+    merged = chat_approach._merge_rewritten_query_with_explicit_references(
+        "pre action steps before construction proceedings summary judgment relevant rules",
+        "Before commencing construction proceedings, what pre-action steps apply, when can summary judgment be granted, and what Practice Direction 27B point is relevant under Part 24?",
+    )
+
+    assert "Part 24" in merged
+    assert "Practice Direction 27B" in merged
+
+
+def test_should_retry_when_named_legal_reference_missing(chat_approach):
+    documents = [
+        Document(
+            id="pre",
+            content="The construction protocol contains an exception for claims that will be the subject of summary judgment pursuant to Part 24.",
+            sourcepage="Pre-Action Protocol for the Construction and Engineering Disputes",
+            sourcefile="Pre",
+            category="Civil Procedure Rules and Practice Directions",
+        )
+    ]
+
+    should_retry = chat_approach._should_retry_for_query_intent(
+        documents,
+        "Before commencing construction proceedings, what pre-action steps apply, when can summary judgment be granted, and what Practice Direction 27B point is relevant under Part 24?",
+    )
+
+    assert should_retry is True
+
+
+def test_canonical_concept_queries_pad_acronym(chat_approach):
+    results = chat_approach._extract_canonical_legal_concept_queries("what are the requirements for PAD")
+    assert len(results) == 1
+    assert "31.16" in results[0][0]
+    assert results[0][1] == "Part 31"
+
+
+def test_canonical_concept_queries_pre_action_disclosure(chat_approach):
+    results = chat_approach._extract_canonical_legal_concept_queries("what is pre-action disclosure")
+    assert len(results) == 1
+    assert "31.16" in results[0][0]
+    assert results[0][1] == "Part 31"
+
+
+def test_canonical_concept_queries_pad_no_false_positive(chat_approach):
+    results = chat_approach._extract_canonical_legal_concept_queries("what is the padding requirement for documents")
+    assert len(results) == 0
+
+
+def test_canonical_concept_queries_summary_judgment(chat_approach):
+    results = chat_approach._extract_canonical_legal_concept_queries("when can I get summary judgment")
+    assert len(results) == 1
+    assert "24.3" in results[0][0]
+    assert results[0][1] == "Part 24"
+
+
+def test_canonical_concept_queries_no_match(chat_approach):
+    results = chat_approach._extract_canonical_legal_concept_queries("what is the court fee for filing a claim")
+    assert len(results) == 0
+
+
+def test_query_rewrite_prompt_contains_legal_disambiguation(chat_approach):
+    """The query rewrite system prompt must teach the LLM to disambiguate legal terms."""
+    system_msg = chat_approach.prompt_manager.build_system_prompt(
+        "query_rewrite.system.jinja2",
+        {"user_query": "test", "past_messages": []},
+    )
+    prompt_content = system_msg["content"]
+    # Core legal domain context
+    assert "Civil Procedure Rules" in prompt_content or "CPR" in prompt_content
+    # PAD disambiguation — the key scenario
+    assert "31.16" in prompt_content
+    assert "pre-action disclosure" in prompt_content.lower()
+    # Should teach about common confusions
+    assert "Pre-Action Protocol" in prompt_content
+    # Should include few-shot examples for legal queries
+    assert "summary judgment" in prompt_content.lower()
+
+
+def test_query_rewrite_tool_description_references_legal_domain(chat_approach):
+    """The search tool description should guide the LLM toward legal-aware queries."""
+    tool_def = chat_approach.query_rewrite_tools[0]
+    description = tool_def["function"]["description"]
+    assert "CPR" in description or "Civil Procedure" in description
+    search_query_desc = tool_def["function"]["parameters"]["properties"]["search_query"]["description"]
+    assert "CPR" in search_query_desc or "rule" in search_query_desc.lower()
+
+
 def test_extract_followup_questions(chat_approach):
     content = "Here is answer to your question.<<What is the dress code?>>"
     pre_content, followup_questions = chat_approach.extract_followup_questions(content)
@@ -231,10 +392,13 @@ async def test_search_results_filtering_by_scores(
 async def test_search_results_query_rewriting(chat_approach, monkeypatch):
 
     query_rewrites = None
+    semantic_query = None
 
     async def validate_qr_and_mock_search(*args, **kwargs):
         nonlocal query_rewrites
+        nonlocal semantic_query
         query_rewrites = kwargs.get("query_rewrites")
+        semantic_query = kwargs.get("semantic_query")
         return await mock_search(*args, **kwargs)
 
     monkeypatch.setattr(SearchClient, "search", validate_qr_and_mock_search)
@@ -252,6 +416,256 @@ async def test_search_results_query_rewriting(chat_approach, monkeypatch):
     )
     assert len(results) == 1
     assert query_rewrites == "generative"
+    assert semantic_query == "test query"
+
+
+@pytest.mark.asyncio
+async def test_run_search_approach_retries_when_rewrite_results_are_weak(chat_approach, monkeypatch):
+    completion = ChatCompletion.model_validate(
+        {
+            "id": "rewrite-1",
+            "object": "chat.completion",
+            "created": 0,
+            "model": "gpt-4.1-mini",
+            "choices": [{"index": 0, "finish_reason": "stop", "message": {"role": "assistant", "content": "Patents Court guidance"}}],
+            "usage": {"completion_tokens": 1, "prompt_tokens": 1, "total_tokens": 2},
+        },
+        strict=False,
+    )
+
+    async def fake_rewrite_query(**_kwargs):
+        return RewriteQueryResult(
+            query="Patents Court guidance",
+            messages=[{"role": "user", "content": "original"}],
+            completion=completion,
+            reasoning_effort="minimal",
+        )
+
+    search_calls: list[str] = []
+
+    async def fake_search(*args, **kwargs):
+        query_text = args[1]
+        search_calls.append(query_text)
+        if query_text == "Patents Court guidance":
+            return [
+                Document(
+                    id="weak-doc",
+                    content="General introduction to the Patents Court Guide.",
+                    sourcepage="The Patents Court Guide",
+                    sourcefile="The Patents Court Guide",
+                    category="Patents Court",
+                )
+            ]
+        return [
+            Document(
+                id="strong-doc",
+                content="Urgent applications must be raised promptly and supported by evidence.",
+                sourcepage="Urgent applications",
+                sourcefile="The Patents Court Guide",
+                category="Patents Court",
+                subsection_id="3.4",
+            )
+        ]
+
+    async def fake_get_sources_content(results, *_args, **_kwargs):
+        return DataPoints(
+            text=[
+                {
+                    "citation": result.sourcepage or result.id or "",
+                    "content": result.content or "",
+                    "sourcepage": result.sourcepage or "",
+                    "sourcefile": result.sourcefile or "",
+                    "category": result.category or "",
+                }
+                for result in results
+            ],
+            citations=[],
+        )
+
+    monkeypatch.setattr(chat_approach, "rewrite_query", fake_rewrite_query)
+    monkeypatch.setattr(chat_approach, "search", fake_search)
+    monkeypatch.setattr(chat_approach, "get_sources_content", fake_get_sources_content)
+
+    extra_info = await chat_approach.run_search_approach(
+        messages=[{"role": "user", "content": "What does the Patents Court Guide say about urgent applications?"}],
+        overrides={
+            "retrieval_mode": "text",
+            "semantic_ranker": True,
+            "semantic_captions": False,
+            "query_rewriting": True,
+            "top": 3,
+        },
+        auth_claims={},
+    )
+
+    assert search_calls == [
+        "Patents Court guidance",
+        "What does the Patents Court Guide say about urgent applications?",
+    ]
+    assert extra_info.data_points.text is not None
+    assert extra_info.data_points.text[0]["content"] == "Urgent applications must be raised promptly and supported by evidence."
+
+
+@pytest.mark.asyncio
+async def test_run_search_approach_preserves_explicit_legal_references_in_rewritten_query(chat_approach, monkeypatch):
+    completion = ChatCompletion.model_validate(
+        {
+            "id": "rewrite-2",
+            "object": "chat.completion",
+            "created": 0,
+            "model": "gpt-4.1-mini",
+            "choices": [{"index": 0, "finish_reason": "stop", "message": {"role": "assistant", "content": "construction pre action summary judgment"}}],
+            "usage": {"completion_tokens": 1, "prompt_tokens": 1, "total_tokens": 2},
+        },
+        strict=False,
+    )
+
+    async def fake_rewrite_query(**_kwargs):
+        return RewriteQueryResult(
+            query="construction pre action summary judgment",
+            messages=[{"role": "user", "content": "original"}],
+            completion=completion,
+            reasoning_effort="minimal",
+            subsection_hint=None,
+        )
+
+    search_calls: list[str] = []
+
+    async def fake_search(*args, **kwargs):
+        search_calls.append(args[1])
+        return []
+
+    async def fake_get_sources_content(*_args, **_kwargs):
+        return DataPoints(text=[], citations=[])
+
+    monkeypatch.setattr(chat_approach, "rewrite_query", fake_rewrite_query)
+    monkeypatch.setattr(chat_approach, "search", fake_search)
+    monkeypatch.setattr(chat_approach, "get_sources_content", fake_get_sources_content)
+
+    await chat_approach.run_search_approach(
+        messages=[
+            {
+                "role": "user",
+                "content": "Before commencing construction proceedings, what pre-action steps apply, when can summary judgment be granted, and what Practice Direction 27B point is relevant under Part 24?",
+            }
+        ],
+        overrides={
+            "retrieval_mode": "text",
+            "semantic_ranker": True,
+            "semantic_captions": False,
+            "query_rewriting": True,
+            "top": 5,
+        },
+        auth_claims={},
+    )
+
+    assert "Part 24" in search_calls[0]
+    assert "Practice Direction 27B" in search_calls[0]
+
+
+@pytest.mark.asyncio
+async def test_run_search_approach_targets_missing_explicit_legal_reference(chat_approach, monkeypatch):
+    completion = ChatCompletion.model_validate(
+        {
+            "id": "rewrite-3",
+            "object": "chat.completion",
+            "created": 0,
+            "model": "gpt-4.1-mini",
+            "choices": [{"index": 0, "finish_reason": "stop", "message": {"role": "assistant", "content": "construction pre action summary judgment"}}],
+            "usage": {"completion_tokens": 1, "prompt_tokens": 1, "total_tokens": 2},
+        },
+        strict=False,
+    )
+
+    async def fake_rewrite_query(**_kwargs):
+        return RewriteQueryResult(
+            query="construction pre action summary judgment",
+            messages=[{"role": "user", "content": "original"}],
+            completion=completion,
+            reasoning_effort="minimal",
+            subsection_hint=None,
+        )
+
+    search_calls: list[str] = []
+
+    async def fake_search(*args, **kwargs):
+        query_text = args[1]
+        search_calls.append(query_text)
+        if query_text == "Practice Direction 27B":
+            return [
+                Document(
+                    id="pd27b",
+                    content="Claims under the personal injury pre-action protocol must be started under Part 7 or Part 8.",
+                    sourcepage="Practice Direction 27B",
+                    sourcefile="Practice Direction 27B",
+                    category="Civil Procedure Rules and Practice Directions",
+                )
+            ]
+        if query_text == "24.3 summary judgment no real prospect of succeeding no other compelling reason":
+            return [
+                Document(
+                    id="part24",
+                    content="The court may give summary judgment where a party has no real prospect of succeeding.",
+                    sourcepage="Part 24",
+                    sourcefile="Part 24 - Summary judgment",
+                    category="Civil Procedure Rules and Practice Directions",
+                    subsection_id="24.3",
+                )
+            ]
+        return [
+            Document(
+                id="pre",
+                content="Construction disputes are subject to the pre-action protocol.",
+                sourcepage="Pre-Action Protocol for the Construction and Engineering Disputes",
+                sourcefile="Pre",
+                category="Civil Procedure Rules and Practice Directions",
+            )
+        ]
+
+    async def fake_get_sources_content(results, *_args, **_kwargs):
+        return DataPoints(
+            text=[
+                {
+                    "citation": result.sourcepage or result.id or "",
+                    "content": result.content or "",
+                    "sourcepage": result.sourcepage or "",
+                    "sourcefile": result.sourcefile or "",
+                    "category": result.category or "",
+                }
+                for result in results
+            ],
+            citations=[],
+        )
+
+    monkeypatch.setattr(chat_approach, "rewrite_query", fake_rewrite_query)
+    monkeypatch.setattr(chat_approach, "search", fake_search)
+    monkeypatch.setattr(chat_approach, "get_sources_content", fake_get_sources_content)
+
+    extra_info = await chat_approach.run_search_approach(
+        messages=[
+            {
+                "role": "user",
+                "content": "Before commencing construction proceedings, what pre-action steps apply, when can summary judgment be granted, and what Practice Direction 27B point is relevant?",
+            }
+        ],
+        overrides={
+            "retrieval_mode": "text",
+            "semantic_ranker": True,
+            "semantic_captions": False,
+            "query_rewriting": True,
+            "top": 5,
+        },
+        auth_claims={},
+    )
+
+    assert search_calls[1:] == [
+        "Before commencing construction proceedings, what pre-action steps apply, when can summary judgment be granted, and what Practice Direction 27B point is relevant?",
+        "Practice Direction 27B",
+        "24.3 summary judgment no real prospect of succeeding no other compelling reason",
+    ]
+    assert extra_info.data_points.text is not None
+    assert any(source["sourcefile"] == "Practice Direction 27B" for source in extra_info.data_points.text)
+    assert any(source["sourcefile"] == "Part 24 - Summary judgment" for source in extra_info.data_points.text)
 
 
 @pytest.mark.asyncio
@@ -360,6 +774,209 @@ async def test_chat_prompt_render_with_image_directive(chat_approach):
     assert "Diagram that shows the architecture of Fabric Activator." in combined
     # Original unescaped sequence should be gone
     assert ":::image" not in combined
+
+
+@pytest.mark.asyncio
+async def test_get_sources_content_preserves_structured_full_content_for_highlighting(chat_approach):
+    """full_content should retain subsection boundaries even when content is flattened for prompts."""
+
+    doc = Document(
+        id="part59-59_9",
+        content=(
+            "PART 59 - CIRCUIT COMMERCIAL COURT\n\n"
+            "59.9 If particulars of claim are not served with the claim form, the claimant must serve them within 28 days.\n\n"
+            "The court may extend time where appropriate."
+        ),
+        sourcepage="Part 59",
+        sourcefile="Part 59 - Circuit Commercial Court",
+        subsection_id="59.9",
+    )
+
+    data_points = await chat_approach.get_sources_content(
+        [doc],
+        use_semantic_captions=False,
+        include_text_sources=True,
+        download_image_sources=False,
+        user_oid=None,
+    )
+
+    assert len(data_points.text) == 1
+    source = data_points.text[0]
+    assert isinstance(source, dict)
+    assert source["content"] == (
+        "PART 59 - CIRCUIT COMMERCIAL COURT 59.9 If particulars of claim are not served with the claim form, "
+        "the claimant must serve them within 28 days. The court may extend time where appropriate."
+    )
+    assert source["full_content"] == (
+        "PART 59 - CIRCUIT COMMERCIAL COURT\n\n"
+        "59.9 If particulars of claim are not served with the claim form, the claimant must serve them within 28 days.\n\n"
+        "The court may extend time where appropriate."
+    )
+    assert source["subsection_id"] == "59.9"
+
+
+@pytest.mark.asyncio
+async def test_get_sources_content_derives_subsection_metadata_when_field_missing(chat_approach):
+    """subsection_id metadata should be derived from content when the index result omits the field."""
+
+    doc = Document(
+        id="part59-derived",
+        content=(
+            "PART 59 - CIRCUIT COMMERCIAL COURT\n\n"
+            "59.9 If particulars of claim are not served with the claim form, the claimant must serve them within 28 days."
+        ),
+        sourcepage="Part 59",
+        sourcefile="Part 59 - Circuit Commercial Court",
+        subsection_id=None,
+    )
+
+    data_points = await chat_approach.get_sources_content(
+        [doc],
+        use_semantic_captions=False,
+        include_text_sources=True,
+        download_image_sources=False,
+        user_oid=None,
+    )
+
+    assert len(data_points.text) == 1
+    source = data_points.text[0]
+    assert isinstance(source, dict)
+    assert source["citation"].startswith("59.9, Part 59")
+    assert source["subsection_id"] == "59.9"
+
+
+@pytest.mark.asyncio
+async def test_get_sources_content_splits_multi_subsection_documents_for_prompting(chat_approach):
+    """Multi-subsection legal documents should become multiple text sources for accurate citations."""
+
+    doc = Document(
+        id="part59-multi",
+        content=(
+            "PART 59 - CIRCUIT COMMERCIAL COURT\n\n"
+            "59.9 If particulars of claim are not served with the claim form, the claimant must serve them within 28 days.\n\n"
+            "59.10 The defendant must file an acknowledgement of service within 14 days."
+        ),
+        sourcepage="Part 59",
+        sourcefile="Part 59 - Circuit Commercial Court",
+        subsection_id="59.9",
+    )
+
+    data_points = await chat_approach.get_sources_content(
+        [doc],
+        use_semantic_captions=False,
+        include_text_sources=True,
+        download_image_sources=False,
+        user_oid=None,
+    )
+
+    assert len(data_points.text) == 2
+    first = data_points.text[0]
+    second = data_points.text[1]
+    assert isinstance(first, dict)
+    assert isinstance(second, dict)
+    assert first["subsection_id"] == "59.9"
+    assert second["subsection_id"] == "59.10"
+    assert first["citation"].startswith("59.9, Part 59")
+    assert second["citation"].startswith("59.10, Part 59")
+    assert "59.9 If particulars of claim" in first["content"]
+    assert "59.10 The defendant must file" in second["content"]
+    assert data_points.citations == ["59.9, Part 59, Part 59 - Circuit Commercial Court"]
+
+
+@pytest.mark.asyncio
+async def test_get_sources_content_limits_subsection_expansion_to_adjacent_window(chat_approach):
+    """Prompt sources should stay centered on the retrieved subsection instead of expanding an entire legal part."""
+
+    doc = Document(
+        id="part59-windowed",
+        content=(
+            "PART 59 - CIRCUIT COMMERCIAL COURT\n\n"
+            "59.7 Case management directions.\n\n"
+            "59.8 Pre-trial review requirements.\n\n"
+            "59.9 If particulars of claim are not served with the claim form, the claimant must serve them within 28 days.\n\n"
+            "59.10 The defendant must file an acknowledgement of service within 14 days.\n\n"
+            "59.11 Service out of the jurisdiction requires permission in some cases."
+        ),
+        sourcepage="Part 59",
+        sourcefile="Part 59 - Circuit Commercial Court",
+        subsection_id="59.9",
+    )
+
+    data_points = await chat_approach.get_sources_content(
+        [doc],
+        use_semantic_captions=False,
+        include_text_sources=True,
+        download_image_sources=False,
+        user_oid=None,
+    )
+
+    assert [source["subsection_id"] for source in data_points.text if isinstance(source, dict)] == ["59.8", "59.9", "59.10"]
+    assert all("59.7" not in source["content"] for source in data_points.text if isinstance(source, dict))
+    assert all("59.11" not in source["content"] for source in data_points.text if isinstance(source, dict))
+
+
+@pytest.mark.asyncio
+async def test_get_sources_content_caps_unfocused_multi_subsection_expansion(chat_approach):
+    """Broad legal chunks without a usable subsection anchor should be capped to avoid flooding the prompt."""
+
+    intro_lines = "\n".join([f"Intro line {index}" for index in range(1, 22)])
+
+    doc = Document(
+        id="pd31a-broad",
+        content=(
+            f"{intro_lines}\n\n"
+            "1.1 First subsection.\n\n"
+            "1.2 Second subsection.\n\n"
+            "1.3 Third subsection.\n\n"
+            "1.4 Fourth subsection.\n\n"
+            "1.5 Fifth subsection.\n\n"
+            "1.6 Sixth subsection."
+        ),
+        sourcepage="PD31A",
+        sourcefile="Practice Direction 31A – Disclosure and Inspection",
+        subsection_id="",
+    )
+
+    data_points = await chat_approach.get_sources_content(
+        [doc],
+        use_semantic_captions=False,
+        include_text_sources=True,
+        download_image_sources=False,
+        user_oid=None,
+    )
+
+    assert [source["subsection_id"] for source in data_points.text if isinstance(source, dict)] == ["1.1", "1.2", "1.3", "1.4"]
+
+
+@pytest.mark.asyncio
+async def test_get_sources_content_deduplicates_repeated_subsections(chat_approach):
+    """Repeated subsection labels from one document should collapse to a single prompt source."""
+
+    doc = Document(
+        id="commercial-dup",
+        content=(
+            "D.5.4 List of Common Ground and Issues\n\n"
+            "Short heading stub.\n\n"
+            "D.5.4 The List of Common Ground and Issues will be used as a case management tool at hearings.\n\n"
+            "Longer explanatory text for the same subsection that should win over the stub."
+        ),
+        sourcepage="Commercial Court Guide",
+        sourcefile="Commercial Court Guide",
+        subsection_id="D.5.4",
+    )
+
+    data_points = await chat_approach.get_sources_content(
+        [doc],
+        use_semantic_captions=False,
+        include_text_sources=True,
+        download_image_sources=False,
+        user_oid=None,
+    )
+
+    prompt_sources = [source for source in data_points.text if isinstance(source, dict)]
+    assert len(prompt_sources) == 1
+    assert prompt_sources[0]["subsection_id"] == "D.5.4"
+    assert "case management tool at hearings" in prompt_sources[0]["content"]
 
 
 @pytest.mark.asyncio

@@ -1,0 +1,30 @@
+{
+  "event_type": "legal_feedback",
+  "context_shared": true,
+  "payload": {
+    "message_id": "test-blob-001",
+    "rating": "helpful",
+    "issues": [],
+    "comment": "Test feedback for blob storage"
+  },
+  "context": {
+    "user_prompt": "What is CPR?",
+    "ai_response": "CPR is...",
+    "conversation_history": [],
+    "thoughts": [
+      {
+        "title": "Search Query",
+        "description": "civil procedure rules",
+        "props": {}
+      }
+    ]
+  },
+  "metadata": {
+    "deployment_id": "local",
+    "app_version": "0.0.0",
+    "git_sha": "unknown",
+    "model_name": "gpt-4.1-mini",
+    "environment": "development",
+    "timestamp": "2026-03-22t20-45-59"
+  }
+}

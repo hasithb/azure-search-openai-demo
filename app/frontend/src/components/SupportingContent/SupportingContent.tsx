@@ -4,7 +4,16 @@ import { parseSupportingContentItem, extractSubsectionContent, parseSubsectionFr
 import styles from "./SupportingContent.module.css";
 
 // CUSTOM: Import external source handler and admin mode check
-import { isIframeBlocked, isAdminMode } from "../../customizations";
+import {
+    isIframeBlocked,
+    isAdminMode,
+    isFeatureEnabled,
+    findBestMatch,
+    deduplicatePreservingSubsections,
+    CitationMetadataDisplay,
+    extractMetadataFromDataPoint
+} from "../../customizations";
+import type { StructuredCitationMetadata } from "../../customizations";
 
 // CUSTOM: Check if admin mode is enabled
 const adminMode = isAdminMode();
@@ -14,6 +23,108 @@ interface SupportingContentProps {
     activeCitationReference?: string;
     activeCitationContent?: string;
     onViewSourceDocument?: (citation: string) => void;
+    // CUSTOM: Structured metadata for precise subsection matching
+    activeCitationMetadata?: StructuredCitationMetadata;
+}
+
+export function resolveTargetSubsection(activeCitationReference?: string, activeCitationMetadata?: StructuredCitationMetadata): string | null {
+    const metadataSubsection = activeCitationMetadata?.subsectionId?.trim();
+    if (metadataSubsection) {
+        return metadataSubsection;
+    }
+
+    const parsedFromReference = activeCitationReference ? parseSubsectionFromCitation(activeCitationReference) : null;
+    return parsedFromReference || null;
+}
+
+export function buildDisplayedSupportingItems(
+    supportingContent: any[],
+    normalizeUrl: (u?: string) => string,
+    chooseRepresentative?: (current: any, candidate: any) => any
+): any[] {
+    type Segment = { idx?: number | null; text: string };
+    type DocRecord = {
+        bestItem: any;
+        hasAnyFull: boolean;
+        bestFullText: string;
+        segments: Segment[];
+        seenTexts: Set<string>;
+        bestUpdated: string;
+    };
+    const byDoc = new Map<string, DocRecord>();
+
+    for (const it of supportingContent || []) {
+        const parsed = parseSupportingContentItem(it);
+        const docUrl = normalizeUrl(it.storageurl || it.url || parsed.storageurl || parsed.url || "");
+        // CUSTOM: Group by physical source document so all chunks/subsections from the same
+        // document merge into one card showing the full section content.
+        // Prefer storageurl or sourcefile (which are shared across chunks from the same file)
+        // over original_doc_id (which is unique per search index chunk).
+        const sourcefile = (it.sourcefile || parsed.sourcefile || "").toLowerCase();
+        const docKey = docUrl || sourcefile || it.original_doc_id || "";
+
+        let rec = byDoc.get(docKey);
+        const itemUpdated = (it.updated || it.last_updated || it.date_updated || "") as string;
+
+        if (!rec) {
+            rec = {
+                bestItem: it,
+                hasAnyFull: Boolean(it.full_content && it.full_content.length > 0),
+                bestFullText: (it.full_content || "") as string,
+                segments: [],
+                seenTexts: new Set<string>(),
+                bestUpdated: itemUpdated
+            };
+            byDoc.set(docKey, rec);
+        } else {
+            if (itemUpdated && !rec.bestUpdated) {
+                rec.bestUpdated = itemUpdated;
+            }
+            if (chooseRepresentative) {
+                rec.bestItem = chooseRepresentative(rec.bestItem, it);
+            } else {
+                const existingParsed = parseSupportingContentItem(rec.bestItem);
+                const currentScore = (existingParsed.storageurl ? 1 : 0) + (existingParsed.sourcefile ? 1 : 0) + (existingParsed.sourcepage ? 1 : 0);
+                const candidateScore = (parsed.storageurl ? 1 : 0) + (parsed.sourcefile ? 1 : 0) + (parsed.sourcepage ? 1 : 0);
+                if (candidateScore > currentScore) {
+                    rec.bestItem = it;
+                }
+            }
+        }
+
+        if (it.full_content && it.full_content.length > 0) {
+            rec.hasAnyFull = true;
+            if (it.full_content.length > (rec.bestFullText?.length || 0)) {
+                rec.bestFullText = it.full_content;
+            }
+        }
+
+        const candidateText = (it.content || parsed.content || "").trim();
+        if (candidateText && !rec.seenTexts.has(candidateText)) {
+            rec.seenTexts.add(candidateText);
+            const idx: number | null = typeof it.subsection_index === "number" ? it.subsection_index : typeof it.index === "number" ? it.index : null;
+            rec.segments.push({ idx, text: candidateText });
+        }
+    }
+
+    return Array.from(byDoc.values()).map(rec => {
+        const merged = { ...rec.bestItem };
+        if (rec.bestUpdated && !merged.updated && !merged.last_updated && !merged.date_updated) {
+            merged.updated = rec.bestUpdated;
+        }
+        if (rec.hasAnyFull && rec.bestFullText && rec.bestFullText.length > 0) {
+            merged.full_content = rec.bestFullText;
+        } else {
+            const sorted = [...rec.segments].sort((a, b) => {
+                if (a.idx == null && b.idx == null) return 0;
+                if (a.idx == null) return 1;
+                if (b.idx == null) return -1;
+                return a.idx - b.idx;
+            });
+            merged.full_content = sorted.map(s => s.text).join("\n\n");
+        }
+        return merged;
+    });
 }
 
 // CUSTOM: Helper to normalize DataPoints object or legacy array into a flat array
@@ -31,7 +142,8 @@ export const SupportingContent = ({
     supportingContent: rawSupportingContent,
     activeCitationReference,
     activeCitationContent,
-    onViewSourceDocument
+    onViewSourceDocument,
+    activeCitationMetadata
 }: SupportingContentProps) => {
     const supportingContent = toContentArray(rawSupportingContent);
     const { t } = useTranslation();
@@ -55,91 +167,9 @@ export const SupportingContent = ({
         }
     };
 
-    // Build a stable, deduplicated list by document and MERGE all subsection chunks into a single full_content
+    // Build a stable, deduplicated list by document and merge subsection chunks back into one display item.
     const displayedItems = useMemo(() => {
-        type Segment = { idx?: number | null; text: string };
-        type DocRecord = {
-            bestItem: any;
-            hasAnyFull: boolean;
-            bestFullText: string;
-            segments: Segment[];
-            seenTexts: Set<string>;
-            bestUpdated: string;
-        };
-        const byDoc = new Map<string, DocRecord>();
-
-        for (const it of supportingContent || []) {
-            const parsed = parseSupportingContentItem(it);
-            const docUrl = normalizeUrl(it.storageurl || it.url || parsed.storageurl || parsed.url || "");
-            const docKey = it.original_doc_id || docUrl || (parsed.sourcefile || "").toLowerCase();
-
-            let rec = byDoc.get(docKey);
-            // Grab `updated` from whichever field name the backend uses
-            const itemUpdated = (it.updated || it.last_updated || it.date_updated || "") as string;
-
-            if (!rec) {
-                rec = {
-                    bestItem: it,
-                    hasAnyFull: Boolean(it.full_content && it.full_content.length > 0),
-                    bestFullText: (it.full_content || "") as string,
-                    segments: [],
-                    seenTexts: new Set<string>(),
-                    bestUpdated: itemUpdated
-                };
-                byDoc.set(docKey, rec);
-            } else {
-                // Preserve the updated date from any item in the group
-                if (itemUpdated && !rec.bestUpdated) {
-                    rec.bestUpdated = itemUpdated;
-                }
-                // Prefer the item that has storageurl/sourcefile/sourcepage populated; otherwise keep first
-                const existingParsed = parseSupportingContentItem(rec.bestItem);
-                const currentScore = (existingParsed.storageurl ? 1 : 0) + (existingParsed.sourcefile ? 1 : 0) + (existingParsed.sourcepage ? 1 : 0);
-                const candidateScore = (parsed.storageurl ? 1 : 0) + (parsed.sourcefile ? 1 : 0) + (parsed.sourcepage ? 1 : 0);
-                if (candidateScore > currentScore) {
-                    rec.bestItem = it;
-                }
-            }
-
-            // Track full_content if any item provides it; prefer the longest
-            if (it.full_content && it.full_content.length > 0) {
-                rec.hasAnyFull = true;
-                if (it.full_content.length > (rec.bestFullText?.length || 0)) {
-                    rec.bestFullText = it.full_content;
-                }
-            }
-
-            // Accumulate subsection content segments to reconstruct full content if backend didn't send it
-            const candidateText = (it.content || parsed.content || "").trim();
-            if (candidateText && !rec.seenTexts.has(candidateText)) {
-                rec.seenTexts.add(candidateText);
-                const idx: number | null = typeof it.subsection_index === "number" ? it.subsection_index : typeof it.index === "number" ? it.index : null;
-                rec.segments.push({ idx, text: candidateText });
-            }
-        }
-
-        // Finalize merged entries with injected full_content and preserved metadata
-        return Array.from(byDoc.values()).map(rec => {
-            const merged = { ...rec.bestItem };
-            // Ensure `updated` is preserved even if bestItem didn't have it
-            if (rec.bestUpdated && !merged.updated && !merged.last_updated && !merged.date_updated) {
-                merged.updated = rec.bestUpdated;
-            }
-            if (rec.hasAnyFull && rec.bestFullText && rec.bestFullText.length > 0) {
-                merged.full_content = rec.bestFullText;
-            } else {
-                // Sort by subsection_index when available, otherwise preserve insertion order
-                const sorted = [...rec.segments].sort((a, b) => {
-                    if (a.idx == null && b.idx == null) return 0;
-                    if (a.idx == null) return 1;
-                    if (b.idx == null) return -1;
-                    return a.idx - b.idx;
-                });
-                // Join unique segments with double newline to preserve paragraph breaks
-                merged.full_content = sorted.map(s => s.text).join("\n\n");
-            }
-            return merged;
-        });
+        return buildDisplayedSupportingItems(supportingContent, normalizeUrl);
     }, [supportingContent]);
 
     const formatDate = (dateString: string) => {
@@ -507,7 +537,7 @@ export const SupportingContent = ({
                 }
             }
         }
-    }, [activeCitationReference, activeCitationContent, displayedItems]);
+    }, [activeCitationReference, activeCitationContent, activeCitationMetadata, displayedItems]);
 
     // Handle view source document
     const handleViewSourceDocument = (parsedItem: any) => {
@@ -535,10 +565,14 @@ export const SupportingContent = ({
         );
     }
 
-    const targetSubsection = activeCitationReference ? parseSubsectionFromCitation(activeCitationReference) : null;
+    const targetSubsection = resolveTargetSubsection(activeCitationReference, activeCitationMetadata);
 
     // CUSTOM: Compute once instead of per-item to avoid O(n²) matching
-    const activeMatchIndex = activeCitationReference ? findMatchingContentIndex(activeCitationReference) : -1;
+    // When structured metadata is available, use findBestMatch for precise matching
+    const structuredMatchIndex =
+        activeCitationMetadata && isFeatureEnabled("structuredCitationMatching") ? findBestMatch(activeCitationMetadata, displayedItems) : -1;
+    const textMatchIndex = activeCitationReference ? findMatchingContentIndex(activeCitationReference) : -1;
+    const activeMatchIndex = structuredMatchIndex >= 0 ? structuredMatchIndex : textMatchIndex;
 
     return (
         <div className={styles.supportingContent} ref={containerRef}>
@@ -547,16 +581,23 @@ export const SupportingContent = ({
                 const isActive = activeMatchIndex === index;
 
                 const getDisplayTitle = () => {
-                    const parts: string[] = [];
                     const rawItem = item as Record<string, string | undefined> | undefined;
                     const sourcefile = parsedItem.sourcefile || rawItem?.sourcefile;
                     const sourcepage = parsedItem.sourcepage || rawItem?.sourcepage;
                     const category = parsedItem.category || rawItem?.category;
-                    if (sourcefile) parts.push(sourcefile);
-                    if (sourcepage) parts.push(sourcepage);
-                    if (category) parts.push(category);
-                    const title = parts.length > 0 ? parts.join(", ") : "Document Source";
-                    return title;
+                    // Prefer sourcepage as the primary title since it's most descriptive
+                    // (e.g., "Part 1 – Overriding Objective"). Fall back to sourcefile,
+                    // then category. Avoid joining all three to prevent redundancy.
+                    if (sourcepage && category) {
+                        return `${sourcepage}, ${category}`;
+                    }
+                    if (sourcepage) return sourcepage;
+                    if (sourcefile && category) {
+                        return `${sourcefile}, ${category}`;
+                    }
+                    if (sourcefile) return sourcefile;
+                    if (category) return category;
+                    return "Document Source";
                 };
 
                 const displayTitle = getDisplayTitle();
@@ -596,6 +637,8 @@ export const SupportingContent = ({
                                     </span>
                                 </div>
                             )}
+                            {/* CUSTOM: Show structured metadata badges when enabled */}
+                            {isFeatureEnabled("citationMetadataDisplay") && <CitationMetadataDisplay metadata={extractMetadataFromDataPoint(item)} />}
                         </div>
 
                         {/* Always render full content; highlight specific subsection if active */}

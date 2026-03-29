@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next";
 import { ChatAppResponse } from "../../api";
 import { isAdminMode } from "../../customizations/config";
 import { isIframeBlocked } from "../../customizations/externalSourceHandler";
+// CUSTOM: Import structured citation metadata type
+import type { StructuredCitationMetadata } from "../../customizations";
 import { MarkdownViewer } from "../MarkdownViewer";
 import { SupportingContent } from "../SupportingContent";
 import styles from "./AnalysisPanel.module.css";
@@ -23,6 +25,8 @@ interface Props {
     // CUSTOM: Props for subsection highlighting in Supporting Content
     activeCitationLabel?: string | undefined;
     activeCitationContent?: string | undefined;
+    // CUSTOM: Structured metadata for precise SupportingContent matching
+    activeCitationMetadata?: StructuredCitationMetadata;
 }
 
 const adminMode = isAdminMode();
@@ -38,7 +42,8 @@ export const AnalysisPanel = ({
     onViewSourceDocument,
     enableCitationTab = false,
     activeCitationLabel,
-    activeCitationContent
+    activeCitationContent,
+    activeCitationMetadata
 }: Props) => {
     const isDisabledThoughtProcessTab: boolean = !answer.context.thoughts;
     const dataPoints = answer.context.data_points;
@@ -123,6 +128,7 @@ export const AnalysisPanel = ({
                         supportingContent={answer.context.data_points}
                         activeCitationReference={activeCitationLabel}
                         activeCitationContent={activeCitationContent}
+                        activeCitationMetadata={activeCitationMetadata}
                         onViewSourceDocument={onViewSourceDocument}
                     />
                 )}

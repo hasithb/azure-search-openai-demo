@@ -1,5 +1,8 @@
 {
     "context": {
+        "citation_map": {
+            "1": "Benefit_Options-2.pdf, Benefit_Options.pdf"
+        },
         "data_points": {
             "citation_activity_details": {
                 "Benefit_Options-2.pdf, Benefit_Options.pdf": {
@@ -30,6 +33,9 @@
                 }
             ]
         },
+        "enhanced_citations": [
+            "Benefit_Options-2.pdf, Benefit_Options.pdf"
+        ],
         "followup_questions": null,
         "thoughts": [
             {
@@ -79,14 +85,15 @@
                             "type": "searchIndex"
                         }
                     ],
-                    "reranker_threshold": 0
+                    "reranker_threshold": 0,
+                    "targeted_reference_queries": []
                 },
                 "title": "Agentic retrieval response"
             },
             {
                 "description": [
                     {
-                        "content": "Assistant helps the company employees with their questions about internal documents. Be brief in your answers.\nAnswer ONLY with the facts listed in the list of sources below. If there isn't enough information below, say you don't know. Do not generate answers that don't use the sources below.\nIf asking a clarifying question to the user would help, ask the question.\nIf the question is not in English, answer in the language used in the question.\nEach source is numbered (e.g., [1], [2], [3]) followed by colon and the actual information. Always include the source number for each fact you use in the response. Use square brackets to reference the source, for example [1]. Don't combine sources, list each source separately, for example [1][2].\n\nPossible citations for current question:  [1]",
+                        "content": "Assistant helps the company employees with their questions about internal documents. Be brief in your answers.\nAnswer ONLY with the facts listed in the list of sources below. Do not generate answers that don't use the sources below.\nCRITICAL - Source relevance check: Before citing any source, verify it is genuinely about the topic the user is asking about \u2014 not merely a document that mentions the term in passing. For example, if asked about \"pre-action disclosure\" (a court application under CPR 31.16 for disclosure before proceedings start), do NOT cite Pre-Action Protocol documents that only mention \"pre-action disclosure\" incidentally as one of many remedies. A source that briefly references a concept is not a source that explains that concept. Only cite sources where the topic is substantively addressed.\nIf after filtering out irrelevant sources there is not enough information to fully answer the question, clearly state that the specific information requested could not be found in the available sources. Then present whatever related information IS available from the relevant sources, and explain what is missing. For example: \"The sources available do not directly address [specific topic]. However, the following related information was found: ...\"\nIf asking a clarifying question to the user would help, ask the question.\nIf the question is not in English, answer in the language used in the question.\nEach source is numbered (e.g., [1], [2], [3]) followed by colon and the actual information. Always include the source number for each fact you use in the response. Use square brackets to reference the source, for example [1]. Don't combine sources, list each source separately, for example [1][2].\n\nPossible citations for current question:  [1]",
                         "role": "system"
                     },
                     {

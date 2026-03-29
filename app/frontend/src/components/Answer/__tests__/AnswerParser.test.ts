@@ -51,6 +51,8 @@ describe("parseAnswerToHtml", () => {
         expect(result.citations[0].reference).toBe("doc1.pdf");
         expect(result.citations[0].index).toBe(1);
         expect(result.answerHtml).toContain("<sup");
+        expect(result.answerHtml).toContain(">[1]<");
+        expect(result.answerHtml).toContain('aria-label="Citation 1: doc1.pdf"');
     });
 
     it("returns empty citations when no matching citation exists in data_points", () => {
@@ -91,6 +93,7 @@ describe("parseAnswerToHtml", () => {
         expect(result.citations).toHaveLength(1);
         expect(result.citations[0].reference).toBe("35.1, Part 35, CPR_Part35.pdf");
         expect(result.answerHtml).toContain("<sup");
+        expect(result.answerHtml).toContain(">[1]<");
     });
 
     it("preserves legacy enhanced citations when answer text has no inline citation markers", () => {
@@ -386,6 +389,7 @@ describe("parseAnswerToHtml - multi-citation pipeline", () => {
         expect(result.citations[2].reference).toBe("59.4(3), Part 59 – Circuit Commercial Court, Part 59");
         expect(result.citations[3].reference).toBe("59.4(4), Part 59 – Circuit Commercial Court, Part 59");
         expect((result.answerHtml.match(/<sup/g) || []).length).toBe(4);
+        expect((result.answerHtml.match(/aria-label="Citation \d+:/g) || []).length).toBe(4);
     });
 
     it("handles repeated numbered citations without duplicating citation entries", () => {

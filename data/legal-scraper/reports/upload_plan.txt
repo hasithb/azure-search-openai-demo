@@ -2,13 +2,13 @@
         LEGAL DOCUMENT SCRAPER - DIFF REPORT
 ============================================================
 
-Target Index: legal-court-rag-index-v2
-Timestamp:    2026-01-18 16:25:33
+Target Index: legal-court-rag-index-v3
+Timestamp:    2026-03-22 19:33:15
 
 ------------------------------------------------------------
                     SUMMARY
 ------------------------------------------------------------
-Total Documents Scraped:    267
+Total Documents Scraped:    920
 ✨ New Documents:           0
 📝 Changed Documents:       0
 ⏭️  Unchanged Documents:     0

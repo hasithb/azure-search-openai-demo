@@ -45,6 +45,9 @@ class SourceProcessor:
         documents: list[Any],
         use_semantic_captions: bool = False,
         use_image_citation: bool = False,
+        focus_on_indexed_subsection: bool = False,
+        adjacent_subsections: int = 0,
+        max_unfocused_subsections: Optional[int] = None,
     ) -> list[dict[str, Any]]:
         """
         Process documents into structured source content.
@@ -56,6 +59,12 @@ class SourceProcessor:
             documents: List of Document objects from search results
             use_semantic_captions: Whether to use semantic captions
             use_image_citation: Whether to use image citations
+            focus_on_indexed_subsection: When true, narrow multi-subsection expansion
+                to the retrieved subsection and nearby subsections when possible.
+            adjacent_subsections: Number of neighboring subsections to include on each
+                side of a focused subsection.
+            max_unfocused_subsections: When focusing is enabled but no subsection anchor
+                can be resolved, cap the number of expanded subsections per document.
             
         Returns:
             List of structured source dictionaries for frontend consumption
@@ -77,6 +86,11 @@ class SourceProcessor:
             
             # Check if document contains multiple subsections
             subsections = self.citation_builder.extract_multiple_subsections(doc)
+
+            if len(subsections) > 1 and focus_on_indexed_subsection:
+                subsections = self._focus_subsections(doc, subsections, adjacent_subsections)
+                if max_unfocused_subsections is not None and len(subsections) > max_unfocused_subsections:
+                    subsections = subsections[:max_unfocused_subsections]
             
             if len(subsections) > 1:
                 logging.info(f"🎯 DEBUG: Document {getattr(doc, 'id', 'unknown')} will be split into {len(subsections)} sources")
@@ -97,6 +111,42 @@ class SourceProcessor:
         logging.info(f"🔍 DEBUG: Returning {len(structured_results)} structured sources (original: {len(documents)})")
         return structured_results
 
+    def _focus_subsections(
+        self,
+        doc: Any,
+        subsections: list[dict[str, str]],
+        adjacent_subsections: int,
+    ) -> list[dict[str, str]]:
+        """Narrow subsection expansion around the indexed subsection when available."""
+
+        focus_subsection = self.citation_builder.extract_subsection(doc)
+        if not focus_subsection:
+            return subsections
+
+        normalized_focus = self._normalize_subsection_key(focus_subsection)
+        focus_index: Optional[int] = None
+
+        for index, subsection in enumerate(subsections):
+            normalized_subsection = self._normalize_subsection_key(subsection.get("subsection", ""))
+            if normalized_subsection == normalized_focus:
+                focus_index = index
+                break
+
+        if focus_index is None:
+            return subsections
+
+        window = max(adjacent_subsections, 0)
+        start = max(0, focus_index - window)
+        end = min(len(subsections), focus_index + window + 1)
+        return subsections[start:end]
+
+    def _normalize_subsection_key(self, subsection_id: str) -> str:
+        """Normalize subsection identifiers so indexed metadata matches split labels."""
+
+        normalized = subsection_id.strip().upper()
+        normalized = re.sub(r"^(RULE|CPR|PARA)\s+", "", normalized)
+        return normalized
+
     def _process_multi_subsection_document(
         self,
         doc: Any,
@@ -115,6 +165,7 @@ class SourceProcessor:
         """
         # Sort subsections by natural order
         subsections.sort(key=lambda x: self.citation_builder.get_subsection_sort_key(x['subsection']))
+        subsections = self._deduplicate_subsections(subsections)
         
         for j, subsection_info in enumerate(subsections):
             subsection_id = subsection_info['subsection']
@@ -126,9 +177,13 @@ class SourceProcessor:
             base_citation = f"{subsection_id}, {sourcepage}, {sourcefile}"
             
             # Create structured object for this subsection
+            # Include the full original document content so the frontend can
+            # display the complete section and highlight the cited subsection.
+            full_doc_content = str(getattr(doc, 'content', '') or '')
             result_obj = {
                 "id": f"{getattr(doc, 'id', '')}_{j}",  # Unique ID
                 "content": subsection_content,
+                "full_content": full_doc_content,
                 "sourcepage": sourcepage,
                 "sourcefile": sourcefile,
                 "category": str(getattr(doc, 'category', '')) if getattr(doc, 'category', None) else "",
@@ -152,6 +207,27 @@ class SourceProcessor:
             
             results.append(result_obj)
             logging.info(f"🎯 DEBUG: Added subsection source {j+1}: {subsection_id}")
+
+    def _deduplicate_subsections(self, subsections: list[dict[str, str]]) -> list[dict[str, str]]:
+        """Collapse repeated subsection labels from the same document into a single best chunk."""
+
+        deduplicated: list[dict[str, str]] = []
+        positions_by_key: dict[str, int] = {}
+
+        for subsection in subsections:
+            subsection_id = subsection.get("subsection", "")
+            normalized_key = self._normalize_subsection_key(subsection_id)
+            if normalized_key in positions_by_key:
+                existing_index = positions_by_key[normalized_key]
+                existing = deduplicated[existing_index]
+                if len(subsection.get("content", "")) > len(existing.get("content", "")):
+                    deduplicated[existing_index] = subsection
+                continue
+
+            positions_by_key[normalized_key] = len(deduplicated)
+            deduplicated.append(subsection)
+
+        return deduplicated
 
     def _process_single_document(
         self,
@@ -183,6 +259,7 @@ class SourceProcessor:
         result_obj = {
             "id": doc_id,
             "content": content,
+            "full_content": content,
             "sourcepage": sourcepage,
             "sourcefile": sourcefile,
             "category": category,

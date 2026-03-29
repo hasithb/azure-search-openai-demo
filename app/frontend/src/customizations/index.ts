@@ -45,3 +45,16 @@ export { SplashScreen } from "./SplashScreen";
 
 // Chat Input Controls (category filter + depth dropdowns, FluentUI v9)
 export { ChatInputControls, MobileDropdownPanel } from "./ChatInputControls";
+
+// Citation metadata extraction and path building
+export { extractMetadataFromDataPoint, buildCitationLabel, buildCitationPath } from "./citationMetadata";
+export type { StructuredCitationMetadata } from "./citationMetadata";
+
+// Structured subsection matching for SupportingContent
+export { findBestMatch } from "./subsectionMatcher";
+
+// Subsection-aware chunk deduplication
+export { deduplicatePreservingSubsections } from "./chunkDeduplicator";
+
+// Citation metadata display component
+export { CitationMetadataDisplay } from "./CitationMetadataDisplay";

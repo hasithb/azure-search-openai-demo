@@ -160,6 +160,7 @@ class CitationBuilder:
         # Priority 1: Check content (fallback for backward compatibility) (fallback for backward compatibility)
         if content:
             lines = content.split('\n')[:20]
+            deferred_part_heading = ""
             for line in lines:
                 line = line.strip()
                 if not line or line == "---":
@@ -178,17 +179,28 @@ class CitationBuilder:
                 for pattern in self.CONTENT_SUBSECTION_PATTERNS:
                     match = re.match(pattern, cleaned_line, re.IGNORECASE)
                     if match:
-                        return match.group(1)
+                        candidate = match.group(1).strip()
+                        if re.match(r'^Part\s+\d+$', candidate, re.IGNORECASE):
+                            deferred_part_heading = deferred_part_heading or candidate
+                            break
+                        return candidate
                 
                 # Also try original line in case cleaning removed something important
                 if cleaned_line != line:
                     for pattern in self.CONTENT_SUBSECTION_PATTERNS:
                         match = re.match(pattern, line, re.IGNORECASE)
                         if match:
-                            return match.group(1)
+                            candidate = match.group(1).strip()
+                            if re.match(r'^Part\s+\d+$', candidate, re.IGNORECASE):
+                                deferred_part_heading = deferred_part_heading or candidate
+                                break
+                            return candidate
                 
                 if re.match(r'^\d+\.\d+$', cleaned_line):
                     return cleaned_line
+
+            if deferred_part_heading:
+                return deferred_part_heading
         
         # Priority 2: Encoded sourcepage
         if sourcepage:
@@ -205,6 +217,33 @@ class CitationBuilder:
                     return match.group(1)
         
         return ""
+
+    @staticmethod
+    def extract_page_number(sourcepage: str) -> int | None:
+        """
+        Extract a page number from various sourcepage formats.
+        
+        Handles:
+        - PDF ingested docs: "file.pdf#page=5" -> 5
+        - Legal docs with embedded page: "E. Disclosure, E.1 Generally (p. 60)" -> 60
+        - Plain page references: "(p. 123)" -> 123
+        
+        Returns None if no page number found.
+        """
+        if not sourcepage:
+            return None
+        
+        # PDF ingested format: file.pdf#page=5
+        page_hash_match = re.search(r'#page=(\d+)', sourcepage)
+        if page_hash_match:
+            return int(page_hash_match.group(1))
+        
+        # Legal format: (p. 60) or (p.60) or (p 60)
+        page_paren_match = re.search(r'\(p\.?\s*(\d+)\)', sourcepage)
+        if page_paren_match:
+            return int(page_paren_match.group(1))
+        
+        return None
 
     def extract_multiple_subsections(self, doc: Any) -> list[dict[str, str]]:
         """

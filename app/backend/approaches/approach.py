@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import base64
 import json
 import re
@@ -50,7 +52,7 @@ from prepdocslib.blobmanager import AdlsBlobManager, BlobManager
 from prepdocslib.embeddings import ImageEmbeddings
 
 # CUSTOM: Import legal domain customizations
-from customizations.approaches import citation_builder
+from customizations.approaches import citation_builder, source_processor
 from customizations import is_feature_enabled
 
 
@@ -159,6 +161,7 @@ class RewriteQueryResult:
     messages: list[ChatCompletionMessageParam]
     completion: ChatCompletion
     reasoning_effort: ChatCompletionReasoningEffort
+    subsection_hint: Optional[str] = None
 
 
 @dataclass
@@ -214,6 +217,8 @@ class ExtraInfo:
     thoughts: list[ThoughtStep] = field(default_factory=list)
     followup_questions: Optional[list[Any]] = None
     answer: Optional[str] = None  # Only when web knowledge source is used
+    enhanced_citations: Optional[list[str]] = None
+    citation_map: Optional[dict[str, str]] = None
 
 
 @dataclass
@@ -240,19 +245,23 @@ class TokenUsageProps:
 @dataclass
 class GPTReasoningModelSupport:
     streaming: bool
-    minimal_effort: bool
+    lowest_effort: Optional[str]  # lowest reasoning_effort value, e.g. "minimal", "none", or None for "low"
 
 
 class Approach(ABC):
     # List of GPT reasoning models support
     GPT_REASONING_MODELS = {
-        "o1": GPTReasoningModelSupport(streaming=False, minimal_effort=False),
-        "o3": GPTReasoningModelSupport(streaming=True, minimal_effort=False),
-        "o3-mini": GPTReasoningModelSupport(streaming=True, minimal_effort=False),
-        "o4-mini": GPTReasoningModelSupport(streaming=True, minimal_effort=False),
-        "gpt-5": GPTReasoningModelSupport(streaming=True, minimal_effort=True),
-        "gpt-5-nano": GPTReasoningModelSupport(streaming=True, minimal_effort=True),
-        "gpt-5-mini": GPTReasoningModelSupport(streaming=True, minimal_effort=True),
+        "o1": GPTReasoningModelSupport(streaming=False, lowest_effort=None),
+        "o3": GPTReasoningModelSupport(streaming=True, lowest_effort=None),
+        "o3-mini": GPTReasoningModelSupport(streaming=True, lowest_effort=None),
+        "o4-mini": GPTReasoningModelSupport(streaming=True, lowest_effort=None),
+        "gpt-5": GPTReasoningModelSupport(streaming=True, lowest_effort="minimal"),
+        "gpt-5-nano": GPTReasoningModelSupport(streaming=True, lowest_effort="minimal"),
+        "gpt-5-mini": GPTReasoningModelSupport(streaming=True, lowest_effort="minimal"),
+        "gpt-5.4": GPTReasoningModelSupport(streaming=True, lowest_effort="none"),
+        "gpt-5.4-pro": GPTReasoningModelSupport(streaming=True, lowest_effort="none"),
+        "gpt-5.4-mini": GPTReasoningModelSupport(streaming=True, lowest_effort="none"),
+        "gpt-5.4-nano": GPTReasoningModelSupport(streaming=True, lowest_effort="none"),
     }
     # Set a higher token limit for GPT reasoning models
     RESPONSE_DEFAULT_TOKEN_LIMIT = 1024
@@ -348,6 +357,318 @@ class Approach(ABC):
         """Extract multiple subsections from document - delegates to customizations module"""
         return citation_builder.extract_multiple_subsections(doc)
 
+    def _normalize_intent_text(self, value: Optional[str]) -> str:
+        return re.sub(r"\s+", " ", re.sub(r"[^a-z0-9]+", " ", (value or "").lower())).strip()
+
+    def _extract_query_reference_terms(self, query: str) -> list[str]:
+        patterns = [
+            r"\bpractice\s+direction\s+\d+[a-z]*\b",
+            r"\bpart\s+\d+[a-z]?\b",
+            r"\bpd\s*\d+[a-z]*\b",
+            r"\brule\s+\d+(?:\.\d+)?\b",
+            r"\bparagraph\s+\d+(?:\.\d+)?\b",
+            r"\bpara\.?\s+\d+(?:\.\d+)?\b",
+            r"\b[a-z]\d+(?:\.\d+)+\b",
+            r"\b[a-z]\d+\b",
+            r"\b\d+(?:\.\d+)+\b",
+        ]
+        references: list[str] = []
+        lowered_query = query.lower()
+        for pattern in patterns:
+            for match in re.finditer(pattern, lowered_query, re.IGNORECASE):
+                references.append(self._normalize_intent_text(match.group(0)))
+        return list(dict.fromkeys(reference for reference in references if reference))
+
+    def _extract_explicit_legal_references(self, query: str) -> list[str]:
+        patterns = [
+            r"\bPractice\s+Direction\s+\d+[A-Za-z]*\b",
+            r"\bPD\s*\d+[A-Za-z]*\b",
+            r"\bPart\s+\d+[A-Za-z]?\b",
+            r"\bRule\s+\d+(?:\.\d+)?\b",
+            r"\bParagraph\s+\d+(?:\.\d+)?\b",
+            r"\bPara\.?\s+\d+(?:\.\d+)?\b",
+        ]
+        references: list[str] = []
+        seen: set[str] = set()
+        for pattern in patterns:
+            for match in re.finditer(pattern, query, re.IGNORECASE):
+                reference = re.sub(r"\s+", " ", match.group(0).strip())
+                normalized = self._normalize_intent_text(reference)
+                if normalized and normalized not in seen:
+                    seen.add(normalized)
+                    references.append(reference)
+        return references
+
+    def _expand_explicit_legal_reference_queries(self, reference: str) -> list[str]:
+        cleaned_reference = re.sub(r"\s+", " ", reference.strip())
+        if not cleaned_reference:
+            return []
+
+        expanded_queries: list[str] = [cleaned_reference]
+        normalized_reference = self._normalize_intent_text(cleaned_reference)
+
+        practice_direction_match = re.fullmatch(r"practice direction\s+(\d+[a-z]*)", normalized_reference)
+        if practice_direction_match:
+            expanded_queries.append(f"PD{practice_direction_match.group(1).upper()}")
+
+        pd_match = re.fullmatch(r"pd\s*(\d+[a-z]*)", normalized_reference)
+        if pd_match:
+            expanded_queries.append(f"Practice Direction {pd_match.group(1).upper()}")
+
+        seen: set[str] = set()
+        deduped_queries: list[str] = []
+        for query in expanded_queries:
+            normalized_query = self._normalize_intent_text(query)
+            if normalized_query and normalized_query not in seen:
+                seen.add(normalized_query)
+                deduped_queries.append(query)
+
+        return deduped_queries
+
+    def _merge_rewritten_query_with_explicit_references(
+        self,
+        rewritten_query: Optional[str],
+        original_query: str,
+        subsection_hint: Optional[str] = None,
+    ) -> str:
+        merged_query = (rewritten_query or "").strip() or original_query.strip()
+        normalized_query = self._normalize_intent_text(merged_query)
+        missing_references: list[str] = []
+
+        for reference in self._extract_explicit_legal_references(original_query):
+            if self._normalize_intent_text(reference) not in normalized_query:
+                missing_references.append(reference)
+
+        cleaned_subsection_hint = (subsection_hint or "").strip()
+        if cleaned_subsection_hint and self._normalize_intent_text(cleaned_subsection_hint) not in normalized_query:
+            missing_references.append(cleaned_subsection_hint)
+
+        if missing_references:
+            merged_query = f"{merged_query} {' '.join(missing_references)}".strip()
+
+        return merged_query
+
+    def _covered_query_reference_terms(self, documents: list[Document], query: str) -> set[str]:
+        reference_terms = self._extract_query_reference_terms(query)
+        if not reference_terms:
+            return set()
+
+        covered_terms: set[str] = set()
+        for doc in documents[:5]:
+            haystack = self._normalize_intent_text(
+                " ".join(
+                    part
+                    for part in [
+                        doc.subsection_id,
+                        doc.sourcepage,
+                        doc.sourcefile,
+                        doc.category,
+                        (doc.content or "")[:1000],
+                    ]
+                    if part
+                )
+            )
+            if not haystack:
+                continue
+
+            for reference_term in reference_terms:
+                if reference_term in haystack:
+                    covered_terms.add(reference_term)
+
+        return covered_terms
+
+    def _results_include_reference_in_source(self, documents: list[Document], reference: str) -> bool:
+        normalized_reference = self._normalize_intent_text(reference)
+        if not normalized_reference:
+            return False
+
+        for doc in documents[:5]:
+            source_haystack = self._normalize_intent_text(
+                " ".join(part for part in [doc.subsection_id, doc.sourcepage, doc.sourcefile, doc.category] if part)
+            )
+            if normalized_reference in source_haystack:
+                return True
+
+        return False
+
+    def _extract_canonical_legal_concept_queries(self, query: str) -> list[tuple[str, str]]:
+        normalized_query = self._normalize_intent_text(query)
+        concept_mappings: list[tuple[str, str, str]] = [
+            (
+                "summary judgment",
+                "24.3 summary judgment no real prospect of succeeding no other compelling reason",
+                "Part 24",
+            ),
+            (
+                "pre action disclosure",
+                "31.16 disclosure before proceedings have started application for disclosure pre-action",
+                "Part 31",
+            ),
+        ]
+        # Short acronyms need word-boundary matching to avoid false positives
+        acronym_mappings: list[tuple[str, str, str]] = [
+            (
+                r"\bpad\b",
+                "31.16 disclosure before proceedings have started application for disclosure pre-action",
+                "Part 31",
+            ),
+        ]
+
+        results: list[tuple[str, str]] = [
+            (targeted_query, required_source_reference)
+            for concept_phrase, targeted_query, required_source_reference in concept_mappings
+            if concept_phrase in normalized_query
+        ]
+        for pattern, targeted_query, required_source_reference in acronym_mappings:
+            if re.search(pattern, normalized_query):
+                results.append((targeted_query, required_source_reference))
+
+        return results
+
+    def _extract_query_intent_terms(self, query: str) -> list[str]:
+        stopwords = {
+            "a",
+            "about",
+            "all",
+            "an",
+            "and",
+            "are",
+            "be",
+            "does",
+            "for",
+            "from",
+            "give",
+            "guide",
+            "how",
+            "in",
+            "is",
+            "of",
+            "on",
+            "say",
+            "section",
+            "sections",
+            "tell",
+            "that",
+            "the",
+            "their",
+            "there",
+            "these",
+            "this",
+            "under",
+            "what",
+            "when",
+            "where",
+            "which",
+            "who",
+            "why",
+            "with",
+        }
+        generic_legal_terms = {
+            "application",
+            "applications",
+            "claim",
+            "claims",
+            "court",
+            "courts",
+            "division",
+            "filing",
+            "guide",
+            "judge",
+            "judges",
+            "legal",
+            "part",
+            "practice",
+            "procedure",
+            "proceedings",
+            "rule",
+            "rules",
+        }
+        tokens = [token for token in self._normalize_intent_text(query).split() if len(token) >= 4]
+        filtered = [token for token in tokens if token not in stopwords and token not in generic_legal_terms]
+        return list(dict.fromkeys(filtered))
+
+    def _score_document_query_intent(self, doc: Document, query: str) -> int:
+        haystack = self._normalize_intent_text(
+            " ".join(
+                part
+                for part in [
+                    doc.subsection_id,
+                    doc.sourcepage,
+                    doc.sourcefile,
+                    doc.category,
+                    (doc.content or "")[:1000],
+                ]
+                if part
+            )
+        )
+        if not haystack:
+            return 0
+
+        score = 0
+        reference_terms = self._extract_query_reference_terms(query)
+        for reference_term in reference_terms:
+            if reference_term and reference_term in haystack:
+                score += 5
+
+        intent_terms = self._extract_query_intent_terms(query)
+        for intent_term in intent_terms:
+            if intent_term in haystack:
+                score += 1
+
+        for first, second in zip(intent_terms, intent_terms[1:]):
+            phrase = f"{first} {second}"
+            if phrase in haystack:
+                score += 2
+
+        return score
+
+    def _should_retry_for_query_intent(self, documents: list[Document], query: Optional[str]) -> bool:
+        if not query or not documents:
+            return False
+
+        reference_terms = self._extract_query_reference_terms(query)
+        intent_terms = self._extract_query_intent_terms(query)
+        if not reference_terms and len(intent_terms) < 2:
+            return False
+
+        if len(reference_terms) > 1:
+            covered_reference_terms = self._covered_query_reference_terms(documents, query)
+            if len(covered_reference_terms) < len(reference_terms):
+                return True
+
+        scores = [self._score_document_query_intent(doc, query) for doc in documents[:3]]
+        if not scores:
+            return False
+
+        strong_match_threshold = 5 if reference_terms else 3
+        return max(scores) < strong_match_threshold
+
+    def _merge_documents_by_query_intent(self, query: str, documents: list[Document], limit: int) -> list[Document]:
+        best_by_id: dict[str, tuple[tuple[float, float, float], Document]] = {}
+        ordered_documents: list[Document] = []
+
+        for index, doc in enumerate(documents):
+            rank = (
+                float(self._score_document_query_intent(doc, query)),
+                float(doc.reranker_score or -1),
+                float(doc.score or -1),
+            )
+            doc_id = doc.id or f"__index_{index}"
+            existing = best_by_id.get(doc_id)
+            if existing is None or rank > existing[0]:
+                best_by_id[doc_id] = (rank, doc)
+
+        ordered_documents = [entry[1] for entry in best_by_id.values()]
+        ordered_documents.sort(
+            key=lambda doc: (
+                self._score_document_query_intent(doc, query),
+                doc.reranker_score or -1,
+                doc.score or -1,
+            ),
+            reverse=True,
+        )
+        return ordered_documents[:limit]
+
     async def search(
         self,
         top: int,
@@ -362,9 +683,11 @@ class Approach(ABC):
         minimum_reranker_score: Optional[float] = None,
         use_query_rewriting: Optional[bool] = None,
         access_token: Optional[str] = None,
+        semantic_query_text: Optional[str] = None,
     ) -> list[Document]:
         search_text = query_text if use_text_search else ""
         search_vectors = vectors if use_vector_search else []
+        semantic_query = semantic_query_text or query_text
         if use_semantic_ranker:
             results = await self.search_client.search(
                 search_text=search_text,
@@ -377,7 +700,7 @@ class Approach(ABC):
                 query_language=self.query_language,
                 query_speller=self.query_speller,
                 semantic_configuration_name="default",
-                semantic_query=query_text,
+                semantic_query=semantic_query,
                 x_ms_query_source_authorization=access_token,
             )
         else:
@@ -451,6 +774,24 @@ class Approach(ABC):
 
         return user_query
 
+    def extract_rewrite_function_arguments(self, chat_completion: ChatCompletion) -> dict[str, Any]:
+        response_message = chat_completion.choices[0].message
+
+        if response_message.tool_calls:
+            for tool_call in response_message.tool_calls:
+                if tool_call.type != "function":
+                    continue
+                arguments_payload = cast(ChatCompletionMessageFunctionToolCall, tool_call).function.arguments or "{}"
+                try:
+                    parsed_arguments = json.loads(arguments_payload)
+                except json.JSONDecodeError:
+                    continue
+
+                if isinstance(parsed_arguments, dict):
+                    return parsed_arguments
+
+        return {}
+
     async def rewrite_query(
         self,
         *,
@@ -465,7 +806,13 @@ class Approach(ABC):
         temperature: float = 0.0,
         no_response_token: Optional[str] = None,
     ) -> RewriteQueryResult:
-        query_messages = [self.prompt_manager.build_system_prompt(prompt_template, prompt_variables)]
+        query_messages = self.prompt_manager.build_conversation(
+            system_template_path=prompt_template,
+            system_template_variables=prompt_variables,
+            user_template_path="query_rewrite.user.jinja2",
+            user_template_variables={"user_query": user_query},
+            past_messages=cast(list[ChatCompletionMessageParam] | None, prompt_variables.get("past_messages")),
+        )
         rewrite_reasoning_effort = self.get_lowest_reasoning_effort(self.chatgpt_model)
 
         chat_completion = cast(
@@ -478,21 +825,27 @@ class Approach(ABC):
                 response_token_limit=response_token_limit,
                 temperature=temperature,
                 tools=tools,
+                tool_choice={"type": "function", "function": {"name": "search_sources"}} if tools else None,
                 reasoning_effort=rewrite_reasoning_effort,
             ),
         )
 
+        rewrite_arguments = self.extract_rewrite_function_arguments(chat_completion)
         rewritten_query = self.extract_rewritten_query(
             chat_completion,
             user_query,
             no_response_token=no_response_token,
         )
+        subsection_hint = rewrite_arguments.get("subsection_hint")
+        if not isinstance(subsection_hint, str) or not subsection_hint.strip():
+            subsection_hint = None
 
         return RewriteQueryResult(
             query=rewritten_query,
             messages=query_messages,
             completion=chat_completion,
             reasoning_effort=rewrite_reasoning_effort,
+            subsection_hint=subsection_hint,
         )
 
     async def run_agentic_retrieval(
@@ -578,7 +931,12 @@ class Approach(ABC):
                     reasoning_effort=rewrite_result.reasoning_effort,
                 )
             )
-            agentic_retrieval_input["intents"] = [KnowledgeRetrievalSemanticIntent(search=rewrite_result.query)]
+            merged_rewrite_query = self._merge_rewritten_query_with_explicit_references(
+                rewrite_result.query,
+                original_user_query,
+                rewrite_result.subsection_hint,
+            )
+            agentic_retrieval_input["intents"] = [KnowledgeRetrievalSemanticIntent(search=merged_rewrite_query)]
         elif retrieval_reasoning_effort == "minimal":
             last_content = messages[-1]["content"]
             if not isinstance(last_content, str):
@@ -769,21 +1127,53 @@ class Approach(ABC):
                         )
                     )
 
-        # CUSTOM: If references are still missing, fall back to direct search using agentic query plan
-        if not document_results and is_feature_enabled("agentic_fallback_search"):
+        latest_user_query = messages[-1]["content"] if messages else ""
+        explicit_legal_references = (
+            self._extract_explicit_legal_references(latest_user_query) if isinstance(latest_user_query, str) else []
+        )
+        canonical_legal_concepts = (
+            self._extract_canonical_legal_concept_queries(latest_user_query) if isinstance(latest_user_query, str) else []
+        )
+        fallback_result_limit = max(3, len(explicit_legal_references) + len(canonical_legal_concepts) + 1)
+        weak_document_matches = bool(
+            isinstance(latest_user_query, str)
+            and document_results
+            and is_feature_enabled("agentic_retry_on_weak_matches")
+            and self._should_retry_for_query_intent(document_results, latest_user_query)
+        )
+
+        # CUSTOM: If references are still missing, or they look off-target, fall back to direct search using agentic query plan
+        if (not document_results and is_feature_enabled("agentic_fallback_search")) or weak_document_matches:
             import logging
 
-            logging.info("CUSTOM: No agentic references; running fallback search using agentic queries.")
+            logging.info(
+                "CUSTOM: %s; running fallback search using agentic queries.",
+                "Weak agentic references" if weak_document_matches else "No agentic references",
+            )
             query_candidates = [ad.query for ad in activity_details_by_id.values() if ad.query]
+            if rewrite_result and rewrite_result.query:
+                query_candidates.append(
+                    self._merge_rewritten_query_with_explicit_references(
+                        rewrite_result.query,
+                        latest_user_query if isinstance(latest_user_query, str) else rewrite_result.query,
+                        rewrite_result.subsection_hint,
+                    )
+                )
             if not query_candidates and messages:
                 last_content = messages[-1]["content"] if messages else ""
                 if isinstance(last_content, str) and last_content:
                     query_candidates = [last_content]
+            elif isinstance(latest_user_query, str) and latest_user_query:
+                query_candidates.append(latest_user_query)
+
+            query_candidates = list(dict.fromkeys(str(q).strip() for q in query_candidates if str(q).strip()))
 
             seen_ids: set[str] = set()
+            if weak_document_matches:
+                seen_ids.update(doc.id for doc in document_results if doc.id)
             for q in query_candidates:
                 docs = await self.search(
-                    top=3,
+                    top=fallback_result_limit,
                     query_text=str(q),
                     filter=filter_add_on,
                     vectors=[],
@@ -800,6 +1190,75 @@ class Approach(ABC):
                         seen_ids.add(doc.id)
                         document_results.append(doc)
 
+            if isinstance(latest_user_query, str) and latest_user_query:
+                document_results = self._merge_documents_by_query_intent(
+                    latest_user_query,
+                    document_results,
+                    limit=fallback_result_limit,
+                )
+
+        supplemental_reference_queries: list[str] = []
+        if isinstance(latest_user_query, str) and latest_user_query and document_results:
+            covered_reference_terms = self._covered_query_reference_terms(document_results, latest_user_query)
+            missing_reference_queries = [
+                reference
+                for reference in explicit_legal_references
+                if self._normalize_intent_text(reference) not in covered_reference_terms
+            ]
+
+            for reference_query in missing_reference_queries:
+                for targeted_reference_query in self._expand_explicit_legal_reference_queries(reference_query):
+                    docs = await self.search(
+                        top=min(fallback_result_limit, 3),
+                        query_text=targeted_reference_query,
+                        filter=filter_add_on,
+                        vectors=[],
+                        use_text_search=True,
+                        use_vector_search=False,
+                        use_semantic_ranker=False,
+                        use_semantic_captions=False,
+                        minimum_search_score=0,
+                        minimum_reranker_score=0,
+                        use_query_rewriting=False,
+                        access_token=access_token,
+                        semantic_query_text=targeted_reference_query,
+                    )
+                    if docs:
+                        supplemental_reference_queries.append(targeted_reference_query)
+                        document_results = self._merge_documents_by_query_intent(
+                            latest_user_query,
+                            document_results + docs,
+                            limit=fallback_result_limit,
+                        )
+                        break
+
+            for concept_query, required_source_reference in canonical_legal_concepts:
+                if self._results_include_reference_in_source(document_results, required_source_reference):
+                    continue
+
+                docs = await self.search(
+                    top=min(fallback_result_limit, 3),
+                    query_text=concept_query,
+                    filter=filter_add_on,
+                    vectors=[],
+                    use_text_search=True,
+                    use_vector_search=False,
+                    use_semantic_ranker=False,
+                    use_semantic_captions=False,
+                    minimum_search_score=0,
+                    minimum_reranker_score=0,
+                    use_query_rewriting=False,
+                    access_token=access_token,
+                    semantic_query_text=concept_query,
+                )
+                if docs:
+                    supplemental_reference_queries.append(concept_query)
+                    document_results = self._merge_documents_by_query_intent(
+                        latest_user_query,
+                        document_results + docs,
+                        limit=fallback_result_limit,
+                    )
+
         thoughts.append(
             ThoughtStep(
                 "Agentic retrieval response",
@@ -812,6 +1271,7 @@ class Approach(ABC):
                     "deployment": self.knowledgebase_deployment,
                     "reranker_threshold": minimum_reranker_score,
                     "filter": filter_add_on,
+                    "targeted_reference_queries": supplemental_reference_queries,
                 },
             )
         )
@@ -880,12 +1340,22 @@ class Approach(ABC):
             DataPoints: with text (structured source objects and legacy strings), images (list[str - base64 data URI]), citations (list[str]).
         """
 
-        def clean_source(s: str) -> str:
-            s = s.replace("\n", " ").replace("\r", " ")  # normalize newlines to spaces
+        def clean_source(s: str, preserve_linebreaks: bool = False) -> str:
+            s = s.replace("\r\n", "\n").replace("\r", "\n")
             s = s.replace(":::", "&#58;&#58;&#58;")  # escape DocFX/markdown triple colons
             # Remove inline metadata prefixes that can leak into supporting content text
             # Example: "SOURCE: ... SOURCEPAGE: ... CATEGORY: ... SECTION: ..."
             s = re.sub(r"\bSOURCE:\s*.*?\bSOURCEPAGE:\s*.*?\bCATEGORY:\s*.*?\bSECTION:\s*", "", s, flags=re.IGNORECASE)
+
+            if preserve_linebreaks:
+                # Preserve paragraph and subsection boundaries so frontend highlighting
+                # can extract the cited subsection reliably from full_content.
+                s = re.sub(r"[ \t]+", " ", s)
+                s = re.sub(r" *\n *", "\n", s)
+                s = re.sub(r"\n{3,}", "\n\n", s).strip()
+                return s
+
+            s = s.replace("\n", " ")
             s = re.sub(r"\s+", " ", s).strip()
             return s
 
@@ -895,41 +1365,105 @@ class Approach(ABC):
         seen_urls = set()
         external_results_metadata: list[dict[str, Any]] = []
         citation_activity_details: dict[str, dict[str, Any]] = {}
+        # CUSTOM: Track text_source citations to differentiate chunks from same document
+        text_source_citation_counts: dict[str, int] = {}
+
+        if include_text_sources:
+            processed_sources = source_processor.process_documents(
+                results,
+                use_semantic_captions=use_semantic_captions,
+                focus_on_indexed_subsection=True,
+                adjacent_subsections=1,
+                max_unfocused_subsections=4,
+            )
+            documents_by_id = {str(doc.id): doc for doc in results if doc.id}
+
+            for processed_source in processed_sources:
+                original_doc_id = str(processed_source.get("original_doc_id") or processed_source.get("id") or "")
+                original_doc = documents_by_id.get(original_doc_id)
+
+                raw_prompt_content = (
+                    processed_source.get("caption_summary")
+                    if use_semantic_captions and processed_source.get("caption_summary")
+                    else processed_source.get("content", "")
+                )
+                raw_full_content = processed_source.get("full_content") or processed_source.get("content", "")
+                cleaned = clean_source(str(raw_prompt_content or ""))
+                full_content = clean_source(str(raw_full_content or ""), preserve_linebreaks=True)
+
+                citation = str(processed_source.get("citation") or "")
+                if not citation and original_doc:
+                    citation = citation_builder.build_enhanced_citation(original_doc, len(citations) + 1)
+                if not citation:
+                    citation = str(processed_source.get("sourcepage") or "")
+
+                text_source_citation = citation
+                if citation in text_source_citation_counts:
+                    text_source_citation_counts[citation] += 1
+                    count = text_source_citation_counts[citation]
+
+                    if count == 2:
+                        for prev_src in text_sources:
+                            if isinstance(prev_src, dict) and prev_src.get("citation") == citation:
+                                first_heading = self.extract_content_heading(prev_src.get("full_content", "") or prev_src.get("content", ""))
+                                if first_heading:
+                                    prev_src["citation"] = f"{first_heading}, {citation}"
+                                else:
+                                    prev_src["citation"] = f"{citation} (Part 1)"
+                                try:
+                                    first_index = citations.index(citation)
+                                    citations[first_index] = prev_src["citation"]
+                                except ValueError:
+                                    pass
+                                break
+
+                    content_heading = self.extract_content_heading(raw_full_content or cleaned)
+                    if content_heading:
+                        text_source_citation = f"{content_heading}, {citation}"
+                    else:
+                        text_source_citation = f"{citation} (Part {count})"
+                else:
+                    text_source_citation_counts[citation] = 1
+
+                resolved_subsection_id = str(
+                    processed_source.get("subsection_id")
+                    or (self._extract_subsection_from_document(original_doc) if original_doc else "")
+                    or ""
+                )
+
+                text_sources.append(
+                    {
+                        "id": str(processed_source.get("id") or original_doc_id or "") or None,
+                        "citation": text_source_citation,
+                        "content": cleaned,
+                        "full_content": full_content,
+                        "sourcepage": str(processed_source.get("sourcepage") or getattr(original_doc, "sourcepage", "") or ""),
+                        "sourcefile": str(processed_source.get("sourcefile") or getattr(original_doc, "sourcefile", "") or ""),
+                        "category": str(processed_source.get("category") or getattr(original_doc, "category", "") or ""),
+                        "storageurl": str(
+                            processed_source.get("storageurl")
+                            or processed_source.get("storageUrl")
+                            or getattr(original_doc, "storage_url", "")
+                            or ""
+                        ),
+                        "updated": str(
+                            processed_source.get("updated")
+                            or getattr(original_doc, "updated", "")
+                            or getattr(original_doc, "last_updated", "")
+                            or ""
+                        ),
+                        "subsection_id": resolved_subsection_id,
+                    }
+                )
 
         for doc in results:
-            # Build enhanced legal citation for documents so subsection matching works in the frontend
             citation = citation_builder.build_enhanced_citation(doc, len(citations) + 1)
             if not citation:
                 citation = self.get_citation(doc.sourcepage)
             if citation not in citations:
                 citations.append(citation)
-                # Add activity details if available
                 if doc.activity:
                     citation_activity_details[citation] = asdict(doc.activity)
-
-            # If semantic captions are used, extract captions; otherwise, use content
-            if include_text_sources:
-                if use_semantic_captions and doc.captions:
-                    cleaned = clean_source(" . ".join([cast(str, c.text) for c in doc.captions]))
-                    full_content = clean_source(doc.content or "")
-                else:
-                    cleaned = clean_source(doc.content or "")
-                    full_content = cleaned
-
-                text_sources.append(
-                    {
-                        "id": doc.id,
-                        "citation": citation,
-                        "content": cleaned,
-                        "full_content": full_content,
-                        "sourcepage": doc.sourcepage or "",
-                        "sourcefile": doc.sourcefile or "",
-                        "category": doc.category or "",
-                        "storageurl": getattr(doc, "storage_url", "") or "",
-                        "updated": getattr(doc, "updated", "") or getattr(doc, "last_updated", "") or "",
-                        "subsection_id": getattr(doc, "subsection_id", "") or "",
-                    }
-                )
 
             if download_image_sources and hasattr(doc, "images") and doc.images:
                 for img in doc.images:
@@ -995,6 +1529,41 @@ class Approach(ABC):
         sourcepage_citation = self.get_citation(sourcepage)
         image_filename = image_url.split("/")[-1]
         return f"{sourcepage_citation}({image_filename})"
+
+    @staticmethod
+    def extract_content_heading(content: str) -> str:
+        """Extract a short heading from the first meaningful line of content.
+
+        Used to differentiate citations for chunks from the same document by
+        deriving a human-readable label from the chunk text (e.g.,
+        "Case Management Conference", "Pre-action Protocol").
+
+        Returns an empty string if no suitable heading is found.
+        """
+        if not content:
+            return ""
+        for raw_line in content.split("\n")[:10]:
+            line = raw_line.strip()
+            if not line or line == "---":
+                continue
+            # Strip markdown heading markers
+            line = re.sub(r"^#+\s*", "", line)
+            # Strip breadcrumb markers
+            line = re.sub(r"^\[.*?\]\s*", "", line)
+            # Strip bold markers
+            line = re.sub(r"^\*\*([^*]+)\*\*", r"\1", line)
+            line = re.sub(r"^__([^_]+)__", r"\1", line)
+            line = line.strip()
+            if not line:
+                continue
+            # Skip lines that are just numbers or very short
+            if re.match(r"^\d+\.?\d*$", line) or len(line) < 4:
+                continue
+            # Truncate long headings
+            if len(line) > 60:
+                line = line[:57] + "..."
+            return line
+        return ""
 
     async def download_blob_as_base64(self, blob_url: str, user_oid: Optional[str] = None) -> Optional[str]:
         """
@@ -1088,9 +1657,8 @@ class Approach(ABC):
         """
         if model not in self.GPT_REASONING_MODELS:
             return None
-        if self.GPT_REASONING_MODELS[model].minimal_effort:
-            return "minimal"
-        return "low"
+        lowest = self.GPT_REASONING_MODELS[model].lowest_effort
+        return lowest if lowest else "low"
 
     def create_chat_completion(
         self,
@@ -1101,6 +1669,7 @@ class Approach(ABC):
         response_token_limit: int,
         should_stream: bool = False,
         tools: Optional[list[ChatCompletionToolParam]] = None,
+        tool_choice: Optional[Any] = None,
         temperature: Optional[float] = None,
         n: Optional[int] = None,
         reasoning_effort: Optional[ChatCompletionReasoningEffort] = None,
@@ -1130,6 +1699,8 @@ class Approach(ABC):
 
         if tools is not None:
             params["tools"] = tools
+        if tool_choice is not None:
+            params["tool_choice"] = tool_choice
 
         # Azure OpenAI takes the deployment name as the model name
         seed_value: Optional[int] = overrides.get("seed", None)

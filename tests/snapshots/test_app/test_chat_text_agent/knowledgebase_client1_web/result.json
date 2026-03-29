@@ -1,5 +1,8 @@
 {
     "context": {
+        "citation_map": {
+            "1": "Benefit_Options-2.pdf, Benefit_Options.pdf"
+        },
         "data_points": {
             "citation_activity_details": {
                 "Benefit_Options-2.pdf, Benefit_Options.pdf": {
@@ -51,6 +54,9 @@
                 }
             ]
         },
+        "enhanced_citations": [
+            "Benefit_Options-2.pdf, Benefit_Options.pdf"
+        ],
         "followup_questions": null,
         "thoughts": [
             {
@@ -124,7 +130,8 @@
                             }
                         }
                     ],
-                    "reranker_threshold": 0
+                    "reranker_threshold": 0,
+                    "targeted_reference_queries": []
                 },
                 "title": "Agentic retrieval response"
             }

@@ -82,6 +82,44 @@ class MockBlob:
         buffer.write(b"test")
 
 
+class MockStreamReader:
+    """Mock for aiohttp StreamReader to support blob download in Azure SDK."""
+
+    def __init__(self, data: bytes):
+        self._data = data
+        self._pos = 0
+        self._exception = None
+
+    async def read(self, n: int = -1) -> bytes:
+        if self._pos >= len(self._data):
+            return b""
+        if n == -1:
+            chunk = self._data[self._pos:]
+            self._pos = len(self._data)
+        else:
+            chunk = self._data[self._pos:self._pos + n]
+            self._pos += n
+        return chunk
+
+    def exception(self):
+        return self._exception
+
+    def set_exception(self, exc):
+        self._exception = exc
+
+    def at_eof(self):
+        return self._pos >= len(self._data)
+
+    async def readany(self):
+        return await self.read(-1)
+
+    def unread_data(self, data):
+        pass
+
+    def total_bytes(self):
+        return len(self._data)
+
+
 class MockAiohttpClientResponse404(aiohttp.ClientResponse):
     def __init__(self, url, body_bytes, headers=None):
         self._body = body_bytes
@@ -90,6 +128,8 @@ class MockAiohttpClientResponse404(aiohttp.ClientResponse):
         self.status = 404
         self.reason = "Not Found"
         self._url = url
+        self._loop = None
+        self.content = MockStreamReader(body_bytes)
 
 
 class MockAiohttpClientResponse(aiohttp.ClientResponse):
@@ -100,6 +140,8 @@ class MockAiohttpClientResponse(aiohttp.ClientResponse):
         self.status = 200
         self.reason = "OK"
         self._url = url
+        self._loop = None
+        self.content = MockStreamReader(body_bytes)
 
 
 class MockTransport(AsyncHttpTransport):

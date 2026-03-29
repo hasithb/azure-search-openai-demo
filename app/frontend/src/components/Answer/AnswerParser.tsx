@@ -6,6 +6,8 @@ import { QueryPlanStep, getStepLabel, activityTypeLabels } from "../AnalysisPane
 import { sanitizeCitations, collapseAdjacentCitations, fixMalformedCitations, findMatchingCitation } from "../../customizations/citationSanitizer";
 // CUSTOM: Paragraph formatting for long single-block answers
 import { formatAnswerParagraphs, isFeatureEnabled } from "../../customizations";
+// CUSTOM: Structured citation metadata for precise SupportingContent matching
+import { extractMetadataFromDataPoint, buildCitationPath } from "../../customizations";
 
 // Re-export for backward compatibility with existing tests
 export { sanitizeCitations, collapseAdjacentCitations, fixMalformedCitations };
@@ -19,6 +21,12 @@ export type CitationDetail = {
     stepNumber?: number;
     stepLabel?: string;
     stepSource?: string;
+    // CUSTOM: Structured metadata for precise SupportingContent matching
+    subsectionId?: string;
+    sourcepage?: string;
+    sourcefile?: string;
+    category?: string;
+    storageUrl?: string;
 };
 
 type CitationFragment =
@@ -380,11 +388,23 @@ const collectCitations = (answer: ChatAppResponse, isStreaming: boolean): { frag
         // Resolve SharePoint filename to URL if applicable
         const resolvedReference = resolveSharePointUrl(citationRef);
 
-        // Check if this resolved reference already exists
+        // Check if this resolved reference already exists.
+        // CUSTOM: Allow distinct citations when the same resolved reference maps to
+        // different data point content (e.g., multiple chunks from the same document).
         const existing = citationMap.get(resolvedReference);
         if (existing) {
-            fragments.push({ type: "citation", detail: existing });
-            return;
+            // Determine content of the current data point (before matchingDataPoint is computed)
+            const currentDpContent = numericMatch
+                ? typeof textDataPoints[parseInt(part) - 1]?.content === "string"
+                    ? textDataPoints[parseInt(part) - 1].content
+                    : undefined
+                : undefined;
+            const contentDiffers = currentDpContent && existing.content && currentDpContent !== existing.content;
+            if (!contentDiffers) {
+                fragments.push({ type: "citation", detail: existing });
+                return;
+            }
+            // Different content from same source — fall through to create a new citation entry
         }
 
         // Try both keys for activity details lookup (fuzzy match may differ from LLM text)
@@ -397,6 +417,9 @@ const collectCitations = (answer: ChatAppResponse, isStreaming: boolean): { frag
 
         const matchingDataPoint = textDataPoints.find((dataPoint: any) => dataPointMatchesCitation(dataPoint, matchedCitation));
 
+        // CUSTOM: Extract structured metadata from the matching data point
+        const dpMetadata = extractMetadataFromDataPoint(matchingDataPoint);
+
         const detail: CitationDetail = {
             reference: resolvedReference,
             index: citationList.length + 1,
@@ -405,10 +428,18 @@ const collectCitations = (answer: ChatAppResponse, isStreaming: boolean): { frag
             activityId: activityId !== undefined ? String(activityId) : undefined,
             stepNumber: backendDetail?.number ?? stepMeta?.stepNumber,
             stepLabel: activityLabel ?? stepMeta?.stepLabel,
-            stepSource: backendDetail?.source
+            stepSource: backendDetail?.source,
+            // CUSTOM: Structured metadata for precise SupportingContent matching
+            subsectionId: dpMetadata.subsectionId || undefined,
+            sourcepage: dpMetadata.sourcepage || undefined,
+            sourcefile: dpMetadata.sourcefile || undefined,
+            category: dpMetadata.category || undefined,
+            storageUrl: dpMetadata.storageUrl || undefined
         };
 
-        citationMap.set(resolvedReference, detail);
+        // CUSTOM: Use a unique key when content differs for same resolved reference
+        const mapKey = existing ? `${resolvedReference}#${citationList.length}` : resolvedReference;
+        citationMap.set(mapKey, detail);
         citationList.push(detail);
         fragments.push({ type: "citation", detail });
     });
@@ -425,14 +456,17 @@ const renderCitation = (detail: CitationDetail, onCitationClicked: (citationFile
             : stepBadgeLabel
               ? `Linked to ${stepBadgeLabel}`
               : undefined;
-    const supElement = <sup title={stepBadgeTitle ?? undefined}>{detail.index}</sup>;
+    const supElement = <sup title={stepBadgeTitle ?? undefined}>[{detail.index}]</sup>;
+    const citationAriaLabel = `Citation ${detail.index}: ${detail.reference}`;
 
     if (detail.isWeb) {
         return renderToStaticMarkup(
             <span className="citationBadgeContainer">
                 <a
                     className="supContainer"
+                    aria-label={citationAriaLabel}
                     title={detail.reference}
+                    data-citation-index={String(detail.index)}
                     data-citation-text={detail.reference}
                     data-citation-content={detail.content ?? ""}
                     href={detail.reference}
@@ -447,14 +481,26 @@ const renderCitation = (detail: CitationDetail, onCitationClicked: (citationFile
     }
 
     const path = getCitationFilePath(detail.reference);
+    // CUSTOM: Use buildCitationPath for correct path resolution (storageUrl for legal docs, /content/ for PDFs)
+    const structuredPath =
+        isFeatureEnabled("structuredCitationMatching") && (detail.sourcefile || detail.sourcepage || detail.storageUrl)
+            ? buildCitationPath({ sourcefile: detail.sourcefile, sourcepage: detail.sourcepage, storageurl: detail.storageUrl })
+            : "";
+    const citationPath = structuredPath || path;
     return renderToStaticMarkup(
         <span className="citationBadgeContainer">
             <a
                 className="supContainer"
+                aria-label={citationAriaLabel}
                 title={detail.reference}
-                data-citation-path={path}
+                data-citation-path={citationPath}
+                data-citation-index={String(detail.index)}
                 data-citation-text={detail.reference}
                 data-citation-content={detail.content ?? ""}
+                data-subsection-id={detail.subsectionId ?? ""}
+                data-sourcepage={detail.sourcepage ?? ""}
+                data-sourcefile={detail.sourcefile ?? ""}
+                data-category={detail.category ?? ""}
             >
                 {supElement}
             </a>

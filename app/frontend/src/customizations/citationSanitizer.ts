@@ -71,12 +71,29 @@ export function fixMalformedCitations(text: string): string {
         return `${prefix}[${num}]`;
     });
 
-    // 2. Fix unbracketed citation ONLY at end of text (paragraph ending)
+    // 2a. Fix unbracketed citation after closing parenthesis
+    // e.g., "copies) 1." → "copies)[1]", "CMC) 1" → "CMC)[1]"
+    // Handles both mid-text and end-of-text occurrences
+    const parenCitationPattern = /(\))\s+(\d{1,3})\.?(?=\s|$|[,;:!?\n])/g;
+    result = result.replace(parenCitationPattern, (_, paren, num) => {
+        return `${paren}[${num}]`;
+    });
+
+    // 2b. Fix unbracketed citation at end of text (paragraph ending)
     // e.g., "...proceedings 1." at end → "...proceedings.[1]"
-    // Only match if it's truly at the end ($ anchor) to avoid false positives
     // Must be preceded by at least 3 word characters to avoid matching "Section 1."
-    const unbracketedEndPattern = /(\w{3,})\s+(\d{1,3})\.$/g;
+    const unbracketedEndPattern = /(\w{3,})\s+(\d{1,3})\.$/gm;
     result = result.replace(unbracketedEndPattern, (_, word, num) => {
+        if (String(word).toLowerCase() === "source") {
+            return `${word} ${num}.`;
+        }
+        return `${word}.[${num}]`;
+    });
+
+    // 2c. Fix unbracketed citation at end of lines (multiline support)
+    // e.g., "...proceedings 1.\nNext line" → "...proceedings.[1]\nNext line"
+    const unbracketedEolPattern = /(\w{3,})\s+(\d{1,3})\.(?=\n)/g;
+    result = result.replace(unbracketedEolPattern, (_, word, num) => {
         if (String(word).toLowerCase() === "source") {
             return `${word} ${num}.`;
         }

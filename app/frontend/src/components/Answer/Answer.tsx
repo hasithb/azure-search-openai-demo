@@ -14,7 +14,9 @@ import { AnswerIcon } from "./AnswerIcon";
 import { SpeechOutputBrowser } from "./SpeechOutputBrowser";
 import { SpeechOutputAzure } from "./SpeechOutputAzure";
 // CUSTOM: Import admin mode check to gate Thought Process visibility
-import { isAdminMode } from "../../customizations";
+import { buildCitationLabel, buildCitationPath, isAdminMode } from "../../customizations";
+// CUSTOM: Import structured citation metadata type
+import type { StructuredCitationMetadata } from "../../customizations";
 
 interface Props {
     answer: ChatAppResponse;
@@ -23,7 +25,8 @@ interface Props {
     isSelected?: boolean;
     isStreaming: boolean;
     // CUSTOM: Optional second arg passes citation content for display enrichment
-    onCitationClicked: (filePath: string, content?: string) => void;
+    //         Optional third arg passes structured metadata for precise matching
+    onCitationClicked: (filePath: string, content?: string, metadata?: StructuredCitationMetadata) => void;
     onThoughtProcessClicked: () => void;
     onSupportingContentClicked: () => void;
     onFollowupQuestionClicked?: (question: string) => void;
@@ -217,7 +220,17 @@ export const Answer = ({
                     e.preventDefault();
                     const matchingSupportingContent = citationText ? findMatchingSupportingContent(citationText) : undefined;
                     const finalCitationContent = citationContent || matchingSupportingContent?.content || "";
-                    onCitationClicked(citationPath, finalCitationContent || undefined);
+                    // CUSTOM: Extract structured metadata from data-attributes for precise SupportingContent matching
+                    const metadata: StructuredCitationMetadata = {
+                        subsectionId: supContainer.getAttribute("data-subsection-id") || "",
+                        sourcepage: supContainer.getAttribute("data-sourcepage") || "",
+                        sourcefile: supContainer.getAttribute("data-sourcefile") || "",
+                        category: supContainer.getAttribute("data-category") || "",
+                        content: finalCitationContent,
+                        storageUrl: ""
+                    };
+                    const hasMetadata = metadata.subsectionId || metadata.sourcepage || metadata.sourcefile || metadata.category;
+                    onCitationClicked(citationPath, finalCitationContent || undefined, hasMetadata ? metadata : undefined);
                 }
             }
         },
@@ -291,13 +304,30 @@ export const Answer = ({
                                 return (
                                     <span key={`${reference}-${displayIndex}`} className={styles.citationEntry}>
                                         <a className={styles.citation} title={reference} href={reference} target="_blank" rel="noopener noreferrer">
-                                            {`${displayIndex}. ${titleOrUrl}`}
+                                            <span className={styles.citationIndexBadge}>[{displayIndex}]</span>
+                                            <span className={styles.citationLabel}>{titleOrUrl}</span>
                                         </a>
                                     </span>
                                 );
                             } else {
                                 const path = getCitationFilePath(reference);
                                 const matchingSupportingContent = findMatchingSupportingContent(reference);
+                                // CUSTOM: Build metadata from citation detail for precise matching
+                                const citMeta: StructuredCitationMetadata | undefined =
+                                    citation.subsectionId || citation.sourcepage || citation.sourcefile || citation.category
+                                        ? {
+                                              subsectionId: citation.subsectionId || "",
+                                              sourcepage: citation.sourcepage || "",
+                                              sourcefile: citation.sourcefile || "",
+                                              category: citation.category || "",
+                                              content: citation.content || "",
+                                              storageUrl: citation.storageUrl || ""
+                                          }
+                                        : undefined;
+                                const citationPath = citMeta
+                                    ? buildCitationPath({ sourcefile: citMeta.sourcefile, sourcepage: citMeta.sourcepage, storageurl: citMeta.storageUrl })
+                                    : "";
+                                const displayLabel = buildCitationLabel(citMeta, reference);
                                 return (
                                     <span key={`${reference}-${displayIndex}`} className={styles.citationEntry}>
                                         <a
@@ -305,10 +335,11 @@ export const Answer = ({
                                             title={reference}
                                             onClick={e => {
                                                 e.preventDefault();
-                                                onCitationClicked(path, matchingSupportingContent?.content || undefined);
+                                                onCitationClicked(citationPath || path, matchingSupportingContent?.content || undefined, citMeta);
                                             }}
                                         >
-                                            {`${displayIndex}. ${reference}`}
+                                            <span className={styles.citationIndexBadge}>[{displayIndex}]</span>
+                                            <span className={styles.citationLabel}>{displayLabel}</span>
                                         </a>
                                     </span>
                                 );

@@ -1,6 +1,6 @@
 # Instructions for Coding Agents
 
-This file contains instructions for developers working on the Azure Search and OpenAI demo application. It covers the overall code layout, how to add new data, how to add new azd environment variables, how to add new developer settings, and how to add tests for new features.
+This file contains instructions for developers working on the Azure Search and OpenAI demo application. It covers the overall code layout, how to add new data, how to add new azd environment variables, how to add new developer settings, how to add tests for new features, and how to run computer use testing with GPT-5.4.
 
 Always keep this file up to date with any changes to the codebase or development process.
 If necessary, edit this file to ensure it accurately reflects the current state of the project.
@@ -204,6 +204,80 @@ We only enforce type hints in the main application code and scripts.
 ## Python code style
 
 Do not use single underscores in front of "private" methods or variables in Python code. We do not follow that convention in this codebase, since this is an application and not a library.
+
+## Computer Use Testing with GPT-5.4
+
+The script `scripts/computer_use_test.py` uses Azure OpenAI GPT-5.4 computer use to drive a Playwright browser against the locally-running app. The model sees screenshots, decides on actions (clicks, typing, scrolling), and the script executes them in a real Chromium window.
+
+### Prerequisites
+
+1. App running locally: `./app/start.sh` (serves at `http://localhost:50505`)
+2. Azure OpenAI deployment of `gpt-5.4` (or `computer-use-preview`). Register at <https://aka.ms/OAI/gpt54access>
+3. Azure CLI logged in: `az login`
+4. Playwright browsers installed: `playwright install chromium`
+
+### Environment variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `COMPUTER_USE_AZURE_OPENAI_ENDPOINT` | *(required)* | Azure OpenAI resource endpoint, e.g. `https://myresource.openai.azure.com` |
+| `COMPUTER_USE_MODEL` | `gpt-5.4` | Deployment name |
+| `COMPUTER_USE_TARGET_URL` | `http://localhost:50505` | URL the browser navigates to |
+| `COMPUTER_USE_MAX_ITERATIONS` | `10` | Hard cap on action-screenshot loops |
+| `COMPUTER_USE_DISPLAY_WIDTH` | `1440` | Browser viewport width |
+| `COMPUTER_USE_DISPLAY_HEIGHT` | `900` | Browser viewport height |
+
+### Running
+
+```shell
+source .venv/bin/activate
+
+# Interactive mode (type tasks at the prompt):
+python scripts/computer_use_test.py
+
+# Single-task mode:
+python scripts/computer_use_test.py --task "Ask 'What is the dental plan?' and report the answer"
+
+# Headless mode (no visible browser window):
+python scripts/computer_use_test.py --headless --task "Search for eye exam coverage"
+
+# Detailed citation regression suite:
+python scripts/computer_use_test.py --suite detailed-citations
+```
+
+### Detailed citation suite
+
+The built-in `detailed-citations` suite runs multiple source-filtered scenarios across:
+
+* All Sources
+* Civil Procedure Rules and Practice Directions
+* Commercial Court Guide
+* Chancery Guide
+* King's Bench Division Guide
+* Technology and Construction Court Guide
+* Patents Court Guide
+
+Each scenario asks a grounded legal question, checks in-text and bottom citation rendering, clicks citations to verify the supporting-content panel, and records issues in the saved JSON log.
+
+The scenario catalog is grounded in the v3 index patterns already used by the repo's citation tests, including:
+
+* CPR parts such as Part 1, Part 3, Part 24 and Part 52
+* Practice Directions such as PD44 and PD19A
+* Pre-Action Protocol sources that may collapse to short labels like `Pre`
+* Court Guide citations with hierarchical sourcepages, annexes, and PDF-style sourcefile names
+
+### Example tasks
+
+These are good first tasks to verify the harness works:
+
+* `"Ask 'What is the dental plan?' and report the answer"`
+* `"Open the first citation and describe what you see"`
+* `"Open Developer Settings and change the retrieval mode to Vectors"`
+* `"Search for annual eye exam coverage and list the sources"`
+
+### Session logs
+
+Each run writes a JSON log to `scripts/computer_use_logs/` containing all screenshots (base64), model responses, and actions. The directory has a `.gitignore` to exclude generated logs.
 
 ## Deploying the application
 

@@ -331,7 +331,8 @@ def compute_content_hash(doc: dict) -> str:
 def filter_changed_documents(client, documents: list) -> tuple[list, int, int, int]:
     """
     Filter out documents that haven't changed in the index.
-    Uses filterable 'id' field for efficient lookups.
+    Uses get_document() (key lookup) instead of filter queries, which works
+    regardless of whether the 'id' field is marked as filterable.
     Returns (docs_to_upload, unchanged_count, new_count, changed_count)
     """
     if not documents:
@@ -343,58 +344,37 @@ def filter_changed_documents(client, documents: list) -> tuple[list, int, int, i
     new_count = 0
     changed_count = 0
     
-    # Process in chunks to avoid huge filter strings (Azure Search has filter length limits)
-    chunk_size = 50
+    select_fields = ["id", "content", "sourcefile", "sourcepage", "category", "storageUrl", "updated"]
     
-    for i in range(0, len(documents), chunk_size):
-        chunk = documents[i:i+chunk_size]
-        chunk_map = {doc["id"]: doc for doc in chunk}
-        chunk_ids = list(chunk_map.keys())
-        
-        # Build filter query
-        filter_expr = " or ".join([f"id eq '{doc_id}'" for doc_id in chunk_ids])
-        
-        found_ids = set()
-        
+    for doc in documents:
+        doc_id = doc["id"]
         try:
-            # Fetch all fields needed for content hash comparison
-            # (excluding embedding, oids, groups, parent_id which aren't part of content identity)
-            results = client.search(
-                search_text="*",
-                filter=filter_expr,
-                select=["id", "content", "sourcefile", "sourcepage", "category", "storageUrl", "updated"],
-                top=chunk_size
+            existing = client.get_document(
+                key=doc_id,
+                selected_fields=select_fields
             )
+            # Document exists — check if content changed
+            remote_hash = compute_content_hash(existing)
+            local_hash = compute_content_hash(doc)
             
-            for res in results:
-                rid = res["id"]
-                found_ids.add(rid)
-                
-                # Check if changed
-                local_doc = chunk_map.get(rid)
-                if local_doc:
-                    remote_hash = compute_content_hash(res)
-                    local_hash = compute_content_hash(local_doc)
-                    
-                    if remote_hash != local_hash:
-                        docs_to_upload.append(local_doc)
-                        changed_count += 1
-                        logger.info(f"📝 content changed: {rid}")
-                    else:
-                        unchanged_count += 1
-                        # logger.info(f"⏭️  Unchanged: {rid}")
-        
+            if remote_hash != local_hash:
+                docs_to_upload.append(doc)
+                changed_count += 1
+                logger.info(f"📝 content changed: {doc_id}")
+            else:
+                unchanged_count += 1
         except Exception as e:
-            logger.warning(f"Error checking existing docs, defaulting to upload all: {e}")
-            docs_to_upload.extend(chunk)
-            continue
-            
-        # Add new docs (ids asked for but not returned by search)
-        for doc_id in chunk_ids:
-            if doc_id not in found_ids:
-                docs_to_upload.append(chunk_map[doc_id])
+            error_str = str(e)
+            if "ResourceNotFoundError" in type(e).__name__ or "404" in error_str:
+                # Document doesn't exist in index — it's new
+                docs_to_upload.append(doc)
                 new_count += 1
                 logger.info(f"✨ New document: {doc_id}")
+            else:
+                # Unexpected error — include document to be safe
+                logger.warning(f"Error checking doc {doc_id}, will re-upload: {e}")
+                docs_to_upload.append(doc)
+                new_count += 1
 
     return docs_to_upload, unchanged_count, new_count, changed_count
 

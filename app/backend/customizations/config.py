@@ -24,6 +24,12 @@ CUSTOM_FEATURES = {
 
     # Fallback to direct search using agentic query plan when references are missing
     "agentic_fallback_search": True,
+
+    # Retry retrieval when initial results do not match the user's apparent section intent
+    "adaptive_search_retry": True,
+
+    # Allow agentic retrieval to fall back to direct search when references are weak, not just empty
+    "agentic_retry_on_weak_matches": True,
 }
 
 # Security Configuration

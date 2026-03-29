@@ -1,5 +1,8 @@
 {
     "context": {
+        "citation_map": {
+            "1": "Benefit_Options-2.pdf, Benefit_Options.pdf"
+        },
         "data_points": {
             "citations": [
                 "Benefit_Options-2.pdf, Benefit_Options.pdf"
@@ -21,13 +24,20 @@
                 }
             ]
         },
+        "enhanced_citations": [
+            "Benefit_Options-2.pdf, Benefit_Options.pdf"
+        ],
         "followup_questions": null,
         "thoughts": [
             {
                 "description": [
                     {
-                        "content": "Below is a history of the conversation so far, and a new question asked by the user that needs to be answered by searching in a knowledge base.\nYou have access to Azure AI Search index with 100's of documents.\nGenerate a search query based on the conversation and the new question.\nDo not include cited source filenames and document names e.g. info.txt or doc.pdf in the search query terms.\nDo not include any text inside [] or <<>> in the search query terms.\nDo not include any special characters like '+'.\nIf the question is not in English, translate the question to English before generating the search query.\nIf you cannot generate a search query, return just the number 0.\n\nGenerate search query for: How did crypto do last year?\n\nSearch query: Summarize Cryptocurrency Market Dynamics from last year\n\nGenerate search query for: What are my health plans?\n\nSearch query: Show available health plans\n\n\nGenerate search query for: What is the capital of France?",
+                        "content": "Below is a history of the conversation so far, and a new question asked by the user that needs to be answered by searching in a knowledge base.\nYou have access to an Azure AI Search index containing English civil court procedure documents: the Civil Procedure Rules (CPR Parts 1-89), Practice Directions, Pre-Action Protocols, and Court Guides (Commercial, Chancery, King's Bench, TCC, Patents, Circuit Commercial).\nGenerate a search query based on the conversation and the new question.\nDo not include cited source filenames and document names e.g. info.txt or doc.pdf in the search query terms.\nDo not include any text inside [] or <<>> in the search query terms.\nDo not include any special characters like '+'.\nIf the question is not in English, translate the question to English before generating the search query.\nIf you cannot generate a search query, return just the number 0.\nUse the search_sources function to return the query.\nSet subsection_hint to an empty string unless the user names a specific rule, paragraph, or subsection.\n\nIMPORTANT - Legal term disambiguation:\nWhen the user uses an abbreviation, acronym, or shorthand, expand it to the precise legal concept and target the correct CPR rule or Practice Direction. Common examples:\n- \"PAD\" or \"pre-action disclosure\" = disclosure before proceedings have started under CPR 31.16 (NOT Pre-Action Protocols, which are a different concept about pre-litigation conduct)\n- \"summary judgment\" or \"SJ\" = application under CPR Part 24 where there is no real prospect of success\n- \"default judgment\" or \"DJ\" = judgment without trial under CPR Part 12\n- \"unless order\" = order with automatic sanction under CPR 3.1\n- \"relief from sanctions\" or \"RFS\" = application under CPR 3.9\n- \"strike out\" = CPR 3.4 power to strike out statements of case\n- \"Norwich Pharmacal\" or \"NPO\" = third party disclosure order, CPR 31.18\n- \"freezing order\" or \"freezing injunction\" = interim remedy under CPR Part 25\n- \"WPS\" or \"without prejudice save as to costs\" = Part 36 offers and related costs provisions\n- \"CMC\" = case management conference under CPR Part 29\n- \"PTR\" = pre-trial review\n- \"ADR\" = alternative dispute resolution\nBe careful not to confuse similarly named concepts. For example, \"pre-action disclosure\" (a court application to get documents before issuing proceedings, CPR 31.16) is entirely different from \"Pre-Action Protocols\" (codes of conduct about steps before litigation).\n\nGenerate search query for: How did crypto do last year?\n\nSearch query: Summarize Cryptocurrency Market Dynamics from last year\n\nGenerate search query for: What are my health plans?\n\nSearch query: Show available health plans\n\nGenerate search query for: What is PAD?\n\nSearch query: CPR 31.16 pre-action disclosure application before proceedings have started\n\nGenerate search query for: Tell me about pre-action disclosure\n\nSearch query: CPR 31.16 disclosure before proceedings have started application for pre-action disclosure\n\nGenerate search query for: What are the rules on summary judgment?\n\nSearch query: CPR Part 24 summary judgment no real prospect of succeeding compelling reason for trial\n\nGenerate search query for: How do I get relief from sanctions?\n\nSearch query: CPR 3.9 relief from sanctions application unless order",
                         "role": "system"
+                    },
+                    {
+                        "content": "Generate search query for: What is the capital of France?",
+                        "role": "user"
                     }
                 ],
                 "props": {
@@ -84,9 +94,19 @@
                 "title": "Search results"
             },
             {
+                "description": {
+                    "original_query": "What is the capital of France?",
+                    "rewritten_query": "capital of France",
+                    "targeted_reference_queries": [],
+                    "used": true
+                },
+                "props": null,
+                "title": "Adaptive search retry"
+            },
+            {
                 "description": [
                     {
-                        "content": "Assistant helps the company employees with their questions about internal documents. Be brief in your answers.\nAnswer ONLY with the facts listed in the list of sources below. If there isn't enough information below, say you don't know. Do not generate answers that don't use the sources below.\nIf asking a clarifying question to the user would help, ask the question.\nIf the question is not in English, answer in the language used in the question.\nEach source is numbered (e.g., [1], [2], [3]) followed by colon and the actual information. Always include the source number for each fact you use in the response. Use square brackets to reference the source, for example [1]. Don't combine sources, list each source separately, for example [1][2].\n\nPossible citations for current question:  [1]",
+                        "content": "Assistant helps the company employees with their questions about internal documents. Be brief in your answers.\nAnswer ONLY with the facts listed in the list of sources below. Do not generate answers that don't use the sources below.\nCRITICAL - Source relevance check: Before citing any source, verify it is genuinely about the topic the user is asking about \u2014 not merely a document that mentions the term in passing. For example, if asked about \"pre-action disclosure\" (a court application under CPR 31.16 for disclosure before proceedings start), do NOT cite Pre-Action Protocol documents that only mention \"pre-action disclosure\" incidentally as one of many remedies. A source that briefly references a concept is not a source that explains that concept. Only cite sources where the topic is substantively addressed.\nIf after filtering out irrelevant sources there is not enough information to fully answer the question, clearly state that the specific information requested could not be found in the available sources. Then present whatever related information IS available from the relevant sources, and explain what is missing. For example: \"The sources available do not directly address [specific topic]. However, the following related information was found: ...\"\nIf asking a clarifying question to the user would help, ask the question.\nIf the question is not in English, answer in the language used in the question.\nEach source is numbered (e.g., [1], [2], [3]) followed by colon and the actual information. Always include the source number for each fact you use in the response. Use square brackets to reference the source, for example [1]. Don't combine sources, list each source separately, for example [1][2].\n\nPossible citations for current question:  [1]",
                         "role": "system"
                     },
                     {

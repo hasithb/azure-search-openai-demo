@@ -251,9 +251,14 @@ export function extractSubsectionContent(fullContent: string, targetSubsection: 
     let bestBoundaryIndex = Infinity;
     let bestMatch: RegExpMatchArray | null = null;
     let boundaryPatternUsed = -1;
+    const sameSubsectionPattern = new RegExp(`\\b${escapedSubsection}\\b`, "i");
 
     for (let i = 0; i < nextSubsectionPatterns.length; i++) {
         const m = remainingContent.match(nextSubsectionPatterns[i]);
+        const boundaryText = (m?.[1] ?? m?.[0] ?? "").trim();
+        if (m && boundaryText && sameSubsectionPattern.test(boundaryText)) {
+            continue;
+        }
         if (m && m.index !== undefined && m.index < bestBoundaryIndex) {
             bestBoundaryIndex = m.index;
             bestMatch = m;

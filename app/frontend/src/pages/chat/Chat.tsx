@@ -39,6 +39,9 @@ import { useCategories } from "../../customizations/useCategories";
 import { LegalFeedback } from "../../customizations/LegalFeedback";
 import { ChatInputControls, MobileDropdownPanel } from "../../customizations/ChatInputControls";
 import { isFeatureEnabled, isAdminMode } from "../../customizations/config";
+// CUSTOM: Import structured citation metadata type
+import type { StructuredCitationMetadata } from "../../customizations";
+import { buildCitationLabel } from "../../customizations";
 import { useIsMobile } from "../../customizations/useMobile";
 import { isIframeBlocked } from "../../customizations/externalSourceHandler";
 import { HelpAboutPanel } from "../../customizations/HelpAboutPanel";
@@ -95,6 +98,8 @@ const Chat = () => {
     // CUSTOM: Extra citation state for subsection highlighting in Supporting Content
     const [activeCitationContent, setActiveCitationContent] = useState<string>("");
     const [activeCitationLabel, setActiveCitationLabel] = useState<string>("");
+    // CUSTOM: Structured metadata for precise SupportingContent matching
+    const [activeCitationMetadata, setActiveCitationMetadata] = useState<StructuredCitationMetadata | undefined>();
     const [activeAnalysisPanelTab, setActiveAnalysisPanelTab] = useState<AnalysisPanelTabs | undefined>(undefined);
     const [enableCitationTab, setEnableCitationTab] = useState(false);
 
@@ -539,7 +544,7 @@ const Chat = () => {
     };
 
     // CUSTOM: Citation handler — opens Supporting Content tab and highlights matching subsection
-    const onShowCitation = (citation: string, index: number, citationContent?: string) => {
+    const onShowCitation = (citation: string, index: number, citationContent?: string, metadata?: StructuredCitationMetadata) => {
         // CUSTOM: If citation is blocked from iframe embedding, open in new tab
         if (isIframeBlocked(citation)) {
             window.open(citation, "_blank", "noopener,noreferrer");
@@ -552,10 +557,13 @@ const Chat = () => {
             setActiveCitation(citation);
             setActiveCitationContent(citationContent || "");
             setEnableCitationTab(false);
+            // CUSTOM: Store structured metadata for precise SupportingContent matching
+            setActiveCitationMetadata(metadata);
+            const metadataLabel = buildCitationLabel(metadata, "");
             // CUSTOM: Decode the /content/<encoded> path back to the raw citation reference
             // for SupportingContent matching. getCitationFilePath encodes as /content/<encodeURIComponent(ref)>.
             const rawReference = citation.startsWith("/content/") ? decodeURIComponent(citation.substring("/content/".length)) : citation;
-            setActiveCitationLabel(rawReference);
+            setActiveCitationLabel(metadataLabel || rawReference);
             setActiveAnalysisPanelTab(AnalysisPanelTabs.SupportingContentTab);
         }
 
@@ -649,7 +657,7 @@ const Chat = () => {
                                                 index={index}
                                                 speechConfig={speechConfig}
                                                 isSelected={false}
-                                                onCitationClicked={(c, content) => onShowCitation(c, index, content)}
+                                                onCitationClicked={(c, content, meta) => onShowCitation(c, index, content, meta)}
                                                 onThoughtProcessClicked={() => onToggleTab(AnalysisPanelTabs.ThoughtProcessTab, index)}
                                                 onSupportingContentClicked={() => onToggleTab(AnalysisPanelTabs.SupportingContentTab, index)}
                                                 onFollowupQuestionClicked={q => makeApiRequest(q)}
@@ -672,7 +680,7 @@ const Chat = () => {
                                                 index={index}
                                                 speechConfig={speechConfig}
                                                 isSelected={selectedAnswer === index && activeAnalysisPanelTab !== undefined}
-                                                onCitationClicked={(c, content) => onShowCitation(c, index, content)}
+                                                onCitationClicked={(c, content, meta) => onShowCitation(c, index, content, meta)}
                                                 onThoughtProcessClicked={() => onToggleTab(AnalysisPanelTabs.ThoughtProcessTab, index)}
                                                 onSupportingContentClicked={() => onToggleTab(AnalysisPanelTabs.SupportingContentTab, index)}
                                                 onFollowupQuestionClicked={q => makeApiRequest(q)}
@@ -823,6 +831,7 @@ const Chat = () => {
                                 enableCitationTab={enableCitationTab}
                                 activeCitationLabel={activeCitationLabel}
                                 activeCitationContent={activeCitationContent}
+                                activeCitationMetadata={activeCitationMetadata}
                             />
                         </div>
                     </>
@@ -842,6 +851,7 @@ const Chat = () => {
                         enableCitationTab={enableCitationTab}
                         activeCitationLabel={activeCitationLabel}
                         activeCitationContent={activeCitationContent}
+                        activeCitationMetadata={activeCitationMetadata}
                     />
                 )}
 

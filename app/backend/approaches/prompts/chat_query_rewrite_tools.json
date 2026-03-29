@@ -2,20 +2,20 @@
     "type": "function",
     "function": {
         "name": "search_sources",
-        "description": "Retrieve sources from the Azure AI Search index",
+        "description": "Retrieve sources from the Azure AI Search index containing CPR Parts, Practice Directions, Pre-Action Protocols, and Court Guides. Always expand abbreviations and acronyms to their full legal meaning with the relevant CPR rule number. For example, use 'CPR 31.16 disclosure before proceedings' instead of 'PAD', and 'CPR Part 24 summary judgment' instead of 'SJ'.",
         "parameters": {
             "type": "object",
             "properties": {
                 "search_query": {
                     "type": "string",
-                    "description": "Query string to retrieve documents from azure search eg: 'Part 1, Overriding Objective'"
+                    "description": "Query string to retrieve documents from azure search. Include the specific CPR rule or Part number when known, eg: 'CPR 31.16 pre-action disclosure before proceedings', 'CPR Part 24 summary judgment no real prospect', 'CPR 3.9 relief from sanctions', 'Part 52 appeals time limit'"
                 },
                 "subsection_hint": {
                     "type": "string",
-                    "description": "Specific subsection identifier for precise citation (e.g., '1.1' for rule 1.1, 'A4.1' for court guide section A4.1, 'Para 1.1' for practice direction paragraph 1.1)"
+                    "description": "Specific subsection identifier for precise citation when available (e.g., '1.1' for rule 1.1, 'A4.1' for court guide section A4.1, 'Para 1.1' for practice direction paragraph 1.1). Use an empty string when no precise subsection is named."
                 }
             },
-            "required": ["search_query", "subsection_hint"]
+            "required": ["search_query"]
         }
     }
 }]

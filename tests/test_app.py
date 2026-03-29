@@ -511,7 +511,7 @@ async def test_chat_prompt_template(client, snapshot):
     )
     assert response.status_code == 200
     result = await response.get_json()
-    assert result["context"]["thoughts"][3]["description"][0]["content"].startswith("You are a cat.")
+    assert result["context"]["thoughts"][4]["description"][0]["content"].startswith("You are a cat.")
     snapshot.assert_match(json.dumps(result, indent=4), "result.json")
 
 
@@ -689,9 +689,9 @@ async def test_chat_text_reasoning(reasoning_client, snapshot):
     result = await response.get_json()
     assert result["context"]["thoughts"][0]["props"]["token_usage"] is not None
     assert result["context"]["thoughts"][0]["props"]["reasoning_effort"] is not None
-    assert result["context"]["thoughts"][3]["props"]["token_usage"] is not None
-    assert result["context"]["thoughts"][3]["props"]["token_usage"]["reasoning_tokens"] > 0
-    assert result["context"]["thoughts"][3]["props"]["reasoning_effort"] == os.getenv("AZURE_OPENAI_REASONING_EFFORT")
+    assert result["context"]["thoughts"][4]["props"]["token_usage"] is not None
+    assert result["context"]["thoughts"][4]["props"]["token_usage"]["reasoning_tokens"] > 0
+    assert result["context"]["thoughts"][4]["props"]["reasoning_effort"] == os.getenv("AZURE_OPENAI_REASONING_EFFORT")
 
     snapshot.assert_match(json.dumps(result, indent=4), "result.json")
 
@@ -754,7 +754,7 @@ async def test_chat_with_history(client, snapshot):
     )
     assert response.status_code == 200
     result = await response.get_json()
-    assert messages_contains_text(result["context"]["thoughts"][3]["description"], "performance review")
+    assert messages_contains_text(result["context"]["thoughts"][4]["description"], "performance review")
     snapshot.assert_match(json.dumps(result, indent=4), "result.json")
 
 

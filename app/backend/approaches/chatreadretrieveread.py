@@ -21,6 +21,7 @@ from approaches.approach import (
     ThoughtStep,
 )
 from approaches.promptmanager import PromptManager
+from customizations import is_feature_enabled
 from prepdocslib.blobmanager import AdlsBlobManager, BlobManager
 from prepdocslib.embeddings import ImageEmbeddings
 
@@ -129,6 +130,29 @@ class ChatReadRetrieveReadApproach(Approach):
         except Exception:
             return default_query
 
+    @staticmethod
+    def build_legacy_citation_context(data_points: Any) -> tuple[list[str], dict[str, str]]:
+        """Derive legacy citation fields from structured data_points.
+
+        The frontend now prefers `context.data_points`, but older clients and tests still
+        read `context.enhanced_citations` and `context.citation_map`. Keep those fields
+        populated from the same underlying text sources for backward compatibility.
+        """
+        text_sources = getattr(data_points, "text", None) or []
+        enhanced_citations: list[str] = []
+        citation_map: dict[str, str] = {}
+
+        for index, source in enumerate(text_sources, 1):
+            if not isinstance(source, dict):
+                continue
+            citation = source.get("citation")
+            if not citation or not isinstance(citation, str):
+                continue
+            enhanced_citations.append(citation)
+            citation_map[str(index)] = citation
+
+        return enhanced_citations, citation_map
+
     async def run_without_streaming(
         self,
         messages: list[ChatCompletionMessageParam],
@@ -149,15 +173,18 @@ class ChatReadRetrieveReadApproach(Approach):
         # TODO: Update for agentic? This isn't still true?
         if self.include_token_usage and extra_info.thoughts and chat_completion_response.usage:
             extra_info.thoughts[-1].update_token_usage(chat_completion_response.usage)
+        context = {
+            "thoughts": extra_info.thoughts,
+            "data_points": {key: value for key, value in asdict(extra_info.data_points).items() if value is not None},
+            "followup_questions": extra_info.followup_questions,
+        }
+        if extra_info.enhanced_citations:
+            context["enhanced_citations"] = extra_info.enhanced_citations
+        if extra_info.citation_map:
+            context["citation_map"] = extra_info.citation_map
         chat_app_response = {
             "message": {"content": content, "role": role},
-            "context": {
-                "thoughts": extra_info.thoughts,
-                "data_points": {
-                    key: value for key, value in asdict(extra_info.data_points).items() if value is not None
-                },
-                "followup_questions": extra_info.followup_questions,
-            },
+            "context": context,
             "session_state": session_state,
         }
         return chat_app_response
@@ -401,7 +428,11 @@ class ChatReadRetrieveReadApproach(Approach):
             no_response_token=self.NO_RESPONSE,
         )
 
-        query_text = rewrite_result.query
+        query_text = self._merge_rewritten_query_with_explicit_references(
+            rewrite_result.query,
+            original_user_query,
+            rewrite_result.subsection_hint,
+        )
 
         # STEP 2: Retrieve relevant documents from the search index with the GPT optimized query
 
@@ -425,7 +456,103 @@ class ChatReadRetrieveReadApproach(Approach):
             minimum_reranker_score,
             use_query_rewriting,
             access_token,
+            semantic_query_text=original_user_query,
         )
+
+        adaptive_retry_used = False
+        supplemental_reference_queries: list[str] = []
+        if (
+            is_feature_enabled("adaptive_search_retry")
+            and self._should_retry_for_query_intent(results, original_user_query)
+            and self._normalize_intent_text(query_text) != self._normalize_intent_text(original_user_query)
+        ):
+            retry_vectors: list[VectorQuery] = []
+            if use_vector_search:
+                if search_text_embeddings:
+                    retry_vectors.append(await self.compute_text_embedding(original_user_query))
+                if search_image_embeddings:
+                    retry_vectors.append(await self.compute_multimodal_embedding(original_user_query))
+
+            retry_results = await self.search(
+                top,
+                original_user_query,
+                search_index_filter,
+                retry_vectors,
+                use_text_search,
+                use_vector_search,
+                use_semantic_ranker,
+                use_semantic_captions,
+                minimum_search_score,
+                minimum_reranker_score,
+                False,
+                access_token,
+                semantic_query_text=original_user_query,
+            )
+            results = self._merge_documents_by_query_intent(original_user_query, results + retry_results, limit=top)
+            adaptive_retry_used = True
+
+        explicit_references = self._extract_explicit_legal_references(original_user_query)
+        covered_reference_terms = self._covered_query_reference_terms(results, original_user_query)
+        missing_reference_queries = [
+            reference
+            for reference in explicit_references
+            if self._normalize_intent_text(reference) not in covered_reference_terms
+        ]
+
+        for reference_query in missing_reference_queries:
+            for targeted_reference_query in self._expand_explicit_legal_reference_queries(reference_query):
+                reference_results = await self.search(
+                    min(top, 3),
+                    targeted_reference_query,
+                    search_index_filter,
+                    [],
+                    True,
+                    False,
+                    False,
+                    False,
+                    minimum_search_score,
+                    minimum_reranker_score,
+                    False,
+                    access_token,
+                    semantic_query_text=targeted_reference_query,
+                )
+                if reference_results:
+                    supplemental_reference_queries.append(targeted_reference_query)
+                    results = self._merge_documents_by_query_intent(
+                        original_user_query,
+                        results + reference_results,
+                        limit=top,
+                    )
+                    adaptive_retry_used = True
+                    break
+
+        for concept_query, required_source_reference in self._extract_canonical_legal_concept_queries(original_user_query):
+            if self._results_include_reference_in_source(results, required_source_reference):
+                continue
+
+            concept_results = await self.search(
+                min(top, 3),
+                concept_query,
+                search_index_filter,
+                [],
+                True,
+                False,
+                False,
+                False,
+                minimum_search_score,
+                minimum_reranker_score,
+                False,
+                access_token,
+                semantic_query_text=concept_query,
+            )
+            if concept_results:
+                supplemental_reference_queries.append(concept_query)
+                results = self._merge_documents_by_query_intent(
+                    original_user_query,
+                    results + concept_results,
+                    limit=top,
+                )
+                adaptive_retry_used = True
 
         # STEP 3: Generate a contextual and content specific answer using the search results and chat history
         data_points = await self.get_sources_content(
@@ -435,6 +562,7 @@ class ChatReadRetrieveReadApproach(Approach):
             download_image_sources=send_image_sources,
             user_oid=auth_claims.get("oid"),
         )
+        enhanced_citations, citation_map = self.build_legacy_citation_context(data_points)
         extra_info = ExtraInfo(
             data_points,
             thoughts=[
@@ -466,7 +594,18 @@ class ChatReadRetrieveReadApproach(Approach):
                     "Search results",
                     [result.serialize_for_results() for result in results],
                 ),
+                ThoughtStep(
+                    "Adaptive search retry",
+                    {
+                        "used": adaptive_retry_used,
+                        "original_query": original_user_query,
+                        "rewritten_query": query_text,
+                        "targeted_reference_queries": supplemental_reference_queries,
+                    },
+                ),
             ],
+            enhanced_citations=enhanced_citations,
+            citation_map=citation_map,
         )
         return extra_info
 
@@ -521,11 +660,14 @@ class ChatReadRetrieveReadApproach(Approach):
             web_results=agentic_results.web_results,
             sharepoint_results=agentic_results.sharepoint_results,
         )
+        enhanced_citations, citation_map = self.build_legacy_citation_context(data_points)
 
         return ExtraInfo(
             data_points,
             thoughts=agentic_results.thoughts,
             answer=agentic_results.answer,
+            enhanced_citations=enhanced_citations,
+            citation_map=citation_map,
         )
 
     def _select_knowledgebase_client(
