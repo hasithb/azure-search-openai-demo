@@ -132,6 +132,9 @@ param speechServiceVoice string = ''
 param useMultimodal bool = false
 param useEval bool = false
 param useCloudIngestion bool = false
+
+@description('Restore soft-deleted Cognitive Services accounts instead of creating new ones. Set to true after running azd down.')
+param restoreCognitiveServices bool = false
 param useCloudIngestionAcls bool = false
 @description('Use an existing ADLS Gen2 storage account instead of provisioning a new one')
 param useExistingAdlsStorage bool = false
@@ -803,6 +806,7 @@ module openAi 'br/public:avm/res/cognitive-services/account:0.7.2' = if (isAzure
     sku: openAiSkuName
     deployments: openAiDeployments
     disableLocalAuth: azureOpenAiDisableKeys
+    restore: restoreCognitiveServices
   }
 }
 
@@ -827,6 +831,7 @@ module documentIntelligence 'br/public:avm/res/cognitive-services/account:0.7.2'
     disableLocalAuth: true
     tags: tags
     sku: documentIntelligenceSkuName
+    restore: restoreCognitiveServices
   }
 }
 
@@ -847,6 +852,7 @@ module vision 'br/public:avm/res/cognitive-services/account:0.7.2' = if (useMult
     location: visionResourceGroupLocation
     tags: tags
     sku: 'S0'
+    restore: restoreCognitiveServices
   }
 }
 
@@ -869,6 +875,7 @@ module contentUnderstanding 'br/public:avm/res/cognitive-services/account:0.7.2'
     location: 'westus'
     tags: tags
     sku: 'S0'
+    restore: restoreCognitiveServices
   }
 }
 
@@ -887,6 +894,7 @@ module speech 'br/public:avm/res/cognitive-services/account:0.7.2' = if (useSpee
     location: !empty(speechServiceLocation) ? speechServiceLocation : location
     tags: tags
     sku: speechServiceSkuName
+    restore: restoreCognitiveServices
   }
 }
 module searchService 'core/search/search-services.bicep' = {
@@ -1014,6 +1022,14 @@ module adlsStorage 'core/storage/storage-account.bicep' = if (useCloudIngestionA
   }
 }
 
+// WARNING: Cosmos DB partition keys are immutable. If you originally deployed with the v1 container
+// (chat-history with a single /userId partition key), re-deploying with the v2 container schema
+// (chat-history-v2 with MultiHash /entra_oid + /session_id) will fail with:
+//   "Document collection partition key cannot be changed."
+// To migrate from v1 to v2, you must either:
+//   1. Delete the old container manually (Azure Portal > Cosmos DB > Data Explorer) and re-deploy, OR
+//   2. Override chatHistoryContainerName with a new name (e.g. 'chat-history-v3') via azd env set.
+// This is an ARM/Cosmos DB platform limitation — Bicep cannot conditionally skip container updates.
 module cosmosDb 'br/public:avm/res/document-db/database-account:0.6.1' = if (useAuthentication && useChatHistoryCosmos) {
   name: 'cosmosdb'
   scope: cosmosDbResourceGroup
