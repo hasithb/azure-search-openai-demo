@@ -205,10 +205,11 @@ export function extractSubsectionContent(fullContent: string, targetSubsection: 
         return null;
     }
 
-    // Anchor the start at the actual subsection token, not at the preceding newline/whitespace
+    // Anchor the start at the actual subsection token so only the cited subsection is highlighted.
     const tokenRegex = new RegExp(`\\b${escapedSubsection}\\b`, "i");
     const localStartOffset = targetMatch[0].search(tokenRegex);
-    const startIndex = (targetMatch.index ?? 0) + (localStartOffset >= 0 ? localStartOffset : targetMatch[1] ? targetMatch[1].length : 0);
+    const subsectionStartIndex = (targetMatch.index ?? 0) + (localStartOffset >= 0 ? localStartOffset : targetMatch[1] ? targetMatch[1].length : 0);
+    const startIndex = subsectionStartIndex;
 
     // Enhanced patterns for finding the next subsection/title/divider boundary
     // Includes markdown headings (## subsection) and breadcrumbs ([PART X > subsection])
@@ -246,12 +247,18 @@ export function extractSubsectionContent(fullContent: string, targetSubsection: 
         /\n\s*\n\s*((?:[A-Z]\.?\d+(?:\.\d+)*)|(?:\d+\.\d+(?:\.\d+)?)|(?:Rule\s+\d+)|(?:Para\s+\d+))/i
     ];
 
-    // Search for the earliest boundary across all patterns (not the first that happens to match)
-    const remainingContent = fullContent.substring(startIndex + targetSubsection.length);
+    // Search for the earliest boundary across all patterns (not the first that happens to match).
+    // Use the subsection token as the anchor so including a preceding heading in the highlight
+    // does not cause the boundary scan to re-read earlier title text.
+    const boundarySearchStart = subsectionStartIndex + targetSubsection.length;
+    const remainingContent = fullContent.substring(boundarySearchStart);
     let bestBoundaryIndex = Infinity;
     let bestMatch: RegExpMatchArray | null = null;
     let boundaryPatternUsed = -1;
     const sameSubsectionPattern = new RegExp(`\\b${escapedSubsection}\\b`, "i");
+
+    const genericTitleBoundary =
+        /\n\s*(#{1,6}\s+[^\n#][^\n]*)\s*\n\s*\n\s*#{1,6}\s*(?:\d+\.\d+(?:\.\d+)?|[A-Z]\.\d+(?:\.\d+)?|[A-Z]\d+(?:\.\d+)?|Rule\s+\d+(?:\.\d+)?|Para\s+\d+(?:\.\d+)?)/i;
 
     for (let i = 0; i < nextSubsectionPatterns.length; i++) {
         const m = remainingContent.match(nextSubsectionPatterns[i]);
@@ -266,10 +273,17 @@ export function extractSubsectionContent(fullContent: string, targetSubsection: 
         }
     }
 
+    const titleBoundaryMatch = remainingContent.match(genericTitleBoundary);
+    if (titleBoundaryMatch && titleBoundaryMatch.index !== undefined && titleBoundaryMatch.index < bestBoundaryIndex) {
+        bestBoundaryIndex = titleBoundaryMatch.index;
+        bestMatch = titleBoundaryMatch;
+        boundaryPatternUsed = nextSubsectionPatterns.length;
+    }
+
     let endIndex: number;
     if (bestMatch) {
         // End at the earliest boundary (e.g., just before '---' or the next title/subsection)
-        endIndex = startIndex + targetSubsection.length + bestBoundaryIndex;
+        endIndex = boundarySearchStart + bestBoundaryIndex;
     } else {
         endIndex = fullContent.length;
     }

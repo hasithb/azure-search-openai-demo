@@ -477,6 +477,27 @@ class Approach(ABC):
 
         return covered_terms
 
+    def _covered_query_intent_terms(self, documents: list[Document], query: str) -> set[str]:
+        intent_terms = self._extract_query_intent_terms(query)
+        if not intent_terms:
+            return set()
+
+        covered_terms: set[str] = set()
+        for doc in documents[:5]:
+            source_haystack = self._normalize_intent_text(
+                " ".join(part for part in [doc.subsection_id, doc.sourcepage, doc.sourcefile, doc.category] if part)
+            )
+            content_haystack = self._normalize_intent_text((doc.content or "")[:1000])
+            haystack = " ".join(part for part in [source_haystack, content_haystack] if part)
+            if not haystack:
+                continue
+
+            for intent_term in intent_terms:
+                if self._term_matches_haystack(haystack, intent_term):
+                    covered_terms.add(intent_term)
+
+        return covered_terms
+
     def _results_include_reference_in_source(self, documents: list[Document], reference: str) -> bool:
         normalized_reference = self._normalize_intent_text(reference)
         if not normalized_reference:
@@ -587,38 +608,93 @@ class Approach(ABC):
         filtered = [token for token in tokens if token not in stopwords and token not in generic_legal_terms]
         return list(dict.fromkeys(filtered))
 
-    def _score_document_query_intent(self, doc: Document, query: str) -> int:
-        haystack = self._normalize_intent_text(
-            " ".join(
-                part
-                for part in [
-                    doc.subsection_id,
-                    doc.sourcepage,
-                    doc.sourcefile,
-                    doc.category,
-                    (doc.content or "")[:1000],
-                ]
-                if part
-            )
+    def _term_matches_haystack(self, haystack: str, term: str) -> bool:
+        normalized_term = self._normalize_intent_text(term)
+        if not haystack or not normalized_term:
+            return False
+
+        candidates = [normalized_term]
+        for suffix in ("ments", "ment", "ations", "ation", "ings", "ing", "ied", "ies", "ed", "es", "s"):
+            if normalized_term.endswith(suffix) and len(normalized_term) - len(suffix) >= 4:
+                candidates.append(normalized_term[: -len(suffix)])
+
+        return any(candidate and candidate in haystack for candidate in dict.fromkeys(candidates))
+
+    def _extract_query_focus_terms(self, query: str) -> list[str]:
+        normalized_query = self._normalize_intent_text(query)
+        focus_match = re.search(r"\b(?:about|regarding|concerning|on)\s+(.+)$", normalized_query)
+        if not focus_match:
+            return []
+
+        focus_terms = self._extract_query_intent_terms(focus_match.group(1))
+        return focus_terms if len(focus_terms) >= 2 else []
+
+    def _is_tangential_to_query_focus(self, doc: Document, query: str) -> bool:
+        focus_terms = self._extract_query_focus_terms(query)
+        if not focus_terms:
+            return False
+
+        normalized_query = self._normalize_intent_text(query)
+        source_haystack = self._normalize_intent_text(
+            " ".join(part for part in [doc.subsection_id, doc.sourcepage, doc.sourcefile, doc.category] if part)
         )
+        content_haystack = self._normalize_intent_text((doc.content or "")[:1000])
+
+        focus_source_hits = sum(1 for term in focus_terms if self._term_matches_haystack(source_haystack, term))
+        focus_content_hits = sum(1 for term in focus_terms if self._term_matches_haystack(content_haystack, term))
+
+        if "annex" in source_haystack and "annex" not in normalized_query:
+            return True
+
+        return focus_source_hits >= max(2, len(focus_terms) - 1) and focus_content_hits < 2
+
+    def _score_document_query_intent(self, doc: Document, query: str) -> int:
+        source_haystack = self._normalize_intent_text(
+            " ".join(part for part in [doc.subsection_id, doc.sourcepage, doc.sourcefile, doc.category] if part)
+        )
+        content_haystack = self._normalize_intent_text((doc.content or "")[:1000])
+        haystack = " ".join(part for part in [source_haystack, content_haystack] if part)
         if not haystack:
             return 0
 
         score = 0
+        normalized_query = self._normalize_intent_text(query)
         reference_terms = self._extract_query_reference_terms(query)
         for reference_term in reference_terms:
-            if reference_term and reference_term in haystack:
-                score += 5
+            if self._term_matches_haystack(source_haystack, reference_term):
+                score += 6
+            elif self._term_matches_haystack(content_haystack, reference_term):
+                score += 4
 
         intent_terms = self._extract_query_intent_terms(query)
         for intent_term in intent_terms:
-            if intent_term in haystack:
+            if self._term_matches_haystack(content_haystack, intent_term):
+                score += 2
+            elif self._term_matches_haystack(source_haystack, intent_term):
                 score += 1
 
         for first, second in zip(intent_terms, intent_terms[1:]):
             phrase = f"{first} {second}"
-            if phrase in haystack:
-                score += 2
+            if phrase in content_haystack:
+                score += 3
+            elif phrase in source_haystack:
+                score += 1
+
+        focus_terms = self._extract_query_focus_terms(query)
+        if focus_terms:
+            focus_source_hits = sum(1 for term in focus_terms if self._term_matches_haystack(source_haystack, term))
+            focus_content_hits = sum(1 for term in focus_terms if self._term_matches_haystack(content_haystack, term))
+
+            if focus_content_hits >= 2:
+                score += focus_content_hits * 3
+            elif focus_source_hits >= 2:
+                score += focus_source_hits
+
+            if focus_source_hits >= max(2, len(focus_terms) - 1) and focus_content_hits < 2:
+                score -= 6
+
+        if self._is_tangential_to_query_focus(doc, query):
+            score -= 4
 
         return score
 
@@ -636,6 +712,11 @@ class Approach(ABC):
             if len(covered_reference_terms) < len(reference_terms):
                 return True
 
+        if len(intent_terms) >= 4:
+            covered_intent_terms = self._covered_query_intent_terms(documents, query)
+            if len(covered_intent_terms) < 3:
+                return True
+
         scores = [self._score_document_query_intent(doc, query) for doc in documents[:3]]
         if not scores:
             return False
@@ -645,7 +726,6 @@ class Approach(ABC):
 
     def _merge_documents_by_query_intent(self, query: str, documents: list[Document], limit: int) -> list[Document]:
         best_by_id: dict[str, tuple[tuple[float, float, float], Document]] = {}
-        ordered_documents: list[Document] = []
 
         for index, doc in enumerate(documents):
             rank = (
@@ -667,6 +747,22 @@ class Approach(ABC):
             ),
             reverse=True,
         )
+
+        ranked_documents = [(doc, self._score_document_query_intent(doc, query)) for doc in ordered_documents]
+        if ranked_documents:
+            best_score = ranked_documents[0][1]
+            if best_score >= 6:
+                minimum_score = max(2, int(best_score * 0.5))
+                focused_documents = [
+                    doc
+                    for doc, score in ranked_documents
+                    if score >= minimum_score and not self._is_tangential_to_query_focus(doc, query)
+                ]
+                if not focused_documents:
+                    focused_documents = [doc for doc, score in ranked_documents if score >= minimum_score]
+                if focused_documents:
+                    ordered_documents = focused_documents
+
         return ordered_documents[:limit]
 
     async def search(
@@ -914,7 +1010,7 @@ class Approach(ABC):
                 chatgpt_deployment=self.chatgpt_deployment,
                 user_query=original_user_query,
                 response_token_limit=self.get_response_token_limit(
-                    self.chatgpt_model, 100
+                    self.chatgpt_model, 300
                 ),  # Setting too low risks malformed JSON, setting too high may affect performance
                 tools=self.query_rewrite_tools,
                 temperature=0.0,  # Minimize creativity for search query generation
@@ -1142,6 +1238,13 @@ class Approach(ABC):
             and self._should_retry_for_query_intent(document_results, latest_user_query)
         )
 
+        if isinstance(latest_user_query, str) and latest_user_query and document_results:
+            document_results = self._merge_documents_by_query_intent(
+                latest_user_query,
+                document_results,
+                limit=len(document_results),
+            )
+
         # CUSTOM: If references are still missing, or they look off-target, fall back to direct search using agentic query plan
         if (not document_results and is_feature_enabled("agentic_fallback_search")) or weak_document_matches:
             import logging
@@ -1258,6 +1361,28 @@ class Approach(ABC):
                         document_results + docs,
                         limit=fallback_result_limit,
                     )
+
+        # CUSTOM: Agentic retrieval source_data may not include all index fields.
+        # Supplement missing fields (updated, storageUrl, subsection_id) via direct lookup.
+        docs_needing_supplement = [
+            doc for doc in document_results if doc.id and not doc.updated and not doc.storage_url and not doc.subsection_id
+        ]
+        if docs_needing_supplement:
+            supplemental_fields = ["updated", "storageUrl", "subsection_id"]
+            for doc in docs_needing_supplement:
+                try:
+                    index_doc = await self.search_client.get_document(
+                        key=doc.id, selected_fields=supplemental_fields
+                    )
+                    if index_doc:
+                        if not doc.updated and index_doc.get("updated"):
+                            doc.updated = index_doc["updated"]
+                        if not doc.storage_url and index_doc.get("storageUrl"):
+                            doc.storage_url = index_doc["storageUrl"]
+                        if not doc.subsection_id and index_doc.get("subsection_id"):
+                            doc.subsection_id = index_doc["subsection_id"]
+                except Exception:
+                    pass
 
         thoughts.append(
             ThoughtStep(

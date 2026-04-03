@@ -44,15 +44,79 @@ class ChatReadRetrieveReadApproach(Approach):
         so the LLM produces simple [1], [2], [3] citations instead of trying to reproduce
         complex citation strings (which it tends to humanize/simplify, breaking matching).
         The frontend maps these numbers back to the enhanced citation strings via data_points.text.
+
+        CUSTOM: Each source now includes category and sourcepage metadata so the LLM knows
+        which document collection and section each source comes from.
         """
         formatted = []
         for i, source in enumerate(text_sources or [], 1):
             if isinstance(source, dict):
                 content = source.get("content", "")
+                # CUSTOM: Include metadata for better source attribution
+                category = source.get("category", "")
+                sourcepage = source.get("sourcepage", "")
+                meta_parts = []
+                if category:
+                    meta_parts.append(f"Category: {category}")
+                if sourcepage:
+                    meta_parts.append(f"Source: {sourcepage}")
+                if meta_parts:
+                    meta = " | ".join(meta_parts)
+                    formatted.append(f"[{i}] ({meta}): {content}")
+                else:
+                    formatted.append(f"[{i}]: {content}")
             else:
                 content = str(source)
-            formatted.append(f"[{i}]: {content}")
+                formatted.append(f"[{i}]: {content}")
         return formatted
+
+    @staticmethod
+    def question_mentions_specific_court(question: str) -> bool:
+        lower_question = question.lower()
+        court_terms = (
+            "commercial court",
+            "circuit commercial court",
+            "chancery",
+            "chancery division",
+            "king's bench",
+            "kings bench",
+            "king's bench division",
+            "patents court",
+            "technology and construction court",
+            "tcc",
+            "court of appeal",
+            "senior courts costs office",
+        )
+        return any(term in lower_question for term in court_terms)
+
+    @staticmethod
+    def shouldFlagCourtSpecificSourcesOnly(user_query: str, selected_source_filter: str, text_sources: list) -> bool:
+        if selected_source_filter:
+            return False
+        if ChatReadRetrieveReadApproach.question_mentions_specific_court(user_query):
+            return False
+
+        categories = [
+            source.get("category", "")
+            for source in text_sources or []
+            if isinstance(source, dict) and source.get("category")
+        ]
+        if not categories:
+            return False
+
+        has_cpr_or_pd = any(
+            "civil procedure rules" in category.lower() or "practice direction" in category.lower()
+            for category in categories
+        )
+        has_court_guide = any(
+            "court" in category.lower()
+            or "guide" in category.lower()
+            or "chancery" in category.lower()
+            or "king" in category.lower()
+            or "patents" in category.lower()
+            for category in categories
+        )
+        return has_court_guide and not has_cpr_or_pd
 
     def __init__(
         self,
@@ -85,6 +149,7 @@ class ChatReadRetrieveReadApproach(Approach):
         use_web_source: bool = False,
         use_sharepoint_source: bool = False,
         retrieval_reasoning_effort: Optional[str] = None,
+        available_sources: Optional[list[str]] = None,
     ):
         self.search_client = search_client
         self.search_index_name = search_index_name
@@ -117,6 +182,8 @@ class ChatReadRetrieveReadApproach(Approach):
         self.web_source_enabled = use_web_source
         self.use_sharepoint_source = use_sharepoint_source
         self.retrieval_reasoning_effort = retrieval_reasoning_effort
+        # CUSTOM: Dynamic source list from search index for prompt awareness
+        self.available_sources = available_sources or []
 
     def extract_followup_questions(self, content: Optional[str]):
         if content is None:
@@ -341,6 +408,12 @@ class ChatReadRetrieveReadApproach(Approach):
 
             return (extra_info, return_answer())
 
+        # CUSTOM: Map retrieval reasoning effort to user-facing search depth label
+        search_depth_labels = {"minimal": "Quick", "low": "Standard", "medium": "Thorough"}
+        current_search_depth = search_depth_labels.get(
+            overrides.get("retrieval_reasoning_effort", self.retrieval_reasoning_effort or ""), ""
+        )
+
         messages = self.prompt_manager.build_conversation(
             system_template_path="chat_answer.system.jinja2",
             system_template_variables=self.get_system_prompt_variables(overrides.get("prompt_template"))
@@ -350,6 +423,18 @@ class ChatReadRetrieveReadApproach(Approach):
                 # CUSTOM: Pass numbered citations so the LLM uses [1], [2], [3] format
                 # instead of trying to reproduce complex enhanced citation strings
                 "citations": [str(i) for i in range(1, len(extra_info.data_points.text or []) + 1)],
+                # CUSTOM: Pass search depth so the LLM can recommend switching levels
+                "search_depth": current_search_depth,
+                # CUSTOM: Dynamic source list from search index
+                "available_sources": self.available_sources,
+                # CUSTOM: Pass selected source filter so the LLM can apply source hierarchy rules
+                "selected_source_filter": overrides.get("include_category", ""),
+                # CUSTOM: If a general question only retrieved court-guide material, force a mismatch disclaimer
+                "court_specific_sources_only_hint": self.shouldFlagCourtSpecificSourcesOnly(
+                    original_user_query,
+                    overrides.get("include_category", ""),
+                    extra_info.data_points.text or [],
+                ),
             },
             user_template_path="chat_answer.user.jinja2",
             user_template_variables={
@@ -392,7 +477,7 @@ class ChatReadRetrieveReadApproach(Approach):
         use_semantic_ranker = True if overrides.get("semantic_ranker") else False
         use_semantic_captions = True if overrides.get("semantic_captions") else False
         use_query_rewriting = True if overrides.get("query_rewriting") else False
-        top = overrides.get("top", 3)
+        top = overrides.get("top", 7)
         minimum_search_score = overrides.get("minimum_search_score", 0.0)
         minimum_reranker_score = overrides.get("minimum_reranker_score", 0.0)
         search_index_filter = self.build_filter(overrides)
@@ -415,13 +500,15 @@ class ChatReadRetrieveReadApproach(Approach):
             prompt_variables={
                 "user_query": original_user_query,
                 "past_messages": messages[:-1],
+                # CUSTOM: Dynamic source list from search index
+                "available_sources": self.available_sources,
             },
             overrides=overrides,
             chatgpt_model=self.chatgpt_model,
             chatgpt_deployment=self.chatgpt_deployment,
             user_query=original_user_query,
             response_token_limit=self.get_response_token_limit(
-                self.chatgpt_model, 100
+                self.chatgpt_model, 300
             ),  # Setting too low risks malformed JSON, setting too high may affect performance
             tools=self.query_rewrite_tools,
             temperature=0.0,  # Minimize creativity for search query generation
@@ -443,7 +530,7 @@ class ChatReadRetrieveReadApproach(Approach):
             if search_image_embeddings:
                 vectors.append(await self.compute_multimodal_embedding(query_text))
 
-        results = await self.search(
+        raw_results = await self.search(
             top,
             query_text,
             search_index_filter,
@@ -458,12 +545,12 @@ class ChatReadRetrieveReadApproach(Approach):
             access_token,
             semantic_query_text=original_user_query,
         )
-
+        results = raw_results
         adaptive_retry_used = False
         supplemental_reference_queries: list[str] = []
         if (
             is_feature_enabled("adaptive_search_retry")
-            and self._should_retry_for_query_intent(results, original_user_query)
+            and self._should_retry_for_query_intent(raw_results, original_user_query)
             and self._normalize_intent_text(query_text) != self._normalize_intent_text(original_user_query)
         ):
             retry_vectors: list[VectorQuery] = []
@@ -488,8 +575,10 @@ class ChatReadRetrieveReadApproach(Approach):
                 access_token,
                 semantic_query_text=original_user_query,
             )
-            results = self._merge_documents_by_query_intent(original_user_query, results + retry_results, limit=top)
+            results = self._merge_documents_by_query_intent(original_user_query, raw_results + retry_results, limit=top)
             adaptive_retry_used = True
+        else:
+            results = self._merge_documents_by_query_intent(original_user_query, raw_results, limit=top)
 
         explicit_references = self._extract_explicit_legal_references(original_user_query)
         covered_reference_terms = self._covered_query_reference_terms(results, original_user_query)

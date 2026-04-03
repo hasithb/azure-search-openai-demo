@@ -6,16 +6,20 @@
         "parameters": {
             "type": "object",
             "properties": {
+                "legal_concept_analysis": {
+                    "type": "string",
+                    "description": "REQUIRED FIRST STEP: Before writing the search query, briefly state (1) what specific legal concept/rule/provision the user is asking about based on your general knowledge of English civil procedure, (2) the specific CPR rule number or Practice Direction that is the PRIMARY authoritative source, and (3) key terms that distinguish this source from similar-sounding documents. For example: 'Pre-action disclosure is governed by CPR 31.16, not Pre-Action Protocols. Key terms: disclosure before proceedings started, likely parties, standard disclosure scope. Target CPR Part 31 not Pre-Action Protocol documents.'"
+                },
                 "search_query": {
                     "type": "string",
-                    "description": "Query string to retrieve documents from azure search. Include the specific CPR rule or Part number when known, eg: 'CPR 31.16 pre-action disclosure before proceedings', 'CPR Part 24 summary judgment no real prospect', 'CPR 3.9 relief from sanctions', 'Part 52 appeals time limit'"
+                    "description": "Query string to retrieve documents from azure search. MUST be informed by your legal_concept_analysis. Include the specific CPR rule or Part number identified in your analysis, eg: 'CPR 31.16 pre-action disclosure before proceedings', 'CPR Part 24 summary judgment no real prospect', 'CPR 3.9 relief from sanctions', 'Part 52 appeals time limit'. Target the PRIMARY authoritative source, not documents that merely mention the topic."
                 },
                 "subsection_hint": {
                     "type": "string",
                     "description": "Specific subsection identifier for precise citation when available (e.g., '1.1' for rule 1.1, 'A4.1' for court guide section A4.1, 'Para 1.1' for practice direction paragraph 1.1). Use an empty string when no precise subsection is named."
                 }
             },
-            "required": ["search_query"]
+            "required": ["legal_concept_analysis", "search_query"]
         }
     }
 }]

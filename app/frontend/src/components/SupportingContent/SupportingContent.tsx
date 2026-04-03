@@ -56,12 +56,28 @@ export function buildDisplayedSupportingItems(
     for (const it of supportingContent || []) {
         const parsed = parseSupportingContentItem(it);
         const docUrl = normalizeUrl(it.storageurl || it.url || parsed.storageurl || parsed.url || "");
-        // CUSTOM: Group by physical source document so all chunks/subsections from the same
-        // document merge into one card showing the full section content.
-        // Prefer storageurl or sourcefile (which are shared across chunks from the same file)
-        // over original_doc_id (which is unique per search index chunk).
-        const sourcefile = (it.sourcefile || parsed.sourcefile || "").toLowerCase();
-        const docKey = docUrl || sourcefile || it.original_doc_id || "";
+        // CUSTOM: Group by logical section within a source document.
+        // Merging by sourcefile alone collapses unrelated sections from the same guide into
+        // one card, which produces the wrong title/content/highlight when a citation targets
+        // a different section from the same source document.
+        const sourcefile = (it.sourcefile || parsed.sourcefile || "").trim().toLowerCase();
+        const sourcepage = (it.sourcepage || parsed.sourcepage || "").trim().toLowerCase();
+        const citation = (it.citation || "").trim().toLowerCase();
+        const subsectionId = (it.subsection_id || "").trim().toLowerCase();
+        const baseDocKey =
+            docUrl ||
+            sourcefile ||
+            String(it.original_doc_id || "")
+                .trim()
+                .toLowerCase();
+        const sectionKey =
+            sourcepage ||
+            citation ||
+            subsectionId ||
+            String(it.original_doc_id || "")
+                .trim()
+                .toLowerCase();
+        const docKey = sectionKey ? `${baseDocKey}::${sectionKey}` : baseDocKey;
 
         let rec = byDoc.get(docKey);
         const itemUpdated = (it.updated || it.last_updated || it.date_updated || "") as string;
@@ -195,15 +211,28 @@ export const SupportingContent = ({
         const cleaned = lines.map(line => {
             let updated = line;
             // Remove markdown heading markers like "## 1.1" but keep the number/text
-            updated = updated.replace(/^##\s*/g, "");
+            updated = updated.replace(/^#{1,6}\s*/g, "");
             // Remove inline bracketed metadata blocks, wherever they appear in the line
             updated = updated.replace(/\[[^\]]*(PRACTICE\s*DIRECTION|PD\s*\d+|PART\s+\d+|SECTION\s+\d+|APPENDIX|>)[^\]]*\]\s*/gi, "");
             return updated;
         });
 
         // Drop standalone bracketed metadata lines (e.g., [PRACTICE DIRECTION ... > 1.1 ...])
+        // and header cruft from non-CPR sources (Document:, Section:, Part N of M, ==== dividers)
         const filtered = cleaned.filter(line => {
             const trimmed = line.trim();
+            // Remove "Document: ..." header lines
+            if (/^Document:\s/i.test(trimmed)) return false;
+            // Remove "Section: ..." or "Section:..." header lines
+            if (/^Section:\s*/i.test(trimmed)) return false;
+            // Remove "Part N of M" pagination markers (but keep "Part 1" section headings)
+            if (/^Part\s+\d+\s+of\s+\d+$/i.test(trimmed)) return false;
+            // Remove ==== divider lines (4+ consecutive = chars)
+            if (/^={4,}$/.test(trimmed)) return false;
+            // Remove standalone "Contents" lines and "[Title] Contents" lines
+            if (/^Contents$/i.test(trimmed)) return false;
+            if (/\]\s*Contents$/i.test(trimmed) && trimmed.startsWith("[")) return false;
+            // Handle bracketed metadata
             if (!trimmed.startsWith("[") || !trimmed.endsWith("]")) {
                 return true;
             }
@@ -215,6 +244,20 @@ export const SupportingContent = ({
             const isMetadata = /\b(PRACTICE\s*DIRECTION|PD\s*\d+|PART\s+\d+|SECTION\s+\d+|APPENDIX|>)/i.test(trimmed);
             return !isMetadata;
         });
+
+        // Deduplicate identical non-empty lines (even across blanks, e.g., repeated document titles)
+        const deduped: string[] = [];
+        for (const line of filtered) {
+            const trimmed = line.trim();
+            if (trimmed) {
+                // Compare against last non-blank line to catch dupes separated by blank lines
+                const lastNonBlank = [...deduped].reverse().find(l => l.trim() !== "");
+                if (lastNonBlank !== undefined && lastNonBlank.trim() === trimmed) {
+                    continue;
+                }
+            }
+            deduped.push(line);
+        }
 
         const insertSubsectionBreaks = (line: string) => {
             let updated = line;
@@ -236,8 +279,8 @@ export const SupportingContent = ({
 
         // Add a blank line between numbered subsections for readability
         const withSpacing: string[] = [];
-        for (let i = 0; i < filtered.length; i++) {
-            const line = insertSubsectionBreaks(filtered[i]);
+        for (let i = 0; i < deduped.length; i++) {
+            const line = insertSubsectionBreaks(deduped[i]);
             const splitLines = line.split(/\n/);
             for (const part of splitLines) {
                 const trimmed = part.trim();
@@ -264,20 +307,28 @@ export const SupportingContent = ({
 
     const normalizeMatchText = (s?: string) => (s || "").toLowerCase().replace(/\s+/g, " ").trim();
 
-    // CUSTOM: Convert cleaned supporting content into paragraph HTML using \n\n or markdown-style spacing
-    const formatSupportingContentHtml = (text: string) => {
+    const formatSupportingContentHtml = (text: string, options?: { highlight?: boolean; sourceInfo?: string }) => {
         const normalized = text.replace(/\r\n/g, "\n").trim();
         if (!normalized) return "";
 
+        const escapedSourceInfo = (options?.sourceInfo || "").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+
         const paragraphs = normalized.split(/\n\s*\n+/g);
         return paragraphs
-            .map(paragraph => {
+            .map((paragraph, index) => {
                 const lines = paragraph
                     .split(/\n/g)
                     .map(line => line.trimEnd())
                     .filter(Boolean);
                 if (lines.length === 0) return "";
-                return `<p>${lines.join("<br/>")}</p>`;
+                const paragraphBody = lines.join("<br/>");
+                if (!options?.highlight) {
+                    return `<p>${paragraphBody}</p>`;
+                }
+
+                const markId = index === 0 ? ' id="highlighted-subsection"' : "";
+                const markTitle = index === 0 && escapedSourceInfo ? ` title="${escapedSourceInfo}"` : "";
+                return `<p><mark${markId}${markTitle} style="background-color:#3b82f6;color:#fff;padding:0 4px;border-radius:4px;display:inline;line-height:inherit;scroll-margin-top:20px;">${paragraphBody}</mark></p>`;
             })
             .filter(Boolean)
             .join("");
@@ -301,30 +352,30 @@ export const SupportingContent = ({
                 const subsectionContent = section.content;
                 const afterSubsection = originalContent.substring(section.endIndex);
 
-                // CUSTOM: Use CSS class-based highlight with a styled box appearance
-                const highlightedSubsection =
-                    `<div class="highlightedSubsectionBox" id="highlighted-subsection">` +
-                    `<div class="highlightedSubsectionLabel">` +
-                    `<span class="highlightedSubsectionIcon">📍</span> Cited Section: ${targetSubsection}` +
-                    `</div>` +
-                    `<div class="highlightedSubsectionContent">${subsectionContent}</div>` +
-                    `</div>`;
-                const highlightedContent = cleanSupportingContentForDisplay(beforeSubsection + highlightedSubsection + afterSubsection);
-                const formattedHighlightedContent = formatSupportingContentHtml(highlightedContent);
+                const formattedBeforeContent = formatSupportingContentHtml(cleanSupportingContentForDisplay(beforeSubsection));
+                const formattedHighlightedContent = formatSupportingContentHtml(cleanSupportingContentForDisplay(subsectionContent), {
+                    highlight: true,
+                    sourceInfo
+                });
+                const formattedAfterContent = formatSupportingContentHtml(cleanSupportingContentForDisplay(afterSubsection));
+                const fullSectionWithHighlight = `${formattedBeforeContent}${formattedHighlightedContent}${formattedAfterContent}`;
 
                 return (
                     <div className={styles.itemContent}>
-                        <div
-                            style={{ fontFamily: "inherit", margin: 0, lineHeight: "1.5" }}
-                            dangerouslySetInnerHTML={{ __html: formattedHighlightedContent }}
-                        />
+                        <div style={{ fontFamily: "inherit", margin: 0, lineHeight: "1.4" }}>
+                            <div dangerouslySetInnerHTML={{ __html: fullSectionWithHighlight }} />
+                        </div>
                     </div>
                 );
             } else {
                 const formattedDisplayContent = formatSupportingContentHtml(displayContent);
                 return (
                     <div className={styles.itemContent}>
-                        <div style={{ fontFamily: "inherit", margin: 0, lineHeight: "1.5" }} dangerouslySetInnerHTML={{ __html: formattedDisplayContent }} />
+                        <div
+                            id="highlighted-subsection"
+                            style={{ fontFamily: "inherit", margin: 0, lineHeight: "1.4", scrollMarginTop: "20px" }}
+                            dangerouslySetInnerHTML={{ __html: formattedDisplayContent }}
+                        />
                     </div>
                 );
             }
@@ -334,7 +385,7 @@ export const SupportingContent = ({
         const formattedDisplayContent = formatSupportingContentHtml(displayContent);
         return (
             <div className={styles.itemContent}>
-                <div style={{ fontFamily: "inherit", margin: 0, lineHeight: "1.5" }} dangerouslySetInnerHTML={{ __html: formattedDisplayContent }} />
+                <div style={{ fontFamily: "inherit", margin: 0, lineHeight: "1.4" }} dangerouslySetInnerHTML={{ __html: formattedDisplayContent }} />
             </div>
         );
     };
@@ -527,11 +578,16 @@ export const SupportingContent = ({
                         targetElement.style.backgroundColor = "";
                     }, 5000);
 
-                    // Scroll to the highlighted mark within the section if it exists
+                    // Scroll to the subsection start, or to the content start when no subsection was found.
                     setTimeout(() => {
                         const highlightedMark = targetElement.querySelector("#highlighted-subsection");
                         if (highlightedMark) {
-                            highlightedMark.scrollIntoView({ behavior: "smooth", block: "center" });
+                            const elementTop = targetElement.getBoundingClientRect().top;
+                            const markTop = highlightedMark.getBoundingClientRect().top;
+                            const relativeTop = markTop - elementTop;
+                            if (relativeTop > 180) {
+                                highlightedMark.scrollIntoView({ behavior: "smooth", block: "start" });
+                            }
                         }
                     }, 300);
                 }
@@ -579,25 +635,33 @@ export const SupportingContent = ({
             {displayedItems.map((item, index) => {
                 const parsedItem = parseSupportingContentItem(item);
                 const isActive = activeMatchIndex === index;
-
+                const rawItem = item as Record<string, string | undefined> | undefined;
+                const sourcefile = parsedItem.sourcefile || rawItem?.sourcefile;
+                const sourcepage = parsedItem.sourcepage || rawItem?.sourcepage;
+                const category = parsedItem.category || rawItem?.category;
                 const getDisplayTitle = () => {
-                    const rawItem = item as Record<string, string | undefined> | undefined;
-                    const sourcefile = parsedItem.sourcefile || rawItem?.sourcefile;
-                    const sourcepage = parsedItem.sourcepage || rawItem?.sourcepage;
-                    const category = parsedItem.category || rawItem?.category;
-                    // Prefer sourcepage as the primary title since it's most descriptive
-                    // (e.g., "Part 1 – Overriding Objective"). Fall back to sourcefile,
-                    // then category. Avoid joining all three to prevent redundancy.
-                    if (sourcepage && category) {
-                        return `${sourcepage}, ${category}`;
+                    const parts = [sourcefile, sourcepage, category].map(part => (part || "").trim()).filter(Boolean);
+                    const uniqueParts: string[] = [];
+                    for (const part of parts) {
+                        const partLower = part.toLowerCase();
+                        // Skip exact duplicates (case-insensitive)
+                        if (uniqueParts.some(existing => existing.toLowerCase() === partLower)) {
+                            continue;
+                        }
+                        // Skip truncated sourcefiles that are just a prefix of another part
+                        // e.g., "Pre" when "Pre-Action Protocol for Disease..." is present
+                        if (part.length <= 10) {
+                            const isPrefix = parts.some(other => {
+                                const otherLower = (other || "").toLowerCase().trim();
+                                return otherLower !== partLower && otherLower.length > partLower.length && otherLower.startsWith(partLower);
+                            });
+                            if (isPrefix) {
+                                continue;
+                            }
+                        }
+                        uniqueParts.push(part);
                     }
-                    if (sourcepage) return sourcepage;
-                    if (sourcefile && category) {
-                        return `${sourcefile}, ${category}`;
-                    }
-                    if (sourcefile) return sourcefile;
-                    if (category) return category;
-                    return "Document Source";
+                    return uniqueParts.join(", ") || "Document Source";
                 };
 
                 const displayTitle = getDisplayTitle();
@@ -644,7 +708,7 @@ export const SupportingContent = ({
                         {/* Always render full content; highlight specific subsection if active */}
                         {renderContent(parsedItem.content, isActive, targetSubsection ?? undefined, displayTitle)}
 
-                        <div className={styles.supportingContentActions} style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                        <div className={styles.supportingContentActions}>
                             {hasDocumentUrl && (
                                 <>
                                     {/* Only show "View Source" (in-panel) for admins; everyone else gets "View Source in New Tab" */}

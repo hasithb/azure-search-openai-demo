@@ -276,6 +276,56 @@ describe("extractSubsectionContent", () => {
             expect(result!.content).toContain("section 51 of the Senior Courts Act 1981");
             expect(result!.content).not.toContain("46.3");
         });
+
+        it("extracts only CPR 59.4 and stops before 59.5", () => {
+            const content =
+                "## Claim form and particulars of claim\n\n" +
+                "## 59.4\n\n" +
+                "[PART 59 – CIRCUIT COMMERCIAL COURTS > 59.4] (1) If particulars of claim are not contained in or served with the claim form –\n\n" +
+                "[PART 59 – CIRCUIT COMMERCIAL COURTS > 59.4] (a) the claim form must state that, if an acknowledgment of service is filed which indicates an intention to defend the claim, particulars of claim will follow;\n\n" +
+                "## Acknowledgment of service\n\n" +
+                "## 59.5\n\n" +
+                "[PART 59 – CIRCUIT COMMERCIAL COURTS > 59.5] (1) A defendant must file an acknowledgment of service in every case.";
+
+            const result = extractSubsectionContent(content, "59.4");
+
+            expect(result).not.toBeNull();
+            expect(result!.content).not.toContain("Claim form and particulars of claim");
+            expect(result!.content.startsWith("59.4")).toBe(true);
+            expect(result!.content).not.toContain("Acknowledgment of service");
+            expect(result!.content).not.toContain("## 59.5");
+        });
+
+        it.each([
+            {
+                heading: "Costs management orders and costs capping orders",
+                subsection: "3.3",
+                nextHeading: "Summary assessment",
+                nextSubsection: "4.1"
+            },
+            {
+                heading: "Application for disclosure",
+                subsection: "39.2",
+                nextHeading: "Application for security for costs",
+                nextSubsection: "39.3"
+            }
+        ])("extracts only $subsection style content and excludes surrounding titles", ({ heading, subsection, nextHeading, nextSubsection }) => {
+            const content =
+                `## ${heading}\n\n` +
+                `## ${subsection}\n\n` +
+                `[GUIDE > ${subsection}] Example body text for ${subsection}.\n\n` +
+                `## ${nextHeading}\n\n` +
+                `## ${nextSubsection}\n\n` +
+                `[GUIDE > ${nextSubsection}] Example body text for ${nextSubsection}.`;
+
+            const result = extractSubsectionContent(content, subsection);
+
+            expect(result).not.toBeNull();
+            expect(result!.content).not.toContain(heading);
+            expect(result!.content.startsWith(subsection)).toBe(true);
+            expect(result!.content).not.toContain(nextHeading);
+            expect(result!.content).not.toContain(`## ${nextSubsection}`);
+        });
     });
 });
 

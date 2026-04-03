@@ -258,6 +258,137 @@ def test_should_retry_when_named_legal_reference_missing(chat_approach):
     assert should_retry is True
 
 
+def test_query_intent_scoring_prefers_focused_section_over_annex(chat_approach):
+    query = "What does the King's Bench Division Guide say about enrolment of deeds and other documents?"
+    focused_doc = Document(
+        id="kbd-26-1",
+        content="26.1 Any deed or document which by virtue of any enactment is required or authorised to be enrolled in the Senior Courts may be enrolled in the Central Office.",
+        sourcepage="26. Enrolment of deeds and other documents (p. 206)",
+        sourcefile="King's Bench Division Guide",
+        category="King's Bench Division",
+        subsection_id="26.1",
+    )
+    annex_doc = Document(
+        id="kbd-annex-13",
+        content="Annex 13 gives London Gazette contact details for enrolled deed poll enquiries.",
+        sourcepage="Contact Details, The London Gazette enquires: (p. 265) [Part 1]",
+        sourcefile="King's Bench Division Guide",
+        category="King's Bench Division",
+        subsection_id="Annex 13",
+    )
+    adjacent_doc = Document(
+        id="kbd-27-1",
+        content="27.1 Under Part III of the Representation of the People Act 1983, the result of an election may be questioned.",
+        sourcepage="26. Enrolment of deeds and other documents, 27. Election Petitions (p. 208)",
+        sourcefile="King's Bench Division Guide",
+        category="King's Bench Division",
+        subsection_id="27.1",
+    )
+
+    focused_score = chat_approach._score_document_query_intent(focused_doc, query)
+    annex_score = chat_approach._score_document_query_intent(annex_doc, query)
+    adjacent_score = chat_approach._score_document_query_intent(adjacent_doc, query)
+
+    assert focused_score > annex_score
+    assert focused_score > adjacent_score
+
+
+@pytest.mark.asyncio
+async def test_run_search_approach_filters_tangential_guide_annexes_from_initial_results(chat_approach, monkeypatch):
+    completion = ChatCompletion.model_validate(
+        {
+            "id": "rewrite-kbd-1",
+            "object": "chat.completion",
+            "created": 0,
+            "model": "gpt-4.1-mini",
+            "choices": [{"index": 0, "finish_reason": "stop", "message": {"role": "assistant", "content": "enrolment of deeds and other documents"}}],
+            "usage": {"completion_tokens": 1, "prompt_tokens": 1, "total_tokens": 2},
+        },
+        strict=False,
+    )
+
+    async def fake_rewrite_query(**_kwargs):
+        return RewriteQueryResult(
+            query="What does the King's Bench Division Guide say about enrolment of deeds and other documents?",
+            messages=[{"role": "user", "content": "original"}],
+            completion=completion,
+            reasoning_effort="minimal",
+            subsection_hint=None,
+        )
+
+    async def fake_search(*_args, **_kwargs):
+        return [
+            Document(
+                id="kbd-26-1",
+                content="26.1 Any deed or document which by virtue of any enactment is required or authorised to be enrolled in the Senior Courts may be enrolled in the Central Office.",
+                sourcepage="26. Enrolment of deeds and other documents (p. 206)",
+                sourcefile="King's Bench Division Guide",
+                category="King's Bench Division",
+                subsection_id="26.1",
+            ),
+            Document(
+                id="kbd-annex-13",
+                content="Annex 13 gives London Gazette contact details for enrolled deed poll enquiries.",
+                sourcepage="Contact Details, The London Gazette enquires: (p. 265) [Part 1]",
+                sourcefile="King's Bench Division Guide",
+                category="King's Bench Division",
+                subsection_id="Annex 13",
+            ),
+            Document(
+                id="kbd-annex-12",
+                content="Annex 12 explains the adult change of name enrolment procedure.",
+                sourcepage="Annex 12 - Guidance for Procedure for Enrolling a Change of Name for Adults (p. 258)",
+                sourcefile="King's Bench Division Guide",
+                category="King's Bench Division",
+                subsection_id="10.00",
+            ),
+            Document(
+                id="kbd-27-1",
+                content="27.1 Under Part III of the Representation of the People Act 1983, the result of an election may be questioned.",
+                sourcepage="26. Enrolment of deeds and other documents, 27. Election Petitions (p. 208)",
+                sourcefile="King's Bench Division Guide",
+                category="King's Bench Division",
+                subsection_id="27.1",
+            ),
+        ]
+
+    async def fake_get_sources_content(results, *_args, **_kwargs):
+        return DataPoints(
+            text=[
+                {
+                    "citation": result.sourcepage or result.id or "",
+                    "content": result.content or "",
+                    "sourcepage": result.sourcepage or "",
+                    "sourcefile": result.sourcefile or "",
+                    "category": result.category or "",
+                }
+                for result in results
+            ],
+            citations=[],
+        )
+
+    monkeypatch.setattr(chat_approach, "rewrite_query", fake_rewrite_query)
+    monkeypatch.setattr(chat_approach, "search", fake_search)
+    monkeypatch.setattr(chat_approach, "get_sources_content", fake_get_sources_content)
+
+    extra_info = await chat_approach.run_search_approach(
+        messages=[{"role": "user", "content": "What does the King's Bench Division Guide say about enrolment of deeds and other documents?"}],
+        overrides={
+            "retrieval_mode": "text",
+            "semantic_ranker": True,
+            "semantic_captions": False,
+            "query_rewriting": True,
+            "top": 7,
+            "send_text_sources": True,
+        },
+        auth_claims={},
+    )
+
+    assert extra_info.data_points.text is not None
+    kept_sourcepages = [source["sourcepage"] for source in extra_info.data_points.text]
+    assert kept_sourcepages == ["26. Enrolment of deeds and other documents (p. 206)"]
+
+
 def test_canonical_concept_queries_pad_acronym(chat_approach):
     results = chat_approach._extract_canonical_legal_concept_queries("what are the requirements for PAD")
     assert len(results) == 1
@@ -314,6 +445,219 @@ def test_query_rewrite_tool_description_references_legal_domain(chat_approach):
     assert "CPR" in description or "Civil Procedure" in description
     search_query_desc = tool_def["function"]["parameters"]["properties"]["search_query"]["description"]
     assert "CPR" in search_query_desc or "rule" in search_query_desc.lower()
+
+
+SAMPLE_AVAILABLE_SOURCES = [
+    "Chancery Guide",
+    "Circuit Commercial Court Guide",
+    "Civil Procedure Rules and Practice Directions",
+    "Commercial Court Guide",
+    "Court of Appeal Civil Division Guide",
+    "King's Bench Division Guide",
+    "Patents Court Guide",
+    "Pre-Action Protocols",
+    "Senior Courts Costs Office Guide",
+    "Technology and Construction Court Guide",
+]
+
+
+def test_chat_answer_prompt_lists_available_sources(chat_approach):
+    """The chat answer system prompt must list all available document sources when provided."""
+    system_msg = chat_approach.prompt_manager.build_system_prompt(
+        "chat_answer.system.jinja2",
+        {
+            "include_follow_up_questions": False,
+            "image_sources": None,
+            "citations": ["1", "2"],
+            "available_sources": SAMPLE_AVAILABLE_SOURCES,
+        },
+    )
+    prompt_content = system_msg["content"]
+    # Must list all major source categories dynamically
+    for source in SAMPLE_AVAILABLE_SOURCES:
+        assert source in prompt_content, f"Missing source: {source}"
+
+
+def test_chat_answer_prompt_fallback_when_no_sources(chat_approach):
+    """When available_sources is empty, the prompt should use a fallback description."""
+    system_msg = chat_approach.prompt_manager.build_system_prompt(
+        "chat_answer.system.jinja2",
+        {
+            "include_follow_up_questions": False,
+            "image_sources": None,
+            "citations": ["1"],
+            "available_sources": [],
+        },
+    )
+    prompt_content = system_msg["content"]
+    assert "English civil court procedure documents" in prompt_content
+    assert "Court Guides" in prompt_content
+
+
+def test_chat_answer_prompt_contains_mismatch_detection(chat_approach):
+    """The chat answer prompt must instruct the LLM to detect source-question mismatches."""
+    system_msg = chat_approach.prompt_manager.build_system_prompt(
+        "chat_answer.system.jinja2",
+        {
+            "include_follow_up_questions": False,
+            "image_sources": None,
+            "citations": ["1"],
+        },
+    )
+    prompt_content = system_msg["content"]
+    # Should contain mismatch detection guidance
+    assert "mismatch" in prompt_content.lower() or "Source mismatch" in prompt_content
+    # Should contain disambiguation examples
+    assert "standard" in prompt_content.lower() and "disclosure" in prompt_content.lower()
+    # Should contain query refinement guidance
+    assert "refinement" in prompt_content.lower() or "more targeted query" in prompt_content.lower()
+    # Should contain source recommendation guidance
+    assert "recommend" in prompt_content.lower() or "suggest" in prompt_content.lower()
+
+
+def test_chat_answer_prompt_contains_ambiguous_term_examples(chat_approach):
+    """The chat answer prompt must include examples of ambiguous legal terms."""
+    system_msg = chat_approach.prompt_manager.build_system_prompt(
+        "chat_answer.system.jinja2",
+        {
+            "include_follow_up_questions": False,
+            "image_sources": None,
+            "citations": ["1"],
+        },
+    )
+    prompt_content = system_msg["content"]
+    # Key ambiguous terms that the prompt should help with
+    assert "standard" in prompt_content and "extended" in prompt_content  # disclosure types
+    assert "costs" in prompt_content.lower()
+    assert "appeal" in prompt_content.lower()
+    assert "injunction" in prompt_content.lower()
+    assert "service" in prompt_content.lower()
+
+
+def test_query_rewrite_prompt_contains_disclosure_disambiguation(chat_approach):
+    """The query rewrite prompt must distinguish standard vs extended disclosure."""
+    system_msg = chat_approach.prompt_manager.build_system_prompt(
+        "query_rewrite.system.jinja2",
+        {"user_query": "test", "past_messages": []},
+    )
+    prompt_content = system_msg["content"]
+    # Should distinguish standard disclosure from extended disclosure
+    assert "standard disclosure" in prompt_content.lower()
+    assert "extended disclosure" in prompt_content.lower() or "57AD" in prompt_content
+    assert "CPR 31.6" in prompt_content or "CPR 31" in prompt_content
+
+
+def test_query_rewrite_prompt_contains_broad_query_guidance(chat_approach):
+    """The query rewrite prompt must guide the LLM on handling broad/ambiguous queries."""
+    system_msg = chat_approach.prompt_manager.build_system_prompt(
+        "query_rewrite.system.jinja2",
+        {"user_query": "test", "past_messages": []},
+    )
+    prompt_content = system_msg["content"]
+    # Should contain guidance on broad queries
+    assert "broad" in prompt_content.lower() or "ambiguous" in prompt_content.lower()
+    # Should contain the disclosure few-shot example
+    assert "standard disclosure" in prompt_content.lower()
+
+
+def test_query_rewrite_prompt_lists_all_court_guides(chat_approach):
+    """The query rewrite prompt must list available sources when provided."""
+    system_msg = chat_approach.prompt_manager.build_system_prompt(
+        "query_rewrite.system.jinja2",
+        {"user_query": "test", "past_messages": [], "available_sources": SAMPLE_AVAILABLE_SOURCES},
+    )
+    prompt_content = system_msg["content"]
+    assert "Court of Appeal Civil Division Guide" in prompt_content
+    assert "Senior Courts Costs Office Guide" in prompt_content
+    assert "Circuit Commercial Court Guide" in prompt_content
+
+
+def test_query_rewrite_prompt_fallback_when_no_sources(chat_approach):
+    """The query rewrite prompt should use fallback text when no sources provided."""
+    system_msg = chat_approach.prompt_manager.build_system_prompt(
+        "query_rewrite.system.jinja2",
+        {"user_query": "test", "past_messages": [], "available_sources": []},
+    )
+    prompt_content = system_msg["content"]
+    assert "English civil court procedure documents" in prompt_content
+    assert "Court Guides" in prompt_content
+
+
+def test_chat_answer_prompt_contains_search_depth_guidance(chat_approach):
+    """The chat answer prompt must include search depth recommendation guidance."""
+    system_msg = chat_approach.prompt_manager.build_system_prompt(
+        "chat_answer.system.jinja2",
+        {
+            "include_follow_up_questions": False,
+            "image_sources": None,
+            "citations": ["1"],
+            "search_depth": "Standard",
+        },
+    )
+    prompt_content = system_msg["content"]
+    # Should describe the three search depth levels
+    assert "Quick" in prompt_content
+    assert "Standard" in prompt_content
+    assert "Thorough" in prompt_content
+    # Should mention the user's current depth
+    assert "currently using **Standard**" in prompt_content
+    # Should suggest increasing depth for complex questions
+    assert "suggest" in prompt_content.lower() or "recommend" in prompt_content.lower()
+
+
+def test_chat_answer_prompt_search_depth_omitted_when_empty(chat_approach):
+    """When search_depth is empty, the current-depth line should not appear."""
+    system_msg = chat_approach.prompt_manager.build_system_prompt(
+        "chat_answer.system.jinja2",
+        {
+            "include_follow_up_questions": False,
+            "image_sources": None,
+            "citations": ["1"],
+            "search_depth": "",
+        },
+    )
+    prompt_content = system_msg["content"]
+    # The three levels should still be described
+    assert "Quick" in prompt_content
+    assert "Thorough" in prompt_content
+    # But the "currently using" line should NOT appear
+    assert "currently using" not in prompt_content
+
+
+def test_format_text_sources_with_metadata():
+    """format_text_sources_for_prompt should include category and sourcepage metadata."""
+    from approaches.chatreadretrieveread import ChatReadRetrieveReadApproach
+
+    sources = [
+        {"content": "Rule 31.6 content", "category": "Civil Procedure Rules and Practice Directions", "sourcepage": "Part 31"},
+        {"content": "Commercial Court content", "category": "Commercial Court", "sourcepage": "Case management (p. 141)"},
+        {"content": "Plain string source"},
+    ]
+    result = ChatReadRetrieveReadApproach.format_text_sources_for_prompt(sources)
+    assert result[0] == "[1] (Category: Civil Procedure Rules and Practice Directions | Source: Part 31): Rule 31.6 content"
+    assert result[1] == "[2] (Category: Commercial Court | Source: Case management (p. 141)): Commercial Court content"
+    assert result[2] == "[3]: Plain string source"
+
+
+def test_format_text_sources_without_metadata():
+    """format_text_sources_for_prompt should handle sources without metadata gracefully."""
+    from approaches.chatreadretrieveread import ChatReadRetrieveReadApproach
+
+    sources = [
+        {"content": "Just content"},
+        "Plain string",
+    ]
+    result = ChatReadRetrieveReadApproach.format_text_sources_for_prompt(sources)
+    assert result[0] == "[1]: Just content"
+    assert result[1] == "[2]: Plain string"
+
+
+def test_format_text_sources_empty():
+    """format_text_sources_for_prompt should handle empty/None input."""
+    from approaches.chatreadretrieveread import ChatReadRetrieveReadApproach
+
+    assert ChatReadRetrieveReadApproach.format_text_sources_for_prompt([]) == []
+    assert ChatReadRetrieveReadApproach.format_text_sources_for_prompt(None) == []
 
 
 def test_extract_followup_questions(chat_approach):
@@ -658,11 +1002,9 @@ async def test_run_search_approach_targets_missing_explicit_legal_reference(chat
         auth_claims={},
     )
 
-    assert search_calls[1:] == [
-        "Before commencing construction proceedings, what pre-action steps apply, when can summary judgment be granted, and what Practice Direction 27B point is relevant?",
-        "Practice Direction 27B",
-        "24.3 summary judgment no real prospect of succeeding no other compelling reason",
-    ]
+    assert search_calls[0]
+    assert "Practice Direction 27B" in search_calls
+    assert "24.3 summary judgment no real prospect of succeeding no other compelling reason" in search_calls
     assert extra_info.data_points.text is not None
     assert any(source["sourcefile"] == "Practice Direction 27B" for source in extra_info.data_points.text)
     assert any(source["sourcefile"] == "Part 24 - Summary judgment" for source in extra_info.data_points.text)

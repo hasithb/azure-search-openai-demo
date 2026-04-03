@@ -240,6 +240,9 @@ export const HelpAboutPanel: React.FC = () => {
                                     </Text>
                                 </div>
 
+                                {/* INDEX-SOURCES: When adding or removing documents from the search index,
+                                    update this list to match. See scripts/court_guides_processing_pipeline/outputs_azure_di/
+                                    for the current set of processed court guides. */}
                                 <div className={classes.section}>
                                     <Text size={400} weight="semibold" style={{ marginBottom: 12, display: "block" }}>
                                         📚 Available Documents
@@ -248,10 +251,12 @@ export const HelpAboutPanel: React.FC = () => {
                                         <Text size={200}>• Civil Procedure Rules (Parts 1-89) and Practice Directions</Text>
                                         <Text size={200}>• Commercial Court Guide (11th Edition, July 2023)</Text>
                                         <Text size={200}>• King's Bench Division Guide (2025 Edition)</Text>
-                                        <Text size={200}>• Chancery Guide (2022 Edition)</Text>
+                                        <Text size={200}>• Chancery Guide (2024 Edition)</Text>
                                         <Text size={200}>• Patents Court Guide (February 2025)</Text>
                                         <Text size={200}>• Technology & Construction Court Guide (October 2022)</Text>
                                         <Text size={200}>• Circuit Commercial Court Guide (August 2023)</Text>
+                                        <Text size={200}>• Court of Appeal Civil Division Guide</Text>
+                                        <Text size={200}>• Senior Courts Costs Office Guide</Text>
                                     </div>
                                 </div>
                             </div>

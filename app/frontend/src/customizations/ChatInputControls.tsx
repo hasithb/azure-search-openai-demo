@@ -29,6 +29,15 @@ function enhanceDisplayName(text: string): string {
     return DISPLAY_NAME_MAP[text] || text;
 }
 
+function buildSourceOptionId(key: string): string {
+    if (!key) return "source-filter-option-all-sources";
+
+    return `source-filter-option-${key
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")}`;
+}
+
 export interface ChatInputControlsProps {
     categories: Category[];
     categoriesLoading: boolean;
@@ -154,6 +163,7 @@ export const ChatInputControls: React.FC<ChatInputControlsProps> = ({
         return (
             <Tooltip content="Search settings" relationship="label">
                 <Button
+                    data-testid="chat-input-mobile-settings"
                     appearance="subtle"
                     icon={<Settings20Regular />}
                     onClick={() => setShowMobileDropdown(!showMobileDropdown)}
@@ -172,7 +182,13 @@ export const ChatInputControls: React.FC<ChatInputControlsProps> = ({
         <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
             {showCategoryFilter && (
                 <Dropdown
+                    data-testid="chat-source-filter-desktop"
+                    button={{
+                        id: "chat-source-filter-desktop-button",
+                        "aria-label": "Source filter"
+                    }}
                     multiselect
+                    aria-label="Source filter"
                     value={categoryDisplayValue}
                     selectedOptions={selectedOptions}
                     onOptionSelect={handleCategorySelect}
@@ -182,7 +198,7 @@ export const ChatInputControls: React.FC<ChatInputControlsProps> = ({
                     size="small"
                 >
                     {categoryOptions.map(opt => (
-                        <Option key={opt.key} value={opt.key} text={opt.text}>
+                        <Option id={buildSourceOptionId(opt.key)} key={opt.key} value={opt.key} text={opt.text}>
                             {opt.text}
                         </Option>
                     ))}
@@ -327,7 +343,13 @@ export const MobileDropdownPanel: React.FC<MobileDropdownPanelProps> = ({
                 <div style={{ marginBottom: "12px" }}>
                     <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#444", marginBottom: "6px" }}>Select Source</label>
                     <Dropdown
+                        data-testid="chat-source-filter-mobile"
+                        button={{
+                            id: "chat-source-filter-mobile-button",
+                            "aria-label": "Source filter"
+                        }}
                         multiselect
+                        aria-label="Source filter"
                         value={categoryDisplayValue}
                         selectedOptions={selectedOptions}
                         onOptionSelect={handleCategorySelect}
@@ -336,7 +358,7 @@ export const MobileDropdownPanel: React.FC<MobileDropdownPanelProps> = ({
                         style={{ width: "100%" }}
                     >
                         {categoryOptions.map(opt => (
-                            <Option key={opt.key} value={opt.key} text={opt.text}>
+                            <Option id={buildSourceOptionId(opt.key)} key={opt.key} value={opt.key} text={opt.text}>
                                 {opt.text}
                             </Option>
                         ))}

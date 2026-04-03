@@ -882,10 +882,18 @@ class TestSubsectionHighlighting:
             m = pattern.search(full_content)
             if m:
                 start = m.start()
-                # Find next subsection boundary
+
+                # Find next subsection boundary or a generic title heading that introduces it.
                 remaining = full_content[m.end():]
-                boundary = re.search(r'\n\s*(\d+\.\d+|\d+\.\d+\.\d+|[A-Z]\.\d+|Rule\s+\d+|Para\s+\d+)\b', remaining)
-                end = m.end() + boundary.start() if boundary else len(full_content)
+                boundaries = [
+                    re.search(r'\n\s*(\d+\.\d+|\d+\.\d+\.\d+|[A-Z]\.\d+|Rule\s+\d+|Para\s+\d+)\b', remaining),
+                    re.search(
+                        r'\n\s*(#{1,6}\s+[^\n#][^\n]*)\s*\n\s*\n\s*#{1,6}\s*(?:\d+\.\d+|\d+\.\d+\.\d+|[A-Z]\.\d+|Rule\s+\d+|Para\s+\d+)',
+                        remaining,
+                    ),
+                ]
+                boundary_positions = [match.start() for match in boundaries if match is not None]
+                end = m.end() + min(boundary_positions) if boundary_positions else len(full_content)
                 return {
                     "content": full_content[start:end].strip(),
                     "startIndex": start,
@@ -916,6 +924,50 @@ class TestSubsectionHighlighting:
         result = self._extract_subsection_content(content, "1.1")
         assert result is not None
         assert "Introduction" in result["content"]
+
+    def test_highlight_extracts_only_the_cited_subsection(self):
+        content = (
+            "## Claim form and particulars of claim\n\n"
+            "## 59.4\n\n"
+            "(1) If particulars of claim are not contained in or served with the claim form –\n\n"
+            "## Acknowledgment of service\n\n"
+            "## 59.5\n\n"
+            "(1) A defendant must file an acknowledgment of service in every case."
+        )
+        result = self._extract_subsection_content(content, "59.4")
+        assert result is not None
+        assert not result["content"].startswith("## Claim form and particulars of claim")
+        assert result["content"].startswith("59.4")
+        assert "## Acknowledgment of service" not in result["content"]
+
+    @pytest.mark.parametrize(
+        "heading,subsection,next_heading,next_subsection",
+        [
+            ("Default judgment", "B.11.1", "Admissions", "B.12.1"),
+            ("Applications before issue", "2.1", "Interim applications", "2.2"),
+            ("Enrolment of deeds and other documents", "7.1", "Service out of the jurisdiction", "7.2"),
+            ("Enforcement", "17.2", "Costs", "17.3"),
+            ("Handing down order", "F.1", "Consequential matters", "F.2"),
+            ("London Circuit Commercial Court Triaging", "B.7.1", "Statements of case", "B.8.1"),
+            ("Costs management orders and costs capping orders", "3.3", "Summary assessment", "4.1"),
+            ("Application for disclosure", "39.2", "Application for security for costs", "39.3"),
+        ],
+    )
+    def test_highlight_excludes_adjacent_heading_across_source_styles(self, heading, subsection, next_heading, next_subsection):
+        content = (
+            f"## {heading}\n\n"
+            f"## {subsection}\n\n"
+            f"Content for {subsection}.\n\n"
+            f"## {next_heading}\n\n"
+            f"## {next_subsection}\n\n"
+            f"Content for {next_subsection}."
+        )
+        result = self._extract_subsection_content(content, subsection)
+        assert result is not None
+        assert not result["content"].startswith(f"## {heading}")
+        assert result["content"].startswith(subsection)
+        assert f"## {next_heading}" not in result["content"]
+        assert f"## {next_subsection}" not in result["content"]
 
 
 # ════════════════════════════════════════════════════════════════════════════════

@@ -13,20 +13,9 @@ from quart import Blueprint, current_app, jsonify
 
 from config import CONFIG_SEARCH_CLIENT
 
-from ..config import is_deployed_ui_compat_enabled, is_feature_enabled
+from ..config import SOURCE_DISPLAY_NAMES, is_deployed_ui_compat_enabled, is_feature_enabled
 
 categories_bp = Blueprint("categories", __name__, url_prefix="/api")
-
-# Display name mapping: category key -> friendly display name with "Guide" for courts
-SOURCE_DISPLAY_NAMES = {
-    "Commercial Court": "Commercial Court Guide",
-    "Circuit Commercial Court": "Circuit Commercial Court Guide",
-    "Technology and Construction Court": "Technology and Construction Court Guide",
-    "King's Bench Division": "King's Bench Division Guide",
-    "Chancery Division": "Chancery Guide",
-    "Patents Court": "Patents Court Guide",
-    "Civil Procedure Rules and Practice Directions": "Civil Procedure Rules and Practice Directions",
-}
 
 
 @categories_bp.route("/categories", methods=["GET"])

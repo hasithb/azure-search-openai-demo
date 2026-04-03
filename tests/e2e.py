@@ -314,6 +314,185 @@ def test_chat_customization(page: Page, live_server_url: str):
     expect(page.get_by_role("button", name="Clear chat")).to_be_enabled()
 
 
+def test_chat_source_filter_sends_selected_category(page: Page, live_server_url: str):
+    captured_overrides = {}
+
+    def handle_categories(route: Route):
+        route.fulfill(
+            body=json.dumps(
+                {
+                    "categories": [
+                        {"key": "Commercial Court", "text": "Commercial Court"},
+                        {"key": "Patents Court", "text": "Patents Court"},
+                    ]
+                }
+            ),
+            status=200,
+            headers={"Content-Type": "application/json"},
+        )
+
+    def handle_chat_stream(route: Route):
+        post_data = route.request.post_data_json
+        captured_overrides.clear()
+        captured_overrides.update(post_data["context"]["overrides"])
+
+        with open("tests/snapshots/test_app/test_chat_stream_text/client0/result.jsonlines") as f:
+            jsonl = f.read()
+        route.fulfill(body=jsonl, status=200, headers={"Transfer-encoding": "Chunked"})
+
+    page.route("*/**/api/categories", handle_categories)
+    page.route("*/**/chat/stream", handle_chat_stream)
+
+    with page.expect_response("**/api/categories"):
+        page.goto(live_server_url)
+    question_input = page.locator("textarea, input[type='text']").first
+    expect(question_input).to_be_visible()
+
+    source_filter = page.locator("#chat-source-filter-desktop-button")
+    source_filter.click()
+    page.locator("#source-filter-option-commercial-court").click()
+
+    question_input.fill("How does the Commercial Court handle case management conferences?")
+    page.get_by_role("button", name="Submit question").click()
+
+    expect(page.get_by_text("The capital of France is Paris.")).to_be_visible()
+    assert captured_overrides["include_category"] == "Commercial Court"
+
+
+def test_chat_source_filter_can_reset_to_all_sources(page: Page, live_server_url: str):
+    captured_overrides = {}
+
+    def handle_categories(route: Route):
+        route.fulfill(
+            body=json.dumps(
+                {
+                    "categories": [
+                        {"key": "Commercial Court", "text": "Commercial Court"},
+                        {"key": "Patents Court", "text": "Patents Court"},
+                    ]
+                }
+            ),
+            status=200,
+            headers={"Content-Type": "application/json"},
+        )
+
+    def handle_chat_stream(route: Route):
+        post_data = route.request.post_data_json
+        captured_overrides.clear()
+        captured_overrides.update(post_data["context"]["overrides"])
+
+        with open("tests/snapshots/test_app/test_chat_stream_text/client0/result.jsonlines") as f:
+            jsonl = f.read()
+        route.fulfill(body=jsonl, status=200, headers={"Transfer-encoding": "Chunked"})
+
+    page.route("*/**/api/categories", handle_categories)
+    page.route("*/**/chat/stream", handle_chat_stream)
+
+    with page.expect_response("**/api/categories"):
+        page.goto(live_server_url)
+    question_input = page.locator("textarea, input[type='text']").first
+    expect(question_input).to_be_visible()
+
+    source_filter = page.locator("#chat-source-filter-desktop-button")
+    source_filter.click()
+    page.locator("#source-filter-option-commercial-court").click()
+
+    page.locator("#source-filter-option-all-sources").click()
+
+    question_input.fill("What are the rules on case management conferences?")
+    page.get_by_role("button", name="Submit question").click()
+
+    expect(page.get_by_text("The capital of France is Paris.")).to_be_visible()
+    assert "include_category" not in captured_overrides
+
+
+def test_chat_source_filter_mobile_panel_sends_selected_category(page: Page, live_server_url: str):
+    captured_overrides = {}
+
+    def handle_categories(route: Route):
+        route.fulfill(
+            body=json.dumps(
+                {
+                    "categories": [
+                        {"key": "Commercial Court", "text": "Commercial Court"},
+                        {"key": "Patents Court", "text": "Patents Court"},
+                    ]
+                }
+            ),
+            status=200,
+            headers={"Content-Type": "application/json"},
+        )
+
+    def handle_chat_stream(route: Route):
+        post_data = route.request.post_data_json
+        captured_overrides.clear()
+        captured_overrides.update(post_data["context"]["overrides"])
+
+        with open("tests/snapshots/test_app/test_chat_stream_text/client0/result.jsonlines") as f:
+            jsonl = f.read()
+        route.fulfill(body=jsonl, status=200, headers={"Transfer-encoding": "Chunked"})
+
+    page.set_viewport_size({"width": 375, "height": 812})
+    page.route("*/**/api/categories", handle_categories)
+    page.route("*/**/chat/stream", handle_chat_stream)
+
+    with page.expect_response("**/api/categories"):
+        page.goto(live_server_url)
+    question_input = page.locator("textarea, input[type='text']").first
+    expect(question_input).to_be_visible()
+
+    page.get_by_test_id("chat-input-mobile-settings").click()
+    source_filter = page.locator("#chat-source-filter-mobile-button")
+    source_filter.click()
+    page.locator("#source-filter-option-patents-court").click()
+
+    question_input.fill("What are the CMC deadlines and procedures?")
+    page.get_by_role("button", name="Submit question").click()
+
+    expect(page.get_by_text("The capital of France is Paris.")).to_be_visible()
+    assert captured_overrides["include_category"] == "Patents Court"
+
+
+def test_chat_source_filter_categories_api_failure_falls_back_to_all_sources(page: Page, live_server_url: str):
+    captured_overrides = {}
+
+    def handle_categories(route: Route):
+        route.fulfill(
+            body=json.dumps({"error": "failed"}),
+            status=500,
+            headers={"Content-Type": "application/json"},
+        )
+
+    def handle_chat_stream(route: Route):
+        post_data = route.request.post_data_json
+        captured_overrides.clear()
+        captured_overrides.update(post_data["context"]["overrides"])
+
+        with open("tests/snapshots/test_app/test_chat_stream_text/client0/result.jsonlines") as f:
+            jsonl = f.read()
+        route.fulfill(body=jsonl, status=200, headers={"Transfer-encoding": "Chunked"})
+
+    page.route("*/**/api/categories", handle_categories)
+    page.route("*/**/chat/stream", handle_chat_stream)
+
+    with page.expect_response("**/api/categories"):
+        page.goto(live_server_url)
+    question_input = page.locator("textarea, input[type='text']").first
+    expect(question_input).to_be_visible()
+
+    source_filter = page.locator("#chat-source-filter-desktop-button")
+    expect(source_filter).to_be_visible()
+    source_filter.click()
+    expect(page.locator("#source-filter-option-all-sources")).to_be_visible()
+    page.locator("#source-filter-option-all-sources").click()
+
+    question_input.fill("What are the rules on case management conferences?")
+    page.get_by_role("button", name="Submit question").click()
+
+    expect(page.get_by_text("The capital of France is Paris.")).to_be_visible()
+    assert "include_category" not in captured_overrides
+
+
 def test_chat_customization_multimodal(page: Page, live_server_url: str):
     # Set up a mock route to the /chat endpoint
     def handle_chat(route: Route):

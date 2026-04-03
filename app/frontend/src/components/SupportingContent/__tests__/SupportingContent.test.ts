@@ -63,7 +63,7 @@ describe("resolveTargetSubsection", () => {
 describe("buildDisplayedSupportingItems", () => {
     const normalizeUrl = (u?: string) => (u || "").toLowerCase();
 
-    it("merges subsection-level items from one document into a single display item", () => {
+    it("merges subsection-level items that belong to the same logical section", () => {
         const items = [
             {
                 original_doc_id: "part59",
@@ -90,7 +90,7 @@ describe("buildDisplayedSupportingItems", () => {
         expect(result[0].full_content).toContain("59.10 The defendant must file");
     });
 
-    it("merges items with distinct citations from same document into one full-section card", () => {
+    it("merges items with distinct citations from the same sourcepage into one full-section card", () => {
         const items = [
             {
                 original_doc_id: "part59",
@@ -118,6 +118,30 @@ describe("buildDisplayedSupportingItems", () => {
         expect(result).toHaveLength(1);
         expect(result[0].full_content).toContain("59.1 This Part applies");
         expect(result[0].full_content).toContain("59.2 These Rules apply");
+    });
+
+    it("keeps distinct sourcepages from the same guide as separate cards", () => {
+        const items = [
+            {
+                sourcefile: "King's Bench Division Guide",
+                sourcepage: "Annex 6 - Notice of Proposed Allocation to the Multi-Track (p. 232)",
+                citation: "rule 29.1, Annex 6 - Notice of Proposed Allocation to the Multi-Track (p. 232), King's Bench Division Guide",
+                subsection_id: "rule 29.1",
+                content: "rule 29.1 The notice of proposed allocation..."
+            },
+            {
+                sourcefile: "King's Bench Division Guide",
+                sourcepage: "The Urgent and Short Applications List, Master's Appointments (p. 74)",
+                citation: "9.28, The Urgent and Short Applications List, Master's Appointments (p. 74), King's Bench Division Guide",
+                subsection_id: "9.28",
+                content: "9.28 Hearing dates for Masters' appointments..."
+            }
+        ];
+
+        const result = buildDisplayedSupportingItems(items, normalizeUrl);
+
+        expect(result).toHaveLength(2);
+        expect(result[0].sourcepage).not.toBe(result[1].sourcepage);
     });
 
     it("keeps items from different documents as separate cards", () => {

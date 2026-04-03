@@ -62,6 +62,8 @@ If necessary, edit this file to ensure it accurately reflects the current state 
 
 New files should be added to the `data` folder, and then either run scripts/prepdocs.sh or scripts/prepdocs.ps1 to ingest the data.
 
+**IMPORTANT:** When adding or removing documents from the search index, also update the "Available Documents" list in `app/frontend/src/customizations/HelpAboutPanel.tsx` (look for the `INDEX-SOURCES` comment). This keeps the user-facing help panel in sync with the actual index contents.
+
 ## Adding a new azd environment variable
 
 An azd environment variable is stored by the azd CLI for each environment. It is passed to the "azd up" command and can configure both provisioning options and application settings.
@@ -106,6 +108,8 @@ If it is an API endpoint, add an app integration test for it.
 If it is a function or method, add a unit test for it.
 Use mocks from tests/conftest.py to mock external services. Prefer mocking at the HTTP/requests level when possible.
 
+For source-filter UI changes, prefer Playwright tests in `tests/e2e.py` that intercept `/api/categories` and the outgoing chat request, then assert the `include_category` override sent by the browser rather than relying on live retrieval behaviour.
+
 When you're running tests, make sure you activate the .venv virtual environment first:
 
 ```shell
@@ -123,6 +127,19 @@ Open the cov_annotate directory to view the annotated source code. There will be
 For each file that has less than 100% test coverage, find the matching file in cov_annotate and review the file.
 
 If a line starts with a ! (exclamation mark), it means that the line is not covered by tests. Add tests to cover the missing lines.
+
+## Source hierarchy regression workflow
+
+The live source-hierarchy regression script is `scripts/test_source_hierarchy.py`.
+
+Run it locally against a running app with:
+
+```shell
+APP_URL=http://localhost:50505 python scripts/test_source_hierarchy.py
+```
+
+There is also an opt-in GitHub Actions workflow at `.github/workflows/source-hierarchy-regression.yml`.
+Use `workflow_dispatch` or `workflow_call` and pass the deployed app URL as `app_url`.
 
 ## Sending pull requests
 
@@ -223,9 +240,13 @@ The script `scripts/computer_use_test.py` uses Azure OpenAI GPT-5.4 computer use
 | `COMPUTER_USE_AZURE_OPENAI_ENDPOINT` | *(required)* | Azure OpenAI resource endpoint, e.g. `https://myresource.openai.azure.com` |
 | `COMPUTER_USE_MODEL` | `gpt-5.4` | Deployment name |
 | `COMPUTER_USE_TARGET_URL` | `http://localhost:50505` | URL the browser navigates to |
-| `COMPUTER_USE_MAX_ITERATIONS` | `10` | Hard cap on action-screenshot loops |
+| `COMPUTER_USE_MAX_ITERATIONS` | `12` | Hard cap on action-screenshot loops |
 | `COMPUTER_USE_DISPLAY_WIDTH` | `1440` | Browser viewport width |
 | `COMPUTER_USE_DISPLAY_HEIGHT` | `900` | Browser viewport height |
+
+If `COMPUTER_USE_AZURE_OPENAI_ENDPOINT` is not set explicitly, the harness falls back to the repo's standard `.env` value for `AZURE_OPENAI_ENDPOINT`.
+
+If `COMPUTER_USE_MODEL` is not set explicitly, the harness prefers a compatible deployment from the repo's standard `.env` values and otherwise falls back to `gpt-5.4`. It intentionally avoids reusing `mini` or `nano` deployments for computer use.
 
 ### Running
 
@@ -243,6 +264,9 @@ python scripts/computer_use_test.py --headless --task "Search for eye exam cover
 
 # Detailed citation regression suite:
 python scripts/computer_use_test.py --suite detailed-citations
+
+# Cross-source highlight regression suite:
+python scripts/computer_use_test.py --suite highlight-regression
 ```
 
 ### Detailed citation suite
@@ -265,6 +289,21 @@ The scenario catalog is grounded in the v3 index patterns already used by the re
 * Practice Directions such as PD44 and PD19A
 * Pre-Action Protocol sources that may collapse to short labels like `Pre`
 * Court Guide citations with hierarchical sourcepages, annexes, and PDF-style sourcefile names
+
+### Highlight regression suite
+
+The built-in `highlight-regression` suite focuses specifically on supporting-content highlighting across source families. It uses screenshot-driven computer use checks to verify that the supporting-content panel keeps the full section visible while the highlighted block starts at the cited subsection itself, excludes the adjacent heading immediately above it, and does not spill into the next subsection.
+
+The suite currently covers:
+
+* All Sources mixed retrieval
+* Civil Procedure Rules and Practice Directions
+* Commercial Court Guide
+* Chancery Guide
+* King's Bench Division Guide
+* Technology and Construction Court Guide
+* Patents Court Guide
+* Circuit Commercial Court Guide
 
 ### Example tasks
 

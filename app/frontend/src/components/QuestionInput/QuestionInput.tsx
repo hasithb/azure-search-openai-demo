@@ -107,7 +107,7 @@ export const QuestionInput = ({
     }
 
     return (
-        <div className={styles.questionInputContainer} style={{ display: "flex", gap: "0.25rem" }}>
+        <div className={styles.questionInputContainer}>
             <Textarea
                 textarea={{ ref: textareaRef }}
                 className={styles.questionInputTextArea}
@@ -120,8 +120,8 @@ export const QuestionInput = ({
                 onCompositionStart={handleCompositionStart}
                 onCompositionEnd={handleCompositionEnd}
             />
-            {leftOfSend}
             <div className={styles.questionInputButtonsContainer}>
+                {leftOfSend}
                 {isStreaming || isLoading ? (
                     <Tooltip content={t("tooltips.stopStreaming")} relationship="label">
                         <Button size="large" icon={<StopCircleIcon />} onClick={onStop} />

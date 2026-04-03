@@ -19,7 +19,7 @@ Environment variables (set in .env or export):
   COMPUTER_USE_AZURE_OPENAI_ENDPOINT  – e.g. https://myresource.openai.azure.com
   COMPUTER_USE_MODEL                  – deployment name, default "gpt-5.4"
   COMPUTER_USE_TARGET_URL             – default http://localhost:50505
-  COMPUTER_USE_MAX_ITERATIONS         – default 10
+    COMPUTER_USE_MAX_ITERATIONS         – default 12
   COMPUTER_USE_DISPLAY_WIDTH          – default 1440
   COMPUTER_USE_DISPLAY_HEIGHT         – default 900
 
@@ -60,6 +60,7 @@ from typing import Any
 from urllib.parse import urlparse
 
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+from dotenv import load_dotenv
 from openai import OpenAI
 from playwright.async_api import TimeoutError as PlaywrightTimeout
 from playwright.async_api import async_playwright
@@ -68,10 +69,51 @@ from playwright.async_api import async_playwright
 # Configuration
 # ---------------------------------------------------------------------------
 
-ENDPOINT = os.getenv("COMPUTER_USE_AZURE_OPENAI_ENDPOINT", "")
-MODEL = os.getenv("COMPUTER_USE_MODEL", "gpt-5.4")
+REPO_ROOT = Path(__file__).resolve().parents[1]
+load_dotenv(REPO_ROOT / ".env")
+
+def read_env(name: str) -> str:
+    value = os.getenv(name, "").strip()
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in {'"', "'"}:
+        return value[1:-1].strip()
+    return value
+
+
+def is_computer_use_capable_model(model_name: str) -> bool:
+    normalized = read_env(model_name) if model_name.isupper() else model_name.strip().strip('"').strip("'")
+    normalized = normalized.lower()
+    if not normalized:
+        return False
+    if "computer-use-preview" in normalized:
+        return True
+    if normalized.startswith("gpt-5.4") and "mini" not in normalized and "nano" not in normalized:
+        return True
+    return False
+
+
+def resolve_model() -> str:
+    explicit_model = read_env("COMPUTER_USE_MODEL")
+    if explicit_model:
+        return explicit_model
+
+    deployment_candidates = [
+        (read_env("AZURE_OPENAI_CHATGPT_DEPLOYMENT"), read_env("AZURE_OPENAI_CHATGPT_MODEL")),
+        (read_env("AZURE_OPENAI_SEARCHAGENT_DEPLOYMENT"), read_env("AZURE_OPENAI_SEARCHAGENT_MODEL")),
+        (read_env("AZURE_OPENAI_EVAL_DEPLOYMENT"), read_env("AZURE_OPENAI_EVAL_MODEL")),
+        (read_env("AZURE_OPENAI_GPT4V_DEPLOYMENT"), read_env("AZURE_OPENAI_GPT4V_MODEL")),
+        (read_env("AZURE_OPENAI_KNOWLEDGEBASE_DEPLOYMENT"), read_env("AZURE_OPENAI_KNOWLEDGEBASE_MODEL")),
+    ]
+    for deployment_name, model_name in deployment_candidates:
+        if deployment_name and is_computer_use_capable_model(model_name):
+            return deployment_name
+
+    return "gpt-5.4"
+
+
+ENDPOINT = read_env("COMPUTER_USE_AZURE_OPENAI_ENDPOINT") or read_env("AZURE_OPENAI_ENDPOINT")
+MODEL = resolve_model()
 TARGET_URL = os.getenv("COMPUTER_USE_TARGET_URL", "http://localhost:50505")
-MAX_ITERATIONS = int(os.getenv("COMPUTER_USE_MAX_ITERATIONS", "10"))
+MAX_ITERATIONS = int(os.getenv("COMPUTER_USE_MAX_ITERATIONS", "12"))
 DISPLAY_WIDTH = int(os.getenv("COMPUTER_USE_DISPLAY_WIDTH", "1440"))
 DISPLAY_HEIGHT = int(os.getenv("COMPUTER_USE_DISPLAY_HEIGHT", "900"))
 
@@ -80,6 +122,7 @@ ALLOWED_ORIGIN = f"{urlparse(TARGET_URL).scheme}://{urlparse(TARGET_URL).netloc}
 
 # Log directory
 LOG_DIR = Path("scripts/computer_use_logs")
+SCENARIO_PARSE_RETRIES = 1
 
 
 @dataclass(frozen=True)
@@ -90,9 +133,103 @@ class Scenario:
     questions: list[str]
     focus: list[str] = field(default_factory=list)
     notes: str = ""
+    excluded_heading: str = ""
 
 
 SUITES: dict[str, list[Scenario]] = {
+    "highlight-regression": [
+        Scenario(
+            key="all-sources-circuit-commercial-claim-form-subsection",
+            title="All Sources: Circuit Commercial Claim Form Subsection",
+            source_filter="All Sources",
+            questions=[
+                "If particulars of claim are not contained in or served with the claim form in a Circuit Commercial Court claim, what must the claim form say and what timing applies for serving particulars of claim?"
+            ],
+            focus=["supporting-content highlight", "full-section rendering", "source title fidelity"],
+            notes="Use screenshots of the supporting-content panel to verify the cited view starts at rule 59.4 itself, excludes the adjacent heading above it, and does not bleed into rule 59.5.",
+            excluded_heading="Claim form and particulars of claim",
+        ),
+        Scenario(
+            key="cpr-circuit-commercial-claim-form-subsection",
+            title="CPR: Circuit Commercial Claim Form Subsection",
+            source_filter="Civil Procedure Rules and Practice Directions",
+            questions=[
+                "Under CPR Part 59, if particulars of claim are not contained in or served with the claim form, what must the claim form say and what timing applies for serving particulars of claim?"
+            ],
+            focus=["part-59 highlighting", "full-section rendering", "supporting panel scope"],
+            notes="This is the direct regression check that the clicked panel starts at rule 59.4, excludes the adjacent heading above it, and stops before rule 59.5.",
+            excluded_heading="Claim form and particulars of claim",
+        ),
+        Scenario(
+            key="commercial-guide-default-judgment-subsection",
+            title="Commercial Court Guide: Default Judgment Subsection",
+            source_filter="Commercial Court Guide",
+            questions=["What does the Commercial Court Guide say about default judgment?"],
+            focus=["guide subsection targeting", "highlight screenshot review", "citation click targeting"],
+            excluded_heading="Default judgment",
+        ),
+        Scenario(
+            key="chancery-guide-applications-before-issue-subsection",
+            title="Chancery Guide: Applications Before Issue Subsection",
+            source_filter="Chancery Guide",
+            questions=["What does the Chancery Guide say about applications made before issue of a claim form?"],
+            focus=["hierarchical subsection targeting", "highlight screenshot review", "panel destination accuracy"],
+            excluded_heading="Applications before issue",
+        ),
+        Scenario(
+            key="senior-courts-costs-office-guide",
+            title="Senior Courts Costs Office Guide",
+            source_filter="Senior Courts Costs Office",
+            questions=[
+                "In the Senior Courts Costs Office Guide, what does paragraph 3.3 say about costs management orders and costs capping orders?"
+            ],
+            focus=["costs guide subsection targeting", "highlight screenshot review", "source filter coverage"],
+            excluded_heading="Costs management orders and costs capping orders",
+        ),
+        Scenario(
+            key="court-of-appeal-civil-division-guide",
+            title="Court of Appeal Civil Division Guide",
+            source_filter="Court of Appeal Civil Division",
+            questions=[
+                "In the Court of Appeal Civil Division Guide, what does paragraph 39.2 say about an application for disclosure?"
+            ],
+            focus=["appeal guide subsection targeting", "highlight screenshot review", "source filter coverage"],
+            excluded_heading="Application for disclosure",
+        ),
+        Scenario(
+            key="kbd-guide-enrolment-subsection",
+            title="King's Bench Division Guide: Enrolment Subsection",
+            source_filter="King's Bench Division Guide",
+            questions=["What does the King's Bench Division Guide say about enrolment of deeds and other documents?"],
+            focus=["guide subsection visibility", "highlight screenshot review", "source-title fidelity"],
+            excluded_heading="Enrolment of deeds and other documents",
+        ),
+        Scenario(
+            key="tcc-guide-enforcement-subsection",
+            title="Technology And Construction Court Guide: Enforcement Subsection",
+            source_filter="Technology and Construction Court Guide",
+            questions=["How are TCC judgments and orders generally enforced according to the Technology and Construction Court Guide?"],
+            focus=["section subsection targeting", "highlight screenshot review", "answer-to-panel correlation"],
+            notes="This question typically produces a long answer with many citations. Wait extra time for streaming to finish — the answer is not complete until you see in-text citation markers like [1] and a citation list at the bottom.",
+            excluded_heading="Enforcement",
+        ),
+        Scenario(
+            key="patents-guide-handing-down-subsection",
+            title="Patents Court Guide: Handing Down Subsection",
+            source_filter="Patents Court Guide",
+            questions=["After judgment is handed down, what does the Patents Court Guide say about agreed minutes of order?"],
+            focus=["annex subsection targeting", "highlight screenshot review", "panel destination accuracy"],
+            excluded_heading="Handing down order",
+        ),
+        Scenario(
+            key="circuit-commercial-guide-triaging-subsection",
+            title="Circuit Commercial Court Guide: Triaging Subsection",
+            source_filter="Circuit Commercial Court Guide",
+            questions=["What does the Circuit Commercial Court Guide say about London Circuit Commercial Court triaging?"],
+            focus=["court-guide subsection targeting", "highlight screenshot review", "source filter coverage"],
+            excluded_heading="London Circuit Commercial Court Triaging",
+        ),
+    ],
     "detailed-citations": [
         Scenario(
             key="all-sources-summary-judgment-and-costs",
@@ -358,34 +495,38 @@ last_successful_screenshot: str | None = None
 
 
 def build_single_task(task: str) -> str:
-        return task
+    return task
 
 
 def build_scenario_task(scenario: Scenario) -> str:
-        questions = "\n".join(f"{index}. Ask exactly: \"{question}\"" for index, question in enumerate(scenario.questions, start=1))
-        focus = ", ".join(scenario.focus) if scenario.focus else "citation accuracy and supporting content correctness"
-        notes = f" Extra notes: {scenario.notes}" if scenario.notes else ""
-        return textwrap.dedent(
-                f"""
-                You are testing the legal RAG UI for citation quality.
+    questions = "\n".join(f"{index}. Ask exactly: \"{question}\"" for index, question in enumerate(scenario.questions, start=1))
+    focus = ", ".join(scenario.focus) if scenario.focus else "citation accuracy and supporting content correctness"
+    notes = f" Extra notes: {scenario.notes}" if scenario.notes else ""
+    heading_hint = f" Adjacent heading text that should stay outside the highlighted block when available: '{scenario.excluded_heading}'." if scenario.excluded_heading else ""
+    return textwrap.dedent(
+    f"""
+        You are testing the legal RAG UI for citation quality.
 
                 Scenario name: {scenario.title}
                 Source filter to select before asking questions: {scenario.source_filter}
-                Focus areas: {focus}.{notes}
+        Focus areas: {focus}.{notes}{heading_hint}
 
                 Steps:
                 1. Open the chat page if needed.
-                2. Select the source filter exactly as '{scenario.source_filter}'. If it is already selected, keep it.
+                2. Select the source filter exactly as '{scenario.source_filter}'. If it is already selected, keep it. If the dropdown shows multiple selected sources such as '3 selected', deselect the extras and do not continue until the control visibly shows only the exact required source label, or 'All Sources' when that is the intended filter.
                 3. Run the following question flow in order:
                 {questions}
                 4. For each answer:
-                     - Wait until the assistant has fully finished responding before inspecting citations. If text is still streaming or changing, wait.
+                     - Wait until the assistant has fully finished responding before inspecting citations. If text is still streaming or changing, wait. Before treating the answer as truncated, check whether the visible text is merely clipped by the bottom of the viewport: if the answer card or page can scroll further, scroll down to confirm whether the answer continues below. An answer is NOT finished if it ends mid-sentence, ends mid-bullet, has dangling markdown such as an unmatched '**', has no visible citation labels like [1] in the body, or shows a loading indicator. If any of those conditions appear, you MUST wait at least 8 more seconds, take another screenshot, and re-check. Complete up to 3 full wait-and-recheck cycles before concluding the answer is truncated or missing citations.
                      - Record the answer text verbatim.
                      - Record every in-text citation shown in the answer body.
-                     - Record every citation label shown in the citation list at the bottom.
+                     - Record every citation label shown in the citation list at the bottom. If the number of visible citation labels is fewer than the number of in-text citations, scroll down to check for additional labels below the viewport before reporting a mismatch.
                      - State whether any label is malformed, ambiguous, duplicated, or looks like the attached bug pattern such as '1. 1' or '1. 1.1'. Do not treat shortened but still valid labels as an issue by themselves.
                      - Click only bracketed in-text citations inside the answer body such as '[1]' or '[2]'. Do not click citation labels in the bottom citation list, source links, or any external links. If there is a second distinct in-text citation, click that too.
                      - After each click, verify whether the opened supporting-content panel matches the claim in the sentence, whether the destination looks like the correct source, and whether the cited subsection is clearly highlighted.
+                     - Use the screenshot after the click to inspect the highlighted block itself. Verify that the full supporting section remains visible while the highlighted block itself starts at the cited subsection rather than including the adjacent heading/title above it.
+                     - If this scenario provides adjacent heading text, explicitly check that the heading is absent from the highlighted block.
+                     - Verify the highlighted block does not spill into the next subsection when a clear next subsection or heading is visible in the source.
                      - Record whether the panel shows only a tiny snippet or a substantial full section.
                      - Record whether an Updated date is visible.
                      - Only report issues for citations or supporting-content behavior you actually verified. If the answer contains more than two distinct in-text citations, it is acceptable not to verify the additional ones.
@@ -409,6 +550,8 @@ def build_scenario_task(scenario: Scenario) -> str:
                                          "panelSourceLooksCorrect": true,
                                          "answerCorrelatesToCitation": true,
                                          "subsectionHighlighted": true,
+                                         "highlightExcludesAdjacentTitle": true,
+                                         "excludedHeadingAbsent": true,
                                          "supportingContentSubstantial": true,
                                          "updatedVisible": false,
                                          "notes": "..."
@@ -428,67 +571,114 @@ def build_scenario_task(scenario: Scenario) -> str:
                              "citationFormattingPass": true,
                              "citationTargetingPass": true,
                              "highlightingPass": true,
+                             "subsectionOnlyHighlightPass": true,
                              "notes": "..."
                          }}
                      }}
                 7. If there are no issues, return an empty issues array.
                 """
-        ).strip()
+    ).strip()
 
 
 def extract_json_block(text: str) -> dict[str, Any] | None:
-        fenced_match = re.search(r"```json\s*(\{.*?\})\s*```", text, re.DOTALL)
-        candidate = fenced_match.group(1) if fenced_match else None
-        if not candidate:
-                brace_match = re.search(r"(\{.*\})", text, re.DOTALL)
-                candidate = brace_match.group(1) if brace_match else None
-        if not candidate:
-                return None
+    fenced_match = re.search(r"```json\s*(\{.*?\})\s*```", text, re.DOTALL)
+    candidate = fenced_match.group(1) if fenced_match else None
+    if not candidate:
+        brace_match = re.search(r"(\{.*\})", text, re.DOTALL)
+        candidate = brace_match.group(1) if brace_match else None
+    if not candidate:
+        return None
 
-        try:
-                parsed = json.loads(candidate)
-        except json.JSONDecodeError:
-                return None
-        return parsed if isinstance(parsed, dict) else None
+    try:
+        parsed = json.loads(candidate)
+    except json.JSONDecodeError:
+        return None
+    return parsed if isinstance(parsed, dict) else None
+
+
+def extract_structured_result(raw_result: dict[str, Any]) -> dict[str, Any] | None:
+    candidates: list[str] = []
+
+    final_message = raw_result.get("final_message", "")
+    if isinstance(final_message, str) and final_message.strip():
+        candidates.append(final_message)
+
+    messages = raw_result.get("messages", [])
+    if isinstance(messages, list):
+        for message in reversed(messages):
+            if isinstance(message, str) and message.strip():
+                candidates.append(message)
+
+    seen: set[str] = set()
+    for candidate in candidates:
+        if candidate in seen:
+            continue
+        seen.add(candidate)
+        parsed = extract_json_block(candidate)
+        if parsed:
+            return parsed
+
+    return None
+
+
+def build_parse_failure_issue(raw_result: dict[str, Any], scenario: Scenario, attempts_used: int) -> dict[str, Any]:
+    final_message = str(raw_result.get("final_message", "")).strip()
+    if final_message:
+        evidence = (
+            f"Scenario did not return the required JSON block after {attempts_used} attempt(s). "
+            f"Last model message: {final_message[:240]}"
+        )
+    else:
+        evidence = (
+            f"Scenario did not return the required JSON block after {attempts_used} attempt(s). "
+            f"The browser agent exhausted its run without any final structured response."
+        )
+
+    return {
+        "scenario": scenario.key,
+        "title": "Scenario did not return parseable JSON",
+        "severity": "high",
+        "evidence": evidence,
+        "suggestedArea": "unknown",
+    }
 
 
 def normalize_issue(issue: dict[str, Any], scenario: Scenario) -> dict[str, Any]:
-        return {
-                "scenario": scenario.key,
-                "title": str(issue.get("title", "Untitled issue")),
-                "severity": str(issue.get("severity", "medium")),
-                "evidence": str(issue.get("evidence", "")),
-                "suggestedArea": str(issue.get("suggestedArea", "unknown")),
-        }
+    return {
+        "scenario": scenario.key,
+        "title": str(issue.get("title", "Untitled issue")),
+        "severity": str(issue.get("severity", "medium")),
+        "evidence": str(issue.get("evidence", "")),
+        "suggestedArea": str(issue.get("suggestedArea", "unknown")),
+    }
 
 
 def aggregate_suite_results(suite_name: str, scenario_results: list[dict[str, Any]]) -> dict[str, Any]:
-        issues: list[dict[str, Any]] = []
-        scenarios_with_parse_failures: list[str] = []
-        for result in scenario_results:
-                parsed = result.get("parsed_result")
-                scenario_key = result.get("scenario", {}).get("key", "unknown")
-                if not parsed:
-                        scenarios_with_parse_failures.append(scenario_key)
-                        continue
-                for issue in parsed.get("issues", []):
-                        if isinstance(issue, dict):
-                                issues.append(issue)
+    issues: list[dict[str, Any]] = []
+    scenarios_with_parse_failures: list[str] = []
+    for result in scenario_results:
+        parsed = result.get("parsed_result")
+        scenario_key = result.get("scenario", {}).get("key", "unknown")
+        if not parsed:
+            scenarios_with_parse_failures.append(scenario_key)
+        for issue in result.get("issues", []):
+            if isinstance(issue, dict):
+                issues.append(issue)
 
-        severity_counts = {
-                "high": sum(1 for issue in issues if issue.get("severity") == "high"),
-                "medium": sum(1 for issue in issues if issue.get("severity") == "medium"),
-                "low": sum(1 for issue in issues if issue.get("severity") == "low"),
-        }
+    severity_counts = {
+        "high": sum(1 for issue in issues if issue.get("severity") == "high"),
+        "medium": sum(1 for issue in issues if issue.get("severity") == "medium"),
+        "low": sum(1 for issue in issues if issue.get("severity") == "low"),
+    }
 
-        return {
-                "suite": suite_name,
-                "scenarioCount": len(scenario_results),
-                "issueCount": len(issues),
-                "severityCounts": severity_counts,
-                "parseFailures": scenarios_with_parse_failures,
-                "issues": issues,
-        }
+    return {
+        "suite": suite_name,
+        "scenarioCount": len(scenario_results),
+        "issueCount": len(issues),
+        "severityCounts": severity_counts,
+        "parseFailures": scenarios_with_parse_failures,
+        "issues": issues,
+    }
 
 
 def validate_coordinates(x: int | float, y: int | float) -> tuple[int, int]:
@@ -513,6 +703,63 @@ async def take_screenshot(page) -> str:
         if last_successful_screenshot:
             return last_successful_screenshot
         raise
+
+
+async def reset_app_state(page) -> None:
+    """Reset browser-side state so each task starts from a clean chat session."""
+    try:
+        await page.context.clear_cookies()
+    except Exception as exc:
+        print(f"  [warn] clear_cookies failed: {exc}")
+
+    try:
+        await page.goto(TARGET_URL, wait_until="domcontentloaded")
+        await page.evaluate(
+            """
+            async () => {
+                try { window.localStorage.clear(); } catch {}
+                try { window.sessionStorage.clear(); } catch {}
+
+                try {
+                    if ('caches' in window) {
+                        const cacheKeys = await window.caches.keys();
+                        await Promise.all(cacheKeys.map(key => window.caches.delete(key)));
+                    }
+                } catch {}
+
+                try {
+                    if ('indexedDB' in window && typeof indexedDB.databases === 'function') {
+                        const databases = await indexedDB.databases();
+                        await Promise.all(
+                            (databases || []).map(database => {
+                                if (!database || !database.name) {
+                                    return Promise.resolve();
+                                }
+                                return new Promise(resolve => {
+                                    const request = indexedDB.deleteDatabase(database.name);
+                                    request.onsuccess = () => resolve(null);
+                                    request.onerror = () => resolve(null);
+                                    request.onblocked = () => resolve(null);
+                                });
+                            })
+                        );
+                    }
+                } catch {}
+            }
+            """
+        )
+        await page.reload(wait_until="domcontentloaded")
+        await asyncio.sleep(1.0)
+    except Exception as exc:
+        print(f"  [warn] app-state reset failed: {exc}")
+
+    try:
+        clear_chat_button = page.get_by_role("button", name=re.compile(r"clear chat", re.I))
+        if await clear_chat_button.count() > 0 and await clear_chat_button.first.is_visible():
+            await clear_chat_button.first.click()
+            await asyncio.sleep(0.5)
+    except Exception:
+        pass
 
 
 async def handle_action(page, action: dict) -> None:
@@ -774,11 +1021,37 @@ async def run_suite(client: OpenAI, page, suite_name: str) -> tuple[Any, dict[st
 
     for index, scenario in enumerate(scenarios, start=1):
         print(f"\n{'=' * 72}\nScenario {index}/{len(scenarios)}: {scenario.title}\n{'=' * 72}")
-        await page.goto(TARGET_URL, wait_until="domcontentloaded")
         task = build_scenario_task(scenario)
-        page, result = await run_task(client, page, task, label=scenario.title)
-        parsed_result = extract_json_block(result.get("final_message", ""))
+        result: dict[str, Any] | None = None
+        parsed_result: dict[str, Any] | None = None
+        attempts_used = 0
+
+        for attempt_index in range(SCENARIO_PARSE_RETRIES + 1):
+            attempts_used = attempt_index + 1
+            if attempt_index > 0:
+                print(f"  [retry] Scenario did not return parseable JSON; retrying attempt {attempts_used}/{SCENARIO_PARSE_RETRIES + 1}.")
+
+            await reset_app_state(page)
+            attempt_task = task
+            if attempt_index > 0:
+                attempt_task = (
+                    f"{task}\n\nIMPORTANT RETRY INSTRUCTION: This is retry attempt {attempts_used}. "
+                    "As soon as you have enough evidence, stop and return the required JSON fenced block immediately. "
+                    "Do not spend extra turns reformatting or rechecking once the requested verifications are complete."
+                )
+
+            page, result = await run_task(client, page, attempt_task, label=scenario.title)
+            parsed_result = extract_structured_result(result)
+            if parsed_result:
+                break
+
+        if result is None:
+            raise RuntimeError(f"Scenario {scenario.key} produced no result")
+
         normalized_issues = [normalize_issue(issue, scenario) for issue in parsed_result.get("issues", [])] if parsed_result else []
+        if not parsed_result:
+            normalized_issues.append(build_parse_failure_issue(result, scenario, attempts_used))
+
         scenario_results.append(
             {
                 "scenario": {
@@ -787,6 +1060,7 @@ async def run_suite(client: OpenAI, page, suite_name: str) -> tuple[Any, dict[st
                     "source_filter": scenario.source_filter,
                     "questions": scenario.questions,
                 },
+                "attemptCount": attempts_used,
                 "raw_result": result,
                 "parsed_result": parsed_result,
                 "issues": normalized_issues,
@@ -810,7 +1084,7 @@ async def main() -> None:
 
     if not ENDPOINT:
         print(
-            "ERROR: Set COMPUTER_USE_AZURE_OPENAI_ENDPOINT to your Azure OpenAI resource endpoint.\n"
+            "ERROR: Set COMPUTER_USE_AZURE_OPENAI_ENDPOINT or AZURE_OPENAI_ENDPOINT to your Azure OpenAI resource endpoint.\n"
             "  Example: export COMPUTER_USE_AZURE_OPENAI_ENDPOINT=https://myresource.openai.azure.com"
         )
         sys.exit(1)
@@ -844,6 +1118,7 @@ async def main() -> None:
         try:
             if args.task:
                 # Single-task mode
+                await reset_app_state(page)
                 page, result = await run_task(client, page, build_single_task(args.task))
                 all_logs.append(result)
             elif args.suite:

@@ -49,6 +49,51 @@ def is_deployed_ui_compat_enabled() -> bool:
     return os.getenv("DEPLOYED_UI_COMPAT", "false").lower() == "true"
 
 
+# CUSTOM: Display name mapping shared between categories route and prompt source list
+SOURCE_DISPLAY_NAMES = {
+    "Commercial Court": "Commercial Court Guide",
+    "Circuit Commercial Court": "Circuit Commercial Court Guide",
+    "Technology and Construction Court": "Technology and Construction Court Guide",
+    "King's Bench Division": "King's Bench Division Guide",
+    "Chancery Division": "Chancery Guide",
+    "Patents Court": "Patents Court Guide",
+    "Civil Procedure Rules and Practice Directions": "Civil Procedure Rules and Practice Directions",
+    "Pre-Action Protocols": "Pre-Action Protocols",
+    "Court of Appeal Civil Division": "Court of Appeal Civil Division Guide",
+    "Senior Courts Costs Office": "Senior Courts Costs Office Guide",
+}
+
+
+async def fetch_available_sources(search_client) -> list[str]:
+    """Fetch the list of available document sources from the search index.
+
+    Uses a faceted search on the 'category' field — no documents returned, just
+    the unique category values.  Results are mapped through SOURCE_DISPLAY_NAMES
+    so the prompt sees user-friendly names.
+
+    Returns a list of display-name strings, e.g.
+      ["Chancery Guide", "Civil Procedure Rules and Practice Directions", ...]
+    """
+    try:
+        results = await search_client.search(
+            search_text="*",
+            facets=["category,count:1000"],
+            top=0,
+            select=["id"],
+        )
+        facets = await results.get_facets()
+        sources = []
+        if facets and "category" in facets:
+            for facet in facets["category"]:
+                key = facet.get("value", "")
+                if key:
+                    sources.append(SOURCE_DISPLAY_NAMES.get(key, key))
+        sources.sort()
+        return sources
+    except Exception:
+        return []
+
+
 def get_deployment_metadata() -> dict[str, str]:
     """
     Get deployment and version metadata for feedback tracking.

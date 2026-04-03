@@ -19,7 +19,6 @@ import styles from "./Chat.module.css";
 import { chatApi, configApi, RetrievalMode, ChatAppResponse, ChatAppResponseOrError, ChatAppRequest, ResponseMessage, SpeechConfig } from "../../api";
 import { Answer, AnswerError, AnswerLoading } from "../../components/Answer";
 import { QuestionInput } from "../../components/QuestionInput";
-import { ExampleList } from "../../components/Example";
 import { UserChatMessage } from "../../components/UserChatMessage";
 import { AnalysisPanel, AnalysisPanelTabs } from "../../components/AnalysisPanel";
 import { HistoryPanel } from "../../components/HistoryPanel";
@@ -60,7 +59,7 @@ const Chat = () => {
     const [seed, setSeed] = useState<number | null>(null);
     const [minimumRerankerScore, setMinimumRerankerScore] = useState<number>(1.9);
     const [minimumSearchScore, setMinimumSearchScore] = useState<number>(0);
-    const [retrieveCount, setRetrieveCount] = useState<number>(3);
+    const [retrieveCount, setRetrieveCount] = useState<number>(7);
     const [agenticReasoningEffort, setRetrievalReasoningEffort] = useState<string>("minimal");
     const [retrievalMode, setRetrievalMode] = useState<RetrievalMode>(RetrievalMode.Hybrid);
     const [useSemanticRanker, setUseSemanticRanker] = useState<boolean>(true);
@@ -640,8 +639,6 @@ const Chat = () => {
                                 <p className={styles.introSubtitle}>{t("chatEmptyStateSubtitle")}</p>
                             </div>
                             {showLanguagePicker && <LanguagePicker onLanguageChange={newLang => i18n.changeLanguage(newLang)} />}
-
-                            <ExampleList onExampleClicked={onExampleClicked} useGPT4V={showMultimodalOptions} />
                         </div>
                     ) : (
                         <div className={styles.chatMessageStream}>

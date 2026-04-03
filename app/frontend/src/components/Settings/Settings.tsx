@@ -337,7 +337,7 @@ export const Settings = ({
                             min={1}
                             max={50}
                             defaultValue={retrieveCount.toString()}
-                            onChange={(_ev, data) => onChange("retrieveCount", parseInt(data.value || "3"))}
+                            onChange={(_ev, data) => onChange("retrieveCount", parseInt(data.value || "7"))}
                             aria-labelledby={retrieveCountId}
                         />
                     </div>

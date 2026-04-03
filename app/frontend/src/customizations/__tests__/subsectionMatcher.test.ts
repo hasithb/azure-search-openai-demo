@@ -33,6 +33,28 @@ describe("findBestMatch", () => {
         expect(findBestMatch(meta, items)).toBe(-1);
     });
 
+    it("uses sourcepage to disambiguate sections from the same guide", () => {
+        const meta = makeMeta({
+            subsectionId: "9.28",
+            sourcepage: "The Urgent and Short Applications List, Master's Appointments (p. 74)",
+            sourcefile: "King's Bench Division Guide"
+        });
+        const items = [
+            {
+                sourcepage: "Annex 6 - Notice of Proposed Allocation to the Multi-Track (p. 232)",
+                sourcefile: "King's Bench Division Guide",
+                content: "rule 29.1 The notice of proposed allocation..."
+            },
+            {
+                sourcepage: "The Urgent and Short Applications List, Master's Appointments (p. 74)",
+                sourcefile: "King's Bench Division Guide",
+                content: "9.28 Hearing dates for Masters' appointments..."
+            }
+        ];
+
+        expect(findBestMatch(meta, items)).toBe(1);
+    });
+
     it("scores exact subsection_id field match highest (100)", () => {
         const meta = makeMeta({ subsectionId: "CPR-31.2" });
         const items = [

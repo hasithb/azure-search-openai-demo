@@ -9,6 +9,7 @@ import type { StructuredCitationMetadata } from "./citationMetadata";
 
 interface MatchableItem {
     subsection_id?: string;
+    sourcepage?: string;
     sourcefile?: string;
     content?: string;
     full_content?: string;
@@ -20,20 +21,22 @@ interface MatchableItem {
  *
  * Scoring priority:
  *   1. Exact subsection_id match on the item's subsection_id field (100)
- *   2. subsection_id found in item content via word-boundary regex (80)
- *   3. sourcefile match + subsection in content (60)
- *   4. sourcefile-only match (20)
+ *   2. Exact sourcepage match on the item's sourcepage field (90)
+ *   3. subsection_id found in item content via word-boundary regex (80)
+ *   4. sourcefile match + subsection in content (60)
+ *   5. sourcefile-only match (20)
  *
  * Returns -1 when no match meets the minimum threshold.
  */
 export function findBestMatch(metadata: StructuredCitationMetadata, items: MatchableItem[]): number {
     if (!items || items.length === 0) return -1;
 
-    const { subsectionId, sourcefile: metaSourcefile } = metadata;
+    const { subsectionId, sourcepage: metaSourcepage, sourcefile: metaSourcefile } = metadata;
     const hasSubsection = subsectionId.length > 0;
+    const hasSourcepage = metaSourcepage.length > 0;
     const hasSourcefile = metaSourcefile.length > 0;
 
-    if (!hasSubsection && !hasSourcefile) return -1;
+    if (!hasSubsection && !hasSourcepage && !hasSourcefile) return -1;
 
     let bestIndex = -1;
     let bestScore = 0;
@@ -44,6 +47,7 @@ export function findBestMatch(metadata: StructuredCitationMetadata, items: Match
         let score = 0;
 
         const itemSubsectionId = (item.subsection_id ?? "").trim();
+        const itemSourcepage = (item.sourcepage ?? "").trim();
         const itemSourcefile = (item.sourcefile ?? "").trim();
         const itemContent = item.full_content || item.content || "";
 
@@ -52,7 +56,20 @@ export function findBestMatch(metadata: StructuredCitationMetadata, items: Match
             score += 100;
         }
 
-        // 2. subsection_id found in content text
+        // 2. Exact sourcepage match helps disambiguate multiple sections from the same guide.
+        if (hasSourcepage && itemSourcepage) {
+            const normalizedMetaSourcepage = metaSourcepage.toLowerCase();
+            const normalizedItemSourcepage = itemSourcepage.toLowerCase();
+            if (
+                normalizedMetaSourcepage === normalizedItemSourcepage ||
+                normalizedMetaSourcepage.includes(normalizedItemSourcepage) ||
+                normalizedItemSourcepage.includes(normalizedMetaSourcepage)
+            ) {
+                score += 90;
+            }
+        }
+
+        // 3. subsection_id found in content text
         if (hasSubsection && score < 100 && itemContent) {
             const escaped = subsectionId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
             const pattern = new RegExp(`(^|\\n|\\s)${escaped}(\\s|\\.|,|$)`, "i");
@@ -61,7 +78,7 @@ export function findBestMatch(metadata: StructuredCitationMetadata, items: Match
             }
         }
 
-        // 3/4. sourcefile match
+        // 4/5. sourcefile match
         if (hasSourcefile && itemSourcefile) {
             const normalizedMeta = metaSourcefile.toLowerCase();
             const normalizedItem = itemSourcefile.toLowerCase();

@@ -48,7 +48,7 @@ from approaches.approach import Approach, DataPoints
 from approaches.chatreadretrieveread import ChatReadRetrieveReadApproach
 from approaches.promptmanager import PromptManager
 from chat_history.cosmosdb import chat_history_cosmosdb_bp
-from customizations.config import is_deployed_ui_compat_enabled, is_feature_enabled
+from customizations.config import fetch_available_sources, is_deployed_ui_compat_enabled, is_feature_enabled
 from customizations.routes import categories_bp, feedback_bp
 from config import (
     CONFIG_AGENTIC_KNOWLEDGEBASE_ENABLED,
@@ -717,6 +717,13 @@ async def setup_clients():
 
     prompt_manager = PromptManager()
 
+    # CUSTOM: Fetch available document sources from search index for dynamic prompt awareness
+    available_sources = await fetch_available_sources(search_client)
+    if available_sources:
+        current_app.logger.info(f"Loaded {len(available_sources)} document sources for prompt: {available_sources}")
+    else:
+        current_app.logger.warning("Could not fetch document sources from search index; prompts will use fallback text")
+
     # ChatReadRetrieveReadApproach is used by /chat for multi-turn conversation
     current_app.config[CONFIG_CHAT_APPROACH] = ChatReadRetrieveReadApproach(
         search_client=search_client,
@@ -747,6 +754,7 @@ async def setup_clients():
         use_web_source=current_app.config[CONFIG_WEB_SOURCE_ENABLED],
         use_sharepoint_source=current_app.config[CONFIG_SHAREPOINT_SOURCE_ENABLED],
         retrieval_reasoning_effort=AGENTIC_KNOWLEDGEBASE_REASONING_EFFORT,
+        available_sources=available_sources,
     )
 
 
