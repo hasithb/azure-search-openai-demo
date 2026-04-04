@@ -915,7 +915,7 @@ async def test_run_search_approach_targets_missing_explicit_legal_reference(chat
             "object": "chat.completion",
             "created": 0,
             "model": "gpt-4.1-mini",
-            "choices": [{"index": 0, "finish_reason": "stop", "message": {"role": "assistant", "content": "construction pre action summary judgment"}}],
+            "choices": [{"index": 0, "finish_reason": "stop", "message": {"role": "assistant", "content": "CPR 24.3 construction pre action summary judgment no real prospect of succeeding"}}],
             "usage": {"completion_tokens": 1, "prompt_tokens": 1, "total_tokens": 2},
         },
         strict=False,
@@ -923,7 +923,7 @@ async def test_run_search_approach_targets_missing_explicit_legal_reference(chat
 
     async def fake_rewrite_query(**_kwargs):
         return RewriteQueryResult(
-            query="construction pre action summary judgment",
+            query="CPR 24.3 construction pre action summary judgment no real prospect of succeeding",
             messages=[{"role": "user", "content": "original"}],
             completion=completion,
             reasoning_effort="minimal",
@@ -934,6 +934,7 @@ async def test_run_search_approach_targets_missing_explicit_legal_reference(chat
 
     async def fake_search(*args, **kwargs):
         query_text = args[1]
+        filter_text = args[2] if len(args) > 2 else kwargs.get("filter", "")
         search_calls.append(query_text)
         if query_text == "Practice Direction 27B":
             return [
@@ -945,7 +946,10 @@ async def test_run_search_approach_targets_missing_explicit_legal_reference(chat
                     category="Civil Procedure Rules and Practice Directions",
                 )
             ]
-        if query_text == "24.3 summary judgment no real prospect of succeeding no other compelling reason":
+        # Dynamic CPR Part supplemental search: the rewrite contains "CPR 24.3"
+        # so the pipeline extracts Part 24 and does a category-filtered search
+        # using the full rewrite text.
+        if "Civil Procedure Rules" in (filter_text or "") and "24.3" in query_text:
             return [
                 Document(
                     id="part24",
@@ -1004,7 +1008,9 @@ async def test_run_search_approach_targets_missing_explicit_legal_reference(chat
 
     assert search_calls[0]
     assert "Practice Direction 27B" in search_calls
-    assert "24.3 summary judgment no real prospect of succeeding no other compelling reason" in search_calls
+    # The dynamic CPR Part supplemental search uses the full rewrite text
+    # (which contains "CPR 24.3") with a CPR category filter.
+    assert any("24.3" in call for call in search_calls)
     assert extra_info.data_points.text is not None
     assert any(source["sourcefile"] == "Practice Direction 27B" for source in extra_info.data_points.text)
     assert any(source["sourcefile"] == "Part 24 - Summary judgment" for source in extra_info.data_points.text)

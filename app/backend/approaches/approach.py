@@ -185,6 +185,7 @@ class AgenticRetrievalResults:
     sharepoint_results: list[SharePointResult] = field(default_factory=list)
     answer: Optional[str] = None  # Synthesized answer when web knowledge source is used
     rewrite_result: Optional[RewriteQueryResult] = None
+    query_hint: Optional[str] = None
     activity_details_by_id: Optional[dict[int, ActivityDetail]] = None
     thoughts: list[ThoughtStep] = field(default_factory=list)
 
@@ -512,37 +513,67 @@ class Approach(ABC):
 
         return False
 
-    def _extract_canonical_legal_concept_queries(self, query: str) -> list[tuple[str, str]]:
+    def _extract_cpr_part_references_from_rewrite(self, rewritten_query: str) -> list[tuple[str, str]]:
+        """Extract CPR Part references the LLM placed in its rewritten query.
+
+        Returns (part_reference, rewritten_query) tuples where part_reference
+        is e.g. "Part 31" derived from "CPR 31.6" or "CPR Part 52".
+        The rewritten_query is passed through so it can be used as the
+        supplemental search text.
+        """
+        part_numbers: set[str] = set()
+        lowered = rewritten_query.lower()
+
+        # Match "CPR X.Y" or "CPR X" → derive Part X
+        for m in re.finditer(r"\bcpr\s+(\d+)(?:\.\d+)?\b", lowered):
+            part_numbers.add(m.group(1))
+
+        # Match "Part X" explicitly
+        for m in re.finditer(r"\bpart\s+(\d+)\b", lowered):
+            part_numbers.add(m.group(1))
+
+        return [(f"Part {num}", rewritten_query) for num in sorted(part_numbers)]
+
+    def _extract_canonical_legal_concept_queries(self, query: str) -> list[tuple[str, str, Optional[str]]]:
+        """Return (targeted_query, required_source_reference, category_filter) tuples.
+
+        The category_filter narrows the supplemental search to the correct
+        source family so that Court Guide chunks do not drown out the
+        authoritative CPR Part in All Sources mode.
+        """
         normalized_query = self._normalize_intent_text(query)
-        concept_mappings: list[tuple[str, str, str]] = [
+        concept_mappings: list[tuple[str, str, str, Optional[str]]] = [
             (
                 "summary judgment",
                 "24.3 summary judgment no real prospect of succeeding no other compelling reason",
                 "Part 24",
+                "category eq 'Civil Procedure Rules and Practice Directions'",
             ),
             (
                 "pre action disclosure",
                 "31.16 disclosure before proceedings have started application for disclosure pre-action",
                 "Part 31",
+                "category eq 'Civil Procedure Rules and Practice Directions'",
             ),
         ]
         # Short acronyms need word-boundary matching to avoid false positives
-        acronym_mappings: list[tuple[str, str, str]] = [
+        acronym_mappings: list[tuple[str, str, str, Optional[str]]] = [
             (
                 r"\bpad\b",
                 "31.16 disclosure before proceedings have started application for disclosure pre-action",
                 "Part 31",
+                "category eq 'Civil Procedure Rules and Practice Directions'",
             ),
         ]
 
-        results: list[tuple[str, str]] = [
-            (targeted_query, required_source_reference)
-            for concept_phrase, targeted_query, required_source_reference in concept_mappings
+        results: list[tuple[str, str, Optional[str]]] = [
+            (targeted_query, required_source_reference, category_filter)
+            for concept_phrase, targeted_query, required_source_reference, category_filter in concept_mappings
             if concept_phrase in normalized_query
         ]
-        for pattern, targeted_query, required_source_reference in acronym_mappings:
+        for pattern, targeted_query, required_source_reference, category_filter in acronym_mappings:
             if re.search(pattern, normalized_query):
-                results.append((targeted_query, required_source_reference))
+                results.append((targeted_query, required_source_reference, category_filter))
 
         return results
 
@@ -997,25 +1028,28 @@ class Approach(ABC):
 
         agentic_retrieval_input: dict[str, Any] = {}
         rewrite_result = None
-        if retrieval_reasoning_effort == "minimal" and should_rewrite_query:
-            original_user_query = messages[-1]["content"]
-            if not isinstance(original_user_query, str):
-                raise ValueError("The most recent message content must be a string.")
-
+        latest_message_content = messages[-1]["content"] if messages else ""
+        if should_rewrite_query and isinstance(latest_message_content, str) and latest_message_content:
             rewrite_result = await self.rewrite_query(
                 prompt_template="query_rewrite.system.jinja2",
-                prompt_variables={"user_query": original_user_query, "past_messages": messages[:-1]},
+                prompt_variables={
+                    "user_query": latest_message_content,
+                    "past_messages": messages[:-1],
+                    "available_sources": self.available_sources,
+                },
                 overrides={},
                 chatgpt_model=self.chatgpt_model,
                 chatgpt_deployment=self.chatgpt_deployment,
-                user_query=original_user_query,
+                user_query=latest_message_content,
                 response_token_limit=self.get_response_token_limit(
                     self.chatgpt_model, 300
-                ),  # Setting too low risks malformed JSON, setting too high may affect performance
+                ),
                 tools=self.query_rewrite_tools,
-                temperature=0.0,  # Minimize creativity for search query generation
+                temperature=0.0,
                 no_response_token=self.QUERY_REWRITE_NO_RESPONSE,
             )
+
+        if rewrite_result is not None:
             thoughts.append(
                 self.format_thought_step_for_chatcompletion(
                     title="Prompt to generate search query",
@@ -1027,17 +1061,18 @@ class Approach(ABC):
                     reasoning_effort=rewrite_result.reasoning_effort,
                 )
             )
+
+        if retrieval_reasoning_effort == "minimal" and rewrite_result is not None:
             merged_rewrite_query = self._merge_rewritten_query_with_explicit_references(
                 rewrite_result.query,
-                original_user_query,
+                latest_message_content,
                 rewrite_result.subsection_hint,
             )
             agentic_retrieval_input["intents"] = [KnowledgeRetrievalSemanticIntent(search=merged_rewrite_query)]
         elif retrieval_reasoning_effort == "minimal":
-            last_content = messages[-1]["content"]
-            if not isinstance(last_content, str):
+            if not isinstance(latest_message_content, str):
                 raise ValueError("The most recent message content must be a string.")
-            agentic_retrieval_input["intents"] = [KnowledgeRetrievalSemanticIntent(search=last_content)]
+            agentic_retrieval_input["intents"] = [KnowledgeRetrievalSemanticIntent(search=latest_message_content)]
         else:
             kb_messages: list[KnowledgeBaseMessage] = [
                 KnowledgeBaseMessage(
@@ -1230,7 +1265,22 @@ class Approach(ABC):
         canonical_legal_concepts = (
             self._extract_canonical_legal_concept_queries(latest_user_query) if isinstance(latest_user_query, str) else []
         )
-        fallback_result_limit = max(3, len(explicit_legal_references) + len(canonical_legal_concepts) + 1)
+        # Also extract CPR Part references from any rewritten query for dynamic retrieval
+        rewrite_cpr_refs: list[tuple[str, str]] = []
+        if rewrite_result and rewrite_result.query:
+            rewrite_cpr_refs = self._extract_cpr_part_references_from_rewrite(rewrite_result.query)
+        fallback_result_limit = max(3, len(explicit_legal_references) + len(canonical_legal_concepts) + len(rewrite_cpr_refs) + 1)
+        query_hint: Optional[str] = None
+        if rewrite_result and rewrite_result.query:
+            query_hint = self._merge_rewritten_query_with_explicit_references(
+                rewrite_result.query,
+                latest_user_query if isinstance(latest_user_query, str) else rewrite_result.query,
+                rewrite_result.subsection_hint,
+            )
+        elif canonical_legal_concepts:
+            query_hint = canonical_legal_concepts[0][0]
+        elif isinstance(latest_user_query, str):
+            query_hint = latest_user_query
         weak_document_matches = bool(
             isinstance(latest_user_query, str)
             and document_results
@@ -1238,9 +1288,11 @@ class Approach(ABC):
             and self._should_retry_for_query_intent(document_results, latest_user_query)
         )
 
+        merge_scoring_query = query_hint or (latest_user_query if isinstance(latest_user_query, str) else "")
+
         if isinstance(latest_user_query, str) and latest_user_query and document_results:
             document_results = self._merge_documents_by_query_intent(
-                latest_user_query,
+                merge_scoring_query,
                 document_results,
                 limit=len(document_results),
             )
@@ -1295,7 +1347,7 @@ class Approach(ABC):
 
             if isinstance(latest_user_query, str) and latest_user_query:
                 document_results = self._merge_documents_by_query_intent(
-                    latest_user_query,
+                    merge_scoring_query,
                     document_results,
                     limit=fallback_result_limit,
                 )
@@ -1329,20 +1381,27 @@ class Approach(ABC):
                     if docs:
                         supplemental_reference_queries.append(targeted_reference_query)
                         document_results = self._merge_documents_by_query_intent(
-                            latest_user_query,
+                            merge_scoring_query,
                             document_results + docs,
                             limit=fallback_result_limit,
                         )
                         break
 
-            for concept_query, required_source_reference in canonical_legal_concepts:
-                if self._results_include_reference_in_source(document_results, required_source_reference):
+            # Dynamic CPR Part retrieval from LLM rewrite + canonical concepts
+            cpr_category_filter = "category eq 'Civil Procedure Rules and Practice Directions'"
+            all_part_refs: list[tuple[str, str]] = list(rewrite_cpr_refs)
+            for concept_query, required_source_reference, _ in canonical_legal_concepts:
+                if not any(ref == required_source_reference for ref, _ in all_part_refs):
+                    all_part_refs.append((required_source_reference, concept_query))
+
+            for part_reference, search_text in all_part_refs:
+                if self._results_include_reference_in_source(document_results, part_reference):
                     continue
 
                 docs = await self.search(
                     top=min(fallback_result_limit, 3),
-                    query_text=concept_query,
-                    filter=filter_add_on,
+                    query_text=search_text,
+                    filter=cpr_category_filter,
                     vectors=[],
                     use_text_search=True,
                     use_vector_search=False,
@@ -1352,15 +1411,48 @@ class Approach(ABC):
                     minimum_reranker_score=0,
                     use_query_rewriting=False,
                     access_token=access_token,
-                    semantic_query_text=concept_query,
+                    semantic_query_text=search_text,
                 )
                 if docs:
-                    supplemental_reference_queries.append(concept_query)
+                    supplemental_reference_queries.append(f"{part_reference} (from rewrite)")
                     document_results = self._merge_documents_by_query_intent(
-                        latest_user_query,
+                        merge_scoring_query,
                         document_results + docs,
                         limit=fallback_result_limit,
                     )
+                    part_doc = next(
+                        (
+                            candidate
+                            for candidate in document_results
+                            if candidate.category == "Civil Procedure Rules and Practice Directions"
+                            and self._results_include_reference_in_source([candidate], part_reference)
+                        ),
+                        None,
+                    )
+                    if part_doc is None:
+                        part_doc = next(
+                            (candidate for candidate in docs if self._results_include_reference_in_source([candidate], part_reference)),
+                            docs[0],
+                        )
+                        document_results.append(part_doc)
+
+                    if part_doc is not None:
+                        remaining_docs = [doc for doc in document_results if doc.id != part_doc.id]
+                        document_results = [part_doc, *remaining_docs]
+
+            for part_reference, _search_text in reversed(all_part_refs):
+                matched_part_doc = next(
+                    (
+                        candidate
+                        for candidate in document_results
+                        if candidate.category == "Civil Procedure Rules and Practice Directions"
+                        and self._results_include_reference_in_source([candidate], part_reference)
+                    ),
+                    None,
+                )
+                if matched_part_doc is not None:
+                    remaining_docs = [doc for doc in document_results if doc.id != matched_part_doc.id]
+                    document_results = [matched_part_doc, *remaining_docs]
 
         # CUSTOM: Agentic retrieval source_data may not include all index fields.
         # Supplement missing fields (updated, storageUrl, subsection_id) via direct lookup.
@@ -1408,6 +1500,7 @@ class Approach(ABC):
             sharepoint_results=sharepoint_results,
             answer=answer,
             rewrite_result=rewrite_result,
+            query_hint=query_hint,
             activity_details_by_id=activity_details_by_id,
             thoughts=thoughts,
         )
@@ -1450,6 +1543,7 @@ class Approach(ABC):
         user_oid: Optional[str] = None,
         web_results: Optional[list[WebResult]] = None,
         sharepoint_results: Optional[list[SharePointResult]] = None,
+        query_hint: Optional[str] = None,
     ) -> DataPoints:
         """Extract text/image sources & citations from documents.
 
@@ -1500,6 +1594,7 @@ class Approach(ABC):
                 focus_on_indexed_subsection=True,
                 adjacent_subsections=1,
                 max_unfocused_subsections=4,
+                query_hint=query_hint,
             )
             documents_by_id = {str(doc.id): doc for doc in results if doc.id}
 

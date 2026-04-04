@@ -548,6 +548,18 @@ class ChatReadRetrieveReadApproach(Approach):
         results = raw_results
         adaptive_retry_used = False
         supplemental_reference_queries: list[str] = []
+
+        # The LLM's rewritten query often contains CPR Part/rule references
+        # (e.g. "CPR 31.6", "CPR Part 52") derived from its legal knowledge.
+        # Extract those to (a) boost the authoritative Part in merge scoring
+        # and (b) do a targeted category-filtered search if the Part is missing
+        # from initial results.
+        rewrite_cpr_refs = self._extract_cpr_part_references_from_rewrite(query_text)
+        rewrite_part_refs = [ref for ref, _ in rewrite_cpr_refs]
+        merge_scoring_query = (
+            f"{original_user_query} {' '.join(rewrite_part_refs)}" if rewrite_part_refs else original_user_query
+        )
+
         if (
             is_feature_enabled("adaptive_search_retry")
             and self._should_retry_for_query_intent(raw_results, original_user_query)
@@ -575,10 +587,10 @@ class ChatReadRetrieveReadApproach(Approach):
                 access_token,
                 semantic_query_text=original_user_query,
             )
-            results = self._merge_documents_by_query_intent(original_user_query, raw_results + retry_results, limit=top)
+            results = self._merge_documents_by_query_intent(merge_scoring_query, raw_results + retry_results, limit=top)
             adaptive_retry_used = True
         else:
-            results = self._merge_documents_by_query_intent(original_user_query, raw_results, limit=top)
+            results = self._merge_documents_by_query_intent(merge_scoring_query, raw_results, limit=top)
 
         explicit_references = self._extract_explicit_legal_references(original_user_query)
         covered_reference_terms = self._covered_query_reference_terms(results, original_user_query)
@@ -608,21 +620,33 @@ class ChatReadRetrieveReadApproach(Approach):
                 if reference_results:
                     supplemental_reference_queries.append(targeted_reference_query)
                     results = self._merge_documents_by_query_intent(
-                        original_user_query,
+                        merge_scoring_query,
                         results + reference_results,
                         limit=top,
                     )
                     adaptive_retry_used = True
                     break
 
-        for concept_query, required_source_reference in self._extract_canonical_legal_concept_queries(original_user_query):
-            if self._results_include_reference_in_source(results, required_source_reference):
+        # Dynamic CPR Part retrieval: if the LLM's rewrite references a CPR Part
+        # (e.g. "CPR 3.9" → Part 3) and that Part is missing from results, do a
+        # category-filtered search to ensure the authoritative source is included.
+        # This replaces hardcoded canonical concept mappings — the LLM's general
+        # legal knowledge drives which Parts to look for.
+        cpr_category_filter = "category eq 'Civil Procedure Rules and Practice Directions'"
+        cpr_category_name = "Civil Procedure Rules and Practice Directions"
+        for part_reference, rewrite_search_text in rewrite_cpr_refs:
+            # Check if this Part is already covered by a CPR document specifically.
+            # Court Guide chunks often reference CPR Part numbers in their
+            # subsection_id (e.g. Patents Court Guide with sub="Part 31"), so
+            # only consider CPR-category documents as authoritative matches.
+            cpr_docs_in_results = [doc for doc in results[:5] if doc.category == cpr_category_name]
+            if self._results_include_reference_in_source(cpr_docs_in_results, part_reference):
                 continue
 
-            concept_results = await self.search(
+            cpr_results = await self.search(
                 min(top, 3),
-                concept_query,
-                search_index_filter,
+                rewrite_search_text,
+                cpr_category_filter,
                 [],
                 True,
                 False,
@@ -632,15 +656,35 @@ class ChatReadRetrieveReadApproach(Approach):
                 minimum_reranker_score,
                 False,
                 access_token,
-                semantic_query_text=concept_query,
+                semantic_query_text=rewrite_search_text,
             )
-            if concept_results:
-                supplemental_reference_queries.append(concept_query)
+            if cpr_results:
+                supplemental_reference_queries.append(f"{part_reference} (from rewrite)")
                 results = self._merge_documents_by_query_intent(
-                    original_user_query,
-                    results + concept_results,
+                    merge_scoring_query,
+                    results + cpr_results,
                     limit=top,
                 )
+                # The merge's focus filter may drop the CPR Part result if
+                # its intent score falls below the minimum threshold (Court
+                # Guide chunks about the same CPR Part often score higher
+                # because their content uses the same terminology).  Since we
+                # specifically retrieved these results to fill an identified
+                # gap for this Part, guarantee the authoritative CPR Part
+                # document is present.  Check for the specific Part reference
+                # (not just any CPR document) because the supplemental search
+                # may also return tangentially related CPR documents (e.g.
+                # Pre-Action Protocols when searching for Part 31).
+                if not self._results_include_reference_in_source(
+                    [doc for doc in results if doc.category == cpr_category_name],
+                    part_reference,
+                ):
+                    # Find the best CPR result that actually matches the Part
+                    part_doc = next(
+                        (cd for cd in cpr_results if self._results_include_reference_in_source([cd], part_reference)),
+                        cpr_results[0],
+                    )
+                    results.append(part_doc)
                 adaptive_retry_used = True
 
         # STEP 3: Generate a contextual and content specific answer using the search results and chat history
@@ -650,6 +694,7 @@ class ChatReadRetrieveReadApproach(Approach):
             include_text_sources=send_text_sources,
             download_image_sources=send_image_sources,
             user_oid=auth_claims.get("oid"),
+            query_hint=query_text,
         )
         enhanced_citations, citation_map = self.build_legacy_citation_context(data_points)
         extra_info = ExtraInfo(
@@ -748,6 +793,7 @@ class ChatReadRetrieveReadApproach(Approach):
             user_oid=auth_claims.get("oid"),
             web_results=agentic_results.web_results,
             sharepoint_results=agentic_results.sharepoint_results,
+            query_hint=agentic_results.query_hint or (str(messages[-1]["content"]) if messages else None),
         )
         enhanced_citations, citation_map = self.build_legacy_citation_context(data_points)
 

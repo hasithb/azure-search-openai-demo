@@ -48,6 +48,7 @@ class SourceProcessor:
         focus_on_indexed_subsection: bool = False,
         adjacent_subsections: int = 0,
         max_unfocused_subsections: Optional[int] = None,
+        query_hint: Optional[str] = None,
     ) -> list[dict[str, Any]]:
         """
         Process documents into structured source content.
@@ -65,6 +66,8 @@ class SourceProcessor:
                 side of a focused subsection.
             max_unfocused_subsections: When focusing is enabled but no subsection anchor
                 can be resolved, cap the number of expanded subsections per document.
+            query_hint: Optional query text used to extract subsection references
+                (e.g., "CPR 31.16") when the indexed subsection_id does not match.
             
         Returns:
             List of structured source dictionaries for frontend consumption
@@ -88,7 +91,7 @@ class SourceProcessor:
             subsections = self.citation_builder.extract_multiple_subsections(doc)
 
             if len(subsections) > 1 and focus_on_indexed_subsection:
-                subsections = self._focus_subsections(doc, subsections, adjacent_subsections)
+                subsections = self._focus_subsections(doc, subsections, adjacent_subsections, query_hint=query_hint)
                 if max_unfocused_subsections is not None and len(subsections) > max_unfocused_subsections:
                     subsections = subsections[:max_unfocused_subsections]
             
@@ -116,21 +119,25 @@ class SourceProcessor:
         doc: Any,
         subsections: list[dict[str, str]],
         adjacent_subsections: int,
+        query_hint: Optional[str] = None,
     ) -> list[dict[str, str]]:
-        """Narrow subsection expansion around the indexed subsection when available."""
+        """Narrow subsection expansion around the indexed subsection when available.
+
+        Falls back to extracting subsection references from *query_hint*
+        when the indexed ``subsection_id`` does not match any extracted
+        subsection header.
+        """
 
         focus_subsection = self.citation_builder.extract_subsection(doc)
-        if not focus_subsection:
-            return subsections
 
-        normalized_focus = self._normalize_subsection_key(focus_subsection)
-        focus_index: Optional[int] = None
+        # Try the indexed subsection_id first
+        focus_index = self._find_subsection_index(focus_subsection, subsections) if focus_subsection else None
 
-        for index, subsection in enumerate(subsections):
-            normalized_subsection = self._normalize_subsection_key(subsection.get("subsection", ""))
-            if normalized_subsection == normalized_focus:
-                focus_index = index
-                break
+        # Fallback: derive a subsection reference from the query
+        if focus_index is None and query_hint:
+            query_focus = self._extract_subsection_from_query(query_hint, doc)
+            if query_focus:
+                focus_index = self._find_subsection_index(query_focus, subsections)
 
         if focus_index is None:
             return subsections
@@ -139,6 +146,39 @@ class SourceProcessor:
         start = max(0, focus_index - window)
         end = min(len(subsections), focus_index + window + 1)
         return subsections[start:end]
+
+    def _find_subsection_index(
+        self, focus_key: str, subsections: list[dict[str, str]]
+    ) -> Optional[int]:
+        """Return the index of *focus_key* within *subsections*, or ``None``."""
+        normalized_focus = self._normalize_subsection_key(focus_key)
+        for index, subsection in enumerate(subsections):
+            if self._normalize_subsection_key(subsection.get("subsection", "")) == normalized_focus:
+                return index
+        return None
+
+    def _extract_subsection_from_query(
+        self, query: str, doc: Any
+    ) -> Optional[str]:
+        """Extract a subsection reference from *query* that belongs to *doc*.
+
+        For example, if *doc* is Part 31 and *query* mentions "31.16",
+        return "31.16" so the focus logic can window around it.
+        """
+        sourcefile = str(getattr(doc, "sourcefile", "") or "")
+        sourcepage = str(getattr(doc, "sourcepage", "") or "")
+
+        # Identify the Part number from the document metadata
+        part_match = re.search(r"Part\s+(\d+)", sourcefile + " " + sourcepage, re.IGNORECASE)
+        if not part_match:
+            return None
+        part_number = part_match.group(1)
+
+        # Look for "<part_number>.<rule>" in the query (e.g., "31.16")
+        for m in re.finditer(rf"\b{re.escape(part_number)}\.(\d+[A-Za-z]?)\b", query):
+            return f"{part_number}.{m.group(1)}"
+
+        return None
 
     def _normalize_subsection_key(self, subsection_id: str) -> str:
         """Normalize subsection identifiers so indexed metadata matches split labels."""

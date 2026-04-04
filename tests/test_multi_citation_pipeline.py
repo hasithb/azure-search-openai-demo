@@ -299,16 +299,40 @@ async def test_prompt_renders_multiple_numbered_citations(chat_approach_minimal)
     assert "[2]" in system_msg
     assert "[3]" in system_msg
 
-    # User message should contain numbered sources
+    # User message should contain numbered sources with metadata-enhanced labels
     user_msg = next(m["content"] for m in messages if m["role"] == "user")
-    assert "[1]:" in user_msg
-    assert "[2]:" in user_msg
-    assert "[3]:" in user_msg
+    assert "[1] (Source: Part 1):" in user_msg
+    assert "[2] (Source: Part 3):" in user_msg
+    assert "[3] (Source: D5):" in user_msg
 
     # User message should contain the actual content
     assert "Filing deadlines" in user_msg
     assert "Strike out" in user_msg
     assert "Bundle preparation" in user_msg
+
+
+@pytest.mark.asyncio
+async def test_prompt_requires_exactly_one_citation_per_sentence(chat_approach_minimal):
+    messages = chat_approach_minimal.prompt_manager.build_conversation(
+        system_template_path="chat_answer.system.jinja2",
+        system_template_variables={
+            "include_follow_up_questions": False,
+            "image_sources": None,
+            "citations": ["1", "2", "3"],
+        },
+        user_template_path="chat_answer.user.jinja2",
+        user_template_variables={
+            "user_query": "What does Practice Direction 52B provide?",
+            "text_sources": "[1]: Source one\n[2]: Source two\n[3]: Source three",
+        },
+        user_image_sources=None,
+        past_messages=[],
+    )
+
+    system_msg = next(m["content"] for m in messages if m["role"] == "system")
+    assert "Each sentence must end with exactly one citation." in system_msg
+    assert "Do NOT combine multiple sources in a single sentence." in system_msg
+    assert "Do NOT use adjacent multi-citations like [1][2] or [2][3][4] in a single sentence." in system_msg
 
 
 # ──────────────────────────────────────────────────────────
