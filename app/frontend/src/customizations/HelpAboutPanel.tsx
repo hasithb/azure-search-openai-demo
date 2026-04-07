@@ -689,7 +689,7 @@ export const HelpAboutPanel: React.FC = () => {
                                             <strong>AI Processing:</strong> Global Standard (Sweden Central)
                                         </Text>
                                         <Text size={200}>
-                                            <strong>App & Search:</strong> East US 2
+                                            <strong>App & Search:</strong> UK South
                                         </Text>
                                         <Text size={200}>
                                             <strong>Encryption:</strong> TLS 1.2+ in transit, AES-256 at rest

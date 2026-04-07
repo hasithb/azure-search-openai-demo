@@ -1,0 +1,3 @@
+CreatedTime                Active    Replicas    TrafficWeight    HealthState    ProvisioningState    Name
+-------------------------  --------  ----------  ---------------  -------------  -------------------  -------------------------------------------
+2026-02-28T16:02:07+00:00  True      1           100              Healthy        Provisioned          capps-backend-ot6tupm5qi5wy--azd-1772294517

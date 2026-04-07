@@ -40,7 +40,7 @@ Before sending invitations, note the documents available to users:
 
 - **AI Models:** GPT-5.4 (answers) · GPT-5.4-nano (query rewrite) via Azure OpenAI
 - **AI Processing:** Global Standard (Sweden Central)
-- **App & Search Hosting:** East US 2 (Microsoft Azure)
+- **App & Search Hosting:** UK South (Microsoft Azure)
 - **Authentication:** Microsoft Entra ID (Azure Active Directory)
 
 ### Official Documentation
