@@ -686,7 +686,7 @@ export const HelpAboutPanel: React.FC = () => {
                                             <strong>AI Models:</strong> GPT-5.4 (answers) · GPT-5.4-nano (query rewrite) via Azure OpenAI
                                         </Text>
                                         <Text size={200}>
-                                            <strong>AI Processing:</strong> Global Standard (Sweden Central)
+                                            <strong>AI Processing:</strong> Global Standard (East US 2)
                                         </Text>
                                         <Text size={200}>
                                             <strong>App & Search:</strong> UK South
