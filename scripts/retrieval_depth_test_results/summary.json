@@ -1,0 +1,241 @@
+{
+  "by_config": {
+    "depth=minimal, top=3": {
+      "total": 20,
+      "refusals": 0,
+      "meets_threshold": 19,
+      "total_citations": 58,
+      "total_sources": 58,
+      "total_data_points": 151,
+      "total_cm_entries": 151,
+      "total_answer_length": 26857,
+      "total_time": 272.85,
+      "depth": "minimal",
+      "top_k": 3
+    },
+    "depth=minimal, top=5": {
+      "total": 20,
+      "refusals": 0,
+      "meets_threshold": 20,
+      "total_citations": 86,
+      "total_sources": 86,
+      "total_data_points": 245,
+      "total_cm_entries": 245,
+      "total_answer_length": 27342,
+      "total_time": 240.5,
+      "depth": "minimal",
+      "top_k": 5
+    },
+    "depth=minimal, top=7": {
+      "total": 20,
+      "refusals": 0,
+      "meets_threshold": 20,
+      "total_citations": 87,
+      "total_sources": 87,
+      "total_data_points": 324,
+      "total_cm_entries": 324,
+      "total_answer_length": 27474,
+      "total_time": 302.07,
+      "depth": "minimal",
+      "top_k": 7
+    },
+    "depth=minimal, top=10": {
+      "total": 20,
+      "refusals": 0,
+      "meets_threshold": 20,
+      "total_citations": 110,
+      "total_sources": 110,
+      "total_data_points": 473,
+      "total_cm_entries": 473,
+      "total_answer_length": 33618,
+      "total_time": 275.19000000000005,
+      "depth": "minimal",
+      "top_k": 10
+    },
+    "depth=low, top=3": {
+      "total": 20,
+      "refusals": 0,
+      "meets_threshold": 19,
+      "total_citations": 76,
+      "total_sources": 76,
+      "total_data_points": 155,
+      "total_cm_entries": 155,
+      "total_answer_length": 30479,
+      "total_time": 256.45,
+      "depth": "low",
+      "top_k": 3
+    },
+    "depth=low, top=5": {
+      "total": 20,
+      "refusals": 0,
+      "meets_threshold": 20,
+      "total_citations": 79,
+      "total_sources": 79,
+      "total_data_points": 241,
+      "total_cm_entries": 241,
+      "total_answer_length": 28809,
+      "total_time": 265.16999999999996,
+      "depth": "low",
+      "top_k": 5
+    },
+    "depth=low, top=7": {
+      "total": 20,
+      "refusals": 0,
+      "meets_threshold": 20,
+      "total_citations": 91,
+      "total_sources": 91,
+      "total_data_points": 319,
+      "total_cm_entries": 319,
+      "total_answer_length": 30378,
+      "total_time": 273.18,
+      "depth": "low",
+      "top_k": 7
+    },
+    "depth=low, top=10": {
+      "total": 20,
+      "refusals": 0,
+      "meets_threshold": 20,
+      "total_citations": 105,
+      "total_sources": 105,
+      "total_data_points": 476,
+      "total_cm_entries": 476,
+      "total_answer_length": 32220,
+      "total_time": 284.72,
+      "depth": "low",
+      "top_k": 10
+    },
+    "depth=medium, top=3": {
+      "total": 20,
+      "refusals": 0,
+      "meets_threshold": 19,
+      "total_citations": 68,
+      "total_sources": 68,
+      "total_data_points": 151,
+      "total_cm_entries": 151,
+      "total_answer_length": 27709,
+      "total_time": 254.12999999999997,
+      "depth": "medium",
+      "top_k": 3
+    },
+    "depth=medium, top=5": {
+      "total": 20,
+      "refusals": 0,
+      "meets_threshold": 19,
+      "total_citations": 83,
+      "total_sources": 82,
+      "total_data_points": 244,
+      "total_cm_entries": 244,
+      "total_answer_length": 30783,
+      "total_time": 330.69,
+      "depth": "medium",
+      "top_k": 5
+    },
+    "depth=medium, top=7": {
+      "total": 19,
+      "refusals": 0,
+      "meets_threshold": 19,
+      "total_citations": 88,
+      "total_sources": 88,
+      "total_data_points": 305,
+      "total_cm_entries": 305,
+      "total_answer_length": 32126,
+      "total_time": 247.51,
+      "depth": "medium",
+      "top_k": 7
+    },
+    "depth=medium, top=10": {
+      "total": 19,
+      "refusals": 0,
+      "meets_threshold": 19,
+      "total_citations": 86,
+      "total_sources": 86,
+      "total_data_points": 440,
+      "total_cm_entries": 440,
+      "total_answer_length": 28355,
+      "total_time": 232.92000000000002,
+      "depth": "medium",
+      "top_k": 10
+    }
+  },
+  "by_depth": {
+    "minimal": {
+      "total": 80,
+      "refusals": 0,
+      "meets_threshold": 79,
+      "total_citations": 341,
+      "total_sources": 341,
+      "total_data_points": 1193,
+      "total_cm_entries": 1193,
+      "total_answer_length": 115291,
+      "total_time": 1090.6100000000001
+    },
+    "low": {
+      "total": 80,
+      "refusals": 0,
+      "meets_threshold": 79,
+      "total_citations": 351,
+      "total_sources": 351,
+      "total_data_points": 1191,
+      "total_cm_entries": 1191,
+      "total_answer_length": 121886,
+      "total_time": 1079.52
+    },
+    "medium": {
+      "total": 78,
+      "refusals": 0,
+      "meets_threshold": 76,
+      "total_citations": 325,
+      "total_sources": 324,
+      "total_data_points": 1140,
+      "total_cm_entries": 1140,
+      "total_answer_length": 118973,
+      "total_time": 1065.25
+    }
+  },
+  "by_topk": {
+    "3": {
+      "total": 60,
+      "refusals": 0,
+      "meets_threshold": 57,
+      "total_citations": 202,
+      "total_sources": 202,
+      "total_data_points": 457,
+      "total_cm_entries": 457,
+      "total_answer_length": 85045,
+      "total_time": 783.43
+    },
+    "5": {
+      "total": 60,
+      "refusals": 0,
+      "meets_threshold": 59,
+      "total_citations": 248,
+      "total_sources": 247,
+      "total_data_points": 730,
+      "total_cm_entries": 730,
+      "total_answer_length": 86934,
+      "total_time": 836.36
+    },
+    "7": {
+      "total": 59,
+      "refusals": 0,
+      "meets_threshold": 59,
+      "total_citations": 266,
+      "total_sources": 266,
+      "total_data_points": 948,
+      "total_cm_entries": 948,
+      "total_answer_length": 89978,
+      "total_time": 822.76
+    },
+    "10": {
+      "total": 59,
+      "refusals": 0,
+      "meets_threshold": 59,
+      "total_citations": 301,
+      "total_sources": 301,
+      "total_data_points": 1389,
+      "total_cm_entries": 1389,
+      "total_answer_length": 94193,
+      "total_time": 792.8299999999999
+    }
+  }
+}

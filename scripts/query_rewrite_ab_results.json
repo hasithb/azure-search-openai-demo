@@ -1,0 +1,855 @@
+{
+  "summary": {
+    "total_tests": 40,
+    "successful_tests": 40,
+    "avg_query_accuracy": 0.967,
+    "avg_source_accuracy": 0.55,
+    "avg_avoid_accuracy": 0.975,
+    "avg_latency_s": 7.3,
+    "failures": 18
+  },
+  "results": [
+    {
+      "id": "H01",
+      "question": "What is pre-action disclosure?",
+      "difficulty": "hard",
+      "category": "confusable",
+      "search_query": "CPR 31.16 pre-action disclosure disclosure before proceedings have started application likely parties reasonable grounds necessity specific documents",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 0.0,
+      "source_detail": "none of ['Part 31'] found in sources",
+      "avoid_score": 1.0,
+      "avoid_detail": "avoided patterns clear",
+      "num_sources": 5,
+      "sources": [
+        "Chancery Guide",
+        "Chancery Guide",
+        "Commercial Court Guide"
+      ],
+      "answer_length": 1156,
+      "elapsed": 8.1
+    },
+    {
+      "id": "H02",
+      "question": "Tell me about PAD requirements",
+      "difficulty": "hard",
+      "category": "confusable",
+      "search_query": "CPR 31.16 pre-action disclosure application requirements likely parties documents needed for prospective proceedings court order",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 0.0,
+      "source_detail": "none of ['Part 31'] found in sources",
+      "avoid_score": 0.0,
+      "avoid_detail": "WRONG: 6/9 sources match avoided pattern 'Pre-Action Protocol'",
+      "num_sources": 9,
+      "sources": [
+        "Pre",
+        "Commercial Court Guide",
+        "Technology and Construction Court Guide"
+      ],
+      "answer_length": 823,
+      "elapsed": 5.2
+    },
+    {
+      "id": "H03",
+      "question": "When can I apply for pre-action disclosure?",
+      "difficulty": "hard",
+      "category": "confusable",
+      "search_query": "CPR 31.16 disclosure before proceedings have started when can apply likely to support the claim likely to lead to settlement application timing",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 0.0,
+      "source_detail": "none of ['Part 31'] found in sources",
+      "avoid_score": 1.0,
+      "avoid_detail": "avoided patterns clear",
+      "num_sources": 10,
+      "sources": [
+        "Commercial Court Guide",
+        "Chancery Guide",
+        "Chancery Guide"
+      ],
+      "answer_length": 1964,
+      "elapsed": 6.2
+    },
+    {
+      "id": "H04",
+      "question": "What are the conditions for getting documents before a case starts?",
+      "difficulty": "hard",
+      "category": "confusable",
+      "search_query": "CPR 31.16 pre-action disclosure conditions necessary to dispose fairly anticipated proceedings likely to lead to identifying issues or party order court discretion",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 0.0,
+      "source_detail": "none of ['Part 31'] found in sources",
+      "avoid_score": 1.0,
+      "avoid_detail": "avoided patterns clear",
+      "num_sources": 2,
+      "sources": [
+        "King's Bench Division Guide",
+        "King's Bench Division Guide"
+      ],
+      "answer_length": 1588,
+      "elapsed": 6.1
+    },
+    {
+      "id": "H05",
+      "question": "What is standard disclosure?",
+      "difficulty": "hard",
+      "category": "confusable",
+      "search_query": "CPR 31 standard disclosure documents party relies on adversely affect case support another party's case list of documents",
+      "query_score": 0.5,
+      "query_missing_terms": [
+        "31.6"
+      ],
+      "source_score": 0.0,
+      "source_detail": "none of ['Part 31'] found in sources",
+      "avoid_score": 1.0,
+      "avoid_detail": "avoided patterns clear",
+      "num_sources": 4,
+      "sources": [
+        "Commercial Court Guide",
+        "King's Bench Division Guide",
+        "King's Bench Division Guide"
+      ],
+      "answer_length": 1590,
+      "elapsed": 5.9
+    },
+    {
+      "id": "H06",
+      "question": "Tell me about thorough disclosure requirements",
+      "difficulty": "hard",
+      "category": "confusable",
+      "search_query": "Practice Direction 57AD extended disclosure models thorough disclosure documents search terms Model A Model B Model C",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 1.0,
+      "source_detail": "matched: 57AD",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 3,
+      "sources": [
+        "King's Bench Division Guide",
+        "King's Bench Division Guide",
+        "Commercial Court Guide"
+      ],
+      "answer_length": 2873,
+      "elapsed": 8.4
+    },
+    {
+      "id": "H07",
+      "question": "What are the pre-action steps I need to take?",
+      "difficulty": "hard",
+      "category": "confusable",
+      "search_query": "Practice Direction pre-action protocol letter of claim letter of response pre-action conduct alternative dispute resolution costs consequences",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 1.0,
+      "source_detail": "matched: Pre-Action",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 6,
+      "sources": [
+        "Practice Direction",
+        "Technology and Construction Court Guide",
+        "Pre-Action Protocol for Debt Claims"
+      ],
+      "answer_length": 2379,
+      "elapsed": 7.3
+    },
+    {
+      "id": "H08",
+      "question": "How do I get a Norwich Pharmacal order?",
+      "difficulty": "hard",
+      "category": "confusable",
+      "search_query": "CPR 31.18 Norwich Pharmacal non-party disclosure application identification of a party",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 0.0,
+      "source_detail": "none of ['Part 31'] found in sources",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 4,
+      "sources": [
+        "Chancery Guide",
+        "Chancery Guide",
+        "King's Bench Division Guide"
+      ],
+      "answer_length": 1887,
+      "elapsed": 6.1
+    },
+    {
+      "id": "M01",
+      "question": "How do I apply for summary judgment?",
+      "difficulty": "medium",
+      "category": "cpr_part",
+      "search_query": "CPR Part 24 apply for summary judgment application procedure no real prospect of succeeding compelling reason disposed at trial CPR 24.2 evidence",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 1.0,
+      "source_detail": "matched: Part 24",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 8,
+      "sources": [
+        "Part 24",
+        "Part 24",
+        "Part 24"
+      ],
+      "answer_length": 2041,
+      "elapsed": 6.4
+    },
+    {
+      "id": "M02",
+      "question": "What is the test for summary judgment?",
+      "difficulty": "medium",
+      "category": "cpr_part",
+      "search_query": "CPR Part 24 summary judgment no real prospect of succeeding compelling reason for trial",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 1.0,
+      "source_detail": "matched: Part 24",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 9,
+      "sources": [
+        "Technology and Construction Court Guide",
+        "Part 24",
+        "Part 24"
+      ],
+      "answer_length": 335,
+      "elapsed": 3.8
+    },
+    {
+      "id": "M03",
+      "question": "How do I appeal a court decision?",
+      "difficulty": "medium",
+      "category": "cpr_part",
+      "search_query": "CPR Part 52 appeal notice appellant's notice permission to appeal time limit 21 days filing appellant's notice grounds of appeal serve respondent",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 0.0,
+      "source_detail": "none of ['Part 52'] found in sources",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 12,
+      "sources": [
+        "King's Bench Division Guide",
+        "King's Bench Division Guide",
+        "Court of Appeal Civil Division Guide"
+      ],
+      "answer_length": 2667,
+      "elapsed": 9.7
+    },
+    {
+      "id": "M04",
+      "question": "What is the time limit for filing an appeal?",
+      "difficulty": "medium",
+      "category": "cpr_part",
+      "search_query": "CPR Part 52 time limit filing appellant's notice permission to appeal 21 days",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 0.0,
+      "source_detail": "none of ['Part 52'] found in sources",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 8,
+      "sources": [
+        "Court of Appeal Civil Division Guide",
+        "Court of Appeal Civil Division Guide",
+        "Chancery Guide"
+      ],
+      "answer_length": 804,
+      "elapsed": 5.1
+    },
+    {
+      "id": "M05",
+      "question": "How do I get default judgment?",
+      "difficulty": "medium",
+      "category": "cpr_part",
+      "search_query": "CPR Part 12 default judgment failure to file acknowledgement of service or defence CPR 12.3 CPR 12.4 claimant apply",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 1.0,
+      "source_detail": "matched: Part 12",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 9,
+      "sources": [
+        "Chancery Guide",
+        "Chancery Guide",
+        "Chancery Guide"
+      ],
+      "answer_length": 3696,
+      "elapsed": 8.3
+    },
+    {
+      "id": "M06",
+      "question": "How do I apply for relief from sanctions?",
+      "difficulty": "medium",
+      "category": "cpr_part",
+      "search_query": "CPR 3.9 application for relief from sanctions failure to comply with rule practice direction order Denton three stage test promptness explanation effect on litigation timetable conduct of party",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 0.0,
+      "source_detail": "none of ['Part 3'] found in sources",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 2,
+      "sources": [
+        "King's Bench Division Guide",
+        "King's Bench Division Guide"
+      ],
+      "answer_length": 877,
+      "elapsed": 5.6
+    },
+    {
+      "id": "M07",
+      "question": "What are the rules about expert evidence?",
+      "difficulty": "medium",
+      "category": "cpr_part",
+      "search_query": "CPR Part 35 expert evidence duties of expert overriding duty written expert report contents instructions to expert meet experts without hearing expert evidence at trial",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 0.0,
+      "source_detail": "none of ['Part 35'] found in sources",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 7,
+      "sources": [
+        "Chancery Guide",
+        "Commercial Court Guide",
+        "Commercial Court Guide"
+      ],
+      "answer_length": 2837,
+      "elapsed": 7.4
+    },
+    {
+      "id": "M08",
+      "question": "How do I serve a claim form?",
+      "difficulty": "medium",
+      "category": "cpr_part",
+      "search_query": "CPR Part 6 service of documents CPR 7.5 service of claim form methods of service deemed date of service CPR 6.3 CPR 6.14",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 1.0,
+      "source_detail": "matched: Part 6",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 10,
+      "sources": [
+        "King's Bench Division Guide",
+        "King's Bench Division Guide",
+        "Chancery Guide"
+      ],
+      "answer_length": 2421,
+      "elapsed": 7.9
+    },
+    {
+      "id": "M09",
+      "question": "What are the costs budgeting rules?",
+      "difficulty": "medium",
+      "category": "cpr_part",
+      "search_query": "CPR Part 3 costs management costs budgeting Practice Direction 3E budget approval budgeting hearing revised budget costs management order CPR 3.12 costs budgeting sanctions",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 0.0,
+      "source_detail": "none of ['Part 3', 'PD 3E', '3E'] found in sources",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 4,
+      "sources": [
+        "Chancery Guide",
+        "Chancery Guide",
+        "Practice Direction 3D"
+      ],
+      "answer_length": 4043,
+      "elapsed": 9.3
+    },
+    {
+      "id": "M10",
+      "question": "How do I get a freezing injunction?",
+      "difficulty": "medium",
+      "category": "cpr_part",
+      "search_query": "CPR Part 25 freezing injunction Mareva injunction application without notice real risk of dissipation duty of full and frank disclosure cross-undertaking in damages return date",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 0.0,
+      "source_detail": "none of ['Part 25'] found in sources",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 4,
+      "sources": [
+        "Chancery Guide",
+        "Commercial Court Guide",
+        "King's Bench Division Guide"
+      ],
+      "answer_length": 2358,
+      "elapsed": 7.4
+    },
+    {
+      "id": "M11",
+      "question": "What is the overriding objective?",
+      "difficulty": "medium",
+      "category": "cpr_part",
+      "search_query": "CPR Part 1 overriding objective CPR 1.1 justly at proportionate cost expeditiously enforce compliance parties on equal footing",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 1.0,
+      "source_detail": "matched: Part 1",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 7,
+      "sources": [
+        "Part 1",
+        "Part 1",
+        "Part 1"
+      ],
+      "answer_length": 981,
+      "elapsed": 4.9
+    },
+    {
+      "id": "M12",
+      "question": "How do I strike out a statement of case?",
+      "difficulty": "medium",
+      "category": "cpr_part",
+      "search_query": "CPR 3.4 strike out statement of case no reasonable grounds abuse of process scandalous vexatious discloses no reasonable grounds",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 0.0,
+      "source_detail": "none of ['Part 3'] found in sources",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 9,
+      "sources": [
+        "King's Bench Division Guide",
+        "King's Bench Division Guide",
+        "Chancery Guide"
+      ],
+      "answer_length": 2431,
+      "elapsed": 7.9
+    },
+    {
+      "id": "M13",
+      "question": "What are the rules on witness statements?",
+      "difficulty": "medium",
+      "category": "cpr_part",
+      "search_query": "CPR Part 32 witness statements numbered paragraphs statement of truth service timing requirements exhibits duty to the court cross-examination",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 0.0,
+      "source_detail": "none of ['Part 32'] found in sources",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 8,
+      "sources": [
+        "Technology and Construction Court Guide",
+        "Chancery Guide",
+        "King's Bench Division Guide"
+      ],
+      "answer_length": 2039,
+      "elapsed": 7.3
+    },
+    {
+      "id": "M14",
+      "question": "How do I make a Part 36 offer?",
+      "difficulty": "medium",
+      "category": "cpr_part",
+      "search_query": "CPR Part 36 make an offer to settle requirements offer in writing signed include amount and acceptance period",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 1.0,
+      "source_detail": "matched: Part 36",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 13,
+      "sources": [
+        "Senior Courts Costs Office Guide",
+        "Practice Direction 36",
+        "Practice Direction 36"
+      ],
+      "answer_length": 2159,
+      "elapsed": 6.3
+    },
+    {
+      "id": "M15",
+      "question": "What is specific disclosure?",
+      "difficulty": "medium",
+      "category": "cpr_part",
+      "search_query": "CPR 31.12 specific disclosure narrow or particular class of documents relevance materiality necessary order",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 0.0,
+      "source_detail": "none of ['Part 31'] found in sources",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 2,
+      "sources": [
+        "Commercial Court Guide",
+        "Commercial Court Guide"
+      ],
+      "answer_length": 172,
+      "elapsed": 4.6
+    },
+    {
+      "id": "M16",
+      "question": "When can I get an unless order?",
+      "difficulty": "medium",
+      "category": "cpr_part",
+      "search_query": "CPR 3.1 unless order automatic strike out specified date unless the party complies",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 0.0,
+      "source_detail": "none of ['Part 3'] found in sources",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 12,
+      "sources": [
+        "Senior Courts Costs Office Guide",
+        "Commercial Court Guide",
+        "Commercial Court Guide"
+      ],
+      "answer_length": 1529,
+      "elapsed": 7.2
+    },
+    {
+      "id": "CG01",
+      "question": "What is the procedure for urgent applications in the Commercial Court?",
+      "difficulty": "medium",
+      "category": "court_guide",
+      "search_query": "Commercial Court Guide urgent application short notice out of hours without notice procedure listing hearing",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 1.0,
+      "source_detail": "matched: Commercial Court",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 8,
+      "sources": [
+        "Commercial Court Guide",
+        "Commercial Court Guide",
+        "Commercial Court Guide"
+      ],
+      "answer_length": 3054,
+      "elapsed": 7.6
+    },
+    {
+      "id": "CG02",
+      "question": "How does case management work in the Technology and Construction Court?",
+      "difficulty": "medium",
+      "category": "court_guide",
+      "search_query": "Technology and Construction Court Guide case management directions case management conference trial management listing allocation directions experts disclosure interim applications",
+      "query_score": 0.6666666666666666,
+      "query_missing_terms": [
+        "TCC"
+      ],
+      "source_score": 1.0,
+      "source_detail": "matched: Technology and Construction",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 5,
+      "sources": [
+        "Technology and Construction Court Guide",
+        "Technology and Construction Court Guide",
+        "Technology and Construction Court Guide"
+      ],
+      "answer_length": 3956,
+      "elapsed": 8.3
+    },
+    {
+      "id": "CG03",
+      "question": "What are the filing requirements in the Chancery Division?",
+      "difficulty": "medium",
+      "category": "court_guide",
+      "search_query": "Chancery Division Guide filing requirements file claim form particulars of claim e-filing requirements documents to be filed",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 1.0,
+      "source_detail": "matched: Chancery",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 11,
+      "sources": [
+        "Chancery Guide",
+        "Chancery Guide",
+        "Chancery Guide"
+      ],
+      "answer_length": 3244,
+      "elapsed": 9.1
+    },
+    {
+      "id": "CG04",
+      "question": "What does the Patents Court Guide say about expert evidence?",
+      "difficulty": "medium",
+      "category": "court_guide",
+      "search_query": "Patents Court Guide expert evidence CPR Part 35 experts reports single joint expert instruction of experts exchange of reports expert duty to the court expert conferencing",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 1.0,
+      "source_detail": "matched: Patents Court",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 2,
+      "sources": [
+        "Technology and Construction Court Guide",
+        "Patents Court Guide"
+      ],
+      "answer_length": 1107,
+      "elapsed": 5.6
+    },
+    {
+      "id": "CG05",
+      "question": "How do I file an appeal in the Court of Appeal Civil Division?",
+      "difficulty": "medium",
+      "category": "court_guide",
+      "search_query": "CPR Part 52 appeal Court of Appeal Civil Division appellant's notice permission to appeal 21 days filing and service",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 1.0,
+      "source_detail": "matched: Court of Appeal",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 9,
+      "sources": [
+        "Court of Appeal Civil Division Guide",
+        "Court of Appeal Civil Division Guide",
+        "Court of Appeal Civil Division Guide"
+      ],
+      "answer_length": 4005,
+      "elapsed": 11.9
+    },
+    {
+      "id": "CG06",
+      "question": "What are the costs rules in the King's Bench Division?",
+      "difficulty": "medium",
+      "category": "court_guide",
+      "search_query": "King's Bench Division Guide costs CPR Part 44 costs orders assessment costs management costs budgeting PD 3E Part 3",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 1.0,
+      "source_detail": "matched: King",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 10,
+      "sources": [
+        "King's Bench Division Guide",
+        "King's Bench Division Guide",
+        "King's Bench Division Guide"
+      ],
+      "answer_length": 3618,
+      "elapsed": 13.6
+    },
+    {
+      "id": "A01",
+      "question": "What is SJ?",
+      "difficulty": "hard",
+      "category": "acronym",
+      "search_query": "CPR Part 24 summary judgment no real prospect of succeeding compelling reason for trial application",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 1.0,
+      "source_detail": "matched: Part 24",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 15,
+      "sources": [
+        "Part 24",
+        "Part 24",
+        "Part 24"
+      ],
+      "answer_length": 717,
+      "elapsed": 4.2
+    },
+    {
+      "id": "A02",
+      "question": "When can I get RFS?",
+      "difficulty": "hard",
+      "category": "acronym",
+      "search_query": "CPR 3.9 when can relief from sanctions application made promptly breach of rule practice direction court order unless order good reason consider all the circumstances",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 0.0,
+      "source_detail": "none of ['Part 3'] found in sources",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 12,
+      "sources": [
+        "Senior Courts Costs Office Guide",
+        "King's Bench Division Guide",
+        "King's Bench Division Guide"
+      ],
+      "answer_length": 688,
+      "elapsed": 5.7
+    },
+    {
+      "id": "A03",
+      "question": "What happens at a CMC?",
+      "difficulty": "hard",
+      "category": "acronym",
+      "search_query": "CPR Part 29 case management conference what happens at the case management conference directions trial date witnesses experts settlement",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 0.0,
+      "source_detail": "none of ['Part 29'] found in sources",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 10,
+      "sources": [
+        "Chancery Guide",
+        "Chancery Guide",
+        "Circuit Commercial Court Guide"
+      ],
+      "answer_length": 2560,
+      "elapsed": 8.1
+    },
+    {
+      "id": "A04",
+      "question": "What is ADR in civil proceedings?",
+      "difficulty": "hard",
+      "category": "acronym",
+      "search_query": "CPR Part 1 encourage use of alternative dispute resolution ADR mediation court power to order referral to ADR CPR Part 26 case management settlement",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 1.0,
+      "source_detail": "no patterns to check",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 6,
+      "sources": [
+        "Practice Direction",
+        "Chancery Guide",
+        "Technology and Construction Court Guide"
+      ],
+      "answer_length": 798,
+      "elapsed": 4.9
+    },
+    {
+      "id": "B01",
+      "question": "What are the rules about costs?",
+      "difficulty": "hard",
+      "category": "ambiguous",
+      "search_query": "CPR Part 44 costs follow the event costs orders assessment indemnity basis standard basis reasonable and proportionate costs",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 1.0,
+      "source_detail": "matched: Part 44",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 18,
+      "sources": [
+        "PART 44",
+        "PART 44",
+        "PART 44"
+      ],
+      "answer_length": 5390,
+      "elapsed": 12.2
+    },
+    {
+      "id": "B02",
+      "question": "Tell me about disclosure",
+      "difficulty": "hard",
+      "category": "ambiguous",
+      "search_query": "CPR Part 31 disclosure standard disclosure CPR 31.6 documents on which a party relies adverse documents support another party case",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 1.0,
+      "source_detail": "matched: Part 31",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 10,
+      "sources": [
+        "Commercial Court Guide",
+        "Commercial Court Guide",
+        "King's Bench Division Guide"
+      ],
+      "answer_length": 2632,
+      "elapsed": 8.2
+    },
+    {
+      "id": "B03",
+      "question": "What are the time limits?",
+      "difficulty": "hard",
+      "category": "ambiguous",
+      "search_query": "CPR Part 10 time limit acknowledgment of service CPR Part 11 time limit defence after service CPR Part 15 how to compute time extension of time",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 1.0,
+      "source_detail": "no patterns to check",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 6,
+      "sources": [
+        "Court of Appeal Civil Division Guide",
+        "Court of Appeal Civil Division Guide",
+        "Commercial Court Guide"
+      ],
+      "answer_length": 2360,
+      "elapsed": 7.5
+    },
+    {
+      "id": "B04",
+      "question": "How does service work?",
+      "difficulty": "hard",
+      "category": "ambiguous",
+      "search_query": "CPR Part 6 service of claim form methods of service address for service deemed service certificate of service proof of service",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 1.0,
+      "source_detail": "matched: Part 6",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 10,
+      "sources": [
+        "King's Bench Division Guide",
+        "King's Bench Division Guide",
+        "Technology and Construction Court Guide"
+      ],
+      "answer_length": 2730,
+      "elapsed": 9.5
+    },
+    {
+      "id": "PD01",
+      "question": "What does Practice Direction 57AD say about extended disclosure?",
+      "difficulty": "easy",
+      "category": "practice_direction",
+      "search_query": "Practice Direction 57AD extended disclosure model documents to be disclosed disclosure review business and property courts standard disclosure CPR 31.6",
+      "query_score": 1.0,
+      "query_missing_terms": [],
+      "source_score": 1.0,
+      "source_detail": "matched: 57AD",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 17,
+      "sources": [
+        "Practice Direction 57AD",
+        "Practice Direction 57AD",
+        "Practice Direction 57AD"
+      ],
+      "answer_length": 1716,
+      "elapsed": 5.4
+    },
+    {
+      "id": "PD02",
+      "question": "What is PD 3E about?",
+      "difficulty": "easy",
+      "category": "practice_direction",
+      "search_query": "Practice Direction 3E costs budgeting disclosure of information about costs CPR Part 3 key terms Precedent H budgets directions variation sanctions PD 3E",
+      "query_score": 0.5,
+      "query_missing_terms": [
+        "costs management"
+      ],
+      "source_score": 1.0,
+      "source_detail": "matched: 3E",
+      "avoid_score": 1.0,
+      "avoid_detail": "no patterns to avoid",
+      "num_sources": 11,
+      "sources": [
+        "Chancery Guide",
+        "Chancery Guide",
+        "Practice Direction 3E"
+      ],
+      "answer_length": 1008,
+      "elapsed": 6.2
+    }
+  ]
+}

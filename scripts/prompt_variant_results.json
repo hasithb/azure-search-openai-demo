@@ -1,0 +1,889 @@
+{
+  "test_count": 15,
+  "variants": {
+    "baseline": [
+      {
+        "test_id": "NL-CPR-03",
+        "topic_coverage": 0.67,
+        "topics_found": [
+          "disclosure",
+          "documents"
+        ],
+        "topics_missing": [
+          "inspection"
+        ],
+        "citation_count": 5,
+        "word_count": 177,
+        "latency": 24.6
+      },
+      {
+        "test_id": "NL-CPR-06",
+        "topic_coverage": 0.75,
+        "topics_found": [
+          "expert",
+          "report",
+          "single joint expert"
+        ],
+        "topics_missing": [
+          "duty to the court"
+        ],
+        "citation_count": 8,
+        "word_count": 162,
+        "latency": 9.6
+      },
+      {
+        "test_id": "NL-CPR-07",
+        "topic_coverage": 0.75,
+        "topics_found": [
+          "pre-action",
+          "protocol",
+          "letter of claim"
+        ],
+        "topics_missing": [
+          "response"
+        ],
+        "citation_count": 7,
+        "word_count": 159,
+        "latency": 8.9
+      },
+      {
+        "test_id": "NL-CPR-10",
+        "topic_coverage": 0.75,
+        "topics_found": [
+          "injunction",
+          "without notice",
+          "interim"
+        ],
+        "topics_missing": [
+          "undertaking"
+        ],
+        "citation_count": 6,
+        "word_count": 180,
+        "latency": 12.2
+      },
+      {
+        "test_id": "NL-CPR-11",
+        "topic_coverage": 0.33,
+        "topics_found": [
+          "unless order"
+        ],
+        "topics_missing": [
+          "contempt",
+          "committal"
+        ],
+        "citation_count": 8,
+        "word_count": 199,
+        "latency": 11.6
+      },
+      {
+        "test_id": "NL-CPR-14",
+        "topic_coverage": 0.67,
+        "topics_found": [
+          "costs",
+          "assessment"
+        ],
+        "topics_missing": [
+          "indemnity"
+        ],
+        "citation_count": 7,
+        "word_count": 199,
+        "latency": 9.1
+      },
+      {
+        "test_id": "NL-CCG-01",
+        "topic_coverage": 0.8,
+        "topics_found": [
+          "arbitration",
+          "challenge",
+          "award",
+          "section 67"
+        ],
+        "topics_missing": [
+          "28 days"
+        ],
+        "citation_count": 8,
+        "word_count": 241,
+        "latency": 10.5
+      },
+      {
+        "test_id": "NL-CCG-03",
+        "topic_coverage": 0.5,
+        "topics_found": [
+          "disclosure",
+          "documents"
+        ],
+        "topics_missing": [
+          "proportionality",
+          "overriding objective"
+        ],
+        "citation_count": 8,
+        "word_count": 306,
+        "latency": 10.5
+      },
+      {
+        "test_id": "NL-TCC-01",
+        "topic_coverage": 0.75,
+        "topics_found": [
+          "ADR",
+          "mediation",
+          "costs"
+        ],
+        "topics_missing": [
+          "encouragement"
+        ],
+        "citation_count": 4,
+        "word_count": 159,
+        "latency": 8.8
+      },
+      {
+        "test_id": "NL-TCC-02",
+        "topic_coverage": 0.8,
+        "topics_found": [
+          "expert",
+          "duty",
+          "court",
+          "report"
+        ],
+        "topics_missing": [
+          "independent"
+        ],
+        "citation_count": 7,
+        "word_count": 218,
+        "latency": 9.4
+      },
+      {
+        "test_id": "NL-KBD-01",
+        "topic_coverage": 1.0,
+        "topics_found": [
+          "habeas corpus",
+          "writ",
+          "detention",
+          "Administrative Court"
+        ],
+        "topics_missing": [],
+        "citation_count": 5,
+        "word_count": 187,
+        "latency": 10.2
+      },
+      {
+        "test_id": "NL-CROSS-01",
+        "topic_coverage": 0.5,
+        "topics_found": [
+          "witness",
+          "summons"
+        ],
+        "topics_missing": [
+          "subpoena",
+          "compel"
+        ],
+        "citation_count": 5,
+        "word_count": 182,
+        "latency": 10.3
+      },
+      {
+        "test_id": "NL-CPR-01",
+        "topic_coverage": 1.0,
+        "topics_found": [
+          "summary judgment",
+          "no real prospect",
+          "Part 24"
+        ],
+        "topics_missing": [],
+        "citation_count": 5,
+        "word_count": 179,
+        "latency": 7.6
+      },
+      {
+        "test_id": "NL-CROSS-04",
+        "topic_coverage": 0.67,
+        "topics_found": [
+          "limitation",
+          "time"
+        ],
+        "topics_missing": [
+          "months"
+        ],
+        "citation_count": 5,
+        "word_count": 147,
+        "latency": 10.9
+      },
+      {
+        "test_id": "NL-CROSS-05",
+        "topic_coverage": 0.67,
+        "topics_found": [
+          "costs",
+          "discretion"
+        ],
+        "topics_missing": [
+          "loser pays"
+        ],
+        "citation_count": 5,
+        "word_count": 187,
+        "latency": 11.3
+      }
+    ],
+    "A_specificity": [
+      {
+        "test_id": "NL-CPR-03",
+        "topic_coverage": 0.67,
+        "topics_found": [
+          "disclosure",
+          "documents"
+        ],
+        "topics_missing": [
+          "inspection"
+        ],
+        "citation_count": 5,
+        "word_count": 201,
+        "latency": 17.1
+      },
+      {
+        "test_id": "NL-CPR-06",
+        "topic_coverage": 0.75,
+        "topics_found": [
+          "expert",
+          "report",
+          "single joint expert"
+        ],
+        "topics_missing": [
+          "duty to the court"
+        ],
+        "citation_count": 9,
+        "word_count": 317,
+        "latency": 9.0
+      },
+      {
+        "test_id": "NL-CPR-07",
+        "topic_coverage": 0.75,
+        "topics_found": [
+          "pre-action",
+          "protocol",
+          "letter of claim"
+        ],
+        "topics_missing": [
+          "response"
+        ],
+        "citation_count": 7,
+        "word_count": 248,
+        "latency": 7.7
+      },
+      {
+        "test_id": "NL-CPR-10",
+        "topic_coverage": 0.75,
+        "topics_found": [
+          "injunction",
+          "without notice",
+          "interim"
+        ],
+        "topics_missing": [
+          "undertaking"
+        ],
+        "citation_count": 5,
+        "word_count": 172,
+        "latency": 9.3
+      },
+      {
+        "test_id": "NL-CPR-11",
+        "topic_coverage": 0.33,
+        "topics_found": [
+          "contempt"
+        ],
+        "topics_missing": [
+          "committal",
+          "unless order"
+        ],
+        "citation_count": 7,
+        "word_count": 232,
+        "latency": 8.3
+      },
+      {
+        "test_id": "NL-CPR-14",
+        "topic_coverage": 0.67,
+        "topics_found": [
+          "costs",
+          "assessment"
+        ],
+        "topics_missing": [
+          "indemnity"
+        ],
+        "citation_count": 5,
+        "word_count": 184,
+        "latency": 7.8
+      },
+      {
+        "test_id": "NL-CCG-01",
+        "topic_coverage": 0.8,
+        "topics_found": [
+          "arbitration",
+          "challenge",
+          "award",
+          "section 67"
+        ],
+        "topics_missing": [
+          "28 days"
+        ],
+        "citation_count": 9,
+        "word_count": 324,
+        "latency": 7.9
+      },
+      {
+        "test_id": "NL-CCG-03",
+        "topic_coverage": 0.75,
+        "topics_found": [
+          "disclosure",
+          "documents",
+          "proportionality"
+        ],
+        "topics_missing": [
+          "overriding objective"
+        ],
+        "citation_count": 11,
+        "word_count": 390,
+        "latency": 8.1
+      },
+      {
+        "test_id": "NL-TCC-01",
+        "topic_coverage": 0.5,
+        "topics_found": [
+          "ADR",
+          "mediation"
+        ],
+        "topics_missing": [
+          "encouragement",
+          "costs"
+        ],
+        "citation_count": 6,
+        "word_count": 227,
+        "latency": 6.7
+      },
+      {
+        "test_id": "NL-TCC-02",
+        "topic_coverage": 0.6,
+        "topics_found": [
+          "expert",
+          "court",
+          "report"
+        ],
+        "topics_missing": [
+          "independent",
+          "duty"
+        ],
+        "citation_count": 7,
+        "word_count": 215,
+        "latency": 7.3
+      },
+      {
+        "test_id": "NL-KBD-01",
+        "topic_coverage": 1.0,
+        "topics_found": [
+          "habeas corpus",
+          "writ",
+          "detention",
+          "Administrative Court"
+        ],
+        "topics_missing": [],
+        "citation_count": 9,
+        "word_count": 258,
+        "latency": 12.3
+      },
+      {
+        "test_id": "NL-CROSS-01",
+        "topic_coverage": 0.5,
+        "topics_found": [
+          "witness",
+          "summons"
+        ],
+        "topics_missing": [
+          "subpoena",
+          "compel"
+        ],
+        "citation_count": 5,
+        "word_count": 167,
+        "latency": 6.2
+      },
+      {
+        "test_id": "NL-CPR-01",
+        "topic_coverage": 1.0,
+        "topics_found": [
+          "summary judgment",
+          "no real prospect",
+          "Part 24"
+        ],
+        "topics_missing": [],
+        "citation_count": 6,
+        "word_count": 191,
+        "latency": 6.3
+      },
+      {
+        "test_id": "NL-CROSS-04",
+        "topic_coverage": 0.67,
+        "topics_found": [
+          "limitation",
+          "time"
+        ],
+        "topics_missing": [
+          "months"
+        ],
+        "citation_count": 8,
+        "word_count": 283,
+        "latency": 8.6
+      },
+      {
+        "test_id": "NL-CROSS-05",
+        "topic_coverage": 0.67,
+        "topics_found": [
+          "costs",
+          "discretion"
+        ],
+        "topics_missing": [
+          "loser pays"
+        ],
+        "citation_count": 6,
+        "word_count": 183,
+        "latency": 9.0
+      }
+    ],
+    "B_completeness": [
+      {
+        "test_id": "NL-CPR-03",
+        "topic_coverage": 1.0,
+        "topics_found": [
+          "disclosure",
+          "inspection",
+          "documents"
+        ],
+        "topics_missing": [],
+        "citation_count": 5,
+        "word_count": 193,
+        "latency": 16.0
+      },
+      {
+        "test_id": "NL-CPR-06",
+        "topic_coverage": 0.75,
+        "topics_found": [
+          "expert",
+          "report",
+          "single joint expert"
+        ],
+        "topics_missing": [
+          "duty to the court"
+        ],
+        "citation_count": 6,
+        "word_count": 184,
+        "latency": 7.0
+      },
+      {
+        "test_id": "NL-CPR-07",
+        "topic_coverage": 0.75,
+        "topics_found": [
+          "pre-action",
+          "protocol",
+          "letter of claim"
+        ],
+        "topics_missing": [
+          "response"
+        ],
+        "citation_count": 5,
+        "word_count": 203,
+        "latency": 6.1
+      },
+      {
+        "test_id": "NL-CPR-10",
+        "topic_coverage": 0.75,
+        "topics_found": [
+          "injunction",
+          "without notice",
+          "interim"
+        ],
+        "topics_missing": [
+          "undertaking"
+        ],
+        "citation_count": 5,
+        "word_count": 136,
+        "latency": 8.7
+      },
+      {
+        "test_id": "NL-CPR-11",
+        "topic_coverage": 0.33,
+        "topics_found": [
+          "unless order"
+        ],
+        "topics_missing": [
+          "contempt",
+          "committal"
+        ],
+        "citation_count": 5,
+        "word_count": 148,
+        "latency": 7.7
+      },
+      {
+        "test_id": "NL-CPR-14",
+        "topic_coverage": 1.0,
+        "topics_found": [
+          "costs",
+          "assessment",
+          "indemnity"
+        ],
+        "topics_missing": [],
+        "citation_count": 7,
+        "word_count": 231,
+        "latency": 6.6
+      },
+      {
+        "test_id": "NL-CCG-01",
+        "topic_coverage": 0.8,
+        "topics_found": [
+          "arbitration",
+          "challenge",
+          "award",
+          "section 67"
+        ],
+        "topics_missing": [
+          "28 days"
+        ],
+        "citation_count": 9,
+        "word_count": 285,
+        "latency": 7.9
+      },
+      {
+        "test_id": "NL-CCG-03",
+        "topic_coverage": 0.5,
+        "topics_found": [
+          "disclosure",
+          "documents"
+        ],
+        "topics_missing": [
+          "proportionality",
+          "overriding objective"
+        ],
+        "citation_count": 7,
+        "word_count": 252,
+        "latency": 7.2
+      },
+      {
+        "test_id": "NL-TCC-01",
+        "topic_coverage": 0.75,
+        "topics_found": [
+          "ADR",
+          "mediation",
+          "costs"
+        ],
+        "topics_missing": [
+          "encouragement"
+        ],
+        "citation_count": 6,
+        "word_count": 198,
+        "latency": 7.0
+      },
+      {
+        "test_id": "NL-TCC-02",
+        "topic_coverage": 1.0,
+        "topics_found": [
+          "expert",
+          "independent",
+          "duty",
+          "court",
+          "report"
+        ],
+        "topics_missing": [],
+        "citation_count": 9,
+        "word_count": 224,
+        "latency": 7.4
+      },
+      {
+        "test_id": "NL-KBD-01",
+        "topic_coverage": 1.0,
+        "topics_found": [
+          "habeas corpus",
+          "writ",
+          "detention",
+          "Administrative Court"
+        ],
+        "topics_missing": [],
+        "citation_count": 6,
+        "word_count": 201,
+        "latency": 7.7
+      },
+      {
+        "test_id": "NL-CROSS-01",
+        "topic_coverage": 0.5,
+        "topics_found": [
+          "witness",
+          "compel"
+        ],
+        "topics_missing": [
+          "summons",
+          "subpoena"
+        ],
+        "citation_count": 4,
+        "word_count": 193,
+        "latency": 7.2
+      },
+      {
+        "test_id": "NL-CPR-01",
+        "topic_coverage": 1.0,
+        "topics_found": [
+          "summary judgment",
+          "no real prospect",
+          "Part 24"
+        ],
+        "topics_missing": [],
+        "citation_count": 5,
+        "word_count": 177,
+        "latency": 6.0
+      },
+      {
+        "test_id": "NL-CROSS-04",
+        "topic_coverage": 0.67,
+        "topics_found": [
+          "limitation",
+          "time"
+        ],
+        "topics_missing": [
+          "months"
+        ],
+        "citation_count": 11,
+        "word_count": 240,
+        "latency": 8.7
+      },
+      {
+        "test_id": "NL-CROSS-05",
+        "topic_coverage": 0.67,
+        "topics_found": [
+          "costs",
+          "discretion"
+        ],
+        "topics_missing": [
+          "loser pays"
+        ],
+        "citation_count": 6,
+        "word_count": 200,
+        "latency": 6.9
+      }
+    ],
+    "C_combined": [
+      {
+        "test_id": "NL-CPR-03",
+        "topic_coverage": 1.0,
+        "topics_found": [
+          "disclosure",
+          "inspection",
+          "documents"
+        ],
+        "topics_missing": [],
+        "citation_count": 5,
+        "word_count": 264,
+        "latency": 10.8
+      },
+      {
+        "test_id": "NL-CPR-06",
+        "topic_coverage": 0.75,
+        "topics_found": [
+          "expert",
+          "report",
+          "single joint expert"
+        ],
+        "topics_missing": [
+          "duty to the court"
+        ],
+        "citation_count": 9,
+        "word_count": 311,
+        "latency": 8.7
+      },
+      {
+        "test_id": "NL-CPR-07",
+        "topic_coverage": 0.75,
+        "topics_found": [
+          "pre-action",
+          "protocol",
+          "letter of claim"
+        ],
+        "topics_missing": [
+          "response"
+        ],
+        "citation_count": 6,
+        "word_count": 241,
+        "latency": 9.2
+      },
+      {
+        "test_id": "NL-CPR-10",
+        "topic_coverage": 0.75,
+        "topics_found": [
+          "injunction",
+          "without notice",
+          "interim"
+        ],
+        "topics_missing": [
+          "undertaking"
+        ],
+        "citation_count": 7,
+        "word_count": 231,
+        "latency": 9.0
+      },
+      {
+        "test_id": "NL-CPR-11",
+        "topic_coverage": 0.33,
+        "topics_found": [
+          "unless order"
+        ],
+        "topics_missing": [
+          "contempt",
+          "committal"
+        ],
+        "citation_count": 6,
+        "word_count": 252,
+        "latency": 9.7
+      },
+      {
+        "test_id": "NL-CPR-14",
+        "topic_coverage": 1.0,
+        "topics_found": [
+          "costs",
+          "assessment",
+          "indemnity"
+        ],
+        "topics_missing": [],
+        "citation_count": 8,
+        "word_count": 272,
+        "latency": 9.6
+      },
+      {
+        "test_id": "NL-CCG-01",
+        "topic_coverage": 1.0,
+        "topics_found": [
+          "arbitration",
+          "challenge",
+          "award",
+          "28 days",
+          "section 67"
+        ],
+        "topics_missing": [],
+        "citation_count": 14,
+        "word_count": 512,
+        "latency": 10.8
+      },
+      {
+        "test_id": "NL-CCG-03",
+        "topic_coverage": 0.75,
+        "topics_found": [
+          "disclosure",
+          "documents",
+          "proportionality"
+        ],
+        "topics_missing": [
+          "overriding objective"
+        ],
+        "citation_count": 8,
+        "word_count": 295,
+        "latency": 9.7
+      },
+      {
+        "test_id": "NL-TCC-01",
+        "topic_coverage": 0.75,
+        "topics_found": [
+          "ADR",
+          "mediation",
+          "costs"
+        ],
+        "topics_missing": [
+          "encouragement"
+        ],
+        "citation_count": 8,
+        "word_count": 270,
+        "latency": 8.3
+      },
+      {
+        "test_id": "NL-TCC-02",
+        "topic_coverage": 0.8,
+        "topics_found": [
+          "expert",
+          "duty",
+          "court",
+          "report"
+        ],
+        "topics_missing": [
+          "independent"
+        ],
+        "citation_count": 8,
+        "word_count": 232,
+        "latency": 8.9
+      },
+      {
+        "test_id": "NL-KBD-01",
+        "topic_coverage": 1.0,
+        "topics_found": [
+          "habeas corpus",
+          "writ",
+          "detention",
+          "Administrative Court"
+        ],
+        "topics_missing": [],
+        "citation_count": 9,
+        "word_count": 233,
+        "latency": 8.7
+      },
+      {
+        "test_id": "NL-CROSS-01",
+        "topic_coverage": 0.75,
+        "topics_found": [
+          "witness",
+          "summons",
+          "compel"
+        ],
+        "topics_missing": [
+          "subpoena"
+        ],
+        "citation_count": 6,
+        "word_count": 229,
+        "latency": 8.0
+      },
+      {
+        "test_id": "NL-CPR-01",
+        "topic_coverage": 1.0,
+        "topics_found": [
+          "summary judgment",
+          "no real prospect",
+          "Part 24"
+        ],
+        "topics_missing": [],
+        "citation_count": 7,
+        "word_count": 257,
+        "latency": 8.2
+      },
+      {
+        "test_id": "NL-CROSS-04",
+        "topic_coverage": 0.33,
+        "topics_found": [
+          "limitation"
+        ],
+        "topics_missing": [
+          "time",
+          "months"
+        ],
+        "citation_count": 10,
+        "word_count": 329,
+        "latency": 10.3
+      },
+      {
+        "test_id": "NL-CROSS-05",
+        "topic_coverage": 0.67,
+        "topics_found": [
+          "costs",
+          "discretion"
+        ],
+        "topics_missing": [
+          "loser pays"
+        ],
+        "citation_count": 6,
+        "word_count": 235,
+        "latency": 8.9
+      }
+    ]
+  },
+  "amendments": {
+    "baseline": "",
+    "A_specificity": "\nWhen answering, always include the specific CPR Part number or rule reference from the sources (e.g. \"CPR Part 24\", \"CPR 35.3\"). Include specific time limits, deadlines, and procedural thresholds mentioned in the sources. Use the precise legal terminology from the sources alongside any plain-English explanation.",
+    "B_completeness": "\nWhen a topic has multiple related procedural aspects covered in the sources, address each one briefly rather than only the main point. For example: if sources cover both disclosure AND inspection, mention both. If sources cover both the right to mediate AND cost consequences of refusing, mention both. If sources mention both the general rule AND exceptions, note both. Aim to cover 3-4 key aspects of the topic rather than just 1-2.",
+    "C_combined": "\nWhen answering, always include the specific CPR Part number or rule reference from the sources (e.g. \"CPR Part 24\", \"CPR 35.3\"). Include specific time limits, deadlines, and procedural thresholds mentioned in the sources. Use the precise legal terminology from the sources alongside any plain-English explanation.\nWhen a topic has multiple related procedural aspects covered in the sources, address each one briefly rather than only the main point. For example: if sources cover both disclosure AND inspection, mention both. If sources cover both the right to mediate AND cost consequences of refusing, mention both. If sources mention both the general rule AND exceptions, note both. Aim to cover 3-4 key aspects of the topic rather than just 1-2."
+  }
+}

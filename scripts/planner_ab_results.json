@@ -1,0 +1,524 @@
+{
+  "current": {
+    "passed_checks": 18,
+    "total_checks": 18,
+    "pass_rate": 1.0
+  },
+  "experimental": {
+    "passed_checks": 17,
+    "total_checks": 18,
+    "pass_rate": 0.944
+  },
+  "results": [
+    {
+      "name": "PAD",
+      "question": "What is PAD?",
+      "overrides": {},
+      "current": {
+        "query": "CPR 31.16 pre-action disclosure disclosure before proceedings have started likely to be a party to subsequent proceedings standard disclosure",
+        "answer": "“PAD” most likely means **pre-action disclosure**. [2]\n\nUnder CPR 31.16, it is an application to the court for disclosure **before proceedings have started**. [2]\n\nThe court may order it only if the applicant and respondent are likely to be parties to later proceedings, the documents would fall within standard disclosure if proceedings had started, and disclosure before proceedings is desirable to dispose fairly of the anticipated proceedings, help resolve the dispute, or save costs. [2]\n\nIf you meant a different “PAD,” please say what context you mean.",
+        "checks": [
+          {
+            "description": "References CPR 31.16",
+            "passed": true
+          },
+          {
+            "description": "Identifies PAD as pre-action disclosure",
+            "passed": true
+          },
+          {
+            "description": "Does not answer PAD with protocol-only material",
+            "passed": true
+          }
+        ]
+      },
+      "experimental": {
+        "planner_query": "CPR 31.16 pre-action disclosure disclosure before proceedings have started likely to be a party to subsequent proceedings standard disclosure",
+        "legal_concept_analysis": "PAD in English civil procedure most likely means pre-action disclosure, which is governed by CPR 31.16. This is an application for disclosure before proceedings have started, not pre-action protocols. Key terms to target: disclosure before proceedings begun, likely to be a party to subsequent proceedings, standard disclosure, documents disclosable under CPR 31.16, order for disclosure before claim issued. Avoid matching Pre-Action Protocols or general pre-litigation conduct documents.",
+        "validator": {
+          "evidence_sufficient": false,
+          "primary_authority_reference": "CPR 31.16",
+          "recommended_category": "Civil Procedure Rules and Practice Directions",
+          "repaired_search_query": "CPR 31.16 pre-action disclosure before proceedings have started disclosure before proceedings begun standard disclosure order for disclosure before claim issued",
+          "reason": "The retrieved set only shows a Chancery Guide reference saying pre-action disclosure is made in accordance with CPR 31.16, but it does not retrieve the primary CPR 31.16 text itself. The Commercial Court/Chancery Guide snippets are secondary and off-target for a general CPR question. A grounded answer needs the primary rule or Practice Direction source."
+        },
+        "repaired": true,
+        "missing_primary_authority": true,
+        "answer": "PAD appears to mean **pre-action disclosure**: an order for disclosure before proceedings have started. [1]\n\nThe available source says this is made under **CPR 31.16 in Section II of CPR PD 57AD** and is subject to a two-stage test. [2]\n\nThe sources do **not** provide the full rule text for CPR 31.16, so if you want the detailed test, try searching specifically for **“CPR 31.16 pre-action disclosure”** or **“PD 57AD Section II”**. [2]",
+        "final_sources": [
+          {
+            "category": "Chancery Division",
+            "sourcepage": "Pre-action and non-party disclosure (p. 60)",
+            "sourcefile": "Chancery Guide",
+            "subsection_id": "7.31",
+            "snippet": "SOURCE: Chancery Guide\nSOURCEPAGE: Pre-action and non-party disclosure (p. 60)\nCATEGORY: Chancery Division\nSECTION: p. 60\n## 7.31\n\n7.31 An order for disclosure before proceedings have started is made in accordance with\nCPR 31.16 in Section II of CPR PD 57AD. It comprises a two-st"
+          },
+          {
+            "category": "Civil Procedure Rules and Practice Directions",
+            "sourcepage": "Pre-Action Protocol for Personal Injury Claims",
+            "sourcefile": "Pre",
+            "subsection_id": "Part 1",
+            "snippet": "SOURCE: Pre\nSOURCEPAGE: Pre-Action Protocol for Personal Injury Claims\nCATEGORY: Civil Procedure Rules and Practice Directions\n## Part 1\n\nDocument: Pre-Action Protocol for Personal Injury Claims\nSection: 1. Introduction\nPart 1 of 3\n================================================"
+          }
+        ],
+        "checks": [
+          {
+            "description": "References CPR 31.16",
+            "passed": true
+          },
+          {
+            "description": "Identifies PAD as pre-action disclosure",
+            "passed": true
+          },
+          {
+            "description": "Does not answer PAD with protocol-only material",
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "Standard Disclosure",
+      "question": "What is standard disclosure?",
+      "overrides": {},
+      "current": {
+        "query": "CPR 31.6 standard disclosure documents party relies on adverse documents support another party's case",
+        "answer": "Standard disclosure is the disclosure order under CPR Part 31 where a party must disclose only the documents on which it relies, the documents that adversely affect its own case or another party’s case, the documents that support another party’s case, and any documents required by a relevant practice direction. [4]\n\nTo give standard disclosure, the party must make a reasonable search for those documents, and the reasonableness of the search depends on factors such as the number of documents, the nature and complexity of the case, the ease and expense of retrieval, and the significance of any likely documents. [5]\n\nAfter the search, the party must make a list of the documents it knows about that fall within rule 31.6 and that are or have been in its control, unless rule 31.10(8) applies. [9]\n\nPD 31A says the list should be in Form N265. [11]\n\nIf you want, I can also give the rule for standard disclosure in the Commercial Court where PD 57AD does not apply.",
+        "checks": [
+          {
+            "description": "References Part 31",
+            "passed": true
+          },
+          {
+            "description": "Explains disclosure concept",
+            "passed": true
+          }
+        ]
+      },
+      "experimental": {
+        "planner_query": "CPR 31.6 standard disclosure documents party relies on adverse documents support another party case",
+        "legal_concept_analysis": "Standard disclosure is governed by CPR 31.6, which defines the baseline disclosure obligation in ordinary civil proceedings. Primary source: CPR Part 31, especially rule 31.6, with related terms 'documents on which a party relies', 'documents that adversely affect its own case', and 'documents that support another party's case'. Avoid confusing this with extended disclosure under Practice Direction 57AD in the Business and Property Courts, specific disclosure under CPR 31.12, or disclosure obligations under court guides or pre-action material.",
+        "validator": {
+          "evidence_sufficient": false,
+          "primary_authority_reference": "CPR 31.6",
+          "recommended_category": "Civil Procedure Rules and Practice Directions",
+          "repaired_search_query": "CPR 31.6 standard disclosure Civil Procedure Rules and Practice Directions",
+          "reason": "The retrieved set only shows court guides discussing disclosure and a Commercial Court appendix, not the primary CPR text itself. For a general question on standard disclosure, the authority needed is CPR 31.6 in Part 31."
+        },
+        "repaired": true,
+        "missing_primary_authority": true,
+        "answer": "The retrieved material is **court-specific**: it comes from the King’s Bench Division Guide, so it does not by itself establish the general CPR position. [1]\n\nIn that guide, standard disclosure is given by completing form N265 after a disclosure order is made, and parties cannot rely on documents they have failed to disclose. [2]\n\nThe guide also says disclosure and inspection of documents have two stages: first, disclosure of the existence of documents and any claim to privilege, and second, inspection of certain documents by the opposing party. [1]\n\nYou may want to check the CPR/Practice Direction source for the general rule on standard disclosure, or refine the query to “CPR Part 31 standard disclosure.”",
+        "final_sources": [
+          {
+            "category": "King's Bench Division",
+            "sourcepage": "Disclosure and Inspection of Documents (p. 98)",
+            "sourcefile": "King's Bench Division Guide",
+            "subsection_id": "10.34",
+            "snippet": "SOURCE: King's Bench Division Guide\nSOURCEPAGE: Disclosure and Inspection of Documents (p. 98)\nCATEGORY: King's Bench Division\nSECTION: p. 98\n## 10.34\n\n10.34 CPR Part 31 sets out the rules as to disclosure. Disclosure and inspection\nof documents involves two stages. The first is "
+          }
+        ],
+        "checks": [
+          {
+            "description": "References Part 31",
+            "passed": true
+          },
+          {
+            "description": "Explains disclosure concept",
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "Summary Judgment",
+      "question": "How do I apply for summary judgment?",
+      "overrides": {},
+      "current": {
+        "query": "CPR Part 24 summary judgment application no real prospect of succeeding no other compelling reason for a trial",
+        "answer": "Under CPR Part 24, summary judgment is a procedure by which the court may decide a claim or issue without a trial. [1]\n\nThe court may give summary judgment if a party has no real prospect of succeeding on the claim, defence or issue, and there is no other compelling reason for a trial. [3]\n\nA claimant may not apply until the defendant has filed an acknowledgment of service or a defence, unless the court gives permission or another rule or practice direction says otherwise. [4]\n\nWhere a summary judgment hearing is fixed, the respondent must be given at least 14 days’ notice of the hearing date and the issues the court is asked to decide. [4]\n\nIf you want, I can also give the court-specific practice for a particular court, such as the Chancery Division.",
+        "checks": [
+          {
+            "description": "References CPR Part 24",
+            "passed": true
+          },
+          {
+            "description": "Has at least one citation",
+            "passed": true
+          }
+        ]
+      },
+      "experimental": {
+        "planner_query": "CPR Part 24 summary judgment application no real prospect of succeeding no other compelling reason for a trial",
+        "legal_concept_analysis": "Summary judgment is governed primarily by CPR Part 24. The key authoritative source is CPR Part 24 and its related Practice Direction on summary judgment and interim remedies. Key terms to target: 'no real prospect of succeeding', 'no other compelling reason for a trial', 'claim or issue', 'application notice', and 'summary judgment'. Avoid confusing this with strike out under CPR 3.4, default judgment under Part 12, or other case management applications.",
+        "validator": {
+          "evidence_sufficient": true,
+          "primary_authority_reference": "CPR Part 24 and Practice Direction 24A",
+          "recommended_category": "Civil Procedure Rules and Practice Directions",
+          "repaired_search_query": "",
+          "reason": "The retrieved set includes the primary authority itself: CPR Part 24 – Summary Judgment. The Chancery Guide and King's Bench Guide snippets are secondary and not needed to establish sufficiency, though the primary CPR source is present."
+        },
+        "repaired": false,
+        "missing_primary_authority": false,
+        "answer": "Under CPR Part 24, summary judgment is a procedure by which the court may decide a claim or issue without a trial, and it is subject to other Parts that make special provision for particular types of case. [1]\n\nThe court may give summary judgment against a claimant or defendant on the whole of a claim or on an issue if the party has no real prospect of succeeding on the claim, defence or issue, and there is no other compelling reason why the case or issue should go to trial. [3]\n\nA claimant may not apply for summary judgment until the defendant has filed an acknowledgment of service or a defence, unless the court gives permission or a rule or practice direction says otherwise. [4]\n\nIn claims for specific performance, rescission, forfeiture or return of certain deposits, the claimant may apply at any time after the claim form has been served, unless a rule or practice direction says otherwise. [4]\n\nIf a summary judgment hearing is fixed, the respondent must be given at least 14 days’ notice of the hearing date and the issues the court is proposed to decide. [4]\n\nThe available sources do not set out the full application notice or evidence requirements for making the application. [1]\n\nIf you want, I can also help with the timing rules for a particular type of claim, but the sources available here are limited to CPR Part 24 and do not include the full practice direction text. [1]",
+        "final_sources": [
+          {
+            "category": "Civil Procedure Rules and Practice Directions",
+            "sourcepage": "Part 24 – Summary Judgment",
+            "sourcefile": "Part 24",
+            "subsection_id": "PART 24",
+            "snippet": "SOURCE: Part 24\nSOURCEPAGE: Part 24 – Summary Judgment\nCATEGORY: Civil Procedure Rules and Practice Directions\nSECTION: Part 24 – Summary Judgment\n## PART 24\n\n# PART 24 – SUMMARY JUDGMENT\n\nContents of this Part\n\n## Scope of this Part\n\n## 24.1 This Part—\n\n(a) sets out a procedure "
+          },
+          {
+            "category": "Chancery Division",
+            "sourcepage": "Chapter 14 General applications, Summary judgment/strike-out (p. 115)",
+            "sourcefile": "Chancery Guide",
+            "subsection_id": "14.84",
+            "snippet": "SOURCE: Chancery Guide\nSOURCEPAGE: Chapter 14 General applications, Summary judgment/strike-out (p. 115)\nCATEGORY: Chancery Division\nSECTION: p. 115\n## 14.84\n\n14.84 Applications for summary judgment under CPR Part 24 or for a statement of case to\nbe struck out under CPR 3.4 shoul"
+          },
+          {
+            "category": "King's Bench Division",
+            "sourcepage": "Defamation claims, Summary disposal (p. 149)",
+            "sourcefile": "King's Bench Division Guide",
+            "subsection_id": "17.38",
+            "snippet": "SOURCE: King's Bench Division Guide\nSOURCEPAGE: Defamation claims, Summary disposal (p. 149)\nCATEGORY: King's Bench Division\nSECTION: p. 149\n## 17.38\n\n17.38 Section 8 of the Defamation Act 1996 gives the court power to dispose\nsummarily of the claimant's claim. This is in additio"
+          }
+        ],
+        "checks": [
+          {
+            "description": "References CPR Part 24",
+            "passed": true
+          },
+          {
+            "description": "Has at least one citation",
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "Appeal Time Limits",
+      "question": "What are the time limits for filing an appeal?",
+      "overrides": {},
+      "current": {
+        "query": "CPR Part 52 appeal time limit filing appellant's notice permission to appeal notice of appeal 21 days",
+        "answer": "Generally, you must file an appellant’s notice within the time limit directed by the lower court, or if no direction has been given, within 21 days of the date of the decision being appealed. [1]\n\nTime runs from the date the decision is pronounced in court or the judgment is handed down, even if the written order is produced later. [1]\n\nThere are also specific shorter time limits in some cases, and the shortest time limit is 7 days from the date of the decision being appealed. [2]\n\nFor appeals under CPR Part 52, the rules apply to appeals to the Court of Appeal, High Court and County Court, and there are special provisions for some categories of appeal. [7]\n\nIf you want the exact deadline for a particular kind of appeal, tell me which court or type of decision it is, because the sources show different time limits in different cases. [2][9]",
+        "checks": [
+          {
+            "description": "References Part 52 time limits",
+            "passed": true
+          },
+          {
+            "description": "Has at least one citation",
+            "passed": true
+          }
+        ]
+      },
+      "experimental": {
+        "planner_query": "CPR Part 52 appeal time limit filing appellant's notice 21 days permission to appeal Court of Appeal Civil Division Guide",
+        "legal_concept_analysis": "The user is asking about appeal filing time limits in English civil procedure. The primary authoritative source is CPR Part 52 and, where relevant, the Court of Appeal Civil Division Guide for filing an appellant's notice and permission to appeal. Key terms to target: appeal time limit, appellant's notice, filing within 21 days, permission to appeal, notice of appeal, extension of time. Avoid matching general costs or case management time limits, and avoid criminal or tribunal appeal rules.",
+        "validator": {
+          "evidence_sufficient": true,
+          "primary_authority_reference": "CPR Part 52",
+          "recommended_category": "Civil Procedure Rules and Practice Directions",
+          "repaired_search_query": "",
+          "reason": "The retrieved set includes the Court of Appeal Civil Division Guide's section 2.13 on the time limit for appealing, which points to the relevant primary appellate procedure. However, for a general civil procedure question the governing primary authority should be CPR Part 52 / associated Practice Direction, and the snippets do not yet show the CPR text itself. Because the question is broad and the guide snippet appears to cover the general 21-day rule, this is close but still secondary-source heavy."
+        },
+        "repaired": false,
+        "missing_primary_authority": false,
+        "answer": "The material retrieved is **court-specific** and does not by itself establish the general CPR position for appeals. [1]\n\nFor appeals to the Court of Appeal Civil Division, you generally must file an appellant’s notice within the time limit directed by the lower court, or if none is given, within 21 days of the date of the decision being appealed. [1]\n\nTime runs from the date the decision is pronounced in court or the judgment is handed down, not from the seal date of the order. [1]\n\nThere are also specific shorter time limits in some cases, and the shortest time limit mentioned is 7 days from the date of the decision being appealed. [2]\n\nThe Chancery Division guide says the Appellant’s Notice is filed within the time limit in CPR 52, generally 21 days, unless varied by order, and that the time is counted from the date the lower court decision was made, not the date the formal order was issued. [4]\n\nFor appeals from costs judges or costs officers, the Senior Courts Costs Office guide says an appeal notice must be filed within 21 days after the date of the decision, and an extension of time should be sought if needed. [5][6]\n\nIf you want the general rule, check the CPR/Practice Direction source or refine the query to a specific appeal route, such as Court of Appeal, Chancery, or costs appeals.",
+        "final_sources": [
+          {
+            "category": "Court of Appeal Civil Division",
+            "sourcepage": "Dismissal, 2. Commencing an appeal or application for permission to appeal, Time limit for appealing (p. 16)",
+            "sourcefile": "Court of Appeal Civil Division Guide",
+            "subsection_id": "2.13",
+            "snippet": "SOURCE: Court of Appeal Civil Division Guide\nSOURCEPAGE: Dismissal, 2. Commencing an appeal or application for permission to appeal, Time limit for appealing (p. 16)\nCATEGORY: Court of Appeal Civil Division\nSECTION: p. 16\n## 2.13\n\n2.13\nGenerally, you must file an appellant's noti"
+          },
+          {
+            "category": "Chancery Division",
+            "sourcepage": "Chapter 30 Appeals, Application for permission to appeal (p. 199)",
+            "sourcefile": "Chancery Guide",
+            "subsection_id": "30.13",
+            "snippet": "SOURCE: Chancery Guide\nSOURCEPAGE: Chapter 30 Appeals, Application for permission to appeal (p. 199)\nCATEGORY: Chancery Division\nSECTION: p. 199\n## 30.13\n\n30.13 Permission to appeal is required in all cases except appeals against committal orders\nand certain statutory appeals. Pe"
+          },
+          {
+            "category": "Senior Courts Costs Office",
+            "sourcepage": "Section 30 - Appeals from costs judges, 30.3 Time limits for appeals (p. 111)",
+            "sourcefile": "Senior Courts Costs Office Guide",
+            "subsection_id": "47.14",
+            "snippet": "SOURCE: Senior Courts Costs Office Guide\nSOURCEPAGE: Section 30 - Appeals from costs judges, 30.3 Time limits for appeals (p. 111)\nCATEGORY: Senior Courts Costs Office\nSECTION: Section 30 - Appeals from costs judges\n## 47.14\n\nAn intending appellant must file an appeal notice with"
+          },
+          {
+            "category": "Senior Courts Costs Office",
+            "sourcepage": "Section 29 - Appeals from costs officers, 29.2 Seeking permission to appeal (p. 108)",
+            "sourcefile": "Senior Courts Costs Office Guide",
+            "subsection_id": "29.3",
+            "snippet": "SOURCE: Senior Courts Costs Office Guide\nSOURCEPAGE: Section 29 - Appeals from costs officers, 29.2 Seeking permission to appeal (p. 108)\nCATEGORY: Senior Courts Costs Office\nSECTION: Section 29 - Appeals from costs officers\n## 29.3\n\nNo permission to appeal is required from any d"
+          },
+          {
+            "category": "Court of Appeal Civil Division",
+            "sourcepage": "5. Respondent to a substantive appeal, Onward appeal to the Supreme Court (p. 63)",
+            "sourcefile": "Court of Appeal Civil Division Guide",
+            "subsection_id": "5.42",
+            "snippet": "SOURCE: Court of Appeal Civil Division Guide\nSOURCEPAGE: 5. Respondent to a substantive appeal, Onward appeal to the Supreme Court (p. 63)\nCATEGORY: Court of Appeal Civil Division\nSECTION: p. 63\n## 5.42\n\n5.42\nIf you are the unsuccessful party to an appeal, you may wish to apply f"
+          }
+        ],
+        "checks": [
+          {
+            "description": "References Part 52 time limits",
+            "passed": true
+          },
+          {
+            "description": "Has at least one citation",
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "Costs Broad",
+      "question": "How do costs work?",
+      "overrides": {},
+      "current": {
+        "query": "CPR Parts 44 45 46 47 costs orders costs follow the event standard basis indemnity basis summary assessment detailed assessment costs budgeting costs management",
+        "answer": "The material retrieved is **court-specific**, from the Senior Courts Costs Office Guide, so it does not by itself establish the general CPR position. [2]\n\nIn that guide, “costs” normally fall into two categories: disbursements such as counsel’s fees, court fees and witness expenses, and the fees legal representatives charge their client, sometimes called “profit costs”. [2]\n\nThe guide also says costs payable by one party to another can, in appropriate circumstances, include costs incurred before proceedings were issued. [2]\n\nAs to who pays, the guide says no party has a right to costs and costs are in the court’s discretion, but the general rule is that the unsuccessful party will be ordered to pay the successful party’s costs. [5]\n\nThe guide also says the court can make an order reflecting the extent to which each party has been successful on different issues. [5]\n\nFor litigants in person, the guide says recoverable costs can include out-of-pocket expenses, payments for expert assistance in assessing the claim for costs, costs for work that caused pecuniary loss, and costs for work that did not cause pecuniary loss. [1]\n\nIn the TCC guide, costs disputes are resolved under CPR Part 44, and interlocutory hearings of one day or less will usually be subject to summary assessment of costs. [3]\n\nThe available sources do not directly give the general CPR rules on costs; you may want to check the CPR/Practice Direction source or refine the query to a specific topic such as entitlement, summary assessment, detailed assessment, or costs budgeting.",
+        "checks": [
+          {
+            "description": "Addresses a concrete costs regime",
+            "passed": true
+          },
+          {
+            "description": "Has at least one citation",
+            "passed": true
+          }
+        ]
+      },
+      "experimental": {
+        "planner_query": "CPR Parts 44 45 46 47 costs orders costs follow the event standard basis indemnity basis summary assessment detailed assessment costs budgeting costs management",
+        "legal_concept_analysis": "The user asks broadly about 'costs', which in English civil procedure is ambiguous. The primary authoritative source is usually CPR Parts 44 to 47 for general costs principles, assessment, and detailed assessment, with CPR Part 3 and PD 3E relevant if the question is about costs budgeting or costs management. Key terms to distinguish include costs orders, the general rule that costs follow the event, standard basis vs indemnity basis, summary assessment, detailed assessment, costs budgeting, costs management, and interim costs. Avoid matching court guide references to a specific court's local costs practice unless the user asks about a particular court, and avoid unrelated 'costs of an application' unless the question is about a specific application. Because the question is broad, target CPR Parts 44-47 with terms for general costs principles and assessment, plus costs budgeting if mentioned in the source.",
+        "validator": {
+          "evidence_sufficient": false,
+          "primary_authority_reference": "CPR Parts 44 to 47",
+          "recommended_category": "Civil Procedure Rules and Practice Directions",
+          "repaired_search_query": "CPR Parts 44 45 46 47 costs follow the event standard basis indemnity basis summary assessment detailed assessment costs budgeting costs management Practice Direction 44 Practice Direction 47",
+          "reason": "The retrieval is off-target and incomplete for a broad English civil procedure costs question. It contains court guide material and PD 3D, but not the core primary CPR Parts 44-47 or the relevant practice directions on costs assessment and budgeting. For a general costs query, the primary CPR/PD provisions themselves should be retrieved."
+        },
+        "repaired": true,
+        "missing_primary_authority": true,
+        "answer": "The available source is about **costs management and budgeting**, not the full general rules on costs, so it does not by itself explain all of “how costs work.” [1]\n\nUnder this Practice Direction, parties may have to file a **costs budget** in the form of **Precedent H**, and in some lower-value cases only the first page is used. [1]\n\nThe court considers whether budgeted costs are **reasonable and proportionate**, and it will not do a detailed assessment in advance. [1]\n\nThe budget discussion report must identify the figures agreed, the figures not agreed, and a brief summary of the points in dispute. [1]\n\nThe source also says a party may apply if another party is behaving oppressively by trying to cause disproportionate spending on costs. [1]\n\nIf you mean the **general costs rules** rather than costs budgeting, the relevant primary authority would likely be the **Civil Procedure Rules and Practice Directions on costs**, and you may want to search more specifically for **CPR Parts 44 to 47** or **costs budgeting/costs management**. [1]",
+        "final_sources": [
+          {
+            "category": "Civil Procedure Rules and Practice Directions",
+            "sourcepage": "Practice Direction 3D – Costs Management",
+            "sourcefile": "Practice Direction 3D",
+            "subsection_id": "PRACTICE DIRECTION 3D",
+            "snippet": "SOURCE: Practice Direction 3D\nSOURCEPAGE: Practice Direction 3D – Costs Management\nCATEGORY: Civil Procedure Rules and Practice Directions\nSECTION: Practice Direction 3D – Costs Management\n## PRACTICE DIRECTION 3D\n\n# PRACTICE DIRECTION 3D – COSTS MANAGEMENT\n\n## This Practice Dire"
+          }
+        ],
+        "checks": [
+          {
+            "description": "Addresses a concrete costs regime",
+            "passed": true
+          },
+          {
+            "description": "Has at least one citation",
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "Broad Time Limits",
+      "question": "What are the time limits?",
+      "overrides": {},
+      "current": {
+        "query": "CPR Part 2 time periods rule 2.8 clear days business days extension of time CPR 3.1 3.8 time limits",
+        "answer": "“Time limits” can mean different things, and the sources here cover several different ones. [7] [8]  \n\nFor calculating a period of time under the CPR, CPR 2.8 says a number of days is computed as clear days, and CPR 2.9 says the last date should, where practicable, be expressed as a calendar date and include the time of day. [7] [8]  \n\nIn the Court of Appeal Civil Division, the general limit for filing an appellant’s notice is 21 days from the date of the decision appealed, but some cases have shorter limits and the shortest mentioned here is 7 days. [2] [3]  \n\nIn the Commercial Court, a challenge to an award should be pursued without delay, and the Court will require cogent reasons for extending the 28-day period under section 70(3) of the Arbitration Act 1996. [1]  \n\nPlease tell me which time limit you mean, for example appeal, service, or a Commercial Court challenge. [2] [1]",
+        "checks": [
+          {
+            "description": "Answers cautiously or clarifies scope",
+            "passed": true
+          },
+          {
+            "description": "Has at least one citation",
+            "passed": true
+          }
+        ]
+      },
+      "experimental": {
+        "planner_query": "CPR Part 2 time periods rule 2.8 clear days business days extension of time CPR 3.1 3.8 time limits",
+        "legal_concept_analysis": "The question is ambiguous because 'time limits' could refer to several CPR deadlines. In English civil procedure, the most likely generic source is the Civil Procedure Rules on time computation and extensions/variation of time, especially CPR Part 2 (rule 2.8 on time periods) and CPR Part 3 (rule 3.1(2)(a) and 3.8 on extending or shortening time). Key distinguishing terms: time for doing an act, clear days, business days, end of day, extension of time, sanction for failure to comply, relief from sanctions. Avoid matching unrelated court-guide references to specific hearing timetables, appeal deadlines, or limitation periods unless the user names a specific procedure.",
+        "validator": {
+          "evidence_sufficient": false,
+          "primary_authority_reference": "CPR Part 2 rule 2.8 and CPR Part 3 rules 3.1(2)(a) and 3.8",
+          "recommended_category": "Civil Procedure Rules and Practice Directions",
+          "repaired_search_query": "CPR 2.8 time periods clear days business days end of day CPR 3.1(2)(a) 3.8 extension of time",
+          "reason": "The retrieved set is off-target: it only shows court-guide material on appeal deadlines, arbitration, or costs procedures, not the primary CPR provisions that generally govern time limits and computation of time. For a generic question about 'time limits,' the CPR text itself is needed, especially CPR 2.8 and CPR 3.1/3.8."
+        },
+        "repaired": true,
+        "missing_primary_authority": true,
+        "answer": "The retrieved material is **court-specific**: it is from the Commercial Court Guide, so it does not by itself establish the general CPR position on time limits. [1]\n\nThe source says the Court has power to vary the 28-day period fixed by section 70(3) of the Arbitration Act 1996, under rule 62.9(1). [1]\n\nIt also says any challenge to an award should be pursued without delay, and the Court will require cogent reasons for extending time. [1]\n\nIf you meant a different time limit, please refine the query, or check the CPR/Practice Direction source for the general rule.",
+        "final_sources": [
+          {
+            "category": "Commercial Court",
+            "sourcepage": "0.9 Time limits (p. 131)",
+            "sourcefile": "Commercial Court Guide",
+            "subsection_id": "0.9.1",
+            "snippet": "SOURCE: Commercial Court Guide\nSOURCEPAGE: 0.9 Time limits (p. 131)\nCATEGORY: Commercial Court\nSECTION: p. 131\n## 0.9.1\n\n0.9.1 An application to challenge an award under sections 67 or 68 of the 1996\nAct or to appeal under section 69 of the Act must be brought within 28\ndays of t"
+          }
+        ],
+        "checks": [
+          {
+            "description": "Answers cautiously or clarifies scope",
+            "passed": true
+          },
+          {
+            "description": "Has at least one citation",
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "Service of Claim Form",
+      "question": "How do I serve a claim form?",
+      "overrides": {},
+      "current": {
+        "query": "CPR Part 6 service of claim form methods of service deemed service time for service",
+        "answer": "Under CPR Part 6, a claim form may be served by personal service, first class post/document exchange/other next-business-day delivery, leaving it at a permitted address, fax or other electronic communication, or a court-authorised method. [3]\n\nThe court will serve the claim form unless a rule or practice direction says the claimant must serve it, the claimant says they want to serve it, or the court orders otherwise. [4]\n\nPart 6 applies to service of documents generally, but other Parts or practice directions can make different provision for particular claims. [1]\n\nIf you want, I can also give the rule on where the claim form must be served or the time limit for service.",
+        "checks": [
+          {
+            "description": "References CPR Part 6",
+            "passed": true
+          },
+          {
+            "description": "Has at least one citation",
+            "passed": true
+          }
+        ]
+      },
+      "experimental": {
+        "planner_query": "CPR Part 6 service of claim form methods of service deemed service time for service",
+        "legal_concept_analysis": "Serving a claim form is governed primarily by CPR Part 6, especially the rules on service of the claim form and service within the jurisdiction. Key terms: claim form, service, methods of service, deemed service, time for service, service by first class post, document exchange, personal service. Avoid confusing this with service of documents generally or service out of the jurisdiction unless specifically mentioned.",
+        "validator": {
+          "evidence_sufficient": false,
+          "primary_authority_reference": "CPR Part 6 (especially CPR 6.3, 6.4, 6.14, 6.15, 7.5)",
+          "recommended_category": "Civil Procedure Rules and Practice Directions",
+          "repaired_search_query": "CPR Part 6 claim form service within the jurisdiction CPR 6.3 6.4 6.14 6.15 7.5",
+          "reason": "The retrieval includes a relevant guide excerpt and only the opening of Part 6, but not the actual primary CPR rules on service of a claim form. For a general question on how to serve a claim form, the primary authority should be the CPR Part 6 provisions themselves, including the methods of service, place of service, and time for service."
+        },
+        "repaired": true,
+        "missing_primary_authority": true,
+        "answer": "A claim form may be served by personal service, first class post/document exchange or other next-business-day delivery, leaving it at a place specified in CPR 6.7 to 6.10, fax or other electronic communication under Practice Direction 6A, or any method authorised by the court under CPR 6.15. [3]\n\nThe court will serve the claim form unless a rule or practice direction says the claimant must serve it, the claimant notifies the court that they wish to serve it, or the court orders or directs otherwise. [4]\n\nIf the court serves it, the claimant must file a copy for the court and provide a copy for each defendant to be served. [4]\n\nThe King’s Bench Division Guide says the requirements for the chosen method should be followed very carefully, because if the rule is not followed precisely, service may be invalid even if the defendant receives the claim form. [5][6]\n\nThe sources available do not include the full CPR rules on where service must be effected or the time limit for serving the claim form. [1][2][5]",
+        "final_sources": [
+          {
+            "category": "Civil Procedure Rules and Practice Directions",
+            "sourcepage": "Part 6 – Service of Documents",
+            "sourcefile": "Part 6",
+            "subsection_id": "Part 1",
+            "snippet": "SOURCE: Part 6\nSOURCEPAGE: Part 6 – Service of Documents\nCATEGORY: Civil Procedure Rules and Practice Directions\nSECTION: Part 6 – Service of Documents\n## Part 1\n\nDocument: Part 6 – Service of Documents\nSection: I SCOPE OF THIS PART AND INTERPRETATION\nPart 1 of 3\n================"
+          },
+          {
+            "category": "King's Bench Division",
+            "sourcepage": "Service of the Claim Form within the jurisdiction (p. 55)",
+            "sourcefile": "King's Bench Division Guide",
+            "subsection_id": "6.3",
+            "snippet": "SOURCE: King's Bench Division Guide\nSOURCEPAGE: Service of the Claim Form within the jurisdiction (p. 55)\nCATEGORY: King's Bench Division\nSECTION: p. 55\n## 6.3\n\n6.3\nThe methods by which a claim form may be served within the jurisdiction\n(England and Wales) are found in CPR6.3. Th"
+          }
+        ],
+        "checks": [
+          {
+            "description": "References CPR Part 6",
+            "passed": true
+          },
+          {
+            "description": "Has at least one citation",
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "Weather Out of Scope",
+      "question": "What is the weather forecast for London?",
+      "overrides": {},
+      "current": {
+        "query": "What is the weather forecast for London?",
+        "answer": "The retrieved material is **court-specific** and does not contain a weather forecast for London. [1]\n\nI could not find any source here that provides weather information. [2]\n\nIf you meant a court-related question about London, please refine the query or check the relevant CPR/Practice Direction source for the general rule. [3]",
+        "checks": [
+          {
+            "description": "Clearly notes the request is unsupported by the sources",
+            "passed": true
+          }
+        ]
+      },
+      "experimental": {
+        "planner_query": "What is the weather forecast for London?",
+        "legal_concept_analysis": "The user is asking about a weather forecast, which is not a legal concept and does not correspond to any CPR rule, Practice Direction, or court guide section. There is no authoritative English civil procedure source for weather forecasts. Key terms to avoid are legal procedure terms, as this topic is outside the provided legal knowledge base.",
+        "validator": {
+          "evidence_sufficient": false,
+          "primary_authority_reference": "No CPR/Practice Direction authority applicable",
+          "recommended_category": "",
+          "repaired_search_query": "weather forecast London",
+          "reason": "The question is non-legal and no English civil procedure primary authority is relevant or retrieved. The retrieved items are unrelated court guide contact/location excerpts, not primary legal authority."
+        },
+        "repaired": true,
+        "missing_primary_authority": true,
+        "answer": "The available sources do not cover weather forecasts for London.",
+        "final_sources": [],
+        "checks": [
+          {
+            "description": "Clearly notes the request is unsupported by the sources",
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "Commercial Court with CPR Filter",
+      "question": "How does the Commercial Court handle case management conferences?",
+      "overrides": {
+        "include_category": "Civil Procedure Rules and Practice Directions"
+      },
+      "current": {
+        "query": "Commercial Court Guide case management conference CMC case management directions listing",
+        "answer": "The available CPR/Practice Direction sources do not directly set out how the Commercial Court handles case management conferences. [1]\n\nWhat the sources do show is that Practice Direction 58 applies to commercial claims in the Commercial Court, and that proceedings in the commercial list are heard or determined by a Commercial Court judge. [1][2]\n\nThe sources also show that the Civil Procedure Rules and practice directions apply to claims in the commercial list unless Part 58 or a practice direction provides otherwise. [7]\n\nThe specific CMC procedure appears to be court-practice guidance rather than in the CPR/Practice Direction material retrieved here, so you may want to check the Commercial Court Guide for the detailed procedure. [1][7]\n\nIf you want, I can help you refine the query to the Commercial Court Guide and search for “case management conferences” specifically.",
+        "checks": [
+          {
+            "description": "Recognizes Commercial Court context or mismatch",
+            "passed": true
+          },
+          {
+            "description": "Has at least one citation",
+            "passed": true
+          }
+        ]
+      },
+      "experimental": {
+        "planner_query": "Commercial Court Guide case management conference CMC directions skeleton argument case memorandum estimate of trial length listing",
+        "legal_concept_analysis": "The user is asking about case management conferences in the Commercial Court. The primary authoritative source is the Commercial Court Guide, specifically the section dealing with case management conferences, case management directions, and listing/preparation for CMCs. Key terms likely to appear include CMC, case management conference, directions, skeleton arguments, case memoranda, estimate of trial length, and listing. Avoid confusing this with generic CPR Part 29 case management or the King’s Bench Division Guide unless the question is about the Commercial Court specifically.",
+        "validator": {
+          "evidence_sufficient": false,
+          "primary_authority_reference": "Commercial Court Guide, case management conference section",
+          "recommended_category": "Commercial Court Guide",
+          "repaired_search_query": "Commercial Court Guide case management conference CMC directions skeleton argument case memorandum estimate of trial length listing",
+          "reason": "The retrieved set includes CPR Part 58 and PD 58, which are relevant background sources, but the question is specifically about how the Commercial Court handles case management conferences. The primary source likely needed is the Commercial Court Guide section on CMCs, and that guide itself has not been retrieved. A secondary or adjacent procedural rule is not enough for this court-specific question."
+        },
+        "repaired": true,
+        "missing_primary_authority": true,
+        "answer": "The available sources do not include the specific Commercial Court Guide material on case management conferences, so I cannot give a reliable answer from the retrieved text. Please refine the query to the Commercial Court Guide section on case management conferences, or use a more thorough search depth.",
+        "final_sources": [],
+        "checks": [
+          {
+            "description": "Recognizes Commercial Court context or mismatch",
+            "passed": true
+          },
+          {
+            "description": "Has at least one citation",
+            "passed": false
+          }
+        ]
+      }
+    }
+  ]
+}

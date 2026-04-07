@@ -1,0 +1,481 @@
+[
+  {
+    "label": "PAD abbreviation",
+    "question": "What is PAD?",
+    "expected": [
+      "31.16",
+      "pre-action disclosure"
+    ],
+    "avoid": [
+      "protocol"
+    ],
+    "OLD_query": "CPR 31.16 pre-action disclosure application before proceedings have started",
+    "OLD_analysis": "",
+    "OLD_expected_hit": true,
+    "OLD_avoid_hit": false,
+    "OLD_latency": 1.58,
+    "NEW_query": "CPR 31.16 pre-action disclosure before proceedings have started application for pre-action disclosure specified documents necessary likely proportionate",
+    "NEW_analysis": "The user asks \u201cWhat is PAD?\u201d In English civil procedure, PAD most commonly expands to \u201cpre-action disclosure\u201d. The primary authoritative source is CPR 31.16 (applications for pre-action disclosure before proceedings are started). Key distinguishing terms include \u201cpre-action disclosure\u201d, \u201cbefore proceedings have been started\u201d, \u201ccourt may order\u201d, \u201cspecified documents\u201d, \u201cnecessary\u201d, \u201clikely\u201d, and \u201cproportionate\u201d. Avoid confusing PAD with \u201cPre-Action Protocols\u201d (which are separate codes of conduct under the Practice Direction/Protocols) or with other disclosure concepts like Norwich Pharmacal (CPR 31.18) or disclosure in proceedings (CPR Part 31 generally).",
+    "NEW_expected_hit": true,
+    "NEW_avoid_hit": false,
+    "NEW_latency": 1.95
+  },
+  {
+    "label": "PAD explicit",
+    "question": "Tell me about pre-action disclosure",
+    "expected": [
+      "31.16"
+    ],
+    "avoid": [
+      "protocol"
+    ],
+    "OLD_query": "CPR 31.16 pre-action disclosure application before proceedings have started disclosure order",
+    "OLD_analysis": "",
+    "OLD_expected_hit": true,
+    "OLD_avoid_hit": false,
+    "OLD_latency": 1.46,
+    "NEW_query": "CPR 31.16 pre-action disclosure before proceedings have started application for pre-action disclosure specified documents necessary proportionate",
+    "NEW_analysis": "The user asks generally about pre-action disclosure. The primary authoritative source in the CPR is the application for pre-action disclosure before proceedings are started under CPR 31.16. Key distinguishing terms include 'pre-action disclosure', 'before proceedings have been started', 'court may order', 'specified documents', 'necessary', 'proportionate', 'likely', and 'test of relevance/necessity'. Avoid confusing this with the separate concept of 'Pre-Action Protocols' (which are conduct/steps before litigation) rather than a court order for disclosure.",
+    "NEW_expected_hit": true,
+    "NEW_avoid_hit": false,
+    "NEW_latency": 1.75
+  },
+  {
+    "label": "PAD requirements",
+    "question": "Tell me about PAD requirements",
+    "expected": [
+      "31.16",
+      "pre-action disclosure"
+    ],
+    "avoid": [
+      "protocol"
+    ],
+    "OLD_query": "CPR 31.16 pre-action disclosure application requirements before proceedings have started",
+    "OLD_analysis": "",
+    "OLD_expected_hit": true,
+    "OLD_avoid_hit": false,
+    "OLD_latency": 0.97,
+    "NEW_query": "CPR 31.16 pre-action disclosure application before proceedings have started specified documents reasonable grounds necessary to dispose fairly proportionality confidentiality",
+    "NEW_analysis": "The user asks about \u201cPAD requirements\u201d. In English civil procedure, PAD commonly refers to pre-action disclosure, which is governed by CPR 31.16 (distinct from Pre-Action Protocols, which are separate codes of conduct). The primary authoritative source is CPR 31.16. Key terms to target include: application for pre-action disclosure, before proceedings are started, specified documents, reasonable grounds, necessity for disclosure to dispose fairly of the anticipated proceedings, proportionality, confidentiality, and the court\u2019s power to order disclosure and limit scope. Avoid searching for \u201cPre-Action Protocols\u201d or general pre-litigation conduct; focus on CPR 31.16 and pre-action disclosure.",
+    "NEW_expected_hit": true,
+    "NEW_avoid_hit": false,
+    "NEW_latency": 2.0
+  },
+  {
+    "label": "PAD applications",
+    "question": "What are the rules on pre-action disclosure applications?",
+    "expected": [
+      "31.16"
+    ],
+    "avoid": [
+      "protocol"
+    ],
+    "OLD_query": "CPR 31.16 pre-action disclosure application before proceedings have started rules",
+    "OLD_analysis": "",
+    "OLD_expected_hit": true,
+    "OLD_avoid_hit": false,
+    "OLD_latency": 1.05,
+    "NEW_query": "CPR 31.16 pre-action disclosure application before proceedings have been started specified documents necessary likely relevant proportionality",
+    "NEW_analysis": "The user asks for the rules on pre-action disclosure applications. The primary authoritative source is CPR 31.16, which governs applications for pre-action disclosure before proceedings are started. Key distinguishing terms include 'pre-action disclosure', 'before proceedings have been started', 'application', 'court's permission', 'specified documents', 'necessary', 'likely', 'test of relevance', and 'proportionality/costs'. This is distinct from the separate concept of 'Pre-Action Protocols' (conduct and steps before litigation) and from disclosure within proceedings under CPR Part 31 (e.g., standard disclosure). The search should target CPR 31.16 specifically and avoid generic 'pre-action protocols' wording.",
+    "NEW_expected_hit": true,
+    "NEW_avoid_hit": false,
+    "NEW_latency": 2.16
+  },
+  {
+    "label": "Protocols (should NOT target 31.16)",
+    "question": "What are Pre-Action Protocols?",
+    "expected": [
+      "pre-action protocol",
+      "protocol"
+    ],
+    "avoid": [],
+    "OLD_query": "Pre-Action Protocols overview Civil Procedure Rules pre-action conduct Practice Direction Pre-Action Protocols",
+    "OLD_analysis": "",
+    "OLD_expected_hit": true,
+    "OLD_avoid_hit": false,
+    "OLD_latency": 1.09,
+    "NEW_query": "CPR Part 1 pre-action protocol practice direction pre-action conduct letter of claim response exchange of information ADR costs sanctions",
+    "NEW_analysis": "The user asks generally what the Pre-Action Protocols are in English civil procedure. The primary authoritative source is the Civil Procedure Rules section dealing with pre-action conduct and the Pre-Action Protocols themselves, especially CPR Part 1 (overriding objective and case management) and the Practice Direction on Pre-Action Conduct. Key distinguishing terms include 'Pre-Action Protocol', 'pre-action conduct', 'letter of claim', 'response', 'exchange of information', 'ADR', 'court's powers to impose sanctions for non-compliance', and 'costs consequences'. Avoid confusing these with CPR 31.16 pre-action disclosure (a specific disclosure application) or with general 'protocols' in other contexts.",
+    "NEW_expected_hit": true,
+    "NEW_avoid_hit": false,
+    "NEW_latency": 1.89
+  },
+  {
+    "label": "Standard disclosure vs extended",
+    "question": "What is the standard disclosure process?",
+    "expected": [
+      "31.6",
+      "standard disclosure"
+    ],
+    "avoid": [
+      "57ad"
+    ],
+    "OLD_query": "CPR standard disclosure process disclosure of documents Part 31 disclosure rules",
+    "OLD_analysis": "",
+    "OLD_expected_hit": true,
+    "OLD_avoid_hit": false,
+    "OLD_latency": 1.28,
+    "NEW_query": "CPR 31.6 standard disclosure list of documents disclosure statement CPR 31.10 inspection documents CPR 31.7 scope of disclosure train of inquiry proportionate",
+    "NEW_analysis": "The user asks for the 'standard disclosure process' in English civil procedure. The primary authoritative source is CPR Part 31 (Disclosure and inspection of documents), especially the general rule for standard disclosure in CPR 31.6, and related provisions on the scope of disclosure (CPR 31.7), disclosure statement (CPR 31.10), and the timing/steps (CPR 31.8 and Practice Direction 31A). Avoid confusing this with pre-action disclosure (CPR 31.16) or disclosure in specific contexts like Norwich Pharmacal or freezing orders. Key terms to target include 'standard disclosure', 'list of documents', 'disclosure statement', 'inspection', 'relevance', 'proportionate', 'train of inquiry', and 'documents on which the party relies'.",
+    "NEW_expected_hit": true,
+    "NEW_avoid_hit": false,
+    "NEW_latency": 2.2
+  },
+  {
+    "label": "Extended disclosure PD57AD",
+    "question": "Tell me about extended disclosure",
+    "expected": [
+      "57ad",
+      "extended disclosure"
+    ],
+    "avoid": [],
+    "OLD_query": "extended disclosure CPR 31.16 disclosure before proceedings have started extended disclosure order",
+    "OLD_analysis": "",
+    "OLD_expected_hit": true,
+    "OLD_avoid_hit": false,
+    "OLD_latency": 1.03,
+    "NEW_query": "CPR 31.6 extended disclosure documents train of inquiry proportionate necessary",
+    "NEW_analysis": "The user asks about 'extended disclosure', which in English civil procedure most commonly refers to an order for disclosure beyond standard disclosure, typically under CPR Part 31. The primary authoritative source is CPR 31.5 (Disclosure: standard disclosure) and CPR 31.6 (Disclosure: extended disclosure). Key distinguishing terms include 'extended disclosure', 'standard disclosure', 'proportionate', 'necessary', 'train of inquiry', 'documents', and the court's power to order extended disclosure. Avoid confusing this with pre-action disclosure (CPR 31.16) or Norwich Pharmacal disclosure (CPR 31.18).",
+    "NEW_expected_hit": true,
+    "NEW_avoid_hit": false,
+    "NEW_latency": 1.88
+  },
+  {
+    "label": "Strike out vs SJ distinction",
+    "question": "What is the difference between striking out and summary judgment?",
+    "expected": [
+      "3.4",
+      "24",
+      "strike",
+      "summary"
+    ],
+    "avoid": [],
+    "OLD_query": "difference between striking out under CPR 3.4 and summary judgment under CPR Part 24 no real prospect of success compelling reason for trial",
+    "OLD_analysis": "",
+    "OLD_expected_hit": true,
+    "OLD_avoid_hit": false,
+    "OLD_latency": 1.2,
+    "NEW_query": "CPR 3.4 strike out of statement of case no reasonable grounds abuse of process scandalous irrelevant summary judgment CPR Part 24 no real prospect of succeeding compelling reason for trial",
+    "NEW_analysis": "The user asks about the difference between striking out and summary judgment in English civil procedure. The primary authoritative sources are CPR 3.4 (strike out of statements of case) for striking out, and CPR Part 24 (summary judgment) for summary judgment. Key distinguishing terms include: for striking out, CPR 3.4 grounds such as no reasonable grounds, abuse of process, discloses no reasonable grounds, statement of case is scandalous/irrelevant, and the court\u2019s power to strike out; for summary judgment, CPR 24.2 test of no real prospect of succeeding and that there is no other compelling reason for a trial, plus the procedure for applications. Avoid confusing strike out (CPR 3.4) with default judgment (CPR Part 12) or relief from sanctions (CPR 3.9), and avoid confusing summary judgment (CPR Part 24) with summary disposal in other contexts.",
+    "NEW_expected_hit": true,
+    "NEW_avoid_hit": false,
+    "NEW_latency": 2.19
+  },
+  {
+    "label": "Summary judgment",
+    "question": "What are the rules on summary judgment?",
+    "expected": [
+      "part 24",
+      "24",
+      "summary judgment"
+    ],
+    "avoid": [],
+    "OLD_query": "CPR Part 24 summary judgment no real prospect of succeeding compelling reason for trial",
+    "OLD_analysis": "",
+    "OLD_expected_hit": true,
+    "OLD_avoid_hit": false,
+    "OLD_latency": 1.01,
+    "NEW_query": "CPR Part 24 summary judgment no real prospect of succeeding compelling reason for trial application procedure CPR 24.2 CPR 24.3 CPR 24.4 CPR 24.5",
+    "NEW_analysis": "The user asks for the rules on summary judgment in English civil procedure. The primary authoritative source is CPR Part 24 (Applications) specifically the provisions for summary judgment. Key distinguishing terms include \"summary judgment\", \"no real prospect of succeeding\" and \"compelling reason\" (CPR 24.2), plus the procedure for making the application (CPR 24.3), evidence/affidavit or witness statements (CPR 24.5), and the court\u2019s powers (CPR 24.4). Avoid confusing summary judgment with strike out (CPR 3.4) or default judgment (CPR Part 12) or relief from sanctions (CPR 3.9).",
+    "NEW_expected_hit": true,
+    "NEW_avoid_hit": false,
+    "NEW_latency": 2.19
+  },
+  {
+    "label": "Default judgment",
+    "question": "How do I get default judgment?",
+    "expected": [
+      "part 12",
+      "12",
+      "default judgment"
+    ],
+    "avoid": [],
+    "OLD_query": "CPR Part 12 default judgment procedure application for default judgment",
+    "OLD_analysis": "",
+    "OLD_expected_hit": true,
+    "OLD_avoid_hit": false,
+    "OLD_latency": 1.14,
+    "NEW_query": "CPR Part 12 default judgment failure to file acknowledgment of service failure to file defence request for default judgment time for filing service of claim form",
+    "NEW_analysis": "The user asks how to obtain default judgment. The primary authoritative source is CPR Part 12 (default judgment) and specifically the provisions on when a defendant fails to file an acknowledgment of service or defence and the procedure for requesting default judgment. Key distinguishing terms include 'default judgment', 'CPR Part 12', 'failure to file an acknowledgment of service', 'failure to file a defence', 'request', 'time for filing', 'service of claim form', and 'judgment in default'. Avoid confusing with 'summary judgment' (CPR Part 24) or 'unless order' sanctions (CPR 3.1) and avoid 'pre-action' concepts.",
+    "NEW_expected_hit": true,
+    "NEW_avoid_hit": false,
+    "NEW_latency": 1.88
+  },
+  {
+    "label": "Relief from sanctions",
+    "question": "Tell me about relief from sanctions",
+    "expected": [
+      "3.9",
+      "relief from sanctions"
+    ],
+    "avoid": [],
+    "OLD_query": "CPR 3.9 relief from sanctions application court discretion factors for granting relief from sanctions",
+    "OLD_analysis": "",
+    "OLD_expected_hit": true,
+    "OLD_avoid_hit": false,
+    "OLD_latency": 1.03,
+    "NEW_query": "CPR 3.9 relief from sanctions application good reason serious or significant breach all the circumstances litigation efficiently proportionate cost",
+    "NEW_analysis": "The user asks generally about 'relief from sanctions' in English civil procedure. The primary authoritative source is CPR 3.9 (applications for relief from sanctions) under the court's general case management powers and the sanctions regime in CPR 3.4/3.5 and related Practice Direction. Key terms include: 'relief from sanctions', 'application', 'must be made promptly', 'good reason', 'serious or significant breach', 'all the circumstances', 'paramount consideration of the need for litigation to be conducted efficiently and at proportionate cost', and the requirement to consider the overriding objective. Avoid confusing this with 'unless order' (CPR 3.1) or 'strike out' (CPR 3.4) or 'pre-action disclosure' (CPR 31.16).",
+    "NEW_expected_hit": true,
+    "NEW_avoid_hit": false,
+    "NEW_latency": 2.28
+  },
+  {
+    "label": "Expert evidence",
+    "question": "What are the rules on expert evidence?",
+    "expected": [
+      "part 35",
+      "35",
+      "expert"
+    ],
+    "avoid": [],
+    "OLD_query": "CPR Part 35 expert evidence rules of court instruction to experts single joint expert expert reports duty to the court",
+    "OLD_analysis": "",
+    "OLD_expected_hit": true,
+    "OLD_avoid_hit": false,
+    "OLD_latency": 1.23,
+    "NEW_query": "CPR Part 35 experts expert evidence instruction of experts expert report duty to the court single joint expert questions to experts court control",
+    "NEW_analysis": "The user asks generally about the rules on expert evidence in English civil procedure. The primary authoritative source is CPR Part 35 (Experts and expert evidence). Key distinguishing terms include: expert evidence, instruction of experts, duty to the court, overriding objective, expert reports, requirements for a report, single joint expert, disclosure of experts\u2019 reports, questions to experts, use of experts at trial, and the court\u2019s powers to control expert evidence. Avoid confusing expert evidence with disclosure rules in CPR Part 31 or general evidence rules in other parts; also avoid criminal procedure or practice directions unrelated to Part 35.",
+    "NEW_expected_hit": true,
+    "NEW_avoid_hit": false,
+    "NEW_latency": 1.83
+  },
+  {
+    "label": "Appeals",
+    "question": "How do appeals work?",
+    "expected": [
+      "part 52",
+      "52",
+      "appeal"
+    ],
+    "avoid": [],
+    "OLD_query": "CPR appeals how appeals work civil procedure rules appeal to the court of appeal from county court or high court time limits permission to appeal",
+    "OLD_analysis": "",
+    "OLD_expected_hit": true,
+    "OLD_avoid_hit": false,
+    "OLD_latency": 1.08,
+    "NEW_query": "CPR Part 52 appeals permission to appeal notice of appeal time limit stay of execution grounds of appeal",
+    "NEW_analysis": "The user asks generally how appeals work in the context of English civil procedure. The primary authoritative source for appeals from decisions of the County Court/High Court is not CPR Part 52 (which governs appeals) and related Practice Directions. Key terms to target include \"appeal\", \"permission to appeal\", \"notice of appeal\", \"time limit\", \"grounds of appeal\", \"stay of execution\", and \"case management\". Avoid confusing appeals with applications for judicial review or with CPR Part 24 summary judgment.",
+    "NEW_expected_hit": true,
+    "NEW_avoid_hit": false,
+    "NEW_latency": 1.87
+  },
+  {
+    "label": "Freezing orders",
+    "question": "What is a freezing order?",
+    "expected": [
+      "part 25",
+      "25",
+      "freezing"
+    ],
+    "avoid": [],
+    "OLD_query": "CPR Part 25 freezing order interim injunction without notice assets to be frozen",
+    "OLD_analysis": "",
+    "OLD_expected_hit": true,
+    "OLD_avoid_hit": false,
+    "OLD_latency": 1.27,
+    "NEW_query": "CPR Part 25 freezing order freezing injunction interim injunction assets risk of dissipation good arguable case cross-undertaking in damages without notice",
+    "NEW_analysis": "The user asks what a freezing order is. The primary authoritative source in the CPR is the provisions on interim remedies, specifically the freezing injunction regime in CPR Part 25. Key distinguishing terms include \"freezing order\" or \"freezing injunction\", \"interim injunction\", \"assets\" within the jurisdiction, \"risk of dissipation\" (real risk), \"good arguable case\", \"cross-undertaking in damages\", \"notice\" and \"without notice\" applications, and the requirement for the order to specify the assets and the period. Avoid confusing freezing orders with other interim orders (e.g., search orders under CPR Part 25, or pre-action disclosure under CPR 31.16).",
+    "NEW_expected_hit": true,
+    "NEW_avoid_hit": false,
+    "NEW_latency": 1.83
+  },
+  {
+    "label": "Costs budgeting",
+    "question": "Tell me about costs budgeting",
+    "expected": [
+      "3e",
+      "3.15",
+      "costs budget",
+      "budget"
+    ],
+    "avoid": [],
+    "OLD_query": "CPR costs budgeting costs management rules Part 3.12 3.13 3.14 3.15 3.16 budgeting for costs",
+    "OLD_analysis": "",
+    "OLD_expected_hit": true,
+    "OLD_avoid_hit": false,
+    "OLD_latency": 1.23,
+    "NEW_query": "CPR Part 3 costs management costs budgeting budget budgeting hearing CPR 3.12 CPR 3.13 CPR 3.14 Practice Direction 3E",
+    "NEW_analysis": "The user asks generally about 'costs budgeting' in English civil procedure. The primary authoritative source is the CPR provisions on costs management and budgeting, specifically CPR Part 3 (case management) together with the detailed budgeting regime in CPR Part 3 and the associated Practice Direction. Key distinguishing terms include 'costs management', 'budget', 'budgeting hearing', 'Preliminary/Costs Management Order', 'CPR 3.12' (costs management order), 'CPR 3.13' (variation), 'CPR 3.14' (sanctions for non-compliance), and the Practice Direction supplementing costs management (often PD 3E). Avoid confusing with general costs rules in CPR Part 44 or detailed assessment procedure in CPR Part 47, and avoid 'costs capping' or 'fixed costs' regimes unless specifically asked.",
+    "NEW_expected_hit": true,
+    "NEW_avoid_hit": false,
+    "NEW_latency": 2.04
+  },
+  {
+    "label": "NPO",
+    "question": "What are Norwich Pharmacal orders?",
+    "expected": [
+      "31.18",
+      "norwich pharmacal",
+      "third party disclosure"
+    ],
+    "avoid": [],
+    "OLD_query": "CPR 31.18 Norwich Pharmacal disclosure order third party disclosure",
+    "OLD_analysis": "",
+    "OLD_expected_hit": true,
+    "OLD_avoid_hit": false,
+    "OLD_latency": 0.91,
+    "NEW_query": "Norwich Pharmacal non-party disclosure order CPR 31.18 identify wrongdoer documents",
+    "NEW_analysis": "The user asks about Norwich Pharmacal orders, which are third party disclosure orders compelling a non-party to provide information to identify wrongdoers. The primary authoritative source in the CPR is CPR 31.18 (requests for disclosure of documents after disclosure of a claim) and related disclosure provisions, but Norwich Pharmacal is specifically treated as a disclosure order against a non-party; in CPR terms it is commonly linked to CPR 31.18 and the court\u2019s power to order disclosure from non-parties. Key distinguishing terms include 'Norwich Pharmacal', 'non-party', 'disclosure', 'documents', 'identify a party', and 'wrongdoer'. Avoid confusing with pre-action disclosure under CPR 31.16 or general disclosure under CPR Part 31.",
+    "NEW_expected_hit": true,
+    "NEW_avoid_hit": false,
+    "NEW_latency": 1.78
+  },
+  {
+    "label": "SJ acronym",
+    "question": "What is SJ?",
+    "expected": [
+      "24",
+      "summary judgment"
+    ],
+    "avoid": [],
+    "OLD_query": "CPR Part 24 summary judgment no real prospect of succeeding compelling reason for trial",
+    "OLD_analysis": "",
+    "OLD_expected_hit": true,
+    "OLD_avoid_hit": false,
+    "OLD_latency": 1.37,
+    "NEW_query": "CPR Part 24 summary judgment no real prospect of succeeding compelling reason for trial",
+    "NEW_analysis": "The user asks what 'SJ' means in the context of English civil procedure. 'SJ' commonly abbreviates 'summary judgment', which is governed by CPR Part 24. The primary authoritative source is CPR Part 24 (especially the provisions on when summary judgment may be granted, the test of no real prospect of success, and the court's power to give summary judgment). Key distinguishing terms include 'summary judgment', 'no real prospect of succeeding', 'CPR 24', and 'compelling reason for a trial'. Avoid confusing 'SJ' with other abbreviations like 'strike out' (CPR 3.4) or 'summary assessment' or 'stay of judgment' which are not the same concept.",
+    "NEW_expected_hit": true,
+    "NEW_avoid_hit": false,
+    "NEW_latency": 1.93
+  },
+  {
+    "label": "DJ acronym",
+    "question": "What is DJ?",
+    "expected": [
+      "12",
+      "default judgment"
+    ],
+    "avoid": [],
+    "OLD_query": "CPR Part 12 default judgment without trial judgment without trial rules",
+    "OLD_analysis": "",
+    "OLD_expected_hit": true,
+    "OLD_avoid_hit": false,
+    "OLD_latency": 1.37,
+    "NEW_query": "CPR Part 12 default judgment without trial failure to file acknowledgement of service defence CPR 12.3 set aside",
+    "NEW_analysis": "The user asks what \u201cDJ\u201d means in the context of English civil procedure. \u201cDJ\u201d commonly abbreviates \u201cdefault judgment\u201d, which is a judgment without trial under CPR Part 12. The primary authoritative source is CPR Part 12 (especially rules on default judgment, e.g., CPR 12.3 and related provisions). Key distinguishing terms include \u201cdefault judgment\u201d, \u201cwithout trial\u201d, \u201cfailure to file an acknowledgement of service or defence\u201d, \u201ctime for filing\u201d, and \u201cset aside\u201d. Avoid confusing \u201cDJ\u201d with \u201cdisclosure judgment\u201d or \u201cdeclaration of judgment\u201d and avoid mixing with Part 24 summary judgment.",
+    "NEW_expected_hit": true,
+    "NEW_avoid_hit": false,
+    "NEW_latency": 1.8
+  },
+  {
+    "label": "RFS acronym",
+    "question": "What is RFS?",
+    "expected": [
+      "3.9",
+      "relief from sanctions"
+    ],
+    "avoid": [],
+    "OLD_query": "CPR 3.9 relief from sanctions application",
+    "OLD_analysis": "",
+    "OLD_expected_hit": true,
+    "OLD_avoid_hit": false,
+    "OLD_latency": 1.52,
+    "NEW_query": "CPR 3.9 relief from sanctions application Denton serious or significant breach all the circumstances promptness unless order",
+    "NEW_analysis": "The user asks what \u201cRFS\u201d means in the context of English civil procedure. RFS is commonly shorthand for \u201crelief from sanctions\u201d, which is governed by CPR 3.9 (applications for relief from sanctions). Key distinguishing terms include \u201crelief from sanctions\u201d, \u201cCPR 3.9\u201d, \u201csanction\u201d, \u201cunless order\u201d, and the factors in the Denton test (serious/ significant breach, all the circumstances, and promptness). Avoid confusing RFS with unrelated acronyms or with \u201cpre-action disclosure\u201d (PAD) or \u201cstrike out\u201d (CPR 3.4).",
+    "NEW_expected_hit": true,
+    "NEW_avoid_hit": false,
+    "NEW_latency": 1.84
+  },
+  {
+    "label": "CMC acronym",
+    "question": "Tell me about CMC",
+    "expected": [
+      "29",
+      "case management conference"
+    ],
+    "avoid": [],
+    "OLD_query": "CPR Part 29 case management conference CMC purpose procedure",
+    "OLD_analysis": "",
+    "OLD_expected_hit": true,
+    "OLD_avoid_hit": false,
+    "OLD_latency": 1.18,
+    "NEW_query": "CPR Part 29 case management conference CMC purpose directions listing attend",
+    "NEW_analysis": "The user asks generally about CMC, which in English civil procedure most commonly means Case Management Conference. The primary authoritative source is CPR Part 29 (Case management) and the related Practice Direction 29 (or the specific CMC provisions within Part 29). Key distinguishing terms include 'case management conference', 'CMC', 'directions', 'allocation', 'listing', 'purpose of the conference', 'attend', 'representatives', and 'court's powers'. Avoid confusing CMC with other meanings (e.g., 'costs management' or 'commercial management conference') and avoid searching for unrelated ADR or pre-action concepts.",
+    "NEW_expected_hit": true,
+    "NEW_avoid_hit": false,
+    "NEW_latency": 1.9
+  },
+  {
+    "label": "Time limits for appeals",
+    "question": "What are the time limits for appeals?",
+    "expected": [
+      "52",
+      "appeal",
+      "time"
+    ],
+    "avoid": [],
+    "OLD_query": "CPR time limits for appeals against decisions of the county court or high court Part 52 appeal time limit notice of appeal",
+    "OLD_analysis": "",
+    "OLD_expected_hit": true,
+    "OLD_avoid_hit": false,
+    "OLD_latency": 0.92,
+    "NEW_query": "CPR Part 52 time limit notice of appeal permission to appeal Court of Appeal",
+    "NEW_analysis": "The user asks generally about time limits for appeals in the English civil procedure context. The primary authoritative source is the CPR provisions on appeals, which are in CPR Part 52 (Appeals). Key distinguishing terms include: time limit for filing a notice of appeal, permission to appeal, appeal to the Court of Appeal, appeal from a decision of a county court or tribunal, and the requirement to seek permission. Similar-sounding but different concepts include time limits for applications for relief from sanctions or for making applications generally under CPR Part 23, and time limits for seeking permission to appeal under other regimes; the search should focus on CPR Part 52 and its specific rules on time limits and permission.",
+    "NEW_expected_hit": true,
+    "NEW_avoid_hit": false,
+    "NEW_latency": 1.97
+  },
+  {
+    "label": "Service abroad",
+    "question": "How do I serve documents abroad?",
+    "expected": [
+      "part 6",
+      "6",
+      "service",
+      "jurisdiction"
+    ],
+    "avoid": [],
+    "OLD_query": "CPR Part 6 service of claim form and other documents out of the jurisdiction abroad methods of service",
+    "OLD_analysis": "",
+    "OLD_expected_hit": true,
+    "OLD_avoid_hit": false,
+    "OLD_latency": 1.13,
+    "NEW_query": "CPR Part 6 service of documents abroad service out of the jurisdiction Hague Service Convention methods of service",
+    "NEW_analysis": "The user asks how to serve documents abroad. The primary authoritative source in the CPR is the rules on service out of the jurisdiction and service of documents abroad, including the methods and requirements for service. Key provisions are CPR Part 6 (service of claim form and other documents) and specifically the sections dealing with service outside the jurisdiction and the Hague Service Convention/other international service routes. Distinguish from pre-action service or general filing; focus on CPR Part 6 and any Practice Direction supplementing service abroad. Avoid searching for unrelated topics like disclosure or freezing orders.",
+    "NEW_expected_hit": true,
+    "NEW_avoid_hit": false,
+    "NEW_latency": 1.84
+  },
+  {
+    "label": "BPC disclosure",
+    "question": "What are the disclosure rules in the Business and Property Courts?",
+    "expected": [
+      "57ad",
+      "extended disclosure",
+      "business and property"
+    ],
+    "avoid": [],
+    "OLD_query": "Business and Property Courts disclosure rules CPR Part 31 disclosure standard disclosure disclosure pilot practice direction",
+    "OLD_analysis": "",
+    "OLD_expected_hit": true,
+    "OLD_avoid_hit": false,
+    "OLD_latency": 0.94,
+    "NEW_query": "CPR Part 31 disclosure standard disclosure extended disclosure list of documents search inspection proportionality CPR 31.5 CPR 31.6 CPR 31.7 PD 31",
+    "NEW_analysis": "The user asks about disclosure rules specifically in the Business and Property Courts. The primary authoritative sources for disclosure in civil litigation are the CPR provisions on disclosure (Part 31) and the related Practice Direction (PD 31) and, for the Business and Property Courts, the court-specific guidance in the relevant Court Guide (e.g., Business and Property Courts / Chancery / Commercial). Key terms to target include 'disclosure', 'standard disclosure', 'extended disclosure', 'list of documents', 'search', 'inspection', 'proportionality', 'issues', 'documents', 'relevance', 'necessary', 'CPR 31.6', 'CPR 31.7', 'CPR 31.5', and 'PD 31'. Avoid confusing disclosure with pre-action disclosure (CPR 31.16) or with disclosure in criminal proceedings.",
+    "NEW_expected_hit": true,
+    "NEW_avoid_hit": false,
+    "NEW_latency": 2.1
+  },
+  {
+    "label": "Unless orders",
+    "question": "Tell me about unless orders",
+    "expected": [
+      "3.1",
+      "unless order",
+      "sanction"
+    ],
+    "avoid": [],
+    "OLD_query": "CPR 3.1 unless order automatic sanction strike out unless order",
+    "OLD_analysis": "",
+    "OLD_expected_hit": true,
+    "OLD_avoid_hit": false,
+    "OLD_latency": 1.04,
+    "NEW_query": "CPR 3.1 unless order automatic sanction strike out unless the order is complied with",
+    "NEW_analysis": "The user asks about \u201cunless orders\u201d, which in English civil procedure refers to an order made under CPR 3.1 with an automatic sanction if a party does not comply by a specified deadline. The primary authoritative source is CPR 3.1 (case management powers) and the specific provisions on unless orders and automatic consequences. Key distinguishing terms include \u201cunless order\u201d, \u201cautomatic\u201d, \u201cunless the order is complied with\u201d, \u201cstrike out\u201d, \u201cunless\u201d and \u201csanction\u201d. Avoid confusing with other \u201corders\u201d such as summary judgment (CPR Part 24) or relief from sanctions (CPR 3.9) which are related but distinct.",
+    "NEW_expected_hit": true,
+    "NEW_avoid_hit": false,
+    "NEW_latency": 2.13
+  }
+]
