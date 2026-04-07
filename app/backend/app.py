@@ -417,6 +417,13 @@ async def setup_clients():
     OPENAI_EMB_MODEL = os.getenv("AZURE_OPENAI_EMB_MODEL_NAME", "text-embedding-ada-002")
     OPENAI_EMB_DIMENSIONS = int(os.getenv("AZURE_OPENAI_EMB_DIMENSIONS") or 1536)
     OPENAI_REASONING_EFFORT = os.getenv("AZURE_OPENAI_REASONING_EFFORT")
+    # CUSTOM: Separate model for query rewrite step (faster/cheaper)
+    OPENAI_REWRITE_MODEL = os.getenv("AZURE_OPENAI_REWRITE_MODEL")
+    AZURE_OPENAI_REWRITE_DEPLOYMENT = (
+        os.getenv("AZURE_OPENAI_REWRITE_DEPLOYMENT")
+        if OPENAI_HOST in [OpenAIHost.AZURE, OpenAIHost.AZURE_CUSTOM]
+        else None
+    )
     # Used with Azure OpenAI deployments
     AZURE_OPENAI_SERVICE = os.getenv("AZURE_OPENAI_SERVICE")
     AZURE_OPENAI_CHATGPT_DEPLOYMENT = (
@@ -755,6 +762,8 @@ async def setup_clients():
         use_sharepoint_source=current_app.config[CONFIG_SHAREPOINT_SOURCE_ENABLED],
         retrieval_reasoning_effort=AGENTIC_KNOWLEDGEBASE_REASONING_EFFORT,
         available_sources=available_sources,
+        rewrite_model=OPENAI_REWRITE_MODEL,
+        rewrite_deployment=AZURE_OPENAI_REWRITE_DEPLOYMENT,
     )
 
 

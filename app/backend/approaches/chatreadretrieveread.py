@@ -1,3 +1,4 @@
+import asyncio
 import re
 from collections.abc import AsyncGenerator, Awaitable
 from dataclasses import asdict
@@ -150,6 +151,8 @@ class ChatReadRetrieveReadApproach(Approach):
         use_sharepoint_source: bool = False,
         retrieval_reasoning_effort: Optional[str] = None,
         available_sources: Optional[list[str]] = None,
+        rewrite_model: Optional[str] = None,
+        rewrite_deployment: Optional[str] = None,
     ):
         self.search_client = search_client
         self.search_index_name = search_index_name
@@ -184,6 +187,9 @@ class ChatReadRetrieveReadApproach(Approach):
         self.retrieval_reasoning_effort = retrieval_reasoning_effort
         # CUSTOM: Dynamic source list from search index for prompt awareness
         self.available_sources = available_sources or []
+        # CUSTOM: Separate model for query rewrite (faster/cheaper), falls back to chatgpt_model
+        self.rewrite_model = rewrite_model or chatgpt_model
+        self.rewrite_deployment = rewrite_deployment if rewrite_deployment is not None else chatgpt_deployment
 
     def extract_followup_questions(self, content: Optional[str]):
         if content is None:
@@ -504,11 +510,11 @@ class ChatReadRetrieveReadApproach(Approach):
                 "available_sources": self.available_sources,
             },
             overrides=overrides,
-            chatgpt_model=self.chatgpt_model,
-            chatgpt_deployment=self.chatgpt_deployment,
+            chatgpt_model=self.rewrite_model,
+            chatgpt_deployment=self.rewrite_deployment,
             user_query=original_user_query,
             response_token_limit=self.get_response_token_limit(
-                self.chatgpt_model, 300
+                self.rewrite_model, 300
             ),  # Setting too low risks malformed JSON, setting too high may affect performance
             tools=self.query_rewrite_tools,
             temperature=0.0,  # Minimize creativity for search query generation
