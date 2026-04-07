@@ -250,13 +250,14 @@ The script `scripts/computer_use_test.py` uses Azure OpenAI GPT-5.4 computer use
 | `COMPUTER_USE_AZURE_OPENAI_ENDPOINT` | *(required)* | Azure OpenAI resource endpoint, e.g. `https://myresource.openai.azure.com` |
 | `COMPUTER_USE_MODEL` | `gpt-5.4` | Deployment name |
 | `COMPUTER_USE_TARGET_URL` | `http://localhost:50505` | URL the browser navigates to |
-| `COMPUTER_USE_MAX_ITERATIONS` | `12` | Hard cap on action-screenshot loops |
+| `COMPUTER_USE_MAX_ITERATIONS` | `16` | Hard cap on action-screenshot loops |
+| `COMPUTER_USE_SCENARIO_PARSE_RETRIES` | `2` | Additional retries for suite scenarios that fail to return the required JSON block |
 | `COMPUTER_USE_DISPLAY_WIDTH` | `1440` | Browser viewport width |
 | `COMPUTER_USE_DISPLAY_HEIGHT` | `900` | Browser viewport height |
 
 If `COMPUTER_USE_AZURE_OPENAI_ENDPOINT` is not set explicitly, the harness falls back to the repo's standard `.env` value for `AZURE_OPENAI_ENDPOINT`.
 
-If `COMPUTER_USE_MODEL` is not set explicitly, the harness prefers a compatible deployment from the repo's standard `.env` values and otherwise falls back to `gpt-5.4`. It intentionally avoids reusing `mini` or `nano` deployments for computer use.
+If `COMPUTER_USE_MODEL` is not set explicitly, the harness prefers a compatible deployment from the repo's standard `.env` values and otherwise falls back to `gpt-5.4`. It intentionally avoids reusing `mini` or `nano` deployments for computer use when a full-size compatible deployment is available.
 
 ### Running
 
@@ -292,6 +293,8 @@ The built-in `detailed-citations` suite runs multiple source-filtered scenarios 
 * Patents Court Guide
 
 Each scenario asks a grounded legal question, checks in-text and bottom citation rendering, clicks citations to verify the supporting-content panel, and records issues in the saved JSON log.
+
+For built-in suites, the harness now pre-selects the required source filter with direct Playwright actions before handing control to the model. This keeps the computer-use steps focused on answer validation, citation clicks, and supporting-content inspection instead of repeatedly spending turns on dropdown setup.
 
 The scenario catalog is grounded in the v3 index patterns already used by the repo's citation tests, including:
 
