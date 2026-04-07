@@ -17,6 +17,10 @@
                 "subsection_hint": {
                     "type": "string",
                     "description": "Specific subsection identifier for precise citation when available (e.g., '1.1' for rule 1.1, 'A4.1' for court guide section A4.1, 'Para 1.1' for practice direction paragraph 1.1). Use an empty string when no precise subsection is named."
+                },
+                "related_aspects": {
+                    "type": "string",
+                    "description": "Optional. When the user's question covers a BROAD topic that spans multiple related CPR rules or sub-concepts, list 1-3 additional specific search queries separated by | that target secondary aspects the primary search_query may miss. For example, if the primary query targets CPR 31.6 standard disclosure, related aspects might be 'CPR 31.3 right to inspect disclosed documents | CPR 31.12 specific disclosure order'. Only use this when the topic genuinely spans multiple rules. Leave empty for focused single-rule questions."
                 }
             },
             "required": ["legal_concept_analysis", "search_query"]

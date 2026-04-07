@@ -162,6 +162,7 @@ class RewriteQueryResult:
     completion: ChatCompletion
     reasoning_effort: ChatCompletionReasoningEffort
     subsection_hint: Optional[str] = None
+    related_aspects: Optional[list[str]] = None
 
 
 @dataclass
@@ -783,7 +784,14 @@ class Approach(ABC):
         if ranked_documents:
             best_score = ranked_documents[0][1]
             if best_score >= 6:
-                minimum_score = max(2, int(best_score * 0.5))
+                # CUSTOM: Use a lower threshold for broad queries (no specific legal
+                # references) to avoid dropping related-but-secondary topic chunks.
+                # Focused queries with reference terms keep the stricter 50% cutoff.
+                reference_terms = self._extract_query_reference_terms(query)
+                if reference_terms:
+                    minimum_score = max(2, int(best_score * 0.5))
+                else:
+                    minimum_score = max(1, int(best_score * 0.35))
                 focused_documents = [
                     doc
                     for doc, score in ranked_documents
@@ -967,12 +975,21 @@ class Approach(ABC):
         if not isinstance(subsection_hint, str) or not subsection_hint.strip():
             subsection_hint = None
 
+        # CUSTOM: Extract related_aspects for broad topic supplemental searches
+        related_aspects_raw = rewrite_arguments.get("related_aspects")
+        related_aspects: Optional[list[str]] = None
+        if isinstance(related_aspects_raw, str) and related_aspects_raw.strip():
+            related_aspects = [a.strip() for a in related_aspects_raw.split("|") if a.strip()]
+            if not related_aspects:
+                related_aspects = None
+
         return RewriteQueryResult(
             query=rewritten_query,
             messages=query_messages,
             completion=chat_completion,
             reasoning_effort=rewrite_reasoning_effort,
             subsection_hint=subsection_hint,
+            related_aspects=related_aspects,
         )
 
     async def run_agentic_retrieval(

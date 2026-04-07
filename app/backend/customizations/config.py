@@ -30,6 +30,9 @@ CUSTOM_FEATURES = {
 
     # Allow agentic retrieval to fall back to direct search when references are weak, not just empty
     "agentic_retry_on_weak_matches": True,
+
+    # Supplemental search for related sub-concepts identified by query rewrite
+    "related_aspects_search": True,
 }
 
 # Security Configuration

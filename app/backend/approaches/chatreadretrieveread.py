@@ -693,6 +693,43 @@ class ChatReadRetrieveReadApproach(Approach):
                     results.append(part_doc)
                 adaptive_retry_used = True
 
+        # CUSTOM: Related-aspects supplemental search
+        # When the LLM identifies that a broad topic spans multiple related CPR rules
+        # (e.g. disclosure also involves inspection, specific disclosure), do targeted
+        # supplemental searches for each related aspect to improve topic coverage.
+        # Searches run in parallel to minimize latency impact.
+        if is_feature_enabled("related_aspects_search") and rewrite_result.related_aspects:
+            aspect_queries = rewrite_result.related_aspects[:3]  # Cap at 3 supplemental searches
+
+            async def _aspect_search(aq: str) -> list:
+                return await self.search(
+                    min(top, 3),
+                    aq,
+                    search_index_filter,
+                    [],
+                    True,
+                    False,
+                    use_semantic_ranker,
+                    False,
+                    minimum_search_score,
+                    minimum_reranker_score,
+                    False,
+                    access_token,
+                    semantic_query_text=aq,
+                )
+
+            aspect_results_list = await asyncio.gather(*[_aspect_search(aq) for aq in aspect_queries])
+            for aq, aspect_results in zip(aspect_queries, aspect_results_list):
+                if aspect_results:
+                    supplemental_reference_queries.append(f"{aq} (related aspect)")
+                    # Use a broader merge limit to accommodate supplemental results
+                    results = self._merge_documents_by_query_intent(
+                        merge_scoring_query,
+                        results + aspect_results,
+                        limit=top + 2,  # Allow 2 extra slots for related aspects
+                    )
+                    adaptive_retry_used = True
+
         # STEP 3: Generate a contextual and content specific answer using the search results and chat history
         data_points = await self.get_sources_content(
             results,
