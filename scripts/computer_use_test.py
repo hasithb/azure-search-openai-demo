@@ -19,7 +19,8 @@ Environment variables (set in .env or export):
   COMPUTER_USE_AZURE_OPENAI_ENDPOINT  – e.g. https://myresource.openai.azure.com
   COMPUTER_USE_MODEL                  – deployment name, default "gpt-5.4"
   COMPUTER_USE_TARGET_URL             – default http://localhost:50505
-    COMPUTER_USE_MAX_ITERATIONS         – default 12
+        COMPUTER_USE_MAX_ITERATIONS         – default 16
+    COMPUTER_USE_SCENARIO_PARSE_RETRIES – default 2
   COMPUTER_USE_DISPLAY_WIDTH          – default 1440
   COMPUTER_USE_DISPLAY_HEIGHT         – default 900
 
@@ -91,6 +92,13 @@ def is_computer_use_capable_model(model_name: str) -> bool:
     return False
 
 
+def is_preferred_computer_use_deployment(deployment_name: str) -> bool:
+    normalized = deployment_name.strip().strip('"').strip("'").lower()
+    if not normalized:
+        return False
+    return "mini" not in normalized and "nano" not in normalized
+
+
 def resolve_model() -> str:
     explicit_model = read_env("COMPUTER_USE_MODEL")
     if explicit_model:
@@ -103,9 +111,15 @@ def resolve_model() -> str:
         (read_env("AZURE_OPENAI_GPT4V_DEPLOYMENT"), read_env("AZURE_OPENAI_GPT4V_MODEL")),
         (read_env("AZURE_OPENAI_KNOWLEDGEBASE_DEPLOYMENT"), read_env("AZURE_OPENAI_KNOWLEDGEBASE_MODEL")),
     ]
+    fallback_candidates: list[str] = []
     for deployment_name, model_name in deployment_candidates:
         if deployment_name and is_computer_use_capable_model(model_name):
-            return deployment_name
+            if is_preferred_computer_use_deployment(deployment_name):
+                return deployment_name
+            fallback_candidates.append(deployment_name)
+
+    if fallback_candidates:
+        return fallback_candidates[0]
 
     return "gpt-5.4"
 
@@ -113,7 +127,7 @@ def resolve_model() -> str:
 ENDPOINT = read_env("COMPUTER_USE_AZURE_OPENAI_ENDPOINT") or read_env("AZURE_OPENAI_ENDPOINT")
 MODEL = resolve_model()
 TARGET_URL = os.getenv("COMPUTER_USE_TARGET_URL", "http://localhost:50505")
-MAX_ITERATIONS = int(os.getenv("COMPUTER_USE_MAX_ITERATIONS", "12"))
+MAX_ITERATIONS = int(os.getenv("COMPUTER_USE_MAX_ITERATIONS", "16"))
 DISPLAY_WIDTH = int(os.getenv("COMPUTER_USE_DISPLAY_WIDTH", "1440"))
 DISPLAY_HEIGHT = int(os.getenv("COMPUTER_USE_DISPLAY_HEIGHT", "900"))
 
@@ -122,7 +136,7 @@ ALLOWED_ORIGIN = f"{urlparse(TARGET_URL).scheme}://{urlparse(TARGET_URL).netloc}
 
 # Log directory
 LOG_DIR = Path("scripts/computer_use_logs")
-SCENARIO_PARSE_RETRIES = 1
+SCENARIO_PARSE_RETRIES = int(os.getenv("COMPUTER_USE_SCENARIO_PARSE_RETRIES", "2"))
 
 
 @dataclass(frozen=True)
@@ -498,11 +512,19 @@ def build_single_task(task: str) -> str:
     return task
 
 
-def build_scenario_task(scenario: Scenario) -> str:
+def build_scenario_task(scenario: Scenario, *, source_filter_preconfigured: bool = False) -> str:
     questions = "\n".join(f"{index}. Ask exactly: \"{question}\"" for index, question in enumerate(scenario.questions, start=1))
     focus = ", ".join(scenario.focus) if scenario.focus else "citation accuracy and supporting content correctness"
     notes = f" Extra notes: {scenario.notes}" if scenario.notes else ""
     heading_hint = f" Adjacent heading text that should stay outside the highlighted block when available: '{scenario.excluded_heading}'." if scenario.excluded_heading else ""
+    source_filter_step = (
+        f"2. The source filter is already set exactly as '{scenario.source_filter}'. Verify that label before continuing and only change it if it visibly differs."
+        if source_filter_preconfigured
+        else (
+            f"2. Select the source filter exactly as '{scenario.source_filter}'. If it is already selected, keep it. "
+            "If the dropdown shows multiple selected sources such as '3 selected', deselect the extras and do not continue until the control visibly shows only the exact required source label, or 'All Sources' when that is the intended filter."
+        )
+    )
     return textwrap.dedent(
     f"""
         You are testing the legal RAG UI for citation quality.
@@ -513,7 +535,7 @@ def build_scenario_task(scenario: Scenario) -> str:
 
                 Steps:
                 1. Open the chat page if needed.
-                2. Select the source filter exactly as '{scenario.source_filter}'. If it is already selected, keep it. If the dropdown shows multiple selected sources such as '3 selected', deselect the extras and do not continue until the control visibly shows only the exact required source label, or 'All Sources' when that is the intended filter.
+                {source_filter_step}
                 3. Run the following question flow in order:
                 {questions}
                 4. For each answer:
@@ -760,6 +782,25 @@ async def reset_app_state(page) -> None:
             await asyncio.sleep(0.5)
     except Exception:
         pass
+
+
+async def ensure_suite_source_filter(page, source_filter: str) -> None:
+    source_button = page.locator("#chat-source-filter-desktop-button")
+    current_label = ((await source_button.text_content()) or "").strip()
+
+    if source_filter == "All Sources" and current_label in {"All Sources", "All"}:
+        return
+    if source_filter != "All Sources" and current_label == source_filter:
+        return
+
+    await source_button.click()
+    if source_filter == "All Sources":
+        await page.locator("#source-filter-option-all-sources").click()
+    else:
+        await page.get_by_role("menuitemcheckbox", name=source_filter, exact=True).click()
+    await asyncio.sleep(0.4)
+    await page.keyboard.press("Escape")
+    await asyncio.sleep(0.2)
 
 
 async def handle_action(page, action: dict) -> None:
@@ -1021,7 +1062,7 @@ async def run_suite(client: OpenAI, page, suite_name: str) -> tuple[Any, dict[st
 
     for index, scenario in enumerate(scenarios, start=1):
         print(f"\n{'=' * 72}\nScenario {index}/{len(scenarios)}: {scenario.title}\n{'=' * 72}")
-        task = build_scenario_task(scenario)
+        task = build_scenario_task(scenario, source_filter_preconfigured=True)
         result: dict[str, Any] | None = None
         parsed_result: dict[str, Any] | None = None
         attempts_used = 0
@@ -1032,6 +1073,7 @@ async def run_suite(client: OpenAI, page, suite_name: str) -> tuple[Any, dict[st
                 print(f"  [retry] Scenario did not return parseable JSON; retrying attempt {attempts_used}/{SCENARIO_PARSE_RETRIES + 1}.")
 
             await reset_app_state(page)
+            await ensure_suite_source_filter(page, scenario.source_filter)
             attempt_task = task
             if attempt_index > 0:
                 attempt_task = (
