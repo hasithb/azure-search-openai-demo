@@ -683,10 +683,13 @@ export const HelpAboutPanel: React.FC = () => {
                                 <div className={classes.section}>
                                     <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                                         <Text size={200}>
-                                            <strong>AI Model:</strong> GPT-5-nano via Azure OpenAI
+                                            <strong>AI Models:</strong> GPT-5.4 (answers) · GPT-5.4-nano (query rewrite) via Azure OpenAI
                                         </Text>
                                         <Text size={200}>
-                                            <strong>Region:</strong> East US 2 (test environment)
+                                            <strong>AI Processing:</strong> Global Standard (Sweden Central)
+                                        </Text>
+                                        <Text size={200}>
+                                            <strong>App & Search:</strong> East US 2
                                         </Text>
                                         <Text size={200}>
                                             <strong>Encryption:</strong> TLS 1.2+ in transit, AES-256 at rest
