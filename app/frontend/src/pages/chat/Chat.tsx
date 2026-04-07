@@ -287,14 +287,14 @@ const Chat = () => {
         });
     };
 
-    const makeApiRequest = async (question: string) => {
+    const makeApiRequest = async (question: string): Promise<boolean> => {
         // CUSTOM: Block search if no category is selected and "All" isn't ticked
         if (showCategoryFilter && includeCategory.trim() === "" && !allCategoriesSelected) {
             setUserTriedToSearch(true);
             if (isMobile) {
                 setShowMobileDropdown(true);
             }
-            return;
+            return false;
         }
         setUserTriedToSearch(false);
         setUserHasInteracted(true);
@@ -389,6 +389,7 @@ const Chat = () => {
                 // Stopped during loading - restore question to input
                 lastQuestionRef.current = answers.length > 0 ? answers[answers.length - 1][0] : "";
                 setRestoredQuestion(question);
+                return false;
             } else {
                 setError(e);
             }
@@ -396,6 +397,7 @@ const Chat = () => {
             setIsLoading(false);
             setAbortController(null);
         }
+        return true;
     };
 
     const clearChat = () => {
@@ -786,7 +788,7 @@ const Chat = () => {
                             />
                         )}
                         {/* CUSTOM: Category validation warning */}
-                        {showCategoryFilter && userTriedToSearch && !userHasInteracted && (
+                        {showCategoryFilter && userTriedToSearch && (
                             <div
                                 className={styles.categoryWarning}
                                 onClick={() => isMobile && setShowMobileDropdown(true)}

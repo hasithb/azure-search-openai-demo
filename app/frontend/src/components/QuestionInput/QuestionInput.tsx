@@ -16,7 +16,7 @@ const StopCircleIcon = () => (
 );
 
 interface Props {
-    onSend: (question: string) => void;
+    onSend: (question: string) => boolean | Promise<boolean> | void;
     disabled: boolean;
     initQuestion?: string;
     placeholder?: string;
@@ -67,14 +67,14 @@ export const QuestionInput = ({
         initQuestion && setQuestion(initQuestion);
     }, [initQuestion]);
 
-    const sendQuestion = () => {
+    const sendQuestion = async () => {
         if (disabled || !question.trim()) {
             return;
         }
 
-        onSend(question);
+        const result = await onSend(question);
 
-        if (clearOnSend) {
+        if (clearOnSend && result !== false) {
             setQuestion("");
         }
     };

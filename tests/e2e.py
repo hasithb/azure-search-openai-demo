@@ -493,6 +493,87 @@ def test_chat_source_filter_categories_api_failure_falls_back_to_all_sources(pag
     assert "include_category" not in captured_overrides
 
 
+def test_chat_no_source_selected_shows_warning_preserves_input(page: Page, live_server_url: str):
+    """When no source is selected and user clicks submit, a warning should appear
+    and the question text should NOT be cleared."""
+
+    def handle_categories(route: Route):
+        route.fulfill(
+            body=json.dumps(
+                {
+                    "categories": [
+                        {"key": "Commercial Court", "text": "Commercial Court"},
+                        {"key": "Patents Court", "text": "Patents Court"},
+                    ]
+                }
+            ),
+            status=200,
+            headers={"Content-Type": "application/json"},
+        )
+
+    page.route("*/**/api/categories", handle_categories)
+
+    with page.expect_response("**/api/categories"):
+        page.goto(live_server_url)
+    question_input = page.locator("textarea, input[type='text']").first
+    expect(question_input).to_be_visible()
+
+    # Type a question but do NOT select a source
+    question_input.fill("What are the rules on disclosure?")
+    page.get_by_role("button", name="Submit question").click()
+
+    # Warning should appear
+    expect(page.get_by_text("Please select a source before searching")).to_be_visible()
+    # Question text should be preserved (not cleared)
+    expect(question_input).to_have_value("What are the rules on disclosure?")
+
+
+def test_chat_warning_appears_after_removing_all_sources(page: Page, live_server_url: str):
+    """If user selects a source, then removes all sources and submits,
+    the warning should still appear."""
+
+    def handle_categories(route: Route):
+        route.fulfill(
+            body=json.dumps(
+                {
+                    "categories": [
+                        {"key": "Commercial Court", "text": "Commercial Court"},
+                        {"key": "Patents Court", "text": "Patents Court"},
+                    ]
+                }
+            ),
+            status=200,
+            headers={"Content-Type": "application/json"},
+        )
+
+    page.route("*/**/api/categories", handle_categories)
+
+    with page.expect_response("**/api/categories"):
+        page.goto(live_server_url)
+    question_input = page.locator("textarea, input[type='text']").first
+    expect(question_input).to_be_visible()
+
+    # Select a source first
+    source_filter = page.locator("#chat-source-filter-desktop-button")
+    source_filter.click()
+    page.locator("#source-filter-option-commercial-court").click()
+
+    # Deselect it (multiselect dropdown stays open, so just click again)
+    page.locator("#source-filter-option-commercial-court").click()
+
+    # Close the dropdown by clicking elsewhere
+    question_input.click()
+
+    # Try to submit with no source
+    question_input.fill("What are the rules on disclosure?")
+    page.get_by_role("button", name="Submit question").click()
+
+    # Warning should appear even though user previously had a source selected
+    expect(page.get_by_text("Please select a source before searching")).to_be_visible()
+    # Question text should be preserved
+    expect(question_input).to_have_value("What are the rules on disclosure?")
+
+
 def test_chat_customization_multimodal(page: Page, live_server_url: str):
     # Set up a mock route to the /chat endpoint
     def handle_chat(route: Route):
