@@ -1,178 +1,200 @@
 # GitHub Copilot Instructions for Azure Search OpenAI Demo (Legal RAG)
 
-This repository is a customized fork of [Azure-Samples/azure-search-openai-demo](https://github.com/Azure-Samples/azure-search-openai-demo) with legal domain-specific features.
+This repository is a customized fork of `Azure-Samples/azure-search-openai-demo` with legal-domain behavior layered on top of the upstream app.
 
-## 🏗️ Architecture Overview
+## Architecture overview
 
-This codebase follows a **merge-safe architecture** where all custom features are isolated in dedicated `/customizations/` folders to prevent conflicts when updating from upstream.
+This codebase follows a merge-safe strategy:
 
-### Key Directories
+- Put fork-specific code in `/customizations/` folders whenever possible.
+- Keep changes to upstream-owned files small and clearly marked with `CUSTOM:` comments.
+- Treat prompt files and a handful of core integration files as intentional exceptions that must be reviewed during upstream merges.
+
+The active application surface in this fork is chat-first. Do not assume the legacy `Ask` page is still a customization target.
+
+## Key directories
 
 | Directory | Purpose |
 |-----------|---------|
-| `app/backend/customizations/` | Backend feature flags, routes, and approach helpers |
-| `app/frontend/src/customizations/` | Frontend utilities, hooks, and config |
-| `app/backend/approaches/prompts/` | Legal domain prompts (reviewed during upgrades) |
+| `app/backend/customizations/` | Backend feature flags, routes, metadata helpers, subsection extraction |
+| `app/frontend/src/customizations/` | Frontend feature flags, source controls, citation helpers, UX components |
+| `app/backend/approaches/prompts/` | Legal-domain prompt customizations that must be reviewed during upgrades |
 
-## 📁 Custom Code Locations
+## Custom code locations
 
-### Backend Customizations (`app/backend/customizations/`)
-
-```text
-customizations/
-├── __init__.py              # Module initialization
-├── config.py                # Feature flags (is_feature_enabled)
-├── prompt_extensions.py     # Prompt enhancement utilities
-├── approaches/              # Legal RAG helpers
-│   ├── citation_builder.py  # Enhanced legal citations
-│   └── source_processor.py  # Structured source processing
-└── routes/
-    └── categories.py        # Dynamic /api/categories endpoint
-```
-
-### Frontend Customizations (`app/frontend/src/customizations/`)
+### Backend customizations (`app/backend/customizations/`)
 
 ```text
 customizations/
-├── index.ts                 # Barrel exports
-├── config.ts                # Frontend feature flags
-├── citationSanitizer.ts     # Fix malformed citations
-├── useCategories.ts         # Dynamic category hook
-└── __tests__/               # Unit tests
+|-- __init__.py
+|-- config.py                   # Feature flags, source display names, deployment metadata
+|-- subsection_extractor.py     # Shared subsection parsing
+|-- approaches/
+|   |-- citation_builder.py     # Enhanced legal citation generation
+|   `-- source_processor.py     # Source shaping and metadata preservation
+`-- routes/
+    |-- categories.py           # GET /api/categories
+    `-- feedback.py             # POST /api/feedback
 ```
 
-## 🔌 Integration Points
+### Frontend customizations (`app/frontend/src/customizations/`)
 
-When modifying upstream files, these are the **minimal integration points** that connect customizations:
+```text
+customizations/
+|-- index.ts                    # Barrel exports
+|-- config.ts                   # Frontend feature flags and admin mode
+|-- answerParagraphs.ts         # Readability formatting
+|-- chunkDeduplicator.ts        # Subsection-aware supporting-content dedupe
+|-- citationMetadata.ts         # Structured citation metadata + path building
+|-- citationSanitizer.ts        # Citation cleanup and fuzzy matching
+|-- externalSourceHandler.ts    # Iframe-blocked source handling
+|-- useCategories.ts            # Dynamic source loading
+|-- useMobile.ts                # Mobile breakpoint and label helpers
+|-- ChatInputControls.tsx       # Source filter + search depth controls
+|-- CitationMetadataDisplay.tsx # Metadata badges for supporting content
+|-- DataPrivacyNotice.tsx
+|-- HelpAboutPanel.tsx
+|-- LegalFeedback.tsx
+|-- SplashScreen.tsx
+|-- mobile.css
+`-- __tests__/
+```
 
-### Backend (`app/backend/app.py`)
+## Integration points
+
+When modifying upstream files, these are the main places where the fork is connected back into the app.
+
+### Backend app setup (`app/backend/app.py`)
 
 ```python
-# Import categories blueprint
-from customizations.routes import categories_bp
+from customizations.config import fetch_available_sources, is_deployed_ui_compat_enabled, is_feature_enabled
+from customizations.routes import categories_bp, feedback_bp
 
-# Register blueprint in create_app()
 app.register_blueprint(categories_bp)
+app.register_blueprint(feedback_bp)
+
+available_sources = await fetch_available_sources(search_client)
 ```
 
-### Frontend Pages (`app/frontend/src/pages/chat/Chat.tsx`, `ask/Ask.tsx`)
+### Backend approaches (`app/backend/approaches/approach.py`, `chatreadretrieveread.py`)
+
+These files carry legal-specific retrieval, citation, and source-metadata hooks. Review their `CUSTOM:` blocks after every upstream merge.
+
+### Frontend chat flow (`app/frontend/src/pages/chat/Chat.tsx`)
 
 ```typescript
-// CUSTOM: Import from customizations folder for merge-safe architecture
-import { useCategories } from "../../customizations";
-
-// CUSTOM: Search Depth dropdown for agentic retrieval reasoning effort
-// Located in leftOfSend area of QuestionInput, after category dropdown
-// Uses TooltipHost, IconButton, DirectionalHint from @fluentui/react
+import { HelpAboutPanel, buildCitationLabel } from "../../customizations";
+import { ChatInputControls, MobileDropdownPanel } from "../../customizations/ChatInputControls";
+import { useCategories } from "../../customizations/useCategories";
+import { isFeatureEnabled, isAdminMode } from "../../customizations/config";
+import { useIsMobile } from "../../customizations/useMobile";
+import { isIframeBlocked } from "../../customizations/externalSourceHandler";
 ```
 
-### Answer Parser (`app/frontend/src/components/Answer/AnswerParser.tsx`)
+### Frontend answer and supporting-content flow
+
+Review these files together because the citation metadata pipeline crosses all of them:
+
+- `app/frontend/src/components/Answer/Answer.tsx`
+- `app/frontend/src/components/Answer/AnswerParser.tsx`
+- `app/frontend/src/components/AnalysisPanel/AnalysisPanel.tsx`
+- `app/frontend/src/components/SupportingContent/SupportingContent.tsx`
+- `app/frontend/src/components/QuestionInput/QuestionInput.tsx`
+
+### Frontend shell and local dev
 
 ```typescript
-// CUSTOM: Import citation sanitization from isolated customizations folder
-import { sanitizeCitations } from "../../customizations/citationSanitizer";
+// app/frontend/src/pages/layout/Layout.tsx
+import { HelpAboutPanel } from "../../customizations/HelpAboutPanel";
+import { SplashScreen } from "../../customizations/SplashScreen";
+
+// app/frontend/src/index.tsx
+import "./customizations/mobile.css";
+
+// app/frontend/vite.config.ts
+"/api/categories": "http://localhost:50505",
+"/api/feedback": "http://localhost:50505"
 ```
 
-### Vite Config (`app/frontend/vite.config.ts`)
+## Coding guidelines
 
-```typescript
-// CUSTOM: Category filter API route
-"/api/categories": "http://localhost:50505"
-```
+### When adding new features
 
-### Approach Files (`app/backend/approaches/*.py`)
+1. Add new fork-specific code to `/customizations/` folders whenever practical.
+2. Use feature flags in `app/backend/customizations/config.py` or `app/frontend/src/customizations/config.ts`.
+3. Minimize edits to upstream-owned files and mark them with `CUSTOM:` comments.
+4. Export public customization APIs through `__init__.py` or `index.ts`.
+5. Add or update tests under `app/frontend/src/customizations/__tests__/` or the relevant backend/test area.
 
-```python
-# Import legal domain customizations
-from customizations.approaches import citation_builder, source_processor
-```
+### When modifying prompts
 
-## 📝 Coding Guidelines
+The prompts in `app/backend/approaches/prompts/` are intentionally outside `/customizations/` because they are core business logic. When upstream updates them:
 
-### When Adding New Features
+- Review changes manually.
+- Preserve legal citation rules and corpus-specific guidance.
+- Recheck how prompt wording interacts with numbered citation output and source-hierarchy behavior.
 
-1. **Always add custom code to `/customizations/` folders**
-1. **Use feature flags** in `config.py` (backend) or `config.ts` (frontend)
-1. **Minimize changes to upstream files** - only add imports and function calls
-1. **Add clear `# CUSTOM:` comments** to mark integration points
-1. **Write tests** in `customizations/__tests__/`
+### Feature flag pattern
 
-### When Modifying Prompts
-
-The prompts in `/approaches/prompts/` are **intentionally NOT in `/customizations/`** because they are core business logic. When upstream updates prompts:
-
-- Review changes manually
-- Merge improvements while preserving legal domain customizations
-- Keep citation format rules intact
-
-### Feature Flag Pattern
-
-**Backend:**
+Backend:
 
 ```python
 from customizations.config import is_feature_enabled
 
 if is_feature_enabled("category_filter"):
-    # Custom feature code
+    ...
 ```
 
-**Frontend:**
+Frontend:
 
 ```typescript
 import { isFeatureEnabled } from "../../customizations";
 
-if (isFeatureEnabled("categoryFilter")) {
-    // Custom feature code
+if (isFeatureEnabled("structuredCitationMatching")) {
+    ...
 }
 ```
 
-## 🔄 Upgrading from Upstream
+## Upgrading from upstream
 
 When pulling updates from `Azure-Samples/azure-search-openai-demo`:
 
-1. **Safe files (no conflicts expected):**
-   - All files in `/customizations/` folders
+1. Safe files with low merge risk:
+   - Everything under `app/backend/customizations/`
+   - Everything under `app/frontend/src/customizations/`
 
-1. **Integration points to re-add:**
-   - `app.py` - Re-add blueprint import and registration
-   - `Chat.tsx` & `Ask.tsx` - Re-add useCategories import
-   - `AnswerParser.tsx` - Re-add sanitizeCitations import
-   - `vite.config.ts` - Re-add `/api/categories` proxy
-   - `chatreadretrieveread.py` - Re-add customizations import
+2. Review and usually reapply these integration points:
+   - `app/backend/app.py`
+   - `app/backend/approaches/approach.py`
+   - `app/backend/approaches/chatreadretrieveread.py`
+   - `app/frontend/src/pages/chat/Chat.tsx`
+   - `app/frontend/src/pages/layout/Layout.tsx`
+   - `app/frontend/src/components/QuestionInput/QuestionInput.tsx`
+   - `app/frontend/src/components/Answer/Answer.tsx`
+   - `app/frontend/src/components/Answer/AnswerParser.tsx`
+   - `app/frontend/src/components/AnalysisPanel/AnalysisPanel.tsx`
+   - `app/frontend/src/components/SupportingContent/SupportingContent.tsx`
+   - `app/frontend/src/index.tsx`
+   - `app/frontend/vite.config.ts`
 
-1. **Prompts to merge carefully:**
-   - Review upstream prompt changes
-   - Preserve legal domain terminology and citation rules
+3. Prompt files to merge carefully:
+   - `chat_answer.system.jinja2`
+   - `chat_answer.user.jinja2`
+   - `query_rewrite.system.jinja2`
+   - `query_rewrite.user.jinja2`
+   - Vision prompt files when relevant
 
-## 🧪 Testing
+Do not carry forward stale assumptions from older docs such as `Ask.tsx`, `CategoryDropdown/`, `SearchBoxWithCategories/`, `prompt_extensions.py`, or `thought_filter.py` unless those files are reintroduced.
 
-### Run All Tests
+## Testing
 
-```bash
-# Frontend tests
-cd app/frontend && npm test
+- Frontend customization tests live under `app/frontend/src/customizations/__tests__/`.
+- Backend and integration tests live under `tests/`.
+- Additional operational docs live under `docs/customizations/`.
 
-# Backend tests
-cd . && python -m pytest tests/
+## Important notes
 
-# Integration check
-./test_integration.sh
-```
-
-### Expected Test Results
-
-- Frontend: All tests should pass
-- Backend: 4 failures expected (custom prompts differ from default)
-
-## 📚 Documentation
-
-- `docs/customizations/README.md` - Detailed customization guide
-- `AGENTS.md` - Coding agent instructions
-- `docs/M365_AGENT_IMPLEMENTATION.md` - M365 integration guide
-
-## ⚠️ Important Notes
-
-1. **Never modify files in `/customizations/` during upstream merges** - these are safe
-1. **Keep citation format rules** - legal documents require `[1][2][3]` format
-1. **Test after merges** - run `./test_integration.sh` to verify integrations
-1. **Commit separately** - keep customization changes separate from upstream updates
+1. Keep citation output in `[1][2][3]` format.
+2. If you add a fork-specific integration outside `/customizations/`, update `docs/customizations/README.md` in the same change.
+3. Keep `CUSTOM:` comments intact when refactoring upstream-owned files.
+4. Treat the customization docs as part of the merge surface, not optional documentation.

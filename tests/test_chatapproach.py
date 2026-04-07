@@ -1560,3 +1560,231 @@ async def test_run_until_final_call_rejects_web_streaming(chat_approach):
             auth_claims={},
             should_stream=True,
         )
+
+
+# ---- Tests for related_aspects extraction in rewrite_query ----
+
+
+@pytest.mark.asyncio
+async def test_rewrite_query_extracts_related_aspects(chat_approach, monkeypatch):
+    """When the LLM returns related_aspects in the tool call, they should be parsed into a list."""
+
+    async def fake_create_chat_completion(*_args, **kwargs):
+        return ChatCompletion.model_validate(
+            {
+                "id": "rewrite-aspects",
+                "object": "chat.completion",
+                "created": 0,
+                "model": "gpt-4.1-mini",
+                "choices": [
+                    {
+                        "index": 0,
+                        "finish_reason": "tool_calls",
+                        "message": {
+                            "role": "assistant",
+                            "tool_calls": [
+                                {
+                                    "id": "tool-1",
+                                    "type": "function",
+                                    "function": {
+                                        "name": "search_sources",
+                                        "arguments": json.dumps(
+                                            {
+                                                "search_query": "CPR Part 31 standard disclosure",
+                                                "related_aspects": "CPR 31.3 right to inspect disclosed documents | CPR 31.12 specific disclosure order",
+                                            }
+                                        ),
+                                    },
+                                }
+                            ],
+                        },
+                    }
+                ],
+                "usage": {"completion_tokens": 1, "prompt_tokens": 1, "total_tokens": 2},
+            },
+            strict=False,
+        )
+
+    monkeypatch.setattr(chat_approach, "create_chat_completion", fake_create_chat_completion)
+
+    result = await chat_approach.rewrite_query(
+        prompt_template="query_rewrite.system.jinja2",
+        prompt_variables={
+            "user_query": "What documents do I have to share with the other side?",
+            "past_messages": [],
+        },
+        overrides={},
+        chatgpt_model=chat_approach.chatgpt_model,
+        chatgpt_deployment=chat_approach.chatgpt_deployment,
+        user_query="What documents do I have to share with the other side?",
+        response_token_limit=100,
+        tools=chat_approach.query_rewrite_tools,
+        temperature=0.0,
+        no_response_token=chat_approach.NO_RESPONSE,
+    )
+
+    assert result.related_aspects is not None
+    assert len(result.related_aspects) == 2
+    assert result.related_aspects[0] == "CPR 31.3 right to inspect disclosed documents"
+    assert result.related_aspects[1] == "CPR 31.12 specific disclosure order"
+
+
+@pytest.mark.asyncio
+async def test_rewrite_query_returns_none_when_no_related_aspects(chat_approach, monkeypatch):
+    """When the LLM omits related_aspects, the field should be None."""
+
+    async def fake_create_chat_completion(*_args, **kwargs):
+        return ChatCompletion.model_validate(
+            {
+                "id": "rewrite-no-aspects",
+                "object": "chat.completion",
+                "created": 0,
+                "model": "gpt-4.1-mini",
+                "choices": [
+                    {
+                        "index": 0,
+                        "finish_reason": "tool_calls",
+                        "message": {
+                            "role": "assistant",
+                            "tool_calls": [
+                                {
+                                    "id": "tool-1",
+                                    "type": "function",
+                                    "function": {
+                                        "name": "search_sources",
+                                        "arguments": json.dumps({"search_query": "CPR Part 3 extend time"}),
+                                    },
+                                }
+                            ],
+                        },
+                    }
+                ],
+                "usage": {"completion_tokens": 1, "prompt_tokens": 1, "total_tokens": 2},
+            },
+            strict=False,
+        )
+
+    monkeypatch.setattr(chat_approach, "create_chat_completion", fake_create_chat_completion)
+
+    result = await chat_approach.rewrite_query(
+        prompt_template="query_rewrite.system.jinja2",
+        prompt_variables={
+            "user_query": "How can CPR Part 3 extend time?",
+            "past_messages": [],
+        },
+        overrides={},
+        chatgpt_model=chat_approach.chatgpt_model,
+        chatgpt_deployment=chat_approach.chatgpt_deployment,
+        user_query="How can CPR Part 3 extend time?",
+        response_token_limit=100,
+        tools=chat_approach.query_rewrite_tools,
+        temperature=0.0,
+        no_response_token=chat_approach.NO_RESPONSE,
+    )
+
+    assert result.related_aspects is None
+
+
+# ---- Tests for adaptive merge threshold ----
+
+
+def test_merge_threshold_is_stricter_for_focused_queries(chat_approach):
+    """Queries with specific legal references (Part N, Rule N) should use the higher 50% threshold,
+    dropping more marginal results."""
+    query = "What does CPR Part 31 say about standard disclosure?"
+    # Create 4 docs: 1 strong match, 1 moderate match, 2 weak matches
+    docs = [
+        Document(
+            id="d1",
+            content="31.6 Standard disclosure. A party's duty of standard disclosure is to disclose documents under CPR Part 31.",
+            sourcepage="Part 31 – Disclosure and Inspection (p. 300)",
+            sourcefile="Civil Procedure Rules",
+            category="Civil Procedure Rules and Practice Directions",
+            subsection_id="31.6",
+        ),
+        Document(
+            id="d2",
+            content="31.3 Right of inspection. Where a document has been disclosed, a party has a right to inspect it.",
+            sourcepage="Part 31 – Disclosure and Inspection (p. 298)",
+            sourcefile="Civil Procedure Rules",
+            category="Civil Procedure Rules and Practice Directions",
+            subsection_id="31.3",
+        ),
+        Document(
+            id="d3",
+            content="Overview of the court system and general rules for civil proceedings.",
+            sourcepage="Introduction (p. 1)",
+            sourcefile="Civil Procedure Rules",
+            category="Civil Procedure Rules and Practice Directions",
+            subsection_id="1.0",
+        ),
+        Document(
+            id="d4",
+            content="Annex B: Contact details for court offices.",
+            sourcepage="Annex B (p. 500)",
+            sourcefile="Civil Procedure Rules",
+            category="Civil Procedure Rules and Practice Directions",
+            subsection_id="B",
+        ),
+    ]
+
+    merged = chat_approach._merge_documents_by_query_intent(query, docs, limit=4)
+    merged_ids = [d.id for d in merged]
+    # The focused query (with "Part 31" reference) uses the stricter 50% threshold,
+    # so it keeps only the strongest match and drops weaker ones
+    assert "d1" in merged_ids
+    # The intro and annex docs should definitely be excluded
+    assert "d3" not in merged_ids
+    assert "d4" not in merged_ids
+
+
+def test_merge_threshold_is_relaxed_for_broad_queries(chat_approach):
+    """Queries without specific legal references should use the lower 35% threshold,
+    keeping more secondary-topic results."""
+    query = "What documents do I have to share with the other side?"
+    # Create docs: 1 strong match, 1 related-but-secondary, 1 off-topic
+    docs = [
+        Document(
+            id="d1",
+            content="Standard disclosure requires each party to disclose documents on which it relies and which adversely affect its own case.",
+            sourcepage="Part 31 – Disclosure and Inspection (p. 300)",
+            sourcefile="Civil Procedure Rules",
+            category="Civil Procedure Rules and Practice Directions",
+            subsection_id="31.6",
+        ),
+        Document(
+            id="d2",
+            content="The right to inspect disclosed documents. Where a party has been given a list of documents they have a right to inspect those documents.",
+            sourcepage="Part 31 – Disclosure and Inspection (p. 298)",
+            sourcefile="Civil Procedure Rules",
+            category="Civil Procedure Rules and Practice Directions",
+            subsection_id="31.3",
+        ),
+        Document(
+            id="d3",
+            content="Annex B: Contact details for court offices.",
+            sourcepage="Annex B (p. 500)",
+            sourcefile="Civil Procedure Rules",
+            category="Civil Procedure Rules and Practice Directions",
+            subsection_id="B",
+        ),
+    ]
+
+    merged = chat_approach._merge_documents_by_query_intent(query, docs, limit=4)
+    merged_ids = [d.id for d in merged]
+    # Broad query should keep secondary matches (d2 about inspection) due to relaxed threshold
+    assert "d1" in merged_ids
+    assert "d2" in merged_ids
+
+
+# ---- Test for related_aspects tool schema ----
+
+
+def test_query_rewrite_tool_includes_related_aspects_parameter(chat_approach):
+    """The search_sources tool should include the related_aspects parameter."""
+    tools = chat_approach.query_rewrite_tools
+    assert len(tools) > 0
+    search_sources_tool = tools[0]
+    params = search_sources_tool["function"]["parameters"]["properties"]
+    assert "related_aspects" in params
+    assert params["related_aspects"]["type"] == "string"

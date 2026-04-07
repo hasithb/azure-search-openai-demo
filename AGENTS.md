@@ -110,6 +110,16 @@ Use mocks from tests/conftest.py to mock external services. Prefer mocking at th
 
 For source-filter UI changes, prefer Playwright tests in `tests/e2e.py` that intercept `/api/categories` and the outgoing chat request, then assert the `include_category` override sent by the browser rather than relying on live retrieval behaviour.
 
+For the built localhost app, use `scripts/test_live_citation_click.py` as a smoke test for the citation badge click flow. It verifies that clicking a rendered citation opens Supporting Content and creates a highlighted subsection anchor against the real built frontend served at `http://localhost:50505`.
+
+For A/B evaluation of the current chat flow against the experimental planner-validator-repair retrieval prototype, use `scripts/test_planner_ab_compare.py`. It bootstraps the same backend clients locally, runs the current solution and the experimental path side by side, and writes a JSON summary to `scripts/planner_ab_results.json`.
+
+For prompt-only evaluation of low-risk answer-prompt guardrails against the current chat flow, use `scripts/test_prompt_injection_compare.py`. It compares the current prompt behavior against a small injected prompt override and writes a JSON summary to `scripts/prompt_injection_results.json`.
+
+For testing whether giving the query rewrite tool more knowledge about the search index structure improves retrieval, use `scripts/test_rewrite_index_awareness.py`. It injects index-awareness instructions (field names, category values, sourcepage patterns, search strategy guidance) into the rewrite prompt and compares answer quality across 12 test cases. Results are written to `scripts/rewrite_index_awareness_results.json`.
+
+For testing whether pre-filtering by category improves court-specific queries, use `scripts/test_category_filter_impact.py`. It compares unfiltered search against category-filtered search for court-specific and CPR queries across 7 test cases. Results are written to `scripts/category_filter_results.json`. Key finding: category filtering can hurt broad CPR queries by over-narrowing the result set.
+
 When you're running tests, make sure you activate the .venv virtual environment first:
 
 ```shell

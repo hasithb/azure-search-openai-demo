@@ -185,6 +185,132 @@ TEST_QUESTIONS = [
         "notes": "Tests Patents Court trial preparation",
     },
 
+    # === Circuit Commercial Court - Natural Language ===
+    {
+        "id": "NL-CIRC-01",
+        "question": "How is the Circuit Commercial Court different from the main Commercial Court?",
+        "expected_topics": ["Circuit Commercial", "value", "claim"],
+        "expected_category": "Circuit Commercial Court",
+        "difficulty": "easy",
+        "notes": "Tests Circuit Commercial Court scope and jurisdiction",
+    },
+    {
+        "id": "NL-CIRC-02",
+        "question": "What types of business disputes can I bring to the Circuit Commercial Court?",
+        "expected_topics": ["commercial", "business", "contract"],
+        "expected_category": "Circuit Commercial Court",
+        "difficulty": "medium",
+        "notes": "Tests Circuit Commercial Court case types",
+    },
+
+    # === Court of Appeal - Natural Language ===
+    {
+        "id": "NL-COA-01",
+        "question": "How do I get permission to appeal a decision to the Court of Appeal?",
+        "expected_topics": ["permission", "appeal", "Court of Appeal"],
+        "expected_category": "Court of Appeal Civil Division",
+        "difficulty": "medium",
+        "notes": "Tests Court of Appeal permission to appeal process",
+    },
+    {
+        "id": "NL-COA-02",
+        "question": "What documents do I need to file for a civil appeal?",
+        "expected_topics": ["appeal", "notice", "bundle"],
+        "expected_category": "Court of Appeal Civil Division",
+        "difficulty": "medium",
+        "notes": "Tests Court of Appeal filing requirements",
+    },
+
+    # === Senior Courts Costs Office - Natural Language ===
+    {
+        "id": "NL-SCCO-01",
+        "question": "How does the detailed assessment of legal costs work?",
+        "expected_topics": ["detailed assessment", "costs", "bill"],
+        "expected_category": "Senior Courts Costs Office",
+        "difficulty": "medium",
+        "notes": "Tests SCCO detailed assessment procedures",
+    },
+    {
+        "id": "NL-SCCO-02",
+        "question": "What is the process for challenging a solicitor's bill of costs?",
+        "expected_topics": ["solicitor", "costs", "assessment"],
+        "expected_category": "Senior Courts Costs Office",
+        "difficulty": "medium",
+        "notes": "Tests solicitor-client costs assessment at SCCO",
+    },
+
+    # === Additional CPR topics - harder/broader ===
+    {
+        "id": "NL-CPR-11",
+        "question": "What happens if someone doesn't follow a court order?",
+        "expected_topics": ["contempt", "committal", "unless order"],
+        "expected_category": "Civil Procedure Rules and Practice Directions",
+        "difficulty": "medium",
+        "notes": "Tests contempt and sanctions for non-compliance",
+    },
+    {
+        "id": "NL-CPR-12",
+        "question": "How do I add another party to an existing court case?",
+        "expected_topics": ["party", "joinder", "addition"],
+        "expected_category": "Civil Procedure Rules and Practice Directions",
+        "difficulty": "medium",
+        "notes": "Tests CPR Part 19 addition of parties",
+    },
+    {
+        "id": "NL-CPR-13",
+        "question": "What are the rules about making offers to settle a court case?",
+        "expected_topics": ["Part 36", "offer", "settle", "costs"],
+        "expected_category": "Civil Procedure Rules and Practice Directions",
+        "difficulty": "easy",
+        "notes": "Tests Part 36 settlement offers",
+    },
+    {
+        "id": "NL-CPR-14",
+        "question": "How do I get the court to order the other side to pay my legal costs?",
+        "expected_topics": ["costs", "assessment", "indemnity"],
+        "expected_category": "Civil Procedure Rules and Practice Directions",
+        "difficulty": "medium",
+        "notes": "Tests costs recovery CPR Part 44",
+    },
+
+    # === Additional Commercial Court ===
+    {
+        "id": "NL-CCG-04",
+        "question": "How are freezing orders handled in commercial disputes?",
+        "expected_topics": ["freezing", "injunction", "assets"],
+        "expected_category": "Commercial Court",
+        "difficulty": "medium",
+        "notes": "Tests Commercial Court freezing injunctions",
+    },
+
+    # === Additional Chancery ===
+    {
+        "id": "NL-CHD-02",
+        "question": "How do I dispute a will or challenge whether someone had capacity to make one?",
+        "expected_topics": ["probate", "will", "capacity"],
+        "expected_category": "Chancery Division",
+        "difficulty": "medium",
+        "notes": "Tests Chancery probate/contentious matters",
+    },
+    {
+        "id": "NL-CHD-03",
+        "question": "What is the process for a company winding-up petition in court?",
+        "expected_topics": ["winding", "petition", "company", "insolvency"],
+        "expected_category": "Chancery Division",
+        "difficulty": "medium",
+        "notes": "Tests Chancery insolvency jurisdiction",
+    },
+
+    # === Additional TCC ===
+    {
+        "id": "NL-TCC-03",
+        "question": "How are complex technical cases managed in the construction court?",
+        "expected_topics": ["case management", "conference", "directions"],
+        "expected_category": "Technology and Construction Court",
+        "difficulty": "easy",
+        "notes": "Tests TCC case management procedures",
+    },
+
     # === Cross-cutting / Ambiguous questions ===
     {
         "id": "NL-CROSS-01",
@@ -209,6 +335,22 @@ TEST_QUESTIONS = [
         "expected_category": None,
         "difficulty": "easy",
         "notes": "Tests skeleton arguments which appear in multiple guides",
+    },
+    {
+        "id": "NL-CROSS-04",
+        "question": "What are the time limits for starting different types of court claims?",
+        "expected_topics": ["limitation", "time", "months"],
+        "expected_category": None,
+        "difficulty": "medium",
+        "notes": "Tests limitation periods awareness across sources",
+    },
+    {
+        "id": "NL-CROSS-05",
+        "question": "How do courts decide who pays the legal costs at the end of a case?",
+        "expected_topics": ["costs", "loser pays", "discretion"],
+        "expected_category": None,
+        "difficulty": "easy",
+        "notes": "Tests general costs principles across courts",
     },
 ]
 

@@ -5,23 +5,24 @@
     "difficulty": "easy",
     "expected_category": "Civil Procedure Rules and Practice Directions",
     "has_citations": true,
-    "citation_count": 9,
-    "topic_coverage": 1.0,
+    "citation_count": 4,
+    "topic_coverage": 0.67,
     "topics_found": [
       "summary judgment",
-      "no real prospect",
+      "no real prospect"
+    ],
+    "topics_missing": [
       "Part 24"
     ],
-    "topics_missing": [],
-    "source_count": 11,
+    "source_count": 4,
     "is_evasive": false,
-    "word_count": 223,
+    "word_count": 139,
     "is_too_short": false,
     "is_too_long": false,
-    "composite_score": 1.0,
-    "answer_preview": "- Consider asking the court for summary judgment under Part 24. The court may grant summary judgment on the whole claim or on an issue if (i) the party has no real prospect of succeeding, and (ii) there is no other compelling reason why the case should go to trial [3]. This can be sought in any type...",
+    "composite_score": 0.83,
+    "answer_preview": "You may be looking for **summary judgment**, which is a procedure that lets the court decide a claim or issue without a trial. [1]\n\nThe court may give summary judgment against a claimant or a defendant if that party has **no real prospect of succeeding** on the claim, defence or issue, and there is ...",
     "notes": "Tests if system maps natural language to summary judgment (CPR Part 24)",
-    "latency_seconds": 11.36
+    "latency_seconds": 8.44
   },
   {
     "test_id": "NL-CPR-02",
@@ -29,7 +30,7 @@
     "difficulty": "easy",
     "expected_category": "Civil Procedure Rules and Practice Directions",
     "has_citations": true,
-    "citation_count": 5,
+    "citation_count": 7,
     "topic_coverage": 1.0,
     "topics_found": [
       "default judgment",
@@ -37,15 +38,15 @@
       "defence"
     ],
     "topics_missing": [],
-    "source_count": 11,
+    "source_count": 10,
     "is_evasive": false,
-    "word_count": 161,
+    "word_count": 172,
     "is_too_short": false,
     "is_too_long": false,
     "composite_score": 1.0,
-    "answer_preview": "Based on the sources:\n\n- The period for serving a reply is 21 days after service of the defence, and any reply must be served by the claimant on all other parties [1].\n- When a claim is served, the defendant may respond by admission, by filing a defence, or by filing an acknowledgment of service (an...",
+    "answer_preview": "If the defendant does not file an acknowledgment of service or a defence, you may be able to obtain **default judgment** without a trial. [1]\n\nDefault judgment in default of acknowledgment of service is available only if the defendant has not filed an acknowledgment of service or a defence, and the ...",
     "notes": "Tests default judgment (CPR Part 12) without using rule numbers",
-    "latency_seconds": 8.92
+    "latency_seconds": 8.2
   },
   {
     "test_id": "NL-CPR-03",
@@ -53,7 +54,7 @@
     "difficulty": "easy",
     "expected_category": "Civil Procedure Rules and Practice Directions",
     "has_citations": true,
-    "citation_count": 5,
+    "citation_count": 3,
     "topic_coverage": 0.67,
     "topics_found": [
       "disclosure",
@@ -62,15 +63,15 @@
     "topics_missing": [
       "inspection"
     ],
-    "source_count": 19,
+    "source_count": 10,
     "is_evasive": false,
-    "word_count": 179,
+    "word_count": 107,
     "is_too_short": false,
     "is_too_long": false,
     "composite_score": 0.83,
-    "answer_preview": "- This area is governed by the disclosure regime in the Business and Property Courts. The Practice Direction provides for disclosure in these courts [5].\n\n- A party is responsible for preparing documents and sharing them as part of the proceedings (unless the court directs otherwise). The rule allow...",
+    "answer_preview": "In standard disclosure, you must disclose only the documents on which you rely, the documents that adversely affect your case, the documents that adversely affect another party\u2019s case, the documents that support another party\u2019s case, and any documents required by a relevant practice direction. [6]\n\n...",
     "notes": "Tests disclosure rules (CPR Part 31) using plain language",
-    "latency_seconds": 9.13
+    "latency_seconds": 5.78
   },
   {
     "test_id": "NL-CPR-04",
@@ -78,7 +79,7 @@
     "difficulty": "medium",
     "expected_category": "Civil Procedure Rules and Practice Directions",
     "has_citations": true,
-    "citation_count": 6,
+    "citation_count": 4,
     "topic_coverage": 1.0,
     "topics_found": [
       "appeal",
@@ -89,13 +90,13 @@
     "topics_missing": [],
     "source_count": 17,
     "is_evasive": false,
-    "word_count": 155,
+    "word_count": 177,
     "is_too_short": false,
     "is_too_long": false,
     "composite_score": 1.0,
-    "answer_preview": "- For appeals to the Court of Appeal after the Special Immigration Appeals Commission decision (permission to appeal): the appellant\u2019s notice must be filed within 21 days of the date on which the SIAC decision granting or refusing permission is given [4].\n\n- For appeals to the Court of Appeal after ...",
+    "answer_preview": "The sources available do not directly give the general CPR time limit for appealing a court decision. [1]\n\nThe relevant court-specific guidance found says that an appellant must file the Appellant\u2019s Notice within 21 days, counted from the date the lower court made the decision, not from the date the...",
     "notes": "Tests appeals (CPR Part 52) - time limits",
-    "latency_seconds": 10.18
+    "latency_seconds": 6.87
   },
   {
     "test_id": "NL-CPR-05",
@@ -103,23 +104,24 @@
     "difficulty": "medium",
     "expected_category": "Civil Procedure Rules and Practice Directions",
     "has_citations": true,
-    "citation_count": 10,
-    "topic_coverage": 1.0,
+    "citation_count": 6,
+    "topic_coverage": 0.67,
     "topics_found": [
       "fee",
-      "help",
+      "help"
+    ],
+    "topics_missing": [
       "assistance"
     ],
-    "topics_missing": [],
-    "source_count": 6,
+    "source_count": 13,
     "is_evasive": false,
-    "word_count": 275,
+    "word_count": 184,
     "is_too_short": false,
     "is_too_long": false,
-    "composite_score": 1.0,
-    "answer_preview": "- Help With Fees: information and schemes to get financial help with court fees are available on the gov.uk site; there are local or scheme-based options in the Chancery Guide Appendices (e.g., CLIPS) [4], [5].\n\n- CLIPS (Chancery Bar Litigants In Person Support scheme): free legal advice/representat...",
+    "composite_score": 0.83,
+    "answer_preview": "If you cannot afford court fees, the sources show that fee remission may be available if you are on a low income or receive a qualifying benefit, and the Lord Chancellor may also reduce or remit a fee in exceptional cases of undue financial hardship. [8]\n\nIf a fee was paid when it was not payable, o...",
     "notes": "Tests fee remission / Help With Fees awareness - system correctly returns fee help rather than QOCS",
-    "latency_seconds": 8.6
+    "latency_seconds": 5.98
   },
   {
     "test_id": "NL-CPR-06",
@@ -127,7 +129,7 @@
     "difficulty": "easy",
     "expected_category": "Civil Procedure Rules and Practice Directions",
     "has_citations": true,
-    "citation_count": 15,
+    "citation_count": 7,
     "topic_coverage": 0.75,
     "topics_found": [
       "expert",
@@ -137,15 +139,15 @@
     "topics_missing": [
       "duty to the court"
     ],
-    "source_count": 8,
+    "source_count": 14,
     "is_evasive": false,
-    "word_count": 345,
+    "word_count": 162,
     "is_too_short": false,
     "is_too_long": false,
     "composite_score": 0.88,
-    "answer_preview": "- Yes. You can call an expert witness to assist the Court on matters within the expert\u2019s field (rule 35.1 and related guidance in the Commercial Court Guide) [4][3].\n\n- The expert\u2019s duties:\n  - The expert must help the Court with an independent, objective, unbiased opinion and should not act as an a...",
+    "answer_preview": "Yes, but only with the court\u2019s permission: no party may call an expert or put in an expert\u2019s report in evidence without permission. [6]\n\nExpert evidence is restricted to what is reasonably required to resolve the proceedings. [3]\n\nWhen applying for permission, the party must provide an estimate of t...",
     "notes": "Tests expert evidence rules (CPR Part 35)",
-    "latency_seconds": 8.62
+    "latency_seconds": 5.32
   },
   {
     "test_id": "NL-CPR-07",
@@ -153,25 +155,25 @@
     "difficulty": "medium",
     "expected_category": "Civil Procedure Rules and Practice Directions",
     "has_citations": true,
-    "citation_count": 6,
-    "topic_coverage": 0.5,
+    "citation_count": 8,
+    "topic_coverage": 0.75,
     "topics_found": [
       "pre-action",
-      "protocol"
+      "protocol",
+      "letter of claim"
     ],
     "topics_missing": [
-      "letter of claim",
       "response"
     ],
-    "source_count": 13,
+    "source_count": 3,
     "is_evasive": false,
-    "word_count": 167,
+    "word_count": 182,
     "is_too_short": false,
     "is_too_long": false,
-    "composite_score": 0.75,
-    "answer_preview": "- Check if there is a relevant pre-action protocol and comply with it. If not, follow the general pre-action objectives and steps. [1]\n\n- Exchange information to understand positions, decide how to proceed, and try to settle or use ADR if appropriate. [1]\n\n- The claimant should write to the defendan...",
+    "composite_score": 0.88,
+    "answer_preview": "Before starting proceedings, the court will usually expect the parties to have exchanged enough information to understand each other\u2019s positions, consider settlement or ADR, and narrow the issues. [1]\n\nIf a relevant pre-action protocol applies, you should comply with that protocol before issuing the...",
     "notes": "Tests pre-action protocols - general knowledge question",
-    "latency_seconds": 8.22
+    "latency_seconds": 5.79
   },
   {
     "test_id": "NL-CPR-08",
@@ -179,7 +181,7 @@
     "difficulty": "medium",
     "expected_category": "Civil Procedure Rules and Practice Directions",
     "has_citations": true,
-    "citation_count": 13,
+    "citation_count": 6,
     "topic_coverage": 1.0,
     "topics_found": [
       "enforcement",
@@ -188,15 +190,15 @@
       "order"
     ],
     "topics_missing": [],
-    "source_count": 20,
+    "source_count": 21,
     "is_evasive": false,
-    "word_count": 261,
+    "word_count": 258,
     "is_too_short": false,
     "is_too_long": false,
     "composite_score": 1.0,
-    "answer_preview": "- You can enforce by any of the following methods: writ of control or warrant of control; third party debt order; charging order, stop order or stop notice; attachment of earnings order (in the County Court); or the appointment of a receiver. [1]\n\n- The court may also make other enforcement orders a...",
+    "answer_preview": "A judgment creditor may enforce a money judgment by a writ of control or warrant of control, a third party debt order, a charging order, a stop order or stop notice, in the County Court an attachment of earnings order, or the appointment of a receiver. [14]\n\nThe court may also make an order in conte...",
     "notes": "Tests enforcement rules (CPR Parts 70-73)",
-    "latency_seconds": 8.1
+    "latency_seconds": 7.04
   },
   {
     "test_id": "NL-CPR-09",
@@ -205,24 +207,23 @@
     "expected_category": "Civil Procedure Rules and Practice Directions",
     "has_citations": true,
     "citation_count": 2,
-    "topic_coverage": 0.75,
+    "topic_coverage": 1.0,
     "topics_found": [
       "overriding objective",
       "justly",
-      "proportionate"
-    ],
-    "topics_missing": [
+      "proportionate",
       "fair"
     ],
-    "source_count": 11,
+    "topics_missing": [],
+    "source_count": 6,
     "is_evasive": false,
-    "word_count": 17,
-    "is_too_short": true,
+    "word_count": 67,
+    "is_too_short": false,
     "is_too_long": false,
-    "composite_score": 0.88,
-    "answer_preview": "The overriding objective is enabling the court to deal with cases justly and at proportionate cost. [1][6]",
+    "composite_score": 1.0,
+    "answer_preview": "The Civil Procedure Rules say their overriding objective is to enable the court to deal with cases justly and at proportionate cost. [1]\n\nThat includes, so far as practicable, ensuring equal footing and full participation, saving expense, dealing with cases proportionately, dealing with them expedit...",
     "notes": "Tests fundamental CPR Part 1 knowledge",
-    "latency_seconds": 6.87
+    "latency_seconds": 4.74
   },
   {
     "test_id": "NL-CPR-10",
@@ -230,24 +231,25 @@
     "difficulty": "medium",
     "expected_category": "Civil Procedure Rules and Practice Directions",
     "has_citations": true,
-    "citation_count": 9,
-    "topic_coverage": 1.0,
+    "citation_count": 5,
+    "topic_coverage": 0.75,
     "topics_found": [
       "injunction",
       "without notice",
-      "interim",
+      "interim"
+    ],
+    "topics_missing": [
       "undertaking"
     ],
-    "topics_missing": [],
-    "source_count": 10,
+    "source_count": 9,
     "is_evasive": false,
-    "word_count": 286,
+    "word_count": 185,
     "is_too_short": false,
     "is_too_long": false,
-    "composite_score": 1.0,
-    "answer_preview": "- Check whether you should bring the application on notice or without notice. All applications are normally on notice unless a rule/Practice Direction allows without notice, or there are good reasons to proceed without notice (urgency can be a reason) [4].\n\n- If the matter is urgent, you must provid...",
+    "composite_score": 0.88,
+    "answer_preview": "An injunction to stop someone doing something urgently is an **interim injunction**, which is one of the interim remedies under CPR Part 25. [1]\n\nAn application for an interim remedy can be made at any time, including before proceedings are started, but before a claim has been started the court may ...",
     "notes": "Tests interim remedies (CPR Part 25)",
-    "latency_seconds": 12.1
+    "latency_seconds": 6.52
   },
   {
     "test_id": "NL-CCG-01",
@@ -255,26 +257,26 @@
     "difficulty": "medium",
     "expected_category": "Commercial Court",
     "has_citations": true,
-    "citation_count": 13,
+    "citation_count": 9,
     "topic_coverage": 0.8,
     "topics_found": [
       "arbitration",
       "challenge",
       "award",
-      "28 days"
-    ],
-    "topics_missing": [
       "section 67"
     ],
-    "source_count": 11,
+    "topics_missing": [
+      "28 days"
+    ],
+    "source_count": 10,
     "is_evasive": false,
-    "word_count": 407,
+    "word_count": 220,
     "is_too_short": false,
     "is_too_long": false,
     "composite_score": 0.9,
-    "answer_preview": "- If you are challenging an award under the 1996 Act (sections 67, 68 or 69), you must file an application within 28 days of the award (section 70(3)); the court may vary this period but requires cogent reasons for any extension [3][4].\n\n- The challenge is started by issuing an arbitration claim for...",
+    "answer_preview": "In the Commercial Court, a challenge to an arbitration award may be brought as an appeal on a point of law under section 69, or as a challenge for serious irregularity under section 68, or on jurisdiction under section 67. [1][4][3]\n\nFor a section 69 appeal, the arbitration claim form must identify ...",
     "notes": "Tests Commercial Court arbitration procedures using natural language",
-    "latency_seconds": 9.64
+    "latency_seconds": 5.81
   },
   {
     "test_id": "NL-CCG-02",
@@ -282,24 +284,25 @@
     "difficulty": "easy",
     "expected_category": "Commercial Court",
     "has_citations": true,
-    "citation_count": 8,
-    "topic_coverage": 1.0,
+    "citation_count": 6,
+    "topic_coverage": 0.75,
     "topics_found": [
       "case management",
       "conference",
-      "directions",
+      "directions"
+    ],
+    "topics_missing": [
       "disclosure"
     ],
-    "topics_missing": [],
-    "source_count": 9,
+    "source_count": 12,
     "is_evasive": false,
-    "word_count": 152,
+    "word_count": 196,
     "is_too_short": false,
     "is_too_long": false,
-    "composite_score": 1.0,
-    "answer_preview": "- It is a mandatory Case Management Conference held shortly after statements of case have been served (and preceded by case management information sheets) [1].\n\n- At the conference, the Court will, as necessary, discuss the issues in the case and the case requirements with the advocates [1].\n\n- If e...",
+    "composite_score": 0.88,
+    "answer_preview": "The retrieved material is **court-specific**: it is from the Commercial Court Guide, so it does not by itself establish the general CPR position. [6]\n\nIn the Commercial Court, a case management conference normally sets the pre-trial timetable, and most cases are given fixed trial dates immediately a...",
     "notes": "Tests case management (Section D of Commercial Court Guide)",
-    "latency_seconds": 6.67
+    "latency_seconds": 6.47
   },
   {
     "test_id": "NL-CCG-03",
@@ -307,25 +310,25 @@
     "difficulty": "easy",
     "expected_category": "Commercial Court",
     "has_citations": true,
-    "citation_count": 15,
-    "topic_coverage": 0.75,
+    "citation_count": 8,
+    "topic_coverage": 0.5,
     "topics_found": [
       "disclosure",
-      "documents",
-      "overriding objective"
+      "documents"
     ],
     "topics_missing": [
-      "proportionality"
+      "proportionality",
+      "overriding objective"
     ],
     "source_count": 11,
     "is_evasive": false,
-    "word_count": 423,
+    "word_count": 281,
     "is_too_short": false,
     "is_too_long": false,
-    "composite_score": 0.88,
-    "answer_preview": "- Parties must take all reasonable steps to preserve disclosable documents once litigation is contemplated; legal representatives must notify clients to preserve them, including electronic documents that would be deleted under normal retention policies [3].\n\n- The parties and their lawyers must coop...",
+    "composite_score": 0.75,
+    "answer_preview": "In commercial litigation, the CPR rules on disclosure say the court will manage disclosure so it is limited to what is necessary to deal with the case justly, and the parties should discuss and seek to agree disclosure proposals before the first CMC. [5]\n\nUnder standard disclosure, a party must disc...",
     "notes": "Tests disclosure in Commercial Court (Section E)",
-    "latency_seconds": 7.6
+    "latency_seconds": 6.02
   },
   {
     "test_id": "NL-TCC-01",
@@ -333,25 +336,25 @@
     "difficulty": "easy",
     "expected_category": "Technology and Construction Court",
     "has_citations": true,
-    "citation_count": 3,
-    "topic_coverage": 0.75,
+    "citation_count": 5,
+    "topic_coverage": 0.5,
     "topics_found": [
       "ADR",
-      "mediation",
-      "costs"
+      "mediation"
     ],
     "topics_missing": [
-      "encouragement"
+      "encouragement",
+      "costs"
     ],
-    "source_count": 6,
+    "source_count": 9,
     "is_evasive": false,
-    "word_count": 41,
+    "word_count": 162,
     "is_too_short": false,
     "is_too_long": false,
-    "composite_score": 0.88,
-    "answer_preview": "No. ADR (including mediation) is voluntary and the court will encourage it, possibly facilitating or delaying proceedings for ADR as appropriate [3][1]. If a party unreasonably refuses to participate in ADR, costs may be argued against them under relevant factors [4].",
+    "composite_score": 0.75,
+    "answer_preview": "In the Technology and Construction Court, parties are not said to **have to** mediate before trial, but they **must consider** settling the dispute by ADR, including mediation, at all stages. [1]\n\nThe TCC Guide says legal representatives should ensure ADR has been carefully considered before the fir...",
     "notes": "Tests TCC ADR provisions (Section 7)",
-    "latency_seconds": 4.41
+    "latency_seconds": 5.99
   },
   {
     "test_id": "NL-TCC-02",
@@ -359,26 +362,26 @@
     "difficulty": "easy",
     "expected_category": "Technology and Construction Court",
     "has_citations": true,
-    "citation_count": 6,
-    "topic_coverage": 0.6,
+    "citation_count": 9,
+    "topic_coverage": 0.8,
     "topics_found": [
       "expert",
+      "duty",
       "court",
       "report"
     ],
     "topics_missing": [
-      "independent",
-      "duty"
+      "independent"
     ],
-    "source_count": 7,
+    "source_count": 8,
     "is_evasive": false,
-    "word_count": 234,
+    "word_count": 248,
     "is_too_short": false,
     "is_too_long": false,
-    "composite_score": 0.8,
-    "answer_preview": "- Expert evidence is for matters of a technical or scientific nature and is used to assist the court; it is not meant to introduce new evidence, but to explain existing evidence. This can be done at the start of the expert\u2019s evidence as a summary of views. [5][7]\n\n- The parties must identify the iss...",
+    "composite_score": 0.9,
+    "answer_preview": "In a building dispute in the Technology and Construction Court, expert evidence is frequently needed, and cases about building failures and defects are specifically mentioned as examples. [1]\n\nThe parties and the court should use experts effectively and proportionately from the earliest pre-action s...",
     "notes": "Tests TCC expert evidence (Section 13)",
-    "latency_seconds": 7.39
+    "latency_seconds": 6.18
   },
   {
     "test_id": "NL-KBD-01",
@@ -386,24 +389,25 @@
     "difficulty": "medium",
     "expected_category": "King's Bench Division",
     "has_citations": true,
-    "citation_count": 8,
-    "topic_coverage": 1.0,
+    "citation_count": 2,
+    "topic_coverage": 0.5,
     "topics_found": [
       "habeas corpus",
+      "detention"
+    ],
+    "topics_missing": [
       "writ",
-      "detention",
       "Administrative Court"
     ],
-    "topics_missing": [],
-    "source_count": 17,
+    "source_count": 14,
     "is_evasive": false,
-    "word_count": 223,
+    "word_count": 98,
     "is_too_short": false,
     "is_too_long": false,
-    "composite_score": 1.0,
-    "answer_preview": "- File an application for a writ of habeas corpus for release with:\n  - a claim form under Part 8, and\n  - a witness statement or affidavit (stating the application is at the instance of the detained person, and the nature of the detention; it should, subject to exceptions, be made by the detained p...",
+    "composite_score": 0.75,
+    "answer_preview": "The available sources do not directly explain how to get someone released from unlawful detention. They do say that a refusal of habeas corpus is \u201can order refusing to release the applicant from detention,\u201d and that no permission to appeal is required for an appeal against a refusal of habeas corpus...",
     "notes": "Tests habeas corpus knowledge",
-    "latency_seconds": 8.73
+    "latency_seconds": 5.78
   },
   {
     "test_id": "NL-KBD-02",
@@ -411,7 +415,7 @@
     "difficulty": "medium",
     "expected_category": "King's Bench Division",
     "has_citations": true,
-    "citation_count": 9,
+    "citation_count": 3,
     "topic_coverage": 1.0,
     "topics_found": [
       "totally without merit",
@@ -419,15 +423,15 @@
       "order"
     ],
     "topics_missing": [],
-    "source_count": 18,
+    "source_count": 3,
     "is_evasive": false,
-    "word_count": 145,
+    "word_count": 111,
     "is_too_short": false,
     "is_too_long": false,
     "composite_score": 1.0,
-    "answer_preview": "- If the court decides the claim is totally without merit, it may strike out the statement of case and must record that the claim is totally without merit in the order [4][6][5].\n\n- The court must consider whether it is appropriate to make a civil restraint order against the party whose claim was fo...",
+    "answer_preview": "If the court strikes out your statement of case and considers the claim to be \u201ctotally without merit,\u201d its order must record that fact. [2]\n\nThe court must at the same time consider whether it is appropriate to make a civil restraint order. [2]\n\nIf the court makes the decision of its own initiative,...",
     "notes": "Tests civil restraint orders in KBD Guide",
-    "latency_seconds": 7.09
+    "latency_seconds": 6.43
   },
   {
     "test_id": "NL-CHD-01",
@@ -435,7 +439,7 @@
     "difficulty": "easy",
     "expected_category": "Chancery Division",
     "has_citations": true,
-    "citation_count": 7,
+    "citation_count": 6,
     "topic_coverage": 1.0,
     "topics_found": [
       "Chancery",
@@ -445,13 +449,13 @@
     "topics_missing": [],
     "source_count": 6,
     "is_evasive": false,
-    "word_count": 327,
+    "word_count": 229,
     "is_too_short": false,
     "is_too_long": false,
     "composite_score": 1.0,
-    "answer_preview": "- Property and trust disputes fall under the Property, Trusts and Probate List (PT) within the Chancery Division, and are generally governed by Part 57 of the Civil Procedure Rules (CPR) and applicable Practice Directions (PDs) 57, 57B, and 57C [1].\n\n- The PT List covers disputes about land, develop...",
+    "answer_preview": "The retrieved material is **court-specific**: it explains how these disputes are handled in the Chancery Division/Business and Property Courts, and it does not by itself establish the general CPR position. [2]\n\nProperty litigation is generally conducted in the Chancery lists in the High Court, and t...",
     "notes": "Tests Chancery Guide scope awareness",
-    "latency_seconds": 13.51
+    "latency_seconds": 5.49
   },
   {
     "test_id": "NL-PAT-01",
@@ -459,7 +463,7 @@
     "difficulty": "medium",
     "expected_category": "Patents Court",
     "has_citations": true,
-    "citation_count": 11,
+    "citation_count": 6,
     "topic_coverage": 1.0,
     "topics_found": [
       "bundle",
@@ -468,15 +472,355 @@
       "Patents Court"
     ],
     "topics_missing": [],
-    "source_count": 12,
+    "source_count": 16,
     "is_evasive": false,
-    "word_count": 360,
+    "word_count": 238,
     "is_too_short": false,
     "is_too_long": false,
     "composite_score": 1.0,
-    "answer_preview": "- Prepare and file a standard trial bundle following the Direction in Annex E (Standard Trial Bundles) and the guidance in Appendix 6 Chapter 21 of the Chancery Guide (21.34\u201321.72). You may be penalised in costs if not followed. [1]\n\n- If you know which judge will hear the case, lodge hearing papers...",
+    "answer_preview": "For a patent trial hearing, you should prepare a realistic time estimate that includes reading time for the court, and you should expect the court to want to read the skeleton arguments, the patent, prior art, expert reports, and other key documents such as substantive witness statements. [3]\n\nYou s...",
     "notes": "Tests Patents Court trial preparation",
-    "latency_seconds": 7.8
+    "latency_seconds": 6.34
+  },
+  {
+    "test_id": "NL-CIRC-01",
+    "question": "How is the Circuit Commercial Court different from the main Commercial Court?",
+    "difficulty": "easy",
+    "expected_category": "Circuit Commercial Court",
+    "has_citations": true,
+    "citation_count": 7,
+    "topic_coverage": 1.0,
+    "topics_found": [
+      "Circuit Commercial",
+      "value",
+      "claim"
+    ],
+    "topics_missing": [],
+    "source_count": 11,
+    "is_evasive": false,
+    "word_count": 242,
+    "is_too_short": false,
+    "is_too_long": false,
+    "composite_score": 1.0,
+    "answer_preview": "The Circuit Commercial Court deals with commercial business disputes of all kinds apart from those which, because of their size, value or complexity, will be heard by the Commercial Court. [8]\n\nIt is governed by CPR Part 59 and PD59, and the Circuit Commercial Court Guide applies to work issued in o...",
+    "notes": "Tests Circuit Commercial Court scope and jurisdiction",
+    "latency_seconds": 5.49
+  },
+  {
+    "test_id": "NL-CIRC-02",
+    "question": "What types of business disputes can I bring to the Circuit Commercial Court?",
+    "difficulty": "medium",
+    "expected_category": "Circuit Commercial Court",
+    "has_citations": true,
+    "citation_count": 4,
+    "topic_coverage": 1.0,
+    "topics_found": [
+      "commercial",
+      "business",
+      "contract"
+    ],
+    "topics_missing": [],
+    "source_count": 11,
+    "is_evasive": false,
+    "word_count": 151,
+    "is_too_short": false,
+    "is_too_long": false,
+    "composite_score": 1.0,
+    "answer_preview": "You can bring a **business dispute in a broad sense** to the Circuit Commercial Court if it is not required to proceed in another specialist Business and Property Courts list. [3]\n\nThe Circuit Commercial Court Guide says it deals with business disputes of all kinds, apart from those that, because of...",
+    "notes": "Tests Circuit Commercial Court case types",
+    "latency_seconds": 4.96
+  },
+  {
+    "test_id": "NL-COA-01",
+    "question": "How do I get permission to appeal a decision to the Court of Appeal?",
+    "difficulty": "medium",
+    "expected_category": "Court of Appeal Civil Division",
+    "has_citations": true,
+    "citation_count": 7,
+    "topic_coverage": 1.0,
+    "topics_found": [
+      "permission",
+      "appeal",
+      "Court of Appeal"
+    ],
+    "topics_missing": [],
+    "source_count": 16,
+    "is_evasive": false,
+    "word_count": 195,
+    "is_too_short": false,
+    "is_too_long": false,
+    "composite_score": 1.0,
+    "answer_preview": "Under CPR Part 52, an appellant or respondent usually needs permission to appeal where the appeal is from a judge of the County Court or High Court, or in other cases specified by the rules or practice directions. [3]\n\nYou can usually ask for permission either from the lower court at the hearing whe...",
+    "notes": "Tests Court of Appeal permission to appeal process",
+    "latency_seconds": 5.35
+  },
+  {
+    "test_id": "NL-COA-02",
+    "question": "What documents do I need to file for a civil appeal?",
+    "difficulty": "medium",
+    "expected_category": "Court of Appeal Civil Division",
+    "has_citations": true,
+    "citation_count": 7,
+    "topic_coverage": 0.67,
+    "topics_found": [
+      "appeal",
+      "notice"
+    ],
+    "topics_missing": [
+      "bundle"
+    ],
+    "source_count": 19,
+    "is_evasive": false,
+    "word_count": 317,
+    "is_too_short": false,
+    "is_too_long": false,
+    "composite_score": 0.83,
+    "answer_preview": "The documents you need depend on which civil appeal route you mean, because CPR Part 52 applies to appeals to the Court of Appeal, the High Court, and the County Court. [1]\n\nFor an appeal to the Court of Appeal, the sources say the appellant must file a fully completed appellant\u2019s notice (form N161)...",
+    "notes": "Tests Court of Appeal filing requirements",
+    "latency_seconds": 6.86
+  },
+  {
+    "test_id": "NL-SCCO-01",
+    "question": "How does the detailed assessment of legal costs work?",
+    "difficulty": "medium",
+    "expected_category": "Senior Courts Costs Office",
+    "has_citations": true,
+    "citation_count": 15,
+    "topic_coverage": 1.0,
+    "topics_found": [
+      "detailed assessment",
+      "costs",
+      "bill"
+    ],
+    "topics_missing": [],
+    "source_count": 22,
+    "is_evasive": false,
+    "word_count": 384,
+    "is_too_short": false,
+    "is_too_long": false,
+    "composite_score": 1.0,
+    "answer_preview": "Detailed assessment usually happens after the proceedings have concluded, unless the court orders it to be assessed immediately. [1]\n\nFor rule 47.1, proceedings are treated as concluded when the court has finally determined the matters in issue in the claim, whether or not there is an appeal, or has...",
+    "notes": "Tests SCCO detailed assessment procedures",
+    "latency_seconds": 6.83
+  },
+  {
+    "test_id": "NL-SCCO-02",
+    "question": "What is the process for challenging a solicitor's bill of costs?",
+    "difficulty": "medium",
+    "expected_category": "Senior Courts Costs Office",
+    "has_citations": true,
+    "citation_count": 5,
+    "topic_coverage": 1.0,
+    "topics_found": [
+      "solicitor",
+      "costs",
+      "assessment"
+    ],
+    "topics_missing": [],
+    "source_count": 11,
+    "is_evasive": false,
+    "word_count": 148,
+    "is_too_short": false,
+    "is_too_long": false,
+    "composite_score": 1.0,
+    "answer_preview": "To challenge a solicitor\u2019s bill of costs, an application may be made under section 70 of the Solicitors Act 1974 for an order for detailed assessment of the bill. [9]\n\nThe application can be for the whole bill, or limited to profit costs only or disbursements only. [9]\n\nMost such applications are ma...",
+    "notes": "Tests solicitor-client costs assessment at SCCO",
+    "latency_seconds": 5.94
+  },
+  {
+    "test_id": "NL-CPR-11",
+    "question": "What happens if someone doesn't follow a court order?",
+    "difficulty": "medium",
+    "expected_category": "Civil Procedure Rules and Practice Directions",
+    "has_citations": true,
+    "citation_count": 3,
+    "topic_coverage": 0.0,
+    "topics_found": [],
+    "topics_missing": [
+      "contempt",
+      "committal",
+      "unless order"
+    ],
+    "source_count": 8,
+    "is_evasive": false,
+    "word_count": 108,
+    "is_too_short": false,
+    "is_too_long": false,
+    "composite_score": 0.5,
+    "answer_preview": "If a court order is not followed, the court may have already specified the consequence of non-compliance when it made the order. [1]\n\nThe court may also strike out a statement of case if there has been a failure to comply with a rule, practice direction or court order. [4]\n\nThe court may stay the wh...",
+    "notes": "Tests contempt and sanctions for non-compliance",
+    "latency_seconds": 7.32
+  },
+  {
+    "test_id": "NL-CPR-12",
+    "question": "How do I add another party to an existing court case?",
+    "difficulty": "medium",
+    "expected_category": "Civil Procedure Rules and Practice Directions",
+    "has_citations": true,
+    "citation_count": 5,
+    "topic_coverage": 0.67,
+    "topics_found": [
+      "party",
+      "addition"
+    ],
+    "topics_missing": [
+      "joinder"
+    ],
+    "source_count": 5,
+    "is_evasive": false,
+    "word_count": 150,
+    "is_too_short": false,
+    "is_too_long": false,
+    "composite_score": 0.83,
+    "answer_preview": "To add, remove, or substitute a party in an existing case, the court\u2019s permission is normally required unless the claim form has not been served. [4]\n\nAn application for permission may be made by an existing party or by the person who wishes to become a party, and it must be supported by evidence an...",
+    "notes": "Tests CPR Part 19 addition of parties",
+    "latency_seconds": 5.71
+  },
+  {
+    "test_id": "NL-CPR-13",
+    "question": "What are the rules about making offers to settle a court case?",
+    "difficulty": "easy",
+    "expected_category": "Civil Procedure Rules and Practice Directions",
+    "has_citations": true,
+    "citation_count": 12,
+    "topic_coverage": 1.0,
+    "topics_found": [
+      "Part 36",
+      "offer",
+      "settle",
+      "costs"
+    ],
+    "topics_missing": [],
+    "source_count": 17,
+    "is_evasive": false,
+    "word_count": 229,
+    "is_too_short": false,
+    "is_too_long": false,
+    "composite_score": 1.0,
+    "answer_preview": "The available sources show that the main rules on offers to settle are in CPR Part 36, which is a self-contained procedural code for \u201cPart 36 offers.\u201d [1]\n\nA Part 36 offer can be made about the whole claim, part of it, or any issue in a claim, counterclaim, additional claim, appeal, or cross-appeal....",
+    "notes": "Tests Part 36 settlement offers",
+    "latency_seconds": 6.52
+  },
+  {
+    "test_id": "NL-CPR-14",
+    "question": "How do I get the court to order the other side to pay my legal costs?",
+    "difficulty": "medium",
+    "expected_category": "Civil Procedure Rules and Practice Directions",
+    "has_citations": true,
+    "citation_count": 6,
+    "topic_coverage": 1.0,
+    "topics_found": [
+      "costs",
+      "assessment",
+      "indemnity"
+    ],
+    "topics_missing": [],
+    "source_count": 17,
+    "is_evasive": false,
+    "word_count": 183,
+    "is_too_short": false,
+    "is_too_long": false,
+    "composite_score": 1.0,
+    "answer_preview": "Under CPR 44.2, the court has discretion to decide whether one party must pay another\u2019s costs, how much, and when. [4]\n\nThe general rule is that the unsuccessful party will be ordered to pay the costs of the successful party, although the court may make a different order. [4]\n\nIn deciding what order...",
+    "notes": "Tests costs recovery CPR Part 44",
+    "latency_seconds": 6.34
+  },
+  {
+    "test_id": "NL-CCG-04",
+    "question": "How are freezing orders handled in commercial disputes?",
+    "difficulty": "medium",
+    "expected_category": "Commercial Court",
+    "has_citations": true,
+    "citation_count": 6,
+    "topic_coverage": 1.0,
+    "topics_found": [
+      "freezing",
+      "injunction",
+      "assets"
+    ],
+    "topics_missing": [],
+    "source_count": 11,
+    "is_evasive": false,
+    "word_count": 180,
+    "is_too_short": false,
+    "is_too_long": false,
+    "composite_score": 1.0,
+    "answer_preview": "A freezing order is a form of interim remedy under CPR 25.1 that restrains a party from removing assets from the jurisdiction or dealing with assets whether inside or outside the jurisdiction. [1]\n\nIn the Commercial Court, an application for a freezing order is treated as urgent and, unless the urge...",
+    "notes": "Tests Commercial Court freezing injunctions",
+    "latency_seconds": 5.47
+  },
+  {
+    "test_id": "NL-CHD-02",
+    "question": "How do I dispute a will or challenge whether someone had capacity to make one?",
+    "difficulty": "medium",
+    "expected_category": "Chancery Division",
+    "has_citations": true,
+    "citation_count": 8,
+    "topic_coverage": 1.0,
+    "topics_found": [
+      "probate",
+      "will",
+      "capacity"
+    ],
+    "topics_missing": [],
+    "source_count": 14,
+    "is_evasive": false,
+    "word_count": 157,
+    "is_too_short": false,
+    "is_too_long": false,
+    "composite_score": 1.0,
+    "answer_preview": "To dispute a will, the relevant procedure is a **probate claim** under CPR Part 57, which includes a claim for a decree pronouncing for or against the validity of an alleged will and claims for rectification of wills. [11]\n\nA probate claim must be started in the relevant office using the procedure i...",
+    "notes": "Tests Chancery probate/contentious matters",
+    "latency_seconds": 6.11
+  },
+  {
+    "test_id": "NL-CHD-03",
+    "question": "What is the process for a company winding-up petition in court?",
+    "difficulty": "medium",
+    "expected_category": "Chancery Division",
+    "has_citations": true,
+    "citation_count": 10,
+    "topic_coverage": 1.0,
+    "topics_found": [
+      "winding",
+      "petition",
+      "company",
+      "insolvency"
+    ],
+    "topics_missing": [],
+    "source_count": 10,
+    "is_evasive": false,
+    "word_count": 288,
+    "is_too_short": false,
+    "is_too_long": false,
+    "composite_score": 1.0,
+    "answer_preview": "The retrieved material is **court-specific** to the Chancery Division, so it does not by itself establish the general CPR position for a company winding-up petition. [9]\n\nIn the Chancery Division, winding up petitions are dealt with in the Insolvency and Companies List, and insolvency proceedings ar...",
+    "notes": "Tests Chancery insolvency jurisdiction",
+    "latency_seconds": 6.77
+  },
+  {
+    "test_id": "NL-TCC-03",
+    "question": "How are complex technical cases managed in the construction court?",
+    "difficulty": "easy",
+    "expected_category": "Technology and Construction Court",
+    "has_citations": true,
+    "citation_count": 6,
+    "topic_coverage": 1.0,
+    "topics_found": [
+      "case management",
+      "conference",
+      "directions"
+    ],
+    "topics_missing": [],
+    "source_count": 11,
+    "is_evasive": false,
+    "word_count": 201,
+    "is_too_short": false,
+    "is_too_long": false,
+    "composite_score": 1.0,
+    "answer_preview": "In the TCC, a claim may be brought there if it involves issues or questions that are technically complex, or if a trial by a TCC judge is desirable. [6]\n\nThe TCC guide says case management is used to give directions at the outset and throughout the proceedings so cases are dealt with justly and at p...",
+    "notes": "Tests TCC case management procedures",
+    "latency_seconds": 5.32
   },
   {
     "test_id": "NL-CROSS-01",
@@ -484,24 +828,25 @@
     "difficulty": "medium",
     "expected_category": null,
     "has_citations": true,
-    "citation_count": 5,
-    "topic_coverage": 1.0,
+    "citation_count": 6,
+    "topic_coverage": 0.5,
     "topics_found": [
       "witness",
-      "summons",
+      "summons"
+    ],
+    "topics_missing": [
       "subpoena",
       "compel"
     ],
-    "topics_missing": [],
-    "source_count": 12,
+    "source_count": 19,
     "is_evasive": false,
-    "word_count": 244,
+    "word_count": 193,
     "is_too_short": false,
     "is_too_long": false,
-    "composite_score": 1.0,
-    "answer_preview": "- The examiner can require the witness to give the evidence they claim to be exempt from giving. If the examiner does not require it, the court may order the witness to give it. [2]\n\n- If an order is made, the evidence taken must be in a separate document from the rest of the deposition, and the exa...",
+    "composite_score": 0.75,
+    "answer_preview": "Under CPR Part 34, a witness summons is the document issued by the court requiring a witness to attend court to give evidence or to produce documents to the court. [2]\n\nA separate witness summons is needed for each witness, and it must be in the relevant practice form. [2]\n\nA party must get the cour...",
     "notes": "Tests cross-source retrieval for witness compulsion",
-    "latency_seconds": 9.84
+    "latency_seconds": 6.3
   },
   {
     "test_id": "NL-CROSS-02",
@@ -509,7 +854,7 @@
     "difficulty": "medium",
     "expected_category": null,
     "has_citations": true,
-    "citation_count": 8,
+    "citation_count": 5,
     "topic_coverage": 1.0,
     "topics_found": [
       "costs budget",
@@ -517,15 +862,15 @@
       "file"
     ],
     "topics_missing": [],
-    "source_count": 8,
+    "source_count": 9,
     "is_evasive": false,
-    "word_count": 303,
+    "word_count": 177,
     "is_too_short": false,
     "is_too_long": false,
     "composite_score": 1.0,
-    "answer_preview": "- What are costs budgets:\n  - A costs budget is a planned schedule of the costs you expect to incur for each phase of the case, prepared in the form of Precedent H (landscape format) and used for costs management. It includes estimated and incurred costs for each phase and is often discussed via a b...",
+    "answer_preview": "Costs budgets are estimates of the costs a party expects to incur, and the court may manage those \u201cbudgeted costs\u201d by making a costs management order. [1]\n\nIf costs budgets have been filed and exchanged, the court will usually make a costs management order unless it is satisfied the case can be mana...",
     "notes": "Tests costs budgeting which spans CPR Part 3 and PD 3D",
-    "latency_seconds": 8.61
+    "latency_seconds": 6.1
   },
   {
     "test_id": "NL-CROSS-03",
@@ -533,22 +878,73 @@
     "difficulty": "easy",
     "expected_category": null,
     "has_citations": true,
-    "citation_count": 28,
-    "topic_coverage": 1.0,
+    "citation_count": 8,
+    "topic_coverage": 0.67,
     "topics_found": [
       "skeleton argument",
-      "format",
       "concise"
     ],
-    "topics_missing": [],
-    "source_count": 8,
+    "topics_missing": [
+      "format"
+    ],
+    "source_count": 12,
     "is_evasive": false,
-    "word_count": 568,
+    "word_count": 258,
     "is_too_short": false,
     "is_too_long": false,
-    "composite_score": 1.0,
-    "answer_preview": "- What skeleton arguments are:\n  - They identify for the parties and the court those points that are in issue and the nature of the argument in relation to those points; they are not a speaking note or a substitute for oral argument [1][2].\n  - They should make clear what is sought and concisely set...",
+    "composite_score": 0.83,
+    "answer_preview": "The retrieved material is **court-specific** and does not by itself establish the general CPR position. [12]\n\nIn the Commercial Court, a skeleton argument is intended to identify the points that are, and are not, in issue and the nature of the argument on those points. [12]\n\nIt is not a speaking not...",
     "notes": "Tests skeleton arguments which appear in multiple guides",
-    "latency_seconds": 9.04
+    "latency_seconds": 6.95
+  },
+  {
+    "test_id": "NL-CROSS-04",
+    "question": "What are the time limits for starting different types of court claims?",
+    "difficulty": "medium",
+    "expected_category": null,
+    "has_citations": true,
+    "citation_count": 5,
+    "topic_coverage": 0.67,
+    "topics_found": [
+      "limitation",
+      "time"
+    ],
+    "topics_missing": [
+      "months"
+    ],
+    "source_count": 18,
+    "is_evasive": false,
+    "word_count": 125,
+    "is_too_short": false,
+    "is_too_long": false,
+    "composite_score": 0.83,
+    "answer_preview": "The available sources do not give limitation periods or other filing deadlines for starting different types of claims, so the specific time limits you asked for could not be found here. [2]\n\nWhat the sources do say is that proceedings are started when the court issues a claim form at the claimant\u2019s ...",
+    "notes": "Tests limitation periods awareness across sources",
+    "latency_seconds": 7.16
+  },
+  {
+    "test_id": "NL-CROSS-05",
+    "question": "How do courts decide who pays the legal costs at the end of a case?",
+    "difficulty": "easy",
+    "expected_category": null,
+    "has_citations": true,
+    "citation_count": 5,
+    "topic_coverage": 0.67,
+    "topics_found": [
+      "costs",
+      "discretion"
+    ],
+    "topics_missing": [
+      "loser pays"
+    ],
+    "source_count": 12,
+    "is_evasive": false,
+    "word_count": 142,
+    "is_too_short": false,
+    "is_too_long": false,
+    "composite_score": 0.83,
+    "answer_preview": "The court has discretion about whether costs are payable, how much is payable, and when they are paid. [2]\n\nThe general rule is that the unsuccessful party will be ordered to pay the successful party\u2019s costs, but the court may make a different order. [2]\n\nIn deciding the costs order, the court consi...",
+    "notes": "Tests general costs principles across courts",
+    "latency_seconds": 6.78
   }
 ]

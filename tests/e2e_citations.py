@@ -29,6 +29,8 @@ from .e2e import free_port, live_server_url, run_server, wait_for_server_ready  
 
 expect.set_options(timeout=15_000)
 
+CITATION_SELECTOR = "a.citation, button.citation, a[class*='citation'], button[class*='citation']"
+
 # Snapshot file paths
 STREAMING_SNAPSHOT = "tests/snapshots/test_app/test_chat_citations_stream/client0/result.jsonlines"
 NONSTREAMING_SNAPSHOT = "tests/snapshots/test_app/test_chat_citations_nonstream/client0/result.json"
@@ -203,7 +205,7 @@ class TestCitationsStreaming:
 
         # Check that citation entries appear (numbered references at the bottom)
         # The citation list should have at least 2 distinct citations
-        citation_links = page.locator("a.citation, a[class*='citation']")
+        citation_links = page.locator(CITATION_SELECTOR)
         expect(citation_links.first).to_be_visible()
         count = citation_links.count()
         assert count >= 2, f"Expected at least 2 citation badges, got {count}"
@@ -225,7 +227,7 @@ class TestCitationsStreaming:
         expect(page.get_by_text(ANSWER_VISIBLE_TEXT)).to_be_visible()
 
         # Click the first citation in the citation list
-        first_citation = page.locator("a.citation, a[class*='citation']").first
+        first_citation = page.locator(CITATION_SELECTOR).first
         first_citation.click()
 
         # The Supporting Content tab should become visible
@@ -285,7 +287,7 @@ class TestCitationsStreaming:
         expect(page.get_by_text(ANSWER_VISIBLE_TEXT)).to_be_visible()
 
         # Click the first citation in the list
-        first_citation = page.locator("a.citation, a[class*='citation']").first
+        first_citation = page.locator(CITATION_SELECTOR).first
         first_citation.click()
 
         # Supporting content should be visible
@@ -338,7 +340,7 @@ class TestCitationsNonStreaming:
         expect(page.get_by_text(ANSWER_VISIBLE_TEXT)).to_be_visible()
 
         # Citation badges should be present
-        citation_links = page.locator("a.citation, a[class*='citation']")
+        citation_links = page.locator(CITATION_SELECTOR)
         expect(citation_links.first).to_be_visible()
 
     def test_nonstreaming_supporting_content(self, page: Page, live_server_url: str):  # noqa: F811
@@ -392,16 +394,16 @@ class TestCitationStructure:
         assert first_path and len(first_path) > 0, "data-citation-path should not be empty"
 
     def test_citation_badges_have_numbered_labels(self, page: Page, live_server_url: str):  # noqa: F811
-        """Verify citation badges at the bottom show numbered references (e.g., '1. filename.pdf')."""
+        """Verify citation badges at the bottom show numbered references and a readable label."""
         submit_question(page, TEST_QUESTION)
         expect(page.get_by_text(ANSWER_VISIBLE_TEXT)).to_be_visible()
 
-        citation_links = page.locator("a.citation, a[class*='citation']")
+        citation_links = page.locator(CITATION_SELECTOR)
         expect(citation_links.first).to_be_visible()
 
-        # Verify at least one citation starts with a number pattern like "1."
         first_text = citation_links.first.inner_text()
-        assert re.match(r"^\d+\.\s", first_text), f"Citation badge should start with 'N. ' but got: '{first_text}'"
+        assert re.search(r"\[\d+\]", first_text), f"Citation badge should include a bracketed index but got: '{first_text}'"
+        assert len(first_text.splitlines()) >= 2, f"Citation badge should include both an index and a label but got: '{first_text}'"
 
     def test_ai_disclaimer_present(self, page: Page, live_server_url: str):  # noqa: F811
         """Verify the AI-generated content disclaimer appears below the answer."""
@@ -1010,7 +1012,7 @@ class TestCPRSourceParsing:
         """Verify at least one citation badge renders at the bottom of the answer."""
         submit_question(page, TEST_QUESTION)
         expect(page.get_by_text(scenario["answer_fragment"])).to_be_visible()
-        citations = page.locator("a.citation, a[class*='citation']")
+        citations = page.locator(CITATION_SELECTOR)
         expect(citations.first).to_be_visible()
 
     def test_supporting_content_shows_source_text(self, page: Page, live_server_url: str, scenario):  # noqa: F811
@@ -1057,7 +1059,7 @@ class TestPDSourceParsing:
     def test_citation_badge_appears(self, page: Page, live_server_url: str, scenario):  # noqa: F811
         submit_question(page, TEST_QUESTION)
         expect(page.get_by_text(scenario["answer_fragment"])).to_be_visible()
-        citations = page.locator("a.citation, a[class*='citation']")
+        citations = page.locator(CITATION_SELECTOR)
         expect(citations.first).to_be_visible()
 
     def test_supporting_content_shows_source_text(self, page: Page, live_server_url: str, scenario):  # noqa: F811
@@ -1104,7 +1106,7 @@ class TestPreActionSourceParsing:
     def test_citation_badge_appears(self, page: Page, live_server_url: str, scenario):  # noqa: F811
         submit_question(page, TEST_QUESTION)
         expect(page.get_by_text(scenario["answer_fragment"])).to_be_visible()
-        citations = page.locator("a.citation, a[class*='citation']")
+        citations = page.locator(CITATION_SELECTOR)
         expect(citations.first).to_be_visible()
 
     def test_supporting_content_shows_source_text(self, page: Page, live_server_url: str, scenario):  # noqa: F811
@@ -1151,7 +1153,7 @@ class TestCourtGuideSourceParsing:
     def test_citation_badge_appears(self, page: Page, live_server_url: str, scenario):  # noqa: F811
         submit_question(page, TEST_QUESTION)
         expect(page.get_by_text(scenario["answer_fragment"])).to_be_visible()
-        citations = page.locator("a.citation, a[class*='citation']")
+        citations = page.locator(CITATION_SELECTOR)
         expect(citations.first).to_be_visible()
 
     def test_supporting_content_shows_source_text(self, page: Page, live_server_url: str, scenario):  # noqa: F811
@@ -1192,13 +1194,13 @@ class TestMixedSourcesParsing:
     def test_answer_renders_without_corruption(self, page: Page, live_server_url: str, scenario):  # noqa: F811
         """Verify the answer with multiple mixed citations renders correctly."""
         submit_question(page, TEST_QUESTION)
-        expect(page.get_by_text(scenario["answer_fragment"])).to_be_visible()
+        expect(page.locator("[class*='answerText']").first).to_contain_text(scenario["answer_fragment"])
 
     def test_expected_citation_count(self, page: Page, live_server_url: str, scenario):  # noqa: F811
         """Verify the correct number of citation badges appear for mixed-source answers."""
         submit_question(page, TEST_QUESTION)
-        expect(page.get_by_text(scenario["answer_fragment"])).to_be_visible()
-        citations = page.locator("a.citation, a[class*='citation']")
+        expect(page.locator("[class*='answerText']").first).to_contain_text(scenario["answer_fragment"])
+        citations = page.locator(CITATION_SELECTOR)
         expect(citations.first).to_be_visible()
         count = citations.count()
         expected = scenario.get("expected_citation_count", len(scenario["sources"]))
@@ -1207,7 +1209,7 @@ class TestMixedSourcesParsing:
     def test_supporting_content_has_multiple_sources(self, page: Page, live_server_url: str, scenario):  # noqa: F811
         """Verify supporting content panel loads with content from multiple sources."""
         submit_question(page, TEST_QUESTION)
-        expect(page.get_by_text(scenario["answer_fragment"])).to_be_visible()
+        expect(page.locator("[class*='answerText']").first).to_contain_text(scenario["answer_fragment"])
         page.get_by_label("Show supporting content").click()
         expect(page.get_by_text("Supporting content")).to_be_visible()
         panel = page.locator("[class*='analysisPanelContent'], [class*='supportingContent']")
@@ -1308,7 +1310,7 @@ class TestDeployedCitations:
         expect(answer_container.first).to_be_visible(timeout=60_000)
 
         # There should be at least one citation
-        citation_links = page.locator("a.citation, a[class*='citation']")
+        citation_links = page.locator(CITATION_SELECTOR)
         expect(citation_links.first).to_be_visible(timeout=30_000)
 
     def test_deployed_supporting_content_works(self, page: Page, deployed_url: str):
@@ -1341,7 +1343,7 @@ class TestDeployedCitations:
         answer_container = page.locator("[class*='answerContainer'], [data-answer-index]")
         expect(answer_container.first).to_be_visible(timeout=60_000)
 
-        citation_links = page.locator("a.citation, a[class*='citation']")
+        citation_links = page.locator(CITATION_SELECTOR)
         expect(citation_links.first).to_be_visible(timeout=30_000)
 
         # Click the first citation

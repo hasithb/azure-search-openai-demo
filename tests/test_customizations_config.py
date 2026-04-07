@@ -56,6 +56,7 @@ class TestFeatureFlags:
             "agentic_fallback_search",
             "adaptive_search_retry",
             "agentic_retry_on_weak_matches",
+            "related_aspects_search",
         }
         assert set(CUSTOM_FEATURES.keys()) == expected_keys
 
