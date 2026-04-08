@@ -124,58 +124,49 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Diagnostic - test search data plane auth
+      - name: Add runner IP to search firewall
+        id: firewall
         run: |
-          echo "=== Search data-plane auth diagnostic ==="
-          SEARCH_EP="https://${{ secrets.AZURE_SEARCH_SERVICE }}.search.windows.net"
+          RUNNER_IP=$(curl -s https://ifconfig.me)
+          echo "Runner IP: ${RUNNER_IP}"
+          echo "runner_ip=${RUNNER_IP}" >> $GITHUB_OUTPUT
+          SEARCH_RG="rg-cpr-rag-uksouth"
+          SEARCH_SVC="${{ secrets.AZURE_SEARCH_SERVICE }}"
+          CAPP_NAME="capps-backend-gz2m4s637t5me"
 
-          # Get token via ClientSecretCredential (direct client_credentials grant)
-          CS_TOKEN=$(python3 -c "
+          # Collect Container App outbound IPs to keep live app working
+          CAPP_IPS=$(az containerapp show -g "${SEARCH_RG}" -n "${CAPP_NAME}" \
+            --query "properties.outboundIpAddresses" -o tsv 2>/dev/null | tr '\t' '\n' | sort -u | head -100)
+          echo "Container App outbound IPs count: $(echo "$CAPP_IPS" | wc -l)"
+
+          # Build comma-separated IP list: runner + container app outbound IPs + admin IP
+          ALL_IPS="${RUNNER_IP},90.241.195.154"
+          for ip in ${CAPP_IPS}; do
+            ALL_IPS="${ALL_IPS},${ip}"
+          done
+          echo "Total IPs for whitelist: $(echo "${ALL_IPS}" | tr ',' '\n' | wc -l)"
+
+          # Add IPs to search service firewall
+          echo "Adding IPs to search service firewall..."
+          az search service update -g "${SEARCH_RG}" -n "${SEARCH_SVC}" \
+            --ip-rules "${ALL_IPS}" 2>&1
+
+          # Wait for propagation
+          echo "Waiting 30s for firewall propagation..."
+          sleep 30
+
+          # Test data plane access
+          TOKEN=$(python3 -c "
           from azure.identity import ClientSecretCredential
           c = ClientSecretCredential('${{ secrets.AZURE_TENANT_ID }}', '${{ secrets.AZURE_CLIENT_ID }}', '${{ secrets.AZURE_CLIENT_SECRET }}')
           t = c.get_token('https://search.azure.com/.default')
           print(t.token)
           ")
-          echo "ClientSecret token length: ${#CS_TOKEN}"
-
-          # Also get OIDC token via az CLI for comparison
-          AZ_TOKEN=$(az account get-access-token --resource https://search.azure.com --query accessToken -o tsv)
-          echo "AzCLI token length: ${#AZ_TOKEN}"
-
-          # Decode both JWT payloads
-          echo "--- ClientSecret token claims ---"
-          echo "$CS_TOKEN" | python3 -c "
-          import sys,base64,json
-          t=sys.stdin.read().strip().split('.')[1]
-          t+='='*(4-len(t)%4)
-          c=json.loads(base64.urlsafe_b64decode(t))
-          for k in ['aud','iss','appid','azp','oid','sub','idtyp','ver','tid']:
-            if k in c: print(f'{k}: {c[k]}')
-          "
-
-          echo "--- AzCLI token claims ---"
-          echo "$AZ_TOKEN" | python3 -c "
-          import sys,base64,json
-          t=sys.stdin.read().strip().split('.')[1]
-          t+='='*(4-len(t)%4)
-          c=json.loads(base64.urlsafe_b64decode(t))
-          for k in ['aud','iss','appid','azp','oid','sub','idtyp','ver','tid']:
-            if k in c: print(f'{k}: {c[k]}')
-          "
-
-          # Test doc access with ClientSecret token
-          echo "--- Doc access (ClientSecret) ---"
-          CS_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            -H "Authorization: Bearer ${CS_TOKEN}" \
+          SEARCH_EP="https://${SEARCH_SVC}.search.windows.net"
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: Bearer ${TOKEN}" \
             "${SEARCH_EP}/indexes('${{ env.AZURE_SEARCH_INDEX }}')/docs?\$top=1&\$select=id&api-version=2023-11-01")
-          echo "HTTP: ${CS_STATUS}"
-
-          # Test doc access with AzCLI token
-          echo "--- Doc access (AzCLI) ---"
-          AZ_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            -H "Authorization: Bearer ${AZ_TOKEN}" \
-            "${SEARCH_EP}/indexes('${{ env.AZURE_SEARCH_INDEX }}')/docs?\$top=1&\$select=id&api-version=2023-11-01")
-          echo "HTTP: ${AZ_STATUS}"
+          echo "Doc access after IP whitelist: HTTP ${STATUS}"
         env:
           AZURE_SEARCH_SERVICE: ${{ secrets.AZURE_SEARCH_SERVICE }}
 
@@ -283,4 +274,15 @@ jobs:
             echo '```' >> $GITHUB_STEP_SUMMARY
             cat data/legal-scraper/processed/upload_statistics.txt >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Remove runner IP from search firewall
+        if: always()
+        run: |
+          RUNNER_IP="${{ steps.firewall.outputs.runner_ip }}"
+          if [ -n "${RUNNER_IP}" ]; then
+            echo "Removing runner IP ${RUNNER_IP} from search service firewall..."
+            az search service update -g "rg-cpr-rag-uksouth" -n "${{ secrets.AZURE_SEARCH_SERVICE }}" \
+              --ip-rules "" 2>&1 || echo "Warning: failed to remove IP rule"
+            echo "Search firewall cleaned up."
           fi
