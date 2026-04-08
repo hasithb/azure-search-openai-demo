@@ -232,6 +232,7 @@ jobs:
             echo "Search service '${SEARCH_SVC}' was not found in the current subscription."
             exit 1
           fi
+          echo "search_resource_id=${SEARCH_ID}" >> $GITHUB_OUTPUT
           SEARCH_RG=$(echo "${SEARCH_ID}" | sed -E 's|.*/resourceGroups/([^/]+)/.*|\1|')
           echo "search_resource_group=${SEARCH_RG}" >> $GITHUB_OUTPUT
           echo "Resolved search service '${SEARCH_SVC}' in resource group '${SEARCH_RG}'"
@@ -248,9 +249,14 @@ jobs:
           done
           echo "Total IPs for whitelist: $(echo "${ALL_IPS}" | tr ',' '\n' | wc -l)"
 
+          export ALL_IPS
+          PAYLOAD=$(python3 -c "import json, os; ips=[ip for ip in os.environ['ALL_IPS'].split(',') if ip]; print(json.dumps({'properties': {'networkRuleSet': {'bypass': 'None', 'ipRules': [{'value': ip} for ip in ips]}}}))")
+
           echo "Adding IPs to search service firewall..."
-          az search service update -g "${SEARCH_RG}" -n "${SEARCH_SVC}" \
-            --ip-rules "${ALL_IPS}" 2>&1
+          az rest --method PATCH \
+            --uri "https://management.azure.com${SEARCH_ID}?api-version=2023-11-01" \
+            --headers "Content-Type=application/json" \
+            --body "${PAYLOAD}" 2>&1
 
           echo "Waiting 30s for firewall propagation..."
           sleep 30
@@ -311,9 +317,13 @@ jobs:
           RUNNER_IP="${{ steps.firewall.outputs.runner_ip }}"
           SEARCH_SVC="${{ steps.firewall.outputs.search_service }}"
           SEARCH_RG="${{ steps.firewall.outputs.search_resource_group }}"
+          SEARCH_ID="${{ steps.firewall.outputs.search_resource_id }}"
           if [ -n "${RUNNER_IP}" ]; then
             echo "Removing runner IP ${RUNNER_IP} from search service firewall..."
-            az search service update -g "${SEARCH_RG}" -n "${SEARCH_SVC}" \
-              --ip-rules "" 2>&1 || echo "Warning: failed to remove IP rule"
+            az rest --method PATCH \
+              --uri "https://management.azure.com${SEARCH_ID}?api-version=2023-11-01" \
+              --headers "Content-Type=application/json" \
+              --body '{"properties":{"networkRuleSet":{"bypass":"None","ipRules":[]}}}' \
+              2>&1 || echo "Warning: failed to remove IP rule"
             echo "Search firewall cleaned up."
           fi
