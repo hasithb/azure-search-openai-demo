@@ -151,6 +151,18 @@ APP_URL=http://localhost:50505 python scripts/test_source_hierarchy.py
 There is also an opt-in GitHub Actions workflow at `.github/workflows/source-hierarchy-regression.yml`.
 Use `workflow_dispatch` or `workflow_call` and pass the deployed app URL as `app_url`.
 
+## CPR index update workflow
+
+The GitHub Actions workflow `.github/workflows/update-index-v3.yml` now uses an Azure-side uploader path for production writes.
+
+Because GitHub-hosted runners were receiving persistent Azure Search data-plane `403 Forbidden` responses even after RBAC fixes and network-rule tests, the upload job builds `scripts/legal-scraper/Dockerfile.aci-uploader` into the existing ACR and runs the actual `upload_with_embeddings.py` command inside Azure Container Instances using the existing user-assigned identity `cpr-rag-aca-identity`.
+
+If you modify that workflow, preserve these assumptions unless the underlying Search access issue is fully resolved:
+
+* Diff/scrape can still run on GitHub-hosted runners.
+* Production Search writes should run from Azure, not directly from the GitHub runner.
+* The uploader container relies on the downloaded CPR artifact already being present in the repo workspace before the ACR build step.
+
 ## Sending pull requests
 
 When sending pull requests, make sure to follow the PULL_REQUEST_TEMPLATE.md format.
