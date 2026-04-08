@@ -479,13 +479,26 @@ def upload_to_azure_search(index_name: str, documents: list, batch_size: int = 1
         if key:
             credential = AzureKeyCredential(key)
         else:
-            # Use DefaultAzureCredential which supports Environment, WorkloadIdentity (OIDC), ManagedIdentity, and AzureCLI
-            logger.info("Using DefaultAzureCredential for authentication")
-            credential = DefaultAzureCredential()
+            # Use AzureCliCredential first in CI (avoids 10s IMDS timeout),
+            # fall back to DefaultAzureCredential for local dev.
+            if os.getenv("GITHUB_ACTIONS"):
+                logger.info("GitHub Actions detected — using AzureCliCredential directly")
+                credential = AzureCliCredential()
+            else:
+                logger.info("Using DefaultAzureCredential for authentication")
+                credential = DefaultAzureCredential()
+
+            # Pre-test: acquire a token for the search data plane
+            try:
+                search_token = credential.get_token("https://search.azure.com/.default")
+                logger.info(f"✅ Token acquired for search.azure.com scope (expires {search_token.expires_on})")
+            except Exception as e:
+                logger.error(f"❌ Failed to get token for search.azure.com scope: {e}")
+                raise
         
         if not endpoint:
             logger.error("Azure Search endpoint not configured")
-            return 0
+            return -1
         
         # Verify index exists
         index_client = SearchIndexClient(endpoint=endpoint, credential=credential)
@@ -496,7 +509,7 @@ def upload_to_azure_search(index_name: str, documents: list, batch_size: int = 1
             logger.error(f"❌ Index '{index_name}' does not exist")
             if dry_run:
                 logger.info("Dry run: Would create index (not implemented in this script)")
-            return 0
+            return -1
 
         # Load index field schema to avoid sending unsupported fields
         load_index_fields(endpoint, index_name)
@@ -695,14 +708,19 @@ def upload_to_azure_search(index_name: str, documents: list, batch_size: int = 1
             f.write("\n" + "=" * 80 + "\n")
         
         logger.info(f"✅ Upload complete: {uploaded} documents updated")
+        if failed > 0 and uploaded == 0:
+            logger.error(f"❌ All {failed} documents failed to upload")
+            return -1
+        elif failed > 0:
+            logger.warning(f"⚠️  {failed} documents failed out of {uploaded + failed}")
         return uploaded
         
     except ImportError as e:
         logger.error(f"Azure SDK not available: {e}")
-        return 0
+        return -1
     except Exception as e:
         logger.error(f"Upload failed: {e}")
-        return 0
+        return -1
 
 
 def main():
@@ -768,12 +786,14 @@ def main():
     elif uploaded > 0:
         logger.info(f"\n✅ Success! {uploaded} documents uploaded")
         return 0
-    else:
-        # If 0 uploaded but not dry run, it might mean no changes (success) or failure.
-        # upload_to_azure_search returns 0 for both "no changes" and "error".
-        # Logging in the function makes it clear.
-        logger.info("Process complete.")
+    elif uploaded == 0:
+        # 0 means no changes needed — index is up to date
+        logger.info("Process complete — no changes needed.")
         return 0
+    else:
+        # Negative return value from upload_to_azure_search indicates an error
+        logger.error("❌ Upload failed. See errors above.")
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())
