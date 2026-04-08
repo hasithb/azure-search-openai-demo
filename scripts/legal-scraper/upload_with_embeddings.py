@@ -39,6 +39,21 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Index field detection
+_INDEX_FIELDS: set[str] | None = None
+
+
+def load_index_fields(endpoint: str, index_name: str):
+    """Fetch field names from the deployed index to avoid sending unsupported fields."""
+    global _INDEX_FIELDS
+    from azure.search.documents.indexes import SearchIndexClient
+    from azure.identity import DefaultAzureCredential
+
+    idx_client = SearchIndexClient(endpoint=endpoint, credential=DefaultAzureCredential())
+    idx = idx_client.get_index(index_name)
+    _INDEX_FIELDS = {f.name for f in idx.fields}
+    logger.info("Index fields: %s", sorted(_INDEX_FIELDS))
+
 def load_documents_from_files(input_dir: str) -> list:
     """Load all JSON documents from input directory."""
     documents = []
@@ -72,6 +87,22 @@ def create_embeddings_with_retry(client, texts: list, model: str):
     """Create embeddings with automatic retry on rate limit errors."""
     return client.embeddings.create(input=texts, model=model)
 
+def normalize_openai_endpoint(raw: str) -> str:
+    """Normalize AZURE_OPENAI_SERVICE value to a full https endpoint URL.
+
+    Handles all common formats:
+      'myservice'                                  -> 'https://myservice.openai.azure.com'
+      'myservice.openai.azure.com'                 -> 'https://myservice.openai.azure.com'
+      'https://myservice.openai.azure.com'         -> 'https://myservice.openai.azure.com'
+      'https://myservice.openai.azure.com/'        -> 'https://myservice.openai.azure.com'
+    """
+    value = raw.strip().rstrip("/")
+    if value.startswith("https://"):
+        return value
+    if value.endswith(".openai.azure.com"):
+        return f"https://{value}"
+    return f"https://{value}.openai.azure.com"
+
 def generate_embeddings(documents: list) -> list:
     """Generate embeddings for documents that are missing them."""
     
@@ -81,13 +112,18 @@ def generate_embeddings(documents: list) -> list:
         
     logger.info(f"Generating embeddings for {len(docs_to_embed)} documents...")
     
-    endpoint = Config.AZURE_OPENAI_SERVICE
-    if not endpoint.startswith("https://"):
-        endpoint = f"https://{endpoint}.openai.azure.com"
+    endpoint = normalize_openai_endpoint(Config.AZURE_OPENAI_SERVICE)
+    logger.info(f"OpenAI endpoint: {endpoint}")
+    # Log URL shape info that won't be masked by GitHub Actions
+    from urllib.parse import urlparse
+    parsed = urlparse(endpoint)
+    logger.info(f"Endpoint hostname length: {len(parsed.hostname or '')}, dot-count: {(parsed.hostname or '').count('.')}")
         
     deployment = Config.AZURE_OPENAI_EMB_DEPLOYMENT
+    logger.info(f"Embedding deployment: {deployment}")
     
     if Config.AZURE_OPENAI_KEY:
+        logger.info("Using API key for OpenAI authentication")
         client = AzureOpenAI(
             api_key=Config.AZURE_OPENAI_KEY,
             api_version="2023-05-15",
@@ -97,8 +133,17 @@ def generate_embeddings(documents: list) -> list:
         )
     else:
         # Use DefaultAzureCredential which supports Environment, WorkloadIdentity (OIDC), ManagedIdentity, and AzureCLI
+        logger.info("Using DefaultAzureCredential for OpenAI authentication")
+        credential = DefaultAzureCredential()
+        # Pre-test token acquisition so failures are logged clearly
+        try:
+            token = credential.get_token("https://cognitiveservices.azure.com/.default")
+            logger.info(f"✅ Token acquired for cognitiveservices scope (expires {token.expires_on})")
+        except Exception as e:
+            logger.error(f"❌ Failed to get token for cognitiveservices scope: {e}")
+            raise
         token_provider = get_bearer_token_provider(
-            DefaultAzureCredential(), "https://cognitiveservices.azure.com/.default"
+            credential, "https://cognitiveservices.azure.com/.default"
         )
         client = AzureOpenAI(
             azure_ad_token_provider=token_provider,
@@ -107,6 +152,30 @@ def generate_embeddings(documents: list) -> list:
             max_retries=3,
             timeout=120.0
         )
+    
+    # Quick connectivity test with a single short text
+    logger.info("Testing OpenAI embedding endpoint connectivity...")
+    # Pre-check DNS resolution to give a clear error if hostname is wrong
+    import socket
+    try:
+        hostname = urlparse(endpoint).hostname
+        addrs = socket.getaddrinfo(hostname, 443)
+        logger.info(f"✅ DNS resolved {hostname} ({len(addrs)} address(es))")
+    except socket.gaierror as e:
+        logger.error(f"❌ DNS resolution failed for hostname '{hostname}': {e}")
+        logger.error(f"   Raw AZURE_OPENAI_SERVICE value length: {len(Config.AZURE_OPENAI_SERVICE)}")
+        raise RuntimeError(f"Cannot resolve OpenAI hostname '{hostname}'. Check AZURE_OPENAI_SERVICE secret value.") from e
+    try:
+        test_resp = client.embeddings.create(input=["test"], model=deployment)
+        logger.info(f"✅ Connectivity test passed (got {len(test_resp.data[0].embedding)}-dim vector)")
+    except Exception as e:
+        logger.error(f"❌ Connectivity test FAILED: {type(e).__name__}: {e}")
+        # Log the full exception chain for diagnosis
+        cause = e.__cause__ or e.__context__
+        while cause:
+            logger.error(f"  Caused by: {type(cause).__name__}: {cause}")
+            cause = getattr(cause, '__cause__', None) or getattr(cause, '__context__', None)
+        raise
         
     # Process in batches optimized for high rate limits
     # With 12,000 requests/min and 2M tokens/min, we can be aggressive
@@ -136,7 +205,11 @@ def generate_embeddings(documents: list) -> list:
             if i + batch_size < len(docs_to_embed):
                 time.sleep(0.5)  # 0.5 second delay between batches
         except Exception as e:
-            logger.error(f"❌ Error generating embeddings for batch {i//batch_size + 1}: {e}")
+            logger.error(f"❌ Error generating embeddings for batch {i//batch_size + 1}: {type(e).__name__}: {e}")
+            cause = e.__cause__ or e.__context__
+            while cause:
+                logger.error(f"  Caused by: {type(cause).__name__}: {cause}")
+                cause = getattr(cause, '__cause__', None) or getattr(cause, '__context__', None)
             logger.warning(f"Skipping {len(batch)} documents in this batch")
             
     logger.info(f"Embedding generation complete: {success_count}/{len(docs_to_embed)} successful")
@@ -251,7 +324,7 @@ def map_document_to_schema(doc: dict) -> dict:
         if header_lines:
             content = "\n".join(header_lines) + "\n\n" + content
         
-    return {
+    result = {
         "id": sanitized_id,
         "content": content,
         "embedding": doc.get("embedding", []),
@@ -261,11 +334,18 @@ def map_document_to_schema(doc: dict) -> dict:
         "storageUrl": doc.get("storageUrl", ""),
         "oids": doc.get("oids", []) if doc.get("oids") else [],
         "groups": doc.get("groups", []) if doc.get("groups") else [],
-        "parent_id": doc.get("parent_id", ""),
-        "subsection_id": subsection_id,
-        "subsections": subsections,
-        "updated": doc.get("updated", ""),
     }
+    # Only include extended fields if the target index supports them
+    if _INDEX_FIELDS is not None:
+        for fname, val in [
+            ("parent_id", doc.get("parent_id", "")),
+            ("subsection_id", subsection_id),
+            ("subsections", subsections),
+            ("updated", doc.get("updated", "")),
+        ]:
+            if fname in _INDEX_FIELDS:
+                result[fname] = val
+    return result
 
 def validate_documents(documents: list, check_embeddings: bool = False) -> tuple[list, list]:
     """Validate documents before upload. Returns (valid, invalid).
@@ -331,7 +411,8 @@ def compute_content_hash(doc: dict) -> str:
 def filter_changed_documents(client, documents: list) -> tuple[list, int, int, int]:
     """
     Filter out documents that haven't changed in the index.
-    Uses filterable 'id' field for efficient lookups.
+    Uses get_document() (key lookup) instead of filter queries, which works
+    regardless of whether the 'id' field is marked as filterable.
     Returns (docs_to_upload, unchanged_count, new_count, changed_count)
     """
     if not documents:
@@ -343,58 +424,39 @@ def filter_changed_documents(client, documents: list) -> tuple[list, int, int, i
     new_count = 0
     changed_count = 0
     
-    # Process in chunks to avoid huge filter strings (Azure Search has filter length limits)
-    chunk_size = 50
+    select_fields = ["id", "content", "sourcefile", "sourcepage", "category", "storageUrl"]
+    if _INDEX_FIELDS is not None and "updated" in _INDEX_FIELDS:
+        select_fields.append("updated")
     
-    for i in range(0, len(documents), chunk_size):
-        chunk = documents[i:i+chunk_size]
-        chunk_map = {doc["id"]: doc for doc in chunk}
-        chunk_ids = list(chunk_map.keys())
-        
-        # Build filter query
-        filter_expr = " or ".join([f"id eq '{doc_id}'" for doc_id in chunk_ids])
-        
-        found_ids = set()
-        
+    for doc in documents:
+        doc_id = doc["id"]
         try:
-            # Fetch all fields needed for content hash comparison
-            # (excluding embedding, oids, groups, parent_id which aren't part of content identity)
-            results = client.search(
-                search_text="*",
-                filter=filter_expr,
-                select=["id", "content", "sourcefile", "sourcepage", "category", "storageUrl", "updated"],
-                top=chunk_size
+            existing = client.get_document(
+                key=doc_id,
+                selected_fields=select_fields
             )
+            # Document exists — check if content changed
+            remote_hash = compute_content_hash(existing)
+            local_hash = compute_content_hash(doc)
             
-            for res in results:
-                rid = res["id"]
-                found_ids.add(rid)
-                
-                # Check if changed
-                local_doc = chunk_map.get(rid)
-                if local_doc:
-                    remote_hash = compute_content_hash(res)
-                    local_hash = compute_content_hash(local_doc)
-                    
-                    if remote_hash != local_hash:
-                        docs_to_upload.append(local_doc)
-                        changed_count += 1
-                        logger.info(f"📝 content changed: {rid}")
-                    else:
-                        unchanged_count += 1
-                        # logger.info(f"⏭️  Unchanged: {rid}")
-        
+            if remote_hash != local_hash:
+                docs_to_upload.append(doc)
+                changed_count += 1
+                logger.info(f"📝 content changed: {doc_id}")
+            else:
+                unchanged_count += 1
         except Exception as e:
-            logger.warning(f"Error checking existing docs, defaulting to upload all: {e}")
-            docs_to_upload.extend(chunk)
-            continue
-            
-        # Add new docs (ids asked for but not returned by search)
-        for doc_id in chunk_ids:
-            if doc_id not in found_ids:
-                docs_to_upload.append(chunk_map[doc_id])
+            error_str = str(e)
+            if "ResourceNotFoundError" in type(e).__name__ or "404" in error_str:
+                # Document doesn't exist in index — it's new
+                docs_to_upload.append(doc)
                 new_count += 1
                 logger.info(f"✨ New document: {doc_id}")
+            else:
+                # Unexpected error — include document to be safe
+                logger.warning(f"Error checking doc {doc_id}, will re-upload: {e}")
+                docs_to_upload.append(doc)
+                new_count += 1
 
     return docs_to_upload, unchanged_count, new_count, changed_count
 
@@ -417,13 +479,46 @@ def upload_to_azure_search(index_name: str, documents: list, batch_size: int = 1
         if key:
             credential = AzureKeyCredential(key)
         else:
-            # Use DefaultAzureCredential which supports Environment, WorkloadIdentity (OIDC), ManagedIdentity, and AzureCLI
-            logger.info("Using DefaultAzureCredential for authentication")
-            credential = DefaultAzureCredential()
+            # In CI with client secret available, use ClientSecretCredential
+            # (OIDC federated tokens from azure/login don't work for search data plane).
+            # Otherwise use AzureCliCredential in CI, DefaultAzureCredential locally.
+            client_secret = os.getenv("AZURE_CLIENT_SECRET")
+            tenant_id = os.getenv("AZURE_TENANT_ID")
+            client_id = os.getenv("AZURE_CLIENT_ID")
+            if client_secret and tenant_id and client_id:
+                from azure.identity import ClientSecretCredential
+                logger.info("Using ClientSecretCredential for search data plane auth")
+                credential = ClientSecretCredential(tenant_id=tenant_id, client_id=client_id, client_secret=client_secret)
+            elif os.getenv("GITHUB_ACTIONS"):
+                logger.info("GitHub Actions detected — using AzureCliCredential directly")
+                credential = AzureCliCredential()
+            else:
+                logger.info("Using DefaultAzureCredential for authentication")
+                credential = DefaultAzureCredential()
+
+            # Pre-test: acquire a token for the search data plane
+            try:
+                search_token = credential.get_token("https://search.azure.com/.default")
+                logger.info(f"✅ Token acquired for search.azure.com scope (expires {search_token.expires_on})")
+            except Exception as e:
+                logger.error(f"❌ Failed to get token for search.azure.com scope: {e}")
+                raise
+
+            # Diagnostic: raw HTTP test for data-plane document access
+            import httpx
+            try:
+                test_url = f"{endpoint}/indexes('{index_name}')/docs?api-version=2023-11-01&search=*&$top=1&$select=id"
+                diag_resp = httpx.get(test_url, headers={"Authorization": f"Bearer {search_token.token}"}, timeout=15)
+                logger.info(f"🔍 Data-plane doc probe: HTTP {diag_resp.status_code}")
+                if diag_resp.status_code != 200:
+                    logger.error(f"   Response body: {diag_resp.text[:500]}")
+                    logger.error(f"   WWW-Authenticate: {diag_resp.headers.get('WWW-Authenticate', 'N/A')}")
+            except Exception as e:
+                logger.warning(f"🔍 Data-plane doc probe failed: {e}")
         
         if not endpoint:
             logger.error("Azure Search endpoint not configured")
-            return 0
+            return -1
         
         # Verify index exists
         index_client = SearchIndexClient(endpoint=endpoint, credential=credential)
@@ -434,8 +529,11 @@ def upload_to_azure_search(index_name: str, documents: list, batch_size: int = 1
             logger.error(f"❌ Index '{index_name}' does not exist")
             if dry_run:
                 logger.info("Dry run: Would create index (not implemented in this script)")
-            return 0
-        
+            return -1
+
+        # Load index field schema to avoid sending unsupported fields
+        load_index_fields(endpoint, index_name)
+
         # Configure Search Client
         client = SearchClient(endpoint=endpoint, index_name=index_name, credential=credential)
         
@@ -630,14 +728,19 @@ def upload_to_azure_search(index_name: str, documents: list, batch_size: int = 1
             f.write("\n" + "=" * 80 + "\n")
         
         logger.info(f"✅ Upload complete: {uploaded} documents updated")
+        if failed > 0 and uploaded == 0:
+            logger.error(f"❌ All {failed} documents failed to upload")
+            return -1
+        elif failed > 0:
+            logger.warning(f"⚠️  {failed} documents failed out of {uploaded + failed}")
         return uploaded
         
     except ImportError as e:
         logger.error(f"Azure SDK not available: {e}")
-        return 0
+        return -1
     except Exception as e:
         logger.error(f"Upload failed: {e}")
-        return 0
+        return -1
 
 
 def main():
@@ -703,12 +806,14 @@ def main():
     elif uploaded > 0:
         logger.info(f"\n✅ Success! {uploaded} documents uploaded")
         return 0
-    else:
-        # If 0 uploaded but not dry run, it might mean no changes (success) or failure.
-        # upload_to_azure_search returns 0 for both "no changes" and "error".
-        # Logging in the function makes it clear.
-        logger.info("Process complete.")
+    elif uploaded == 0:
+        # 0 means no changes needed — index is up to date
+        logger.info("Process complete — no changes needed.")
         return 0
+    else:
+        # Negative return value from upload_to_azure_search indicates an error
+        logger.error("❌ Upload failed. See errors above.")
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())
