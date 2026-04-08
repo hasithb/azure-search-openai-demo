@@ -163,3 +163,7 @@ data/**/*.md5
 evals/results/
 # Test feedback artifacts
 data/feedback_data/local/
+
+# Sensitive backup files
+archive/pre-uksouth-backup/env-backup.txt
+archive/pre-uksouth-backup/containerapp-config.json
