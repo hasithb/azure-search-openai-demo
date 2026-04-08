@@ -1,0 +1,249 @@
+name: Update Index v3
+
+on:
+  schedule:
+    - cron: '0 2 * * 0'  # Weekly on Sunday at 02:00 UTC
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry-run mode (diff analysis only, no upload)'
+        required: false
+        type: boolean
+        default: false
+      force_upload:
+        description: 'Force upload even if validation fails (NOT RECOMMENDED)'
+        required: false
+        type: boolean
+        default: false
+
+# Court guides are excluded from this workflow — they rarely change and are
+# updated manually via scripts/court_guides_processing_pipeline/ when new
+# editions are published.
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: update-index-v3-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  AZURE_SEARCH_INDEX: legal-court-rag-index-v3
+  PYTHON_VERSION: '3.10'
+
+jobs:
+  # ──────────────────────────────────────────────────────────────────────────────
+  # Step 1: Scrape CPR documents from legislation.gov.uk and validate
+  # ──────────────────────────────────────────────────────────────────────────────
+  scrape-and-validate:
+    runs-on: ubuntu-latest
+    environment: Production
+    outputs:
+      validation_status: ${{ steps.validate.outputs.status }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: 'requirements-dev.txt'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Scrape Civil Procedure Rules
+        run: python scripts/legal-scraper/scrape_cpr.py
+
+      - name: Validate scraped content
+        id: validate
+        run: |
+          if python scripts/legal-scraper/validate_and_review.py --input Upload; then
+            echo "status=success" >> $GITHUB_OUTPUT
+          else
+            echo "status=failed" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+        continue-on-error: true
+
+      - name: Upload scraped data artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cpr-scraped-data
+          path: data/legal-scraper/processed/Upload/
+          retention-days: 7
+
+      - name: Upload validation reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cpr-validation-reports
+          path: data/legal-scraper/reports/
+          retention-days: 7
+
+  # ──────────────────────────────────────────────────────────────────────────────
+  # Step 2: Diff analysis — show what would change in the index
+  # ──────────────────────────────────────────────────────────────────────────────
+  diff-analysis:
+    needs: scrape-and-validate
+    if: needs.scrape-and-validate.result == 'success'
+    runs-on: ubuntu-latest
+    environment: Production
+    outputs:
+      has_changes: ${{ steps.diff.outputs.has_changes }}
+      validation_ok: ${{ steps.check.outputs.validation_ok }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: 'requirements-dev.txt'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Download CPR data
+        uses: actions/download-artifact@v4
+        with:
+          name: cpr-scraped-data
+          path: data/legal-scraper/processed/Upload/
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Run diff analysis (dry run)
+        id: diff
+        run: |
+          python scripts/legal-scraper/upload_with_embeddings.py --input Upload --dry-run
+        env:
+          AZURE_SEARCH_SERVICE: ${{ secrets.AZURE_SEARCH_SERVICE }}
+          AZURE_SEARCH_INDEX: ${{ env.AZURE_SEARCH_INDEX }}
+          AZURE_OPENAI_SERVICE: ${{ secrets.AZURE_OPENAI_SERVICE }}
+          AZURE_OPENAI_EMB_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_EMB_DEPLOYMENT }}
+
+      - name: Check validation status
+        id: check
+        run: |
+          validation="${{ needs.scrape-and-validate.outputs.validation_status }}"
+          if [ "$validation" = "success" ]; then
+            echo "validation_ok=true" >> $GITHUB_OUTPUT
+          else
+            echo "validation_ok=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create job summary
+        if: always()
+        run: |
+          echo "## 📋 Index v3 Update Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Target Index:** \`${{ env.AZURE_SEARCH_INDEX }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Run Date:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "**Source:** CPR (Civil Procedure Rules, Practice Directions, Pre-Action Protocols)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f "data/legal-scraper/reports/upload_plan.txt" ]; then
+            echo "### Diff Analysis" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat data/legal-scraper/reports/upload_plan.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ No diff report generated." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload diff report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diff-report
+          path: data/legal-scraper/reports/
+          retention-days: 30
+
+  # ──────────────────────────────────────────────────────────────────────────────
+  # Step 3: Upload to production index v3
+  # ──────────────────────────────────────────────────────────────────────────────
+  upload-to-index:
+    needs: [scrape-and-validate, diff-analysis]
+    if: |
+      github.event.inputs.dry_run != 'true' &&
+      needs.diff-analysis.result == 'success' &&
+      (needs.diff-analysis.outputs.validation_ok == 'true' || github.event.inputs.force_upload == 'true')
+    runs-on: ubuntu-latest
+    environment: Production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: 'requirements-dev.txt'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Download CPR data
+        uses: actions/download-artifact@v4
+        with:
+          name: cpr-scraped-data
+          path: data/legal-scraper/processed/Upload/
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Upload to index v3
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 45
+          max_attempts: 3
+          retry_wait_seconds: 60
+          command: python scripts/legal-scraper/upload_with_embeddings.py --input Upload
+        env:
+          AZURE_SEARCH_SERVICE: ${{ secrets.AZURE_SEARCH_SERVICE }}
+          AZURE_SEARCH_INDEX: ${{ env.AZURE_SEARCH_INDEX }}
+          AZURE_OPENAI_SERVICE: ${{ secrets.AZURE_OPENAI_SERVICE }}
+          AZURE_OPENAI_EMB_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_EMB_DEPLOYMENT }}
+
+      - name: Upload statistics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: upload-statistics
+          path: data/legal-scraper/processed/upload_statistics.txt
+          retention-days: 90
+
+      - name: Post-upload summary
+        if: always()
+        run: |
+          echo "## ⬆️ Upload Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Target Index:** \`${{ env.AZURE_SEARCH_INDEX }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f "data/legal-scraper/processed/upload_statistics.txt" ]; then
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat data/legal-scraper/processed/upload_statistics.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
