@@ -219,8 +219,23 @@ jobs:
           RUNNER_IP=$(curl -s https://ifconfig.me)
           echo "Runner IP: ${RUNNER_IP}"
           echo "runner_ip=${RUNNER_IP}" >> $GITHUB_OUTPUT
-          SEARCH_RG="rg-cpr-rag-uksouth"
-          SEARCH_SVC="${{ secrets.AZURE_SEARCH_SERVICE }}"
+
+          SEARCH_RAW="${{ secrets.AZURE_SEARCH_SERVICE }}"
+          SEARCH_SVC="${SEARCH_RAW#https://}"
+          SEARCH_SVC="${SEARCH_SVC#http://}"
+          SEARCH_SVC="${SEARCH_SVC%%/*}"
+          SEARCH_SVC="${SEARCH_SVC%%.search.windows.net}"
+          echo "search_service=${SEARCH_SVC}" >> $GITHUB_OUTPUT
+
+          SEARCH_ID=$(az resource list --resource-type "Microsoft.Search/searchServices" --name "${SEARCH_SVC}" --query "[0].id" -o tsv)
+          if [ -z "${SEARCH_ID}" ]; then
+            echo "Search service '${SEARCH_SVC}' was not found in the current subscription."
+            exit 1
+          fi
+          SEARCH_RG=$(echo "${SEARCH_ID}" | sed -E 's|.*/resourceGroups/([^/]+)/.*|\1|')
+          echo "search_resource_group=${SEARCH_RG}" >> $GITHUB_OUTPUT
+          echo "Resolved search service '${SEARCH_SVC}' in resource group '${SEARCH_RG}'"
+
           CAPP_NAME="capps-backend-gz2m4s637t5me"
 
           CAPP_IPS=$(az containerapp show -g "${SEARCH_RG}" -n "${CAPP_NAME}" \
@@ -294,9 +309,11 @@ jobs:
         if: always()
         run: |
           RUNNER_IP="${{ steps.firewall.outputs.runner_ip }}"
+          SEARCH_SVC="${{ steps.firewall.outputs.search_service }}"
+          SEARCH_RG="${{ steps.firewall.outputs.search_resource_group }}"
           if [ -n "${RUNNER_IP}" ]; then
             echo "Removing runner IP ${RUNNER_IP} from search service firewall..."
-            az search service update -g "rg-cpr-rag-uksouth" -n "${{ secrets.AZURE_SEARCH_SERVICE }}" \
+            az search service update -g "${SEARCH_RG}" -n "${SEARCH_SVC}" \
               --ip-rules "" 2>&1 || echo "Warning: failed to remove IP rule"
             echo "Search firewall cleaned up."
           fi
