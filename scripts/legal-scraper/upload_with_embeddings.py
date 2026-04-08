@@ -87,6 +87,22 @@ def create_embeddings_with_retry(client, texts: list, model: str):
     """Create embeddings with automatic retry on rate limit errors."""
     return client.embeddings.create(input=texts, model=model)
 
+def normalize_openai_endpoint(raw: str) -> str:
+    """Normalize AZURE_OPENAI_SERVICE value to a full https endpoint URL.
+
+    Handles all common formats:
+      'myservice'                                  -> 'https://myservice.openai.azure.com'
+      'myservice.openai.azure.com'                 -> 'https://myservice.openai.azure.com'
+      'https://myservice.openai.azure.com'         -> 'https://myservice.openai.azure.com'
+      'https://myservice.openai.azure.com/'        -> 'https://myservice.openai.azure.com'
+    """
+    value = raw.strip().rstrip("/")
+    if value.startswith("https://"):
+        return value
+    if value.endswith(".openai.azure.com"):
+        return f"https://{value}"
+    return f"https://{value}.openai.azure.com"
+
 def generate_embeddings(documents: list) -> list:
     """Generate embeddings for documents that are missing them."""
     
@@ -96,13 +112,14 @@ def generate_embeddings(documents: list) -> list:
         
     logger.info(f"Generating embeddings for {len(docs_to_embed)} documents...")
     
-    endpoint = Config.AZURE_OPENAI_SERVICE
-    if not endpoint.startswith("https://"):
-        endpoint = f"https://{endpoint}.openai.azure.com"
+    endpoint = normalize_openai_endpoint(Config.AZURE_OPENAI_SERVICE)
+    logger.info(f"OpenAI endpoint: {endpoint}")
         
     deployment = Config.AZURE_OPENAI_EMB_DEPLOYMENT
+    logger.info(f"Embedding deployment: {deployment}")
     
     if Config.AZURE_OPENAI_KEY:
+        logger.info("Using API key for OpenAI authentication")
         client = AzureOpenAI(
             api_key=Config.AZURE_OPENAI_KEY,
             api_version="2023-05-15",
@@ -112,8 +129,17 @@ def generate_embeddings(documents: list) -> list:
         )
     else:
         # Use DefaultAzureCredential which supports Environment, WorkloadIdentity (OIDC), ManagedIdentity, and AzureCLI
+        logger.info("Using DefaultAzureCredential for OpenAI authentication")
+        credential = DefaultAzureCredential()
+        # Pre-test token acquisition so failures are logged clearly
+        try:
+            token = credential.get_token("https://cognitiveservices.azure.com/.default")
+            logger.info(f"✅ Token acquired for cognitiveservices scope (expires {token.expires_on})")
+        except Exception as e:
+            logger.error(f"❌ Failed to get token for cognitiveservices scope: {e}")
+            raise
         token_provider = get_bearer_token_provider(
-            DefaultAzureCredential(), "https://cognitiveservices.azure.com/.default"
+            credential, "https://cognitiveservices.azure.com/.default"
         )
         client = AzureOpenAI(
             azure_ad_token_provider=token_provider,
@@ -122,6 +148,20 @@ def generate_embeddings(documents: list) -> list:
             max_retries=3,
             timeout=120.0
         )
+    
+    # Quick connectivity test with a single short text
+    logger.info("Testing OpenAI embedding endpoint connectivity...")
+    try:
+        test_resp = client.embeddings.create(input=["test"], model=deployment)
+        logger.info(f"✅ Connectivity test passed (got {len(test_resp.data[0].embedding)}-dim vector)")
+    except Exception as e:
+        logger.error(f"❌ Connectivity test FAILED: {type(e).__name__}: {e}")
+        # Log the full exception chain for diagnosis
+        cause = e.__cause__ or e.__context__
+        while cause:
+            logger.error(f"  Caused by: {type(cause).__name__}: {cause}")
+            cause = getattr(cause, '__cause__', None) or getattr(cause, '__context__', None)
+        raise
         
     # Process in batches optimized for high rate limits
     # With 12,000 requests/min and 2M tokens/min, we can be aggressive
@@ -151,7 +191,11 @@ def generate_embeddings(documents: list) -> list:
             if i + batch_size < len(docs_to_embed):
                 time.sleep(0.5)  # 0.5 second delay between batches
         except Exception as e:
-            logger.error(f"❌ Error generating embeddings for batch {i//batch_size + 1}: {e}")
+            logger.error(f"❌ Error generating embeddings for batch {i//batch_size + 1}: {type(e).__name__}: {e}")
+            cause = e.__cause__ or e.__context__
+            while cause:
+                logger.error(f"  Caused by: {type(cause).__name__}: {cause}")
+                cause = getattr(cause, '__cause__', None) or getattr(cause, '__context__', None)
             logger.warning(f"Skipping {len(batch)} documents in this batch")
             
     logger.info(f"Embedding generation complete: {success_count}/{len(docs_to_embed)} successful")
