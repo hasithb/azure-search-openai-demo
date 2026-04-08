@@ -35,10 +35,10 @@ env:
 jobs:
   # ──────────────────────────────────────────────────────────────────────────────
   # Step 1: Scrape CPR documents from legislation.gov.uk and validate
+  # (No approval required — this step does not touch Azure resources)
   # ──────────────────────────────────────────────────────────────────────────────
   scrape-and-validate:
     runs-on: ubuntu-latest
-    environment: Production
     outputs:
       validation_status: ${{ steps.validate.outputs.status }}
     steps:
@@ -87,16 +87,14 @@ jobs:
           retention-days: 7
 
   # ──────────────────────────────────────────────────────────────────────────────
-  # Step 2: Diff analysis — show what would change in the index
+  # Step 2: Diff analysis + Upload to production index v3
+  # (Requires Production environment approval — single gate for all Azure ops)
   # ──────────────────────────────────────────────────────────────────────────────
-  diff-analysis:
+  upload-to-index:
     needs: scrape-and-validate
     if: needs.scrape-and-validate.result == 'success'
     runs-on: ubuntu-latest
     environment: Production
-    outputs:
-      has_changes: ${{ steps.diff.outputs.has_changes }}
-      validation_ok: ${{ steps.check.outputs.validation_ok }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -146,7 +144,7 @@ jobs:
             echo "validation_ok=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Create job summary
+      - name: Create diff summary
         if: always()
         run: |
           echo "## 📋 Index v3 Update Report" >> $GITHUB_STEP_SUMMARY
@@ -173,47 +171,25 @@ jobs:
           path: data/legal-scraper/reports/
           retention-days: 30
 
-  # ──────────────────────────────────────────────────────────────────────────────
-  # Step 3: Upload to production index v3
-  # ──────────────────────────────────────────────────────────────────────────────
-  upload-to-index:
-    needs: [scrape-and-validate, diff-analysis]
-    if: |
-      github.event.inputs.dry_run != 'true' &&
-      needs.diff-analysis.result == 'success' &&
-      (needs.diff-analysis.outputs.validation_ok == 'true' || github.event.inputs.force_upload == 'true')
-    runs-on: ubuntu-latest
-    environment: Production
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
-          cache-dependency-path: 'requirements-dev.txt'
-
-      - name: Install dependencies
+      - name: Gate upload on validation and dry_run
+        id: gate
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements-dev.txt
-
-      - name: Download CPR data
-        uses: actions/download-artifact@v4
-        with:
-          name: cpr-scraped-data
-          path: data/legal-scraper/processed/Upload/
-
-      - name: Azure Login
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            echo "🔍 Dry-run mode — skipping upload."
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          validation="${{ steps.check.outputs.validation_ok }}"
+          force="${{ github.event.inputs.force_upload }}"
+          if [ "$validation" != "true" ] && [ "$force" != "true" ]; then
+            echo "❌ Validation failed and force_upload not set — skipping upload."
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          echo "skip=false" >> $GITHUB_OUTPUT
 
       - name: Upload to index v3
+        if: steps.gate.outputs.skip != 'true'
         uses: nick-fields/retry@v3
         with:
           timeout_minutes: 45
