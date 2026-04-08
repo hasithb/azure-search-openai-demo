@@ -39,6 +39,21 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Index field detection
+_INDEX_FIELDS: set[str] | None = None
+
+
+def load_index_fields(endpoint: str, index_name: str):
+    """Fetch field names from the deployed index to avoid sending unsupported fields."""
+    global _INDEX_FIELDS
+    from azure.search.documents.indexes import SearchIndexClient
+    from azure.identity import DefaultAzureCredential
+
+    idx_client = SearchIndexClient(endpoint=endpoint, credential=DefaultAzureCredential())
+    idx = idx_client.get_index(index_name)
+    _INDEX_FIELDS = {f.name for f in idx.fields}
+    logger.info("Index fields: %s", sorted(_INDEX_FIELDS))
+
 def load_documents_from_files(input_dir: str) -> list:
     """Load all JSON documents from input directory."""
     documents = []
@@ -251,7 +266,7 @@ def map_document_to_schema(doc: dict) -> dict:
         if header_lines:
             content = "\n".join(header_lines) + "\n\n" + content
         
-    return {
+    result = {
         "id": sanitized_id,
         "content": content,
         "embedding": doc.get("embedding", []),
@@ -261,11 +276,18 @@ def map_document_to_schema(doc: dict) -> dict:
         "storageUrl": doc.get("storageUrl", ""),
         "oids": doc.get("oids", []) if doc.get("oids") else [],
         "groups": doc.get("groups", []) if doc.get("groups") else [],
-        "parent_id": doc.get("parent_id", ""),
-        "subsection_id": subsection_id,
-        "subsections": subsections,
-        "updated": doc.get("updated", ""),
     }
+    # Only include extended fields if the target index supports them
+    if _INDEX_FIELDS is not None:
+        for fname, val in [
+            ("parent_id", doc.get("parent_id", "")),
+            ("subsection_id", subsection_id),
+            ("subsections", subsections),
+            ("updated", doc.get("updated", "")),
+        ]:
+            if fname in _INDEX_FIELDS:
+                result[fname] = val
+    return result
 
 def validate_documents(documents: list, check_embeddings: bool = False) -> tuple[list, list]:
     """Validate documents before upload. Returns (valid, invalid).
@@ -344,7 +366,9 @@ def filter_changed_documents(client, documents: list) -> tuple[list, int, int, i
     new_count = 0
     changed_count = 0
     
-    select_fields = ["id", "content", "sourcefile", "sourcepage", "category", "storageUrl", "updated"]
+    select_fields = ["id", "content", "sourcefile", "sourcepage", "category", "storageUrl"]
+    if _INDEX_FIELDS is not None and "updated" in _INDEX_FIELDS:
+        select_fields.append("updated")
     
     for doc in documents:
         doc_id = doc["id"]
@@ -415,7 +439,10 @@ def upload_to_azure_search(index_name: str, documents: list, batch_size: int = 1
             if dry_run:
                 logger.info("Dry run: Would create index (not implemented in this script)")
             return 0
-        
+
+        # Load index field schema to avoid sending unsupported fields
+        load_index_fields(endpoint, index_name)
+
         # Configure Search Client
         client = SearchClient(endpoint=endpoint, index_name=index_name, credential=credential)
         

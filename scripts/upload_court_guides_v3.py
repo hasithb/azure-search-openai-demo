@@ -211,7 +211,7 @@ def map_doc(doc: dict, id_prefix: str = "") -> dict:
     raw_id = doc.get("id", "")
     full_id = f"{id_prefix}___{raw_id}" if id_prefix else raw_id
 
-    return {
+    result = {
         "id": sanitize_id(full_id),
         "content": content,
         "embedding": [],  # filled later
@@ -221,11 +221,41 @@ def map_doc(doc: dict, id_prefix: str = "") -> dict:
         "storageUrl": doc.get("storageUrl", "") or "",
         "oids": [],
         "groups": [],
-        "parent_id": "",
-        "subsection_id": subsection_id,
-        "subsections": subsections,
-        "updated": doc.get("updated", "") or "",
     }
+    # Only include extended fields if the target index has them
+    if index_has_field("parent_id"):
+        result["parent_id"] = ""
+    if index_has_field("subsection_id"):
+        result["subsection_id"] = subsection_id
+    if index_has_field("subsections"):
+        result["subsections"] = subsections
+    if index_has_field("updated"):
+        result["updated"] = doc.get("updated", "") or ""
+    return result
+
+
+# ---------------------------------------------------------------------------
+# Index field detection
+# ---------------------------------------------------------------------------
+_INDEX_FIELDS: set[str] | None = None
+
+
+def load_index_fields(endpoint: str, index_name: str):
+    """Fetch the field names from the deployed index schema."""
+    global _INDEX_FIELDS
+    from azure.identity import DefaultAzureCredential
+    from azure.search.documents.indexes import SearchIndexClient
+
+    idx_client = SearchIndexClient(endpoint=endpoint, credential=DefaultAzureCredential())
+    index = idx_client.get_index(index_name)
+    _INDEX_FIELDS = {f.name for f in index.fields}
+    logger.info("Index fields: %s", sorted(_INDEX_FIELDS))
+
+
+def index_has_field(name: str) -> bool:
+    if _INDEX_FIELDS is None:
+        return False  # conservative: omit unknown fields
+    return name in _INDEX_FIELDS
 
 
 # ---------------------------------------------------------------------------
@@ -439,6 +469,9 @@ def main():
     logger.info("Target: %s / %s", endpoint, index_name)
     if args.dry_run:
         logger.info("*** DRY RUN — no changes will be made ***")
+
+    # Load index schema so we only send fields that exist
+    load_index_fields(endpoint, index_name)
 
     # ── 1. Load new docs ────────────────────────────────────────────────
     logger.info("── Step 1: Loading new docs from %s", INPUT_DIR)

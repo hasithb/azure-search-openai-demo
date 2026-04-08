@@ -27,12 +27,25 @@ from customizations.subsection_extractor import SubsectionExtractor
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
+# Index field detection
+_INDEX_FIELDS: set[str] | None = None
+
+
+def load_index_fields():
+    global _INDEX_FIELDS
+    idx_client = SearchIndexClient(endpoint=ENDPOINT, credential=DefaultAzureCredential())
+    index = idx_client.get_index(INDEX_NAME)
+    _INDEX_FIELDS = {f.name for f in index.fields}
+    logger.info("Index fields: %s", sorted(_INDEX_FIELDS))
+
+
 INPUT_FILE = os.path.join(
     os.path.dirname(__file__), '..', 'data', 'legal-scraper', 'processed', 'Upload',
     'Circuit-Commercial-Court-Guide-2023-web_processed.json'
 )
 INDEX_NAME = os.getenv("AZURE_SEARCH_INDEX", "legal-court-rag-index-v3")
-ENDPOINT = "https://cpr-rag.search.windows.net"
+_SEARCH_SERVICE = os.getenv("AZURE_SEARCH_SERVICE", "gptkb-gz2m4s637t5me")
+ENDPOINT = f"https://{_SEARCH_SERVICE}.search.windows.net"
 
 
 def sanitize_id(doc_id):
@@ -55,7 +68,7 @@ def map_to_index_schema(doc):
     content = doc.get("content", "")
     if isinstance(content, list):
         content = "\n".join(content)
-    return {
+    result = {
         "id": sanitize_id(doc.get("id", "")),
         "content": content,
         "embedding": doc.get("embedding", []),
@@ -65,11 +78,18 @@ def map_to_index_schema(doc):
         "storageUrl": doc.get("storageUrl", ""),
         "oids": doc.get("oids", []) or [],
         "groups": doc.get("groups", []) or [],
-        "parent_id": doc.get("parent_id", "") or "",
-        "subsection_id": doc.get("subsection_id", "") or "",
-        "subsections": doc.get("subsections", []) or [],
-        "updated": doc.get("updated", "") or "",
     }
+    # Only include extended fields if the target index supports them
+    if _INDEX_FIELDS is not None:
+        for fname, val in [
+            ("parent_id", doc.get("parent_id", "") or ""),
+            ("subsection_id", doc.get("subsection_id", "") or ""),
+            ("subsections", doc.get("subsections", []) or []),
+            ("updated", doc.get("updated", "") or ""),
+        ]:
+            if fname in _INDEX_FIELDS:
+                result[fname] = val
+    return result
 
 
 def main():
@@ -77,6 +97,8 @@ def main():
     parser = argparse.ArgumentParser(description="Upload Circuit Commercial Court Guide to v3 index")
     parser.add_argument("--dry-run", action="store_true", help="Preview without uploading")
     args = parser.parse_args()
+
+    load_index_fields()
 
     # Load
     logger.info(f"Loading: {INPUT_FILE}")

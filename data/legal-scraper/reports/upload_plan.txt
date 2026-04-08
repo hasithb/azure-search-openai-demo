@@ -3,20 +3,96 @@
 ============================================================
 
 Target Index: legal-court-rag-index-v3
-Timestamp:    2026-03-22 19:33:15
+Timestamp:    2026-04-08 09:28:40
 
 ------------------------------------------------------------
                     SUMMARY
 ------------------------------------------------------------
 Total Documents Scraped:    920
-✨ New Documents:           0
-📝 Changed Documents:       0
-⏭️  Unchanged Documents:     0
+✨ New Documents:           548
+📝 Changed Documents:       299
+⏭️  Unchanged Documents:     73
 ------------------------------------------------------------
 
 ============================================================
-✅ NO ACTION REQUIRED: INDEX IS UP TO DATE
+⚠️  ACTION REQUIRED: DIFFERENCES DETECTED
 ============================================================
 
-All scraped documents match the current Azure Search index.
-No embedding generation or upload is needed.
+There are 847 document(s) that need to be updated.
+The following sections require embedding generation and upload:
+
+NEW DOCUMENTS (to be added):
+----------------------------------------
+  1. the_business_and_property_courts_of_england_wales
+  2. the_business_and_property_courts_of_england_wales_1
+  3. foreword
+  4. introduction
+  5. a1_the_procedural_framework
+  6. a2_the_admiralty_commercial_registry_the_commercial_court_listing_office
+  7. a3_the_commercial_court_users_committee
+  8. b1_commercial_cases
+  9. b2_starting_a_case_in_the_commercial_court_and_electronic_working_ce_file
+  10. b3_preaction_protocols
+  11. b4_part_7_claims
+  12. b5_part_8_claims
+  13. b6_part_20_claims
+  14. b7_service_of_the_claim_form
+  15. b8_service_of_the_claim_form_out_of_the_jurisdiction
+  16. b9_acknowledgment_of_service
+  17. b10_disputing_the_courts_jurisdiction
+  18. b11_default_judgment
+  19. b12_admissions
+  20. b13_transfer_of_cases_into_and_out_of_the_commercial_court
+  21. b14_location_of_hearings_before_the_commercial_court
+  22. c1_form_and_content
+  23. c2_serving_and_filing_particulars_of_claim
+  24. c3_serving_and_filing_a_defence
+  25. c4_serving_and_filing_a_reply_defences_to_counterclaims
+  26. c5_amendment
+  27. c6_use_of_statements_of_case_for_case_management
+  28. d1_generally
+  29. d2_key_features_of_case_management_in_the_commercial_court
+  30. d3_fixing_a_case_management_conference
+  ... and 817 more
+
+CHANGED DOCUMENTS (to be updated):
+----------------------------------------
+  1. the_business_and_property_courts_of_england_wales
+  2. the_business_and_property_courts_of_england_wales_1
+  3. foreword
+  4. introduction
+  5. a1_the_procedural_framework
+  6. a2_the_admiralty_commercial_registry_the_commercial_court_listing_office
+  7. a3_the_commercial_court_users_committee
+  8. b1_commercial_cases
+  9. b2_starting_a_case_in_the_commercial_court_and_electronic_working_ce_file
+  10. b3_preaction_protocols
+  11. b4_part_7_claims
+  12. b5_part_8_claims
+  13. b6_part_20_claims
+  14. b7_service_of_the_claim_form
+  15. b8_service_of_the_claim_form_out_of_the_jurisdiction
+  16. b9_acknowledgment_of_service
+  17. b10_disputing_the_courts_jurisdiction
+  18. b11_default_judgment
+  19. b12_admissions
+  20. b13_transfer_of_cases_into_and_out_of_the_commercial_court
+  21. b14_location_of_hearings_before_the_commercial_court
+  22. c1_form_and_content
+  23. c2_serving_and_filing_particulars_of_claim
+  24. c3_serving_and_filing_a_defence
+  25. c4_serving_and_filing_a_reply_defences_to_counterclaims
+  26. c5_amendment
+  27. c6_use_of_statements_of_case_for_case_management
+  28. d1_generally
+  29. d2_key_features_of_case_management_in_the_commercial_court
+  30. d3_fixing_a_case_management_conference
+  ... and 817 more
+
+============================================================
+NEXT STEPS:
+  1. Review the changes above
+  2. Approve the upload job in GitHub Actions
+  3. Embeddings will be generated for changed docs only
+  4. Documents will be uploaded to Azure Search
+============================================================
