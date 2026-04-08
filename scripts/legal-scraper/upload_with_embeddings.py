@@ -495,6 +495,18 @@ def upload_to_azure_search(index_name: str, documents: list, batch_size: int = 1
             except Exception as e:
                 logger.error(f"❌ Failed to get token for search.azure.com scope: {e}")
                 raise
+
+            # Diagnostic: raw HTTP test for data-plane document access
+            import httpx
+            try:
+                test_url = f"{endpoint}/indexes('{index_name}')/docs?api-version=2023-11-01&search=*&$top=1&$select=id"
+                diag_resp = httpx.get(test_url, headers={"Authorization": f"Bearer {search_token.token}"}, timeout=15)
+                logger.info(f"🔍 Data-plane doc probe: HTTP {diag_resp.status_code}")
+                if diag_resp.status_code != 200:
+                    logger.error(f"   Response body: {diag_resp.text[:500]}")
+                    logger.error(f"   WWW-Authenticate: {diag_resp.headers.get('WWW-Authenticate', 'N/A')}")
+            except Exception as e:
+                logger.warning(f"🔍 Data-plane doc probe failed: {e}")
         
         if not endpoint:
             logger.error("Azure Search endpoint not configured")
