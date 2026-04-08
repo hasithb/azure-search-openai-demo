@@ -114,6 +114,10 @@ def generate_embeddings(documents: list) -> list:
     
     endpoint = normalize_openai_endpoint(Config.AZURE_OPENAI_SERVICE)
     logger.info(f"OpenAI endpoint: {endpoint}")
+    # Log URL shape info that won't be masked by GitHub Actions
+    from urllib.parse import urlparse
+    parsed = urlparse(endpoint)
+    logger.info(f"Endpoint hostname length: {len(parsed.hostname or '')}, dot-count: {(parsed.hostname or '').count('.')}")
         
     deployment = Config.AZURE_OPENAI_EMB_DEPLOYMENT
     logger.info(f"Embedding deployment: {deployment}")
@@ -151,6 +155,16 @@ def generate_embeddings(documents: list) -> list:
     
     # Quick connectivity test with a single short text
     logger.info("Testing OpenAI embedding endpoint connectivity...")
+    # Pre-check DNS resolution to give a clear error if hostname is wrong
+    import socket
+    try:
+        hostname = urlparse(endpoint).hostname
+        addrs = socket.getaddrinfo(hostname, 443)
+        logger.info(f"✅ DNS resolved {hostname} ({len(addrs)} address(es))")
+    except socket.gaierror as e:
+        logger.error(f"❌ DNS resolution failed for hostname '{hostname}': {e}")
+        logger.error(f"   Raw AZURE_OPENAI_SERVICE value length: {len(Config.AZURE_OPENAI_SERVICE)}")
+        raise RuntimeError(f"Cannot resolve OpenAI hostname '{hostname}'. Check AZURE_OPENAI_SERVICE secret value.") from e
     try:
         test_resp = client.embeddings.create(input=["test"], model=deployment)
         logger.info(f"✅ Connectivity test passed (got {len(test_resp.data[0].embedding)}-dim vector)")
