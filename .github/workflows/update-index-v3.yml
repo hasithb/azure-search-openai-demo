@@ -225,6 +225,14 @@ jobs:
           IMAGE_TAG="legal-scraper-uploader:${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           CONTAINER_NAME="legal-scraper-uploader-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
 
+          # Extract Azure service config from the deployed container app
+          # (more reliable than separate GitHub secrets)
+          SEARCH_SERVICE=$(az containerapp show -g "${APP_RG}" -n "${APP_NAME}" --query "properties.template.containers[0].env[?name=='AZURE_SEARCH_SERVICE'].value | [0]" -o tsv)
+          OPENAI_SERVICE=$(az containerapp show -g "${APP_RG}" -n "${APP_NAME}" --query "properties.template.containers[0].env[?name=='AZURE_OPENAI_SERVICE'].value | [0]" -o tsv)
+          OPENAI_EMB_DEPLOYMENT=$(az containerapp show -g "${APP_RG}" -n "${APP_NAME}" --query "properties.template.containers[0].env[?name=='AZURE_OPENAI_EMB_DEPLOYMENT'].value | [0]" -o tsv)
+
+          echo "Resolved: SEARCH_SERVICE=${SEARCH_SERVICE} OPENAI_SERVICE=${OPENAI_SERVICE} EMB_DEPLOYMENT=${OPENAI_EMB_DEPLOYMENT}"
+
           echo "app_resource_group=${APP_RG}" >> $GITHUB_OUTPUT
           echo "registry_server=${REGISTRY_SERVER}" >> $GITHUB_OUTPUT
           echo "acr_name=${ACR_NAME}" >> $GITHUB_OUTPUT
@@ -232,6 +240,9 @@ jobs:
           echo "client_id=${CLIENT_ID}" >> $GITHUB_OUTPUT
           echo "image_tag=${IMAGE_TAG}" >> $GITHUB_OUTPUT
           echo "container_name=${CONTAINER_NAME}" >> $GITHUB_OUTPUT
+          echo "search_service=${SEARCH_SERVICE}" >> $GITHUB_OUTPUT
+          echo "openai_service=${OPENAI_SERVICE}" >> $GITHUB_OUTPUT
+          echo "openai_emb_deployment=${OPENAI_EMB_DEPLOYMENT}" >> $GITHUB_OUTPUT
 
       - name: Build Azure uploader image
         run: |
@@ -263,10 +274,10 @@ jobs:
             --memory 4 \
             --environment-variables \
               AZURE_CLIENT_ID="${{ steps.azure-uploader.outputs.client_id }}" \
-              AZURE_SEARCH_SERVICE="${{ secrets.AZURE_SEARCH_SERVICE }}" \
+              AZURE_SEARCH_SERVICE="${{ steps.azure-uploader.outputs.search_service }}" \
               AZURE_SEARCH_INDEX="${{ env.AZURE_SEARCH_INDEX }}" \
-              AZURE_OPENAI_SERVICE="${{ secrets.AZURE_OPENAI_SERVICE }}" \
-              AZURE_OPENAI_EMB_DEPLOYMENT="${{ secrets.AZURE_OPENAI_EMB_DEPLOYMENT }}" \
+              AZURE_OPENAI_SERVICE="${{ steps.azure-uploader.outputs.openai_service }}" \
+              AZURE_OPENAI_EMB_DEPLOYMENT="${{ steps.azure-uploader.outputs.openai_emb_deployment }}" \
             --command-line "python scripts/legal-scraper/upload_with_embeddings.py --input Upload" \
             --no-wait \
             -o none
@@ -290,10 +301,21 @@ jobs:
             sleep 15
           done
 
-          az container logs \
-            -g "${{ steps.azure-uploader.outputs.app_resource_group }}" \
-            -n "${{ steps.azure-uploader.outputs.container_name }}" \
-            > data/legal-scraper/processed/upload_statistics.txt || true
+          # Retry log retrieval (Azure ACI logs endpoint can return transient 500s)
+          for log_attempt in 1 2 3; do
+            if az container logs \
+              -g "${{ steps.azure-uploader.outputs.app_resource_group }}" \
+              -n "${{ steps.azure-uploader.outputs.container_name }}" \
+              > data/legal-scraper/processed/upload_statistics.txt 2>&1; then
+              break
+            fi
+            echo "Log retrieval attempt ${log_attempt} failed, retrying in 5s..."
+            sleep 5
+          done
+
+          echo "=== Container logs ==="
+          cat data/legal-scraper/processed/upload_statistics.txt || true
+          echo "=== End container logs ==="
 
           if [ "${terminated}" != "true" ]; then
             echo "Container did not reach a terminated state in time."
