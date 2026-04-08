@@ -87,12 +87,101 @@ jobs:
           retention-days: 7
 
   # ──────────────────────────────────────────────────────────────────────────────
-  # Step 2: Diff analysis + Upload to production index v3
-  # (Requires Production environment approval — single gate for all Azure ops)
+  # Step 2: Diff analysis only
+  # (No approval required — read-only comparison against the current index)
   # ──────────────────────────────────────────────────────────────────────────────
-  upload-to-index:
+  diff-analysis:
     needs: scrape-and-validate
     if: needs.scrape-and-validate.result == 'success'
+    runs-on: ubuntu-latest
+    outputs:
+      has_changes: ${{ steps.diff.outputs.has_changes }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: 'requirements-dev.txt'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Download CPR data
+        uses: actions/download-artifact@v4
+        with:
+          name: cpr-scraped-data
+          path: data/legal-scraper/processed/Upload/
+
+      - name: Run diff analysis (dry run)
+        id: diff
+        run: |
+          python scripts/legal-scraper/upload_with_embeddings.py --input Upload --dry-run
+        env:
+          AZURE_SEARCH_SERVICE: ${{ secrets.AZURE_SEARCH_SERVICE }}
+          AZURE_SEARCH_INDEX: ${{ env.AZURE_SEARCH_INDEX }}
+          AZURE_OPENAI_SERVICE: ${{ secrets.AZURE_OPENAI_SERVICE }}
+          AZURE_OPENAI_EMB_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_EMB_DEPLOYMENT }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+
+      - name: Create diff summary
+        if: always()
+        run: |
+          echo "## 📋 Index v3 Update Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Target Index:** \`${{ env.AZURE_SEARCH_INDEX }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Run Date:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "**Source:** CPR (Civil Procedure Rules, Practice Directions, Pre-Action Protocols)" >> $GITHUB_STEP_SUMMARY
+          echo "**Validation Status:** ${{ needs.scrape-and-validate.outputs.validation_status }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            echo "**Approval:** Not required for this run because \`dry_run\` is enabled." >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ steps.diff.outputs.has_changes }}" != "true" ]; then
+            echo "**Approval:** Not required because the diff found no index changes." >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ needs.scrape-and-validate.outputs.validation_status }}" != "success" ] && [ "${{ github.event.inputs.force_upload }}" != "true" ]; then
+            echo "**Approval:** Not required because validation failed and \`force_upload\` was not enabled." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Approval:** A single Production approval will be requested before the upload job starts." >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f "data/legal-scraper/reports/upload_plan.txt" ]; then
+            echo "### Diff Analysis" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat data/legal-scraper/reports/upload_plan.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ No diff report generated." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload diff report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diff-report
+          path: data/legal-scraper/reports/
+          retention-days: 30
+
+  # ──────────────────────────────────────────────────────────────────────────────
+  # Step 3: Upload to production index v3
+  # (Requires Production environment approval only when a write will occur)
+  # ──────────────────────────────────────────────────────────────────────────────
+  upload-to-index:
+    needs: [scrape-and-validate, diff-analysis]
+    if: >-
+      needs.scrape-and-validate.result == 'success' &&
+      needs.diff-analysis.result == 'success' &&
+      github.event.inputs.dry_run != 'true' &&
+      needs.diff-analysis.outputs.has_changes == 'true' &&
+      (needs.scrape-and-validate.outputs.validation_status == 'success' || github.event.inputs.force_upload == 'true')
     runs-on: ubuntu-latest
     environment: Production
     steps:
@@ -134,28 +223,23 @@ jobs:
           SEARCH_SVC="${{ secrets.AZURE_SEARCH_SERVICE }}"
           CAPP_NAME="capps-backend-gz2m4s637t5me"
 
-          # Collect Container App outbound IPs to keep live app working
           CAPP_IPS=$(az containerapp show -g "${SEARCH_RG}" -n "${CAPP_NAME}" \
             --query "properties.outboundIpAddresses" -o tsv 2>/dev/null | tr '\t' '\n' | sort -u | head -100)
           echo "Container App outbound IPs count: $(echo "$CAPP_IPS" | wc -l)"
 
-          # Build comma-separated IP list: runner + container app outbound IPs + admin IP
           ALL_IPS="${RUNNER_IP},90.241.195.154"
           for ip in ${CAPP_IPS}; do
             ALL_IPS="${ALL_IPS},${ip}"
           done
           echo "Total IPs for whitelist: $(echo "${ALL_IPS}" | tr ',' '\n' | wc -l)"
 
-          # Add IPs to search service firewall
           echo "Adding IPs to search service firewall..."
           az search service update -g "${SEARCH_RG}" -n "${SEARCH_SVC}" \
             --ip-rules "${ALL_IPS}" 2>&1
 
-          # Wait for propagation
           echo "Waiting 30s for firewall propagation..."
           sleep 30
 
-          # Test data plane access
           TOKEN=$(python3 -c "
           from azure.identity import ClientSecretCredential
           c = ClientSecretCredential('${{ secrets.AZURE_TENANT_ID }}', '${{ secrets.AZURE_CLIENT_ID }}', '${{ secrets.AZURE_CLIENT_SECRET }}')
@@ -167,78 +251,8 @@ jobs:
             -H "Authorization: Bearer ${TOKEN}" \
             "${SEARCH_EP}/indexes('${{ env.AZURE_SEARCH_INDEX }}')/docs?\$top=1&\$select=id&api-version=2023-11-01")
           echo "Doc access after IP whitelist: HTTP ${STATUS}"
-        env:
-          AZURE_SEARCH_SERVICE: ${{ secrets.AZURE_SEARCH_SERVICE }}
-
-      - name: Run diff analysis (dry run)
-        id: diff
-        run: |
-          python scripts/legal-scraper/upload_with_embeddings.py --input Upload --dry-run
-        env:
-          AZURE_SEARCH_SERVICE: ${{ secrets.AZURE_SEARCH_SERVICE }}
-          AZURE_SEARCH_INDEX: ${{ env.AZURE_SEARCH_INDEX }}
-          AZURE_OPENAI_SERVICE: ${{ secrets.AZURE_OPENAI_SERVICE }}
-          AZURE_OPENAI_EMB_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_EMB_DEPLOYMENT }}
-          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-
-      - name: Check validation status
-        id: check
-        run: |
-          validation="${{ needs.scrape-and-validate.outputs.validation_status }}"
-          if [ "$validation" = "success" ]; then
-            echo "validation_ok=true" >> $GITHUB_OUTPUT
-          else
-            echo "validation_ok=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Create diff summary
-        if: always()
-        run: |
-          echo "## 📋 Index v3 Update Report" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Target Index:** \`${{ env.AZURE_SEARCH_INDEX }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "**Run Date:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
-          echo "**Source:** CPR (Civil Procedure Rules, Practice Directions, Pre-Action Protocols)" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-
-          if [ -f "data/legal-scraper/reports/upload_plan.txt" ]; then
-            echo "### Diff Analysis" >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            cat data/legal-scraper/reports/upload_plan.txt >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-          else
-            echo "⚠️ No diff report generated." >> $GITHUB_STEP_SUMMARY
-          fi
-
-      - name: Upload diff report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: diff-report
-          path: data/legal-scraper/reports/
-          retention-days: 30
-
-      - name: Gate upload on validation and dry_run
-        id: gate
-        run: |
-          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
-            echo "🔍 Dry-run mode — skipping upload."
-            echo "skip=true" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-          validation="${{ steps.check.outputs.validation_ok }}"
-          force="${{ github.event.inputs.force_upload }}"
-          if [ "$validation" != "true" ] && [ "$force" != "true" ]; then
-            echo "❌ Validation failed and force_upload not set — skipping upload."
-            echo "skip=true" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-          echo "skip=false" >> $GITHUB_OUTPUT
 
       - name: Upload to index v3
-        if: steps.gate.outputs.skip != 'true'
         uses: nick-fields/retry@v3
         with:
           timeout_minutes: 45
