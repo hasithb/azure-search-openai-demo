@@ -124,40 +124,58 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Diagnostic - test search data plane RBAC
+      - name: Diagnostic - test search data plane auth
         run: |
-          echo "=== Search data-plane RBAC diagnostic ==="
+          echo "=== Search data-plane auth diagnostic ==="
           SEARCH_EP="https://${{ secrets.AZURE_SEARCH_SERVICE }}.search.windows.net"
-          TOKEN=$(az account get-access-token --resource https://search.azure.com --query accessToken -o tsv)
-          echo "Token length: ${#TOKEN}"
 
-          # Decode JWT claims (header.payload.sig - decode payload)
-          echo "--- JWT token claims ---"
-          PAYLOAD=$(echo "$TOKEN" | cut -d'.' -f2 | tr '_-' '/+' | base64 -d 2>/dev/null || echo "$TOKEN" | cut -d'.' -f2 | tr '_-' '/+' | python3 -c "import sys,base64,json; p=sys.stdin.read().strip(); p+='='*(4-len(p)%4); print(json.dumps(json.loads(base64.b64decode(p)),indent=2))")
-          echo "$PAYLOAD" | python3 -c "import sys,base64,json; raw=sys.stdin.read().strip(); padded=raw+'='*(4-len(raw)%4); claims=json.loads(base64.urlsafe_b64decode(padded)); print('aud:', claims.get('aud')); print('iss:', claims.get('iss')); print('appid:', claims.get('appid')); print('oid:', claims.get('oid')); print('sub:', claims.get('sub')); print('roles:', claims.get('roles')); print('scp:', claims.get('scp')); print('xms_r:', claims.get('xms_r'))" 2>/dev/null || echo "(JWT decode failed, trying alternative)"
+          # Get token via ClientSecretCredential (direct client_credentials grant)
+          CS_TOKEN=$(python3 -c "
+          from azure.identity import ClientSecretCredential
+          c = ClientSecretCredential('${{ secrets.AZURE_TENANT_ID }}', '${{ secrets.AZURE_CLIENT_ID }}', '${{ secrets.AZURE_CLIENT_SECRET }}')
+          t = c.get_token('https://search.azure.com/.default')
+          print(t.token)
+          ")
+          echo "ClientSecret token length: ${#CS_TOKEN}"
 
-          # Test document access with full response headers
-          echo "--- Doc access (curl -i) ---"
-          curl -s -i -H "Authorization: Bearer ${TOKEN}" \
-            "${SEARCH_EP}/indexes('${{ env.AZURE_SEARCH_INDEX }}')/docs?\$top=1&\$select=id&api-version=2023-11-01" 2>&1 | head -30
+          # Also get OIDC token via az CLI for comparison
+          AZ_TOKEN=$(az account get-access-token --resource https://search.azure.com --query accessToken -o tsv)
+          echo "AzCLI token length: ${#AZ_TOKEN}"
 
-          # Test index management
-          echo "--- Idx management ---"
-          IDX_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            -H "Authorization: Bearer ${TOKEN}" \
-            "${SEARCH_EP}/indexes('${{ env.AZURE_SEARCH_INDEX }}')?api-version=2023-11-01&\$select=name")
-          echo "Idx management HTTP: ${IDX_STATUS}"
+          # Decode both JWT payloads
+          echo "--- ClientSecret token claims ---"
+          echo "$CS_TOKEN" | python3 -c "
+          import sys,base64,json
+          t=sys.stdin.read().strip().split('.')[1]
+          t+='='*(4-len(t)%4)
+          c=json.loads(base64.urlsafe_b64decode(t))
+          for k in ['aud','iss','appid','azp','oid','sub','idtyp','ver','tid']:
+            if k in c: print(f'{k}: {c[k]}')
+          "
 
-          # List role assignments for SP on search service
-          echo "--- RBAC assignments on search service ---"
-          SP_OID=$(az ad sp show --id $(az account show --query user.name -o tsv) --query id -o tsv 2>/dev/null)
-          echo "SP OID: ${SP_OID}"
-          SEARCH_RID="/subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/rg-cpr-rag-uksouth/providers/Microsoft.Search/searchServices/${{ secrets.AZURE_SEARCH_SERVICE }}"
-          az role assignment list --assignee "${SP_OID}" --scope "${SEARCH_RID}" -o table 2>&1 || echo "Could not list role assignments"
+          echo "--- AzCLI token claims ---"
+          echo "$AZ_TOKEN" | python3 -c "
+          import sys,base64,json
+          t=sys.stdin.read().strip().split('.')[1]
+          t+='='*(4-len(t)%4)
+          c=json.loads(base64.urlsafe_b64decode(t))
+          for k in ['aud','iss','appid','azp','oid','sub','idtyp','ver','tid']:
+            if k in c: print(f'{k}: {c[k]}')
+          "
 
-          # Check for deny assignments
-          echo "--- Deny assignments ---"
-          az rest --method GET --url "${SEARCH_RID}/providers/Microsoft.Authorization/denyAssignments?api-version=2022-04-01" --query "value[].{name:denyAssignmentName,principal:principals[0].id}" -o table 2>&1 || echo "No deny assignments or cannot check"
+          # Test doc access with ClientSecret token
+          echo "--- Doc access (ClientSecret) ---"
+          CS_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: Bearer ${CS_TOKEN}" \
+            "${SEARCH_EP}/indexes('${{ env.AZURE_SEARCH_INDEX }}')/docs?\$top=1&\$select=id&api-version=2023-11-01")
+          echo "HTTP: ${CS_STATUS}"
+
+          # Test doc access with AzCLI token
+          echo "--- Doc access (AzCLI) ---"
+          AZ_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: Bearer ${AZ_TOKEN}" \
+            "${SEARCH_EP}/indexes('${{ env.AZURE_SEARCH_INDEX }}')/docs?\$top=1&\$select=id&api-version=2023-11-01")
+          echo "HTTP: ${AZ_STATUS}"
         env:
           AZURE_SEARCH_SERVICE: ${{ secrets.AZURE_SEARCH_SERVICE }}
 
@@ -170,6 +188,9 @@ jobs:
           AZURE_SEARCH_INDEX: ${{ env.AZURE_SEARCH_INDEX }}
           AZURE_OPENAI_SERVICE: ${{ secrets.AZURE_OPENAI_SERVICE }}
           AZURE_OPENAI_EMB_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_EMB_DEPLOYMENT }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
 
       - name: Check validation status
         id: check
@@ -238,6 +259,9 @@ jobs:
           AZURE_SEARCH_INDEX: ${{ env.AZURE_SEARCH_INDEX }}
           AZURE_OPENAI_SERVICE: ${{ secrets.AZURE_OPENAI_SERVICE }}
           AZURE_OPENAI_EMB_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_EMB_DEPLOYMENT }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
 
       - name: Upload statistics
         if: always()

@@ -479,9 +479,17 @@ def upload_to_azure_search(index_name: str, documents: list, batch_size: int = 1
         if key:
             credential = AzureKeyCredential(key)
         else:
-            # Use AzureCliCredential first in CI (avoids 10s IMDS timeout),
-            # fall back to DefaultAzureCredential for local dev.
-            if os.getenv("GITHUB_ACTIONS"):
+            # In CI with client secret available, use ClientSecretCredential
+            # (OIDC federated tokens from azure/login don't work for search data plane).
+            # Otherwise use AzureCliCredential in CI, DefaultAzureCredential locally.
+            client_secret = os.getenv("AZURE_CLIENT_SECRET")
+            tenant_id = os.getenv("AZURE_TENANT_ID")
+            client_id = os.getenv("AZURE_CLIENT_ID")
+            if client_secret and tenant_id and client_id:
+                from azure.identity import ClientSecretCredential
+                logger.info("Using ClientSecretCredential for search data plane auth")
+                credential = ClientSecretCredential(tenant_id=tenant_id, client_id=client_id, client_secret=client_secret)
+            elif os.getenv("GITHUB_ACTIONS"):
                 logger.info("GitHub Actions detected — using AzureCliCredential directly")
                 credential = AzureCliCredential()
             else:
