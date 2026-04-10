@@ -282,6 +282,8 @@ param enforceAccessControl bool = false
 param disableAppServicesAuthentication bool = false
 param enableGlobalDocuments bool = false
 param enableUnauthenticatedAccess bool = false
+@description('Allows the hosting platform to serve the SPA shell without login while backend APIs still require authentication unless AZURE_ENABLE_UNAUTHENTICATED_ACCESS is also enabled.')
+param enableHostUnauthenticatedAccess bool = enableUnauthenticatedAccess
 param serverAppId string = ''
 @secure()
 param serverAppSecret string = ''
@@ -605,7 +607,7 @@ module backend 'core/host/appservice.bicep' = if (deploymentTarget == 'appservic
     allowedOrigins: allowedOrigins
     clientAppId: clientAppId
     serverAppId: serverAppId
-    enableUnauthenticatedAccess: enableUnauthenticatedAccess
+    enableUnauthenticatedAccess: enableHostUnauthenticatedAccess
     disableAppServicesAuthentication: disableAppServicesAuthentication
     clientSecretSettingName: !empty(clientAppSecret) ? 'AZURE_CLIENT_APP_SECRET' : ''
     authenticationIssuerUri: authenticationIssuerUri
@@ -694,7 +696,7 @@ module acaAuth 'core/host/container-apps-auth.bicep' = if (deploymentTarget == '
     serverAppId: serverAppId
     clientSecretSettingName: !empty(clientAppSecret) ? 'azureclientappsecret' : ''
     authenticationIssuerUri: authenticationIssuerUri
-    enableUnauthenticatedAccess: enableUnauthenticatedAccess
+    enableUnauthenticatedAccess: enableHostUnauthenticatedAccess
     blobContainerUri: 'https://${storageAccountName}.blob.${environment().suffixes.storage}/${tokenStorageContainerName}'
     appIdentityResourceId: (deploymentTarget == 'appservice') ? '' : acaBackend!.outputs.identityResourceId
   }

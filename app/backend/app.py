@@ -115,7 +115,16 @@ mimetypes.add_type("text/css", ".css")
 
 @bp.route("/")
 async def index():
-    return await bp.send_static_file("index.html")
+    response = await bp.send_static_file("index.html")
+    # CUSTOM: Prevent browsers from caching the SPA shell so auth config
+    # changes (e.g. toggling platform-level auth) take effect immediately.
+    response.cache_control.public = False
+    response.cache_control.max_age = None
+    response.headers["Expires"] = "0"
+    response.cache_control.no_cache = True
+    response.cache_control.no_store = True
+    response.cache_control.must_revalidate = True
+    return response
 
 
 # Empty page is recommended for login redirect to work.

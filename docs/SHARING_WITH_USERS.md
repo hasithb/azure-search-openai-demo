@@ -239,6 +239,7 @@ python ./scripts/manageacl.py -v --acl-type oids --acl-action remove_all \
 | `AZURE_USE_AUTHENTICATION` | `true` | Authentication enabled |
 | `AZURE_ENFORCE_ACCESS_CONTROL` | `true` | Document ACLs enforced |
 | `AZURE_ENABLE_UNAUTHENTICATED_ACCESS` | `true` | Allows browsing without login |
+| `AZURE_ENABLE_HOST_UNAUTHENTICATED_ACCESS` | `true` | Lets the host serve the shell without login while backend APIs can still require auth |
 
 ***
 

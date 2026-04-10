@@ -1,0 +1,347 @@
+{
+  "status": 403,
+  "elapsed_s": 115.909,
+  "current_url": "https://capps-backend-gz2m4s637t5me.nicedune-921e8a19.uksouth.azurecontainerapps.io/",
+  "request_url": "https://capps-backend-gz2m4s637t5me.nicedune-921e8a19.uksouth.azurecontainerapps.io/chat/stream",
+  "authorization_header_present": false,
+  "request_json": {
+    "messages": [
+      {
+        "content": "What is the test for relief from sanctions under CPR 3.9?",
+        "role": "user"
+      }
+    ],
+    "context": {
+      "overrides": {
+        "include_category": "Civil Procedure Rules and Practice Directions",
+        "top": 10,
+        "retrieval_reasoning_effort": "low",
+        "temperature": 0.3,
+        "minimum_reranker_score": 1.9,
+        "minimum_search_score": 0,
+        "retrieval_mode": "hybrid",
+        "semantic_ranker": true,
+        "semantic_captions": false,
+        "query_rewriting": true,
+        "reasoning_effort": "low",
+        "suggest_followup_questions": false,
+        "search_text_embeddings": true,
+        "search_image_embeddings": false,
+        "send_text_sources": true,
+        "send_image_sources": false,
+        "language": "en",
+        "use_agentic_knowledgebase": true,
+        "use_web_source": false,
+        "use_sharepoint_source": false
+      }
+    },
+    "session_state": null
+  },
+  "response_text": "<!doctype html>\n<html lang=en>\n<title>403 Forbidden</title>\n<h1>Forbidden</h1>\n<p>You don&#39;t have the permission to access the requested resource. It is either read-protected or not readable by the server.</p>\n",
+  "attempts": [
+    {
+      "status": "loaded_config",
+      "useLogin": true,
+      "enableUnauthenticatedAccess": false,
+      "showAgenticRetrievalOption": true
+    },
+    {
+      "status": "sign_in_button_visible"
+    },
+    {
+      "status": "login_popup_opened",
+      "current_url": "about:blank"
+    },
+    {
+      "status": "login_popup_url",
+      "current_url": "about:blank",
+      "body_snippet": ""
+    },
+    {
+      "status": "login_popup_url",
+      "current_url": "https://login.microsoftonline.com/3bfe16b2-5fcc-4565-b1f1-15271d20fecf/oauth2/v2.0/authorize?client_id=1d382868-51d6-4200-a4ba-3a7b94ecb2d3&scope=.default%20openid%20profile%20offline_access&redirect_uri=https%3A%2F%2Fcapps-backend-gz2m4s637t5me.nicedune-921e8a19.uksouth.azurecontainerapps.io%2Fredirect&client-request-id=019d77e5-166d-7fd9-8b50-4933ca9bac31&response_mode=fragment&client_info=1&nonce=019d77e5-17a4-71c5-86a0-65051e5a7e91&state=eyJpZCI6IjAxOWQ3N2U1LTE3YTEtNzJhNS04ZmY2LTg5OWM3Y2MwZjc4OSIsIm1ldGEiOnsiaW50ZXJhY3Rpb25UeXBlIjoicG9wdXAifX0%3D&x-client-SKU=msal.js.browser&x-client-VER=4.16.0&response_type=code&code_challenge=lH0mrieYGK52dbA80ZQsT44Yu8jjT1goAoWI_Yi9Q1U&code_challenge_method=S256",
+      "body_snippet": "Sign in\nCan\u2019t access your account?\n\t\nSign-in options\n\n\nTerms of use Privacy & cookies ..."
+    },
+    {
+      "status": "login_popup_body",
+      "body_snippet": "Sign in\nCan\u2019t access your account?\n\t\nSign-in options\n\n\nTerms of use Privacy & cookies ..."
+    },
+    {
+      "status": "submitted_email"
+    },
+    {
+      "status": "login_popup_url",
+      "current_url": "https://login.microsoft.com/consumers/fido/get?mkt=EN-US&lc=1033&uiflavor=web",
+      "body_snippet": "Face, fingerprint, PIN or security key\nYour device will open a security window. Follow the instructions there to sign in.\n \n\n\nTerms of use Privacy & cookies ..."
+    },
+    {
+      "status": "login_popup_body",
+      "body_snippet": "Face, fingerprint, PIN or security key\nYour device will open a security window. Follow the instructions there to sign in.\n \n\n\nTerms of use Privacy & cookies ..."
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "back_from_passkey"
+    },
+    {
+      "status": "login_popup_timeout",
+      "current_url": "https://login.microsoft.com/consumers/fido/get?mkt=EN-US&lc=1033&uiflavor=web"
+    },
+    {
+      "status": "question_filled"
+    },
+    {
+      "status": "chat_response",
+      "response_status": 403,
+      "elapsed_s": 115.909,
+      "authorization_header_present": false
+    }
+  ]
+}

@@ -290,6 +290,9 @@
     "enableUnauthenticatedAccess": {
       "value": "${AZURE_ENABLE_UNAUTHENTICATED_ACCESS=false}"
     },
+    "enableHostUnauthenticatedAccess": {
+      "value": "${AZURE_ENABLE_HOST_UNAUTHENTICATED_ACCESS=${AZURE_ENABLE_UNAUTHENTICATED_ACCESS=false}}"
+    },
     "authTenantId": {
       "value": "${AZURE_AUTH_TENANT_ID}"
     },
