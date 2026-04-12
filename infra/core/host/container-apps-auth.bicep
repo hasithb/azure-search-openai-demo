@@ -13,8 +13,7 @@ param serverAppId string = ''
 param clientSecretSettingName string = ''
 param authenticationIssuerUri string = ''
 param enableUnauthenticatedAccess bool = false
-param blobContainerUri string = ''
-param appIdentityResourceId string = ''
+
 
 // .default must be the 1st scope for On-Behalf-Of-Flow combined consent to work properly
 // Please see https://learn.microsoft.com/entra/identity-platform/v2-oauth2-on-behalf-of-flow#default-and-combined-consent
@@ -56,13 +55,10 @@ resource auth 'Microsoft.App/containerApps/authConfigs@2024-10-02-preview' = {
       }
     }
     login: {
-      // https://learn.microsoft.com/azure/container-apps/token-store
+      // CUSTOM: token store disabled - encrypted session cookies used instead
+      // Blob Storage token store caused OAuth callback failures (redirect loop / white screen)
       tokenStore: {
-        enabled: true
-        azureBlobStorage: {
-          blobContainerUri: blobContainerUri
-          managedIdentityResourceId: appIdentityResourceId
-        }
+        enabled: false
       }
     }
   }

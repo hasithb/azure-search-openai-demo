@@ -554,6 +554,7 @@ var appEnvVariables = {
   AZURE_ENFORCE_ACCESS_CONTROL: enforceAccessControl
   AZURE_ENABLE_GLOBAL_DOCUMENT_ACCESS: enableGlobalDocuments
   AZURE_ENABLE_UNAUTHENTICATED_ACCESS: enableUnauthenticatedAccess
+  AZURE_ENABLE_HOST_UNAUTHENTICATED_ACCESS: enableHostUnauthenticatedAccess
   AZURE_SERVER_APP_ID: serverAppId
   AZURE_CLIENT_APP_ID: clientAppId
   AZURE_TENANT_ID: tenantId
@@ -697,8 +698,6 @@ module acaAuth 'core/host/container-apps-auth.bicep' = if (deploymentTarget == '
     clientSecretSettingName: !empty(clientAppSecret) ? 'azureclientappsecret' : ''
     authenticationIssuerUri: authenticationIssuerUri
     enableUnauthenticatedAccess: enableHostUnauthenticatedAccess
-    blobContainerUri: 'https://${storageAccountName}.blob.${environment().suffixes.storage}/${tokenStorageContainerName}'
-    appIdentityResourceId: (deploymentTarget == 'appservice') ? '' : acaBackend!.outputs.identityResourceId
   }
 }
 

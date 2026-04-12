@@ -28,6 +28,7 @@ MockSearchIndex = SearchIndex(
 def create_authentication_helper(
     enforce_access_control: bool = False,
     enable_unauthenticated_access: bool = False,
+    host_enforces_authentication: bool = False,
 ):
     return AuthenticationHelper(
         search_index=MockSearchIndex,
@@ -38,6 +39,7 @@ def create_authentication_helper(
         tenant_id="TENANT_ID",
         enforce_access_control=enforce_access_control,
         enable_unauthenticated_access=enable_unauthenticated_access,
+        host_enforces_authentication=host_enforces_authentication,
     )
 
 
@@ -92,6 +94,25 @@ async def test_get_auth_claims_success_no_required(mock_confidential_client_succ
 
 
 @pytest.mark.asyncio
+async def test_get_auth_claims_success_from_client_principal(mock_confidential_client_success, mock_validate_token_success):
+    helper = create_authentication_helper(enforce_access_control=False, host_enforces_authentication=True)
+    principal = {
+        "auth_typ": "aad",
+        "claims": [
+            {"typ": "http://schemas.microsoft.com/identity/claims/objectidentifier", "val": "OID_FROM_PRINCIPAL"},
+            {"typ": "preferred_username", "val": "jane.doe@example.com"},
+        ],
+        "userId": "OID_FROM_PRINCIPAL",
+        "userDetails": "jane.doe@example.com",
+    }
+    encoded_principal = base64.b64encode(json.dumps(principal).encode("utf-8")).decode("utf-8")
+
+    auth_claims = await helper.get_auth_claims_if_enabled(headers={"x-ms-client-principal": encoded_principal})
+
+    assert auth_claims == {"oid": "OID_FROM_PRINCIPAL", "preferred_username": "jane.doe@example.com"}
+
+
+@pytest.mark.asyncio
 async def test_get_auth_claims_unauthorized(mock_confidential_client_unauthorized, mock_validate_token_success):
     helper = create_authentication_helper()
     with pytest.raises(AuthError) as exc_info:
@@ -134,6 +155,23 @@ def test_get_auth_token(mock_confidential_client_success, mock_validate_token_su
     assert exc_info.value.status_code == 401
     assert AuthenticationHelper.get_token_auth_header({"Authorization": "Bearer MockToken"}) == "MockToken"
     AuthenticationHelper.get_token_auth_header({"x-ms-token-aad-access-token": "MockToken"}) == "MockToken"
+
+
+def test_get_client_principal_claims(mock_confidential_client_success, mock_validate_token_success):
+    principal = {
+        "claims": [
+            {"typ": "oid", "val": "OID_X"},
+            {"typ": "preferred_username", "val": "john.doe@example.com"},
+        ],
+        "userId": "OID_X",
+        "userDetails": "john.doe@example.com",
+    }
+    encoded_principal = base64.b64encode(json.dumps(principal).encode("utf-8")).decode("utf-8")
+
+    assert AuthenticationHelper.get_client_principal_claims({"x-ms-client-principal": encoded_principal}) == {
+        "oid": "OID_X",
+        "preferred_username": "john.doe@example.com",
+    }
 
 
 @pytest.mark.asyncio

@@ -94,8 +94,11 @@ These files are not merge-safe by design. They must be reviewed during upstream 
 The following upstream-owned files currently carry active customization hooks and should be reviewed after every upstream merge:
 
 - `app/backend/app.py`
+- `app/backend/core/authentication.py`
 - `app/backend/approaches/approach.py`
 - `app/backend/approaches/chatreadretrieveread.py`
+- `app/frontend/src/authConfig.ts`
+- `app/frontend/src/components/LoginButton/LoginButton.tsx`
 - `app/frontend/src/pages/chat/Chat.tsx`
 - `app/frontend/src/pages/layout/Layout.tsx`
 - `app/frontend/src/components/QuestionInput/QuestionInput.tsx`
@@ -187,7 +190,15 @@ The current frontend divergence from upstream is broader than just legal logic.
 - `HelpAboutPanel.tsx` is mounted in the layout shell rather than being chat-page only
 - `index.tsx` imports `mobile.css` globally
 
-### 6. Admin-mode and debugging affordances
+### 6. Hosted authentication UX
+
+This fork now distinguishes between optional client-side MSAL login and hosting-platform-enforced login.
+
+- When Azure Container Apps Easy Auth is configured to require Microsoft sign-in before the SPA loads, the deployed frontend suppresses the redundant in-app `Sign in` action.
+- In that hosted mode, the UI keeps logout available through `/.auth/logout` and uses same-origin authenticated requests instead of forcing a second browser token flow.
+- Local development still keeps the MSAL-based login path for non-hosted environments such as `localhost`.
+
+### 7. Admin-mode and debugging affordances
 
 Frontend feature flags in `config.ts` govern:
 
@@ -199,7 +210,7 @@ Frontend feature flags in `config.ts` govern:
 
 `isAdminMode()` also supports a `?admin=true` URL override, which gates developer-facing controls such as settings and thought-process visibility.
 
-### 7. Retrieval behavior and prompt awareness
+### 8. Retrieval behavior and prompt awareness
 
 Backend customization flags in `app/backend/customizations/config.py` currently include:
 
