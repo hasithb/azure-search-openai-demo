@@ -13,7 +13,7 @@ import "./customizations/mobile.css";
 import Chat from "./pages/chat/Chat";
 import LayoutWrapper from "./layoutWrapper";
 import i18next from "./i18n/config";
-import { msalConfig, useLogin } from "./authConfig";
+import { msalConfig, useMsalLogin } from "./authConfig";
 
 const router = createHashRouter([
     {
@@ -38,7 +38,7 @@ const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement)
 (async () => {
     let msalInstance: PublicClientApplication | undefined;
 
-    if (useLogin) {
+    if (useMsalLogin) {
         msalInstance = new PublicClientApplication(msalConfig);
         try {
             await msalInstance.initialize();
@@ -69,7 +69,7 @@ const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement)
         <React.StrictMode>
             <I18nextProvider i18n={i18next}>
                 <HelmetProvider>
-                    {useLogin && msalInstance ? (
+                    {useMsalLogin && msalInstance ? (
                         <MsalProvider instance={msalInstance}>
                             <RouterProvider router={router} />
                         </MsalProvider>

@@ -71,7 +71,7 @@ export function getCitationFilePath(citation: string): string {
     return `/content/${encodeURIComponent(citation)}`;
 }
 
-export async function uploadFileApi(request: FormData, idToken: string): Promise<SimpleAPIResponse> {
+export async function uploadFileApi(request: FormData, idToken: string | undefined): Promise<SimpleAPIResponse> {
     const response = await fetch("/upload", {
         method: "POST",
         headers: await getHeaders(idToken),
@@ -86,7 +86,7 @@ export async function uploadFileApi(request: FormData, idToken: string): Promise
     return dataResponse;
 }
 
-export async function deleteUploadedFileApi(filename: string, idToken: string): Promise<SimpleAPIResponse> {
+export async function deleteUploadedFileApi(filename: string, idToken: string | undefined): Promise<SimpleAPIResponse> {
     const headers = await getHeaders(idToken);
     const response = await fetch("/delete_uploaded", {
         method: "POST",
@@ -102,7 +102,7 @@ export async function deleteUploadedFileApi(filename: string, idToken: string): 
     return dataResponse;
 }
 
-export async function listUploadedFilesApi(idToken: string): Promise<string[]> {
+export async function listUploadedFilesApi(idToken: string | undefined): Promise<string[]> {
     const response = await fetch(`/list_uploaded`, {
         method: "GET",
         headers: await getHeaders(idToken)
@@ -116,7 +116,7 @@ export async function listUploadedFilesApi(idToken: string): Promise<string[]> {
     return dataResponse;
 }
 
-export async function postChatHistoryApi(item: any, idToken: string): Promise<any> {
+export async function postChatHistoryApi(item: any, idToken: string | undefined): Promise<any> {
     const headers = await getHeaders(idToken);
     const response = await fetch("/chat_history", {
         method: "POST",
@@ -132,7 +132,11 @@ export async function postChatHistoryApi(item: any, idToken: string): Promise<an
     return dataResponse;
 }
 
-export async function getChatHistoryListApi(count: number, continuationToken: string | undefined, idToken: string): Promise<HistoryListApiResponse> {
+export async function getChatHistoryListApi(
+    count: number,
+    continuationToken: string | undefined,
+    idToken: string | undefined
+): Promise<HistoryListApiResponse> {
     const headers = await getHeaders(idToken);
     let url = `${BACKEND_URI}/chat_history/sessions?count=${count}`;
     if (continuationToken) {
@@ -152,7 +156,7 @@ export async function getChatHistoryListApi(count: number, continuationToken: st
     return dataResponse;
 }
 
-export async function getChatHistoryApi(id: string, idToken: string): Promise<HistoryApiResponse> {
+export async function getChatHistoryApi(id: string, idToken: string | undefined): Promise<HistoryApiResponse> {
     const headers = await getHeaders(idToken);
     const response = await fetch(`/chat_history/sessions/${id}`, {
         method: "GET",
@@ -167,7 +171,7 @@ export async function getChatHistoryApi(id: string, idToken: string): Promise<Hi
     return dataResponse;
 }
 
-export async function deleteChatHistoryApi(id: string, idToken: string): Promise<any> {
+export async function deleteChatHistoryApi(id: string, idToken: string | undefined): Promise<any> {
     const headers = await getHeaders(idToken);
     const response = await fetch(`/chat_history/sessions/${id}`, {
         method: "DELETE",

@@ -7,10 +7,10 @@ const appServicesAuthTokenRefreshUrl = ".auth/refresh";
 const appServicesAuthLogoutUrl = ".auth/logout?post_logout_redirect_uri=/";
 
 interface AppServicesToken {
-    id_token: string;
-    access_token: string;
+    id_token?: string;
+    access_token?: string;
     user_claims: Record<string, any>;
-    expires_on: string;
+    expires_on?: string;
 }
 
 interface AuthSetup {
@@ -20,6 +20,8 @@ interface AuthSetup {
     requireAccessControl: boolean;
     // Set to true if the application allows unauthenticated access (only applies for documents without access control)
     enableUnauthenticatedAccess: boolean;
+    // Set to true when the hosting platform already forced sign-in before the SPA loaded.
+    hostEnforcesAuthentication: boolean;
     /**
      * Configuration object to be passed to MSAL instance on creation.
      * For a full list of MSAL.js configuration parameters, visit:
@@ -58,6 +60,7 @@ async function fetchAuthSetup(): Promise<AuthSetup> {
         useLogin: false,
         requireAccessControl: false,
         enableUnauthenticatedAccess: true,
+        hostEnforcesAuthentication: false,
         msalConfig: {
             auth: {
                 clientId: "",
@@ -95,6 +98,15 @@ export const enableUnauthenticatedAccess = authSetup.enableUnauthenticatedAccess
 
 export const requireLogin = requireAccessControl && !enableUnauthenticatedAccess;
 
+const isLocalDevelopmentHost = (() => {
+    const host = window.location.hostname;
+    return host === "localhost" || host === "127.0.0.1" || host.endsWith(".local");
+})();
+
+export const usePlatformAuth = useLogin && authSetup.hostEnforcesAuthentication && !isLocalDevelopmentHost;
+
+export const useMsalLogin = useLogin && !usePlatformAuth;
+
 /**
  * Configuration object to be passed to MSAL instance on creation.
  * For a full list of MSAL.js configuration parameters, visit:
@@ -117,6 +129,37 @@ export const getRedirectUri = () => {
     return window.location.origin + authSetup.msalConfig.auth.redirectUri;
 };
 
+const buildUserClaims = (claims: Array<Record<string, any>> | undefined): Record<string, any> => {
+    return (claims ?? []).reduce((acc: Record<string, any>, item: Record<string, any>) => {
+        if (item?.typ) {
+            acc[item.typ] = item.val;
+        }
+        return acc;
+    }, {});
+};
+
+const parseAppServicesToken = (payload: unknown): AppServicesToken | null => {
+    if (Array.isArray(payload) && payload.length > 0) {
+        const token = (payload[0] ?? {}) as Record<string, any>;
+        return {
+            id_token: token["id_token"] as string | undefined,
+            access_token: token["access_token"] as string | undefined,
+            user_claims: buildUserClaims(token["user_claims"] as Array<Record<string, any>> | undefined),
+            expires_on: token["expires_on"] as string | undefined
+        };
+    }
+
+    if (payload && typeof payload === "object" && "clientPrincipal" in payload) {
+        const principal = (payload as Record<string, any>)["clientPrincipal"] as Record<string, any>;
+        return {
+            user_claims: buildUserClaims(principal?.["claims"] as Array<Record<string, any>> | undefined),
+            expires_on: principal?.["expiresOn"] as string | undefined
+        };
+    }
+
+    return null;
+};
+
 // Cache the app services token if it's available
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this#global_context
 declare global {
@@ -133,6 +176,9 @@ globalThis.cachedAppServicesToken = null;
  */
 const getAppServicesToken = (): Promise<AppServicesToken | null> => {
     const checkNotExpired = (appServicesToken: AppServicesToken) => {
+        if (!appServicesToken.expires_on) {
+            return true;
+        }
         const currentDate = new Date();
         const expiresOnDate = new Date(appServicesToken.expires_on);
         return expiresOnDate > currentDate;
@@ -144,8 +190,12 @@ const getAppServicesToken = (): Promise<AppServicesToken | null> => {
     }
 
     // Skip when running locally (no App Service /.auth endpoints)
-    const host = window.location.hostname;
-    if (host === "localhost" || host === "127.0.0.1" || host.endsWith(".local")) {
+    if (isLocalDevelopmentHost) {
+        return Promise.resolve(null);
+    }
+
+    // Hosted Easy Auth already gated the app; Container Apps does not expose /.auth/me the same way App Service does.
+    if (usePlatformAuth) {
         return Promise.resolve(null);
     }
 
@@ -157,20 +207,7 @@ const getAppServicesToken = (): Promise<AppServicesToken | null> => {
         return fetch(appServicesAuthTokenUrl)
             .then(r => {
                 if (r.ok) {
-                    return r.json().then(json => {
-                        if (json.length > 0) {
-                            return {
-                                id_token: json[0]["id_token"] as string,
-                                access_token: json[0]["access_token"] as string,
-                                user_claims: json[0]["user_claims"].reduce((acc: Record<string, any>, item: Record<string, any>) => {
-                                    acc[item.typ] = item.val;
-                                    return acc;
-                                }, {}) as Record<string, any>,
-                                expires_on: json[0]["expires_on"] as string
-                            } as AppServicesToken;
-                        }
-                        return null;
-                    });
+                    return r.json().then(json => parseAppServicesToken(json));
                 }
                 return null;
             })
@@ -191,7 +228,7 @@ const getAppServicesToken = (): Promise<AppServicesToken | null> => {
 
 // Replace eager top-level probe with lazy, guarded init
 // export const isUsingAppServicesLogin = (await getAppServicesToken()) != null;
-export let isUsingAppServicesLogin = false;
+export let isUsingAppServicesLogin = usePlatformAuth;
 (async () => {
     try {
         if (useLogin) {
@@ -214,6 +251,10 @@ export const appServicesLogout = () => {
  * @returns {Promise<boolean>} A promise that resolves to true if the user is logged in, false otherwise.
  */
 export const checkLoggedIn = async (client: IPublicClientApplication | undefined): Promise<boolean> => {
+    if (usePlatformAuth) {
+        return true;
+    }
+
     if (client) {
         try {
             const activeAccount = client.getActiveAccount();
@@ -239,8 +280,12 @@ export const checkLoggedIn = async (client: IPublicClientApplication | undefined
 // Use the access token from app services login if available
 export const getToken = async (client: IPublicClientApplication): Promise<string | undefined> => {
     const appServicesToken = await getAppServicesToken();
-    if (appServicesToken) {
+    if (appServicesToken?.access_token) {
         return Promise.resolve(appServicesToken.access_token);
+    }
+
+    if (usePlatformAuth) {
+        return undefined;
     }
 
     try {

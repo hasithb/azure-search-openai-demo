@@ -454,6 +454,10 @@ async def setup_clients():
     AZURE_USE_AUTHENTICATION = os.getenv("AZURE_USE_AUTHENTICATION", "").lower() == "true"
     AZURE_ENFORCE_ACCESS_CONTROL = os.getenv("AZURE_ENFORCE_ACCESS_CONTROL", "").lower() == "true"
     AZURE_ENABLE_UNAUTHENTICATED_ACCESS = os.getenv("AZURE_ENABLE_UNAUTHENTICATED_ACCESS", "").lower() == "true"
+    AZURE_ENABLE_HOST_UNAUTHENTICATED_ACCESS = (
+        os.getenv("AZURE_ENABLE_HOST_UNAUTHENTICATED_ACCESS", str(AZURE_ENABLE_UNAUTHENTICATED_ACCESS)).lower()
+        == "true"
+    )
     AZURE_SERVER_APP_ID = os.getenv("AZURE_SERVER_APP_ID")
     AZURE_SERVER_APP_SECRET = os.getenv("AZURE_SERVER_APP_SECRET")
     AZURE_CLIENT_APP_ID = os.getenv("AZURE_CLIENT_APP_ID")
@@ -596,6 +600,7 @@ async def setup_clients():
         tenant_id=AZURE_AUTH_TENANT_ID,
         enforce_access_control=AZURE_ENFORCE_ACCESS_CONTROL,
         enable_unauthenticated_access=AZURE_ENABLE_UNAUTHENTICATED_ACCESS,
+        host_enforces_authentication=AZURE_USE_AUTHENTICATION and not AZURE_ENABLE_HOST_UNAUTHENTICATED_ACCESS,
     )
 
     if USE_SPEECH_OUTPUT_AZURE:

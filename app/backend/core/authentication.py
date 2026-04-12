@@ -44,12 +44,14 @@ class AuthenticationHelper:
         tenant_id: Optional[str],
         enforce_access_control: bool = False,
         enable_unauthenticated_access: bool = False,
+        host_enforces_authentication: bool = False,
     ):
         self.use_authentication = use_authentication
         self.server_app_id = server_app_id
         self.server_app_secret = server_app_secret
         self.client_app_id = client_app_id
         self.tenant_id = tenant_id
+        self.host_enforces_authentication = host_enforces_authentication
         self.authority = f"https://login.microsoftonline.com/{tenant_id}"
         # Depending on if requestedAccessTokenVersion is 1 or 2, the issuer and audience of the token may be different
         # See https://learn.microsoft.com/graph/api/resources/apiapplication
@@ -80,6 +82,7 @@ class AuthenticationHelper:
             "useLogin": self.use_authentication,  # Whether or not login elements are enabled on the UI
             "requireAccessControl": self.enforce_access_control,  # Whether or not access control is required to access documents with access control lists
             "enableUnauthenticatedAccess": self.enable_unauthenticated_access,  # Whether or not the user can access the app without login
+            "hostEnforcesAuthentication": self.host_enforces_authentication,
             "msalConfig": {
                 "auth": {
                     "clientId": self.client_app_id,  # Client app id used for login
@@ -135,10 +138,47 @@ class AuthenticationHelper:
 
         raise AuthError(error="Authorization header is expected", status_code=401)
 
+    @staticmethod
+    def get_client_principal_claims(headers: dict) -> Optional[dict[str, Any]]:
+        principal_header = headers.get("x-ms-client-principal")
+        if not principal_header:
+            return None
+
+        principal_json = base64.b64decode(principal_header)
+        principal = json.loads(principal_json)
+        principal_claims = {
+            claim["typ"]: claim["val"]
+            for claim in principal.get("claims", [])
+            if isinstance(claim, dict) and claim.get("typ") and "val" in claim
+        }
+
+        oid = (
+            principal_claims.get("http://schemas.microsoft.com/identity/claims/objectidentifier")
+            or principal_claims.get("oid")
+            or principal.get("userId")
+        )
+        if not oid:
+            return None
+
+        auth_claims: dict[str, Any] = {"oid": oid}
+        preferred_username = (
+            principal_claims.get("preferred_username")
+            or principal_claims.get("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn")
+            or principal.get("userDetails")
+        )
+        if preferred_username:
+            auth_claims["preferred_username"] = preferred_username
+        return auth_claims
+
     async def get_auth_claims_if_enabled(self, headers: dict) -> dict[str, Any]:
         if not self.use_authentication:
             return {}
         try:
+            if not self.enforce_access_control:
+                principal_auth_claims = AuthenticationHelper.get_client_principal_claims(headers)
+                if principal_auth_claims:
+                    return principal_auth_claims
+
             # Read the authentication token from the authorization header and exchange it using the On Behalf Of Flow
             # The scope is set to Azure Search for authentication
             # https://learn.microsoft.com/entra/identity-platform/v2-oauth2-on-behalf-of-flow
