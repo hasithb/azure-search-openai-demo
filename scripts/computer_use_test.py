@@ -1118,6 +1118,14 @@ async def main() -> None:
     parser.add_argument("--task", type=str, default=None, help="Single task to perform (otherwise interactive)")
     parser.add_argument("--suite", choices=sorted(SUITES.keys()), default=None, help="Run a built-in multi-scenario suite")
     parser.add_argument("--headless", action="store_true", help="Run browser in headless mode")
+    parser.add_argument(
+        "--storage-state",
+        type=str,
+        default=None,
+        metavar="FILE",
+        help="Path to a Playwright browser storage-state JSON file (cookies + localStorage). "
+        "Generate one with scripts/save_browser_auth.py when the app requires Easy Auth login.",
+    )
     args = parser.parse_args()
 
     if args.task and args.suite:
@@ -1146,10 +1154,19 @@ async def main() -> None:
             headless=args.headless,
             args=[f"--window-size={DISPLAY_WIDTH},{DISPLAY_HEIGHT}", "--disable-extensions"],
         )
-        context = await browser.new_context(
-            viewport={"width": DISPLAY_WIDTH, "height": DISPLAY_HEIGHT},
-            accept_downloads=False,
-        )
+        context_kwargs: dict[str, Any] = {
+            "viewport": {"width": DISPLAY_WIDTH, "height": DISPLAY_HEIGHT},
+            "accept_downloads": False,
+        }
+        if args.storage_state:
+            storage_state_path = Path(args.storage_state)
+            if not storage_state_path.exists():
+                print(f"ERROR: storage-state file not found: {storage_state_path}")
+                print("Run  python scripts/save_browser_auth.py  first to capture a valid login session.")
+                sys.exit(1)
+            context_kwargs["storage_state"] = str(storage_state_path)
+            print(f"Loading browser session from {storage_state_path}")
+        context = await browser.new_context(**context_kwargs)
         page = await context.new_page()
 
         await page.goto(TARGET_URL, wait_until="domcontentloaded")
