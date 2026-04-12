@@ -57,6 +57,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt
 
+      - name: Reset scrape workspace
+        run: |
+          rm -rf data/legal-scraper/processed/Upload data/legal-scraper/reports
+          mkdir -p data/legal-scraper/processed/Upload data/legal-scraper/reports
+
       - name: Scrape Civil Procedure Rules
         run: python scripts/legal-scraper/scrape_cpr.py
 
@@ -70,6 +75,31 @@ jobs:
             exit 1
           fi
         continue-on-error: true
+
+      - name: Verify CPR-only artifact contents
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          upload_dir = Path("data/legal-scraper/processed/Upload")
+          bad_files = []
+          for path in sorted(upload_dir.glob("*.json")):
+              with path.open("r", encoding="utf-8") as handle:
+                  doc = json.load(handle)
+              if isinstance(doc, list):
+                  sample = doc[0] if doc else {}
+              else:
+                  sample = doc
+              category = sample.get("category")
+              if category != "Civil Procedure Rules and Practice Directions":
+                  bad_files.append(f"{path.name}: {category!r}")
+
+          if bad_files:
+              raise SystemExit(
+                  "Non-CPR files detected in scrape artifact:\n" + "\n".join(bad_files)
+              )
+          PY
 
       - name: Upload scraped data artifact
         uses: actions/upload-artifact@v4
@@ -111,6 +141,11 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt
+
+      - name: Reset diff workspace
+        run: |
+          rm -rf data/legal-scraper/processed/Upload data/legal-scraper/reports
+          mkdir -p data/legal-scraper/processed/Upload data/legal-scraper/reports
 
       - name: Download CPR data
         uses: actions/download-artifact@v4
@@ -199,6 +234,11 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt
+
+      - name: Reset upload workspace
+        run: |
+          rm -rf data/legal-scraper/processed/Upload data/legal-scraper/reports
+          mkdir -p data/legal-scraper/processed/Upload data/legal-scraper/reports
 
       - name: Download CPR data
         uses: actions/download-artifact@v4

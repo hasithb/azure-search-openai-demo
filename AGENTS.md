@@ -160,6 +160,8 @@ Because GitHub-hosted runners were receiving persistent Azure Search data-plane 
 If you modify that workflow, preserve these assumptions unless the underlying Search access issue is fully resolved:
 
 * Diff/scrape can still run on GitHub-hosted runners.
+* Each job must clear `data/legal-scraper/processed/Upload` and `data/legal-scraper/reports` before scraping or downloading artifacts so checked-in sample/output files do not contaminate the CPR artifact.
+* The scrape artifact should contain only `Civil Procedure Rules and Practice Directions` documents; treat any court-guide or other category in that artifact as a workflow bug.
 * Production Search writes should run from Azure, not directly from the GitHub runner.
 * The uploader container relies on the downloaded CPR artifact already being present in the repo workspace before the ACR build step.
 
