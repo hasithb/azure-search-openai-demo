@@ -26,7 +26,7 @@ interface Props {
     isStreaming: boolean;
     // CUSTOM: Optional second arg passes citation content for display enrichment
     //         Optional third arg passes structured metadata for precise matching
-    onCitationClicked: (filePath: string, content?: string, metadata?: StructuredCitationMetadata) => void;
+    onCitationClicked: (filePath: string, content?: string, metadata?: StructuredCitationMetadata, selectionId?: string) => void;
     onThoughtProcessClicked: () => void;
     onSupportingContentClicked: () => void;
     onFollowupQuestionClicked?: (question: string) => void;
@@ -214,6 +214,7 @@ export const Answer = ({
             const supContainer = target.closest(".supContainer") as HTMLElement;
             if (supContainer) {
                 const citationPath = supContainer.getAttribute("data-citation-path");
+                const selectionId = supContainer.getAttribute("data-citation-selection-id") || undefined;
                 const citationText = supContainer.getAttribute("data-citation-text") || supContainer.getAttribute("title") || "";
                 const citationContent = supContainer.getAttribute("data-citation-content") || "";
                 if (citationPath) {
@@ -230,7 +231,7 @@ export const Answer = ({
                         storageUrl: ""
                     };
                     const hasMetadata = metadata.subsectionId || metadata.sourcepage || metadata.sourcefile || metadata.category;
-                    onCitationClicked(citationPath, finalCitationContent || undefined, hasMetadata ? metadata : undefined);
+                    onCitationClicked(citationPath, finalCitationContent || undefined, hasMetadata ? metadata : undefined, selectionId);
                 }
             }
         },
@@ -335,7 +336,12 @@ export const Answer = ({
                                             title={reference}
                                             onClick={e => {
                                                 e.preventDefault();
-                                                onCitationClicked(citationPath || path, matchingSupportingContent?.content || undefined, citMeta);
+                                                onCitationClicked(
+                                                    citationPath || path,
+                                                    matchingSupportingContent?.content || undefined,
+                                                    citMeta,
+                                                    `${citationPath || path}::${displayIndex}`
+                                                );
                                             }}
                                         >
                                             <span className={styles.citationIndexBadge}>[{displayIndex}]</span>

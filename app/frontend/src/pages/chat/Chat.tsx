@@ -94,6 +94,7 @@ const Chat = () => {
     const [error, setError] = useState<unknown>();
 
     const [activeCitation, setActiveCitation] = useState<string>();
+    const [activeCitationSelectionId, setActiveCitationSelectionId] = useState<string>();
     // CUSTOM: Extra citation state for subsection highlighting in Supporting Content
     const [activeCitationContent, setActiveCitationContent] = useState<string>("");
     const [activeCitationLabel, setActiveCitationLabel] = useState<string>("");
@@ -328,6 +329,7 @@ const Chat = () => {
         setRestoredQuestion("");
         setIsLoading(true);
         setActiveCitation(undefined);
+        setActiveCitationSelectionId(undefined);
         setActiveAnalysisPanelTab(undefined);
         setEnableCitationTab(false);
 
@@ -425,6 +427,7 @@ const Chat = () => {
         lastQuestionRef.current = "";
         error && setError(undefined);
         setActiveCitation(undefined);
+        setActiveCitationSelectionId(undefined);
         setActiveAnalysisPanelTab(undefined);
         setEnableCitationTab(false);
         setAnswers([]);
@@ -566,24 +569,29 @@ const Chat = () => {
     };
 
     // CUSTOM: Citation handler — opens Supporting Content tab and highlights matching subsection
-    const onShowCitation = (citation: string, index: number, citationContent?: string, metadata?: StructuredCitationMetadata) => {
+    const onShowCitation = (citation: string, index: number, citationContent?: string, metadata?: StructuredCitationMetadata, selectionId?: string) => {
         // CUSTOM: If citation is blocked from iframe embedding, open in new tab
         if (isIframeBlocked(citation)) {
             window.open(citation, "_blank", "noopener,noreferrer");
             return;
         }
 
+        const normalizedSelectionId = normalizeCitationSelectionText(selectionId);
         const sameSupportingSelection =
-            activeCitation === citation &&
+            (normalizedSelectionId ? normalizeCitationSelectionText(activeCitationSelectionId) === normalizedSelectionId : activeCitation === citation) &&
             activeAnalysisPanelTab === AnalysisPanelTabs.SupportingContentTab &&
             selectedAnswer === index &&
-            normalizeCitationSelectionText(activeCitationContent) === normalizeCitationSelectionText(citationContent) &&
-            sameCitationMetadata(activeCitationMetadata, metadata);
+            (normalizedSelectionId
+                ? true
+                : normalizeCitationSelectionText(activeCitationContent) === normalizeCitationSelectionText(citationContent) &&
+                  sameCitationMetadata(activeCitationMetadata, metadata));
 
         if (sameSupportingSelection) {
+            setActiveCitationSelectionId(undefined);
             setActiveAnalysisPanelTab(undefined);
         } else {
             setActiveCitation(citation);
+            setActiveCitationSelectionId(normalizedSelectionId || undefined);
             setActiveCitationContent(citationContent || "");
             setEnableCitationTab(false);
             // CUSTOM: Store structured metadata for precise SupportingContent matching
@@ -606,6 +614,7 @@ const Chat = () => {
         }
 
         setActiveCitation(citation);
+        setActiveCitationSelectionId(undefined);
         setActiveCitationContent("");
         setActiveCitationLabel(citation);
         setEnableCitationTab(true);

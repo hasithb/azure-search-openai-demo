@@ -447,7 +447,7 @@ const collectCitations = (answer: ChatAppResponse, isStreaming: boolean): { frag
     return { fragments, citations: citationList };
 };
 
-// CUSTOM: 2-arg signature allows passing citation content for display enrichment
+// CUSTOM: The rendered HTML carries a stable selection id so same-document citations remain distinct.
 const renderCitation = (detail: CitationDetail, onCitationClicked: (citationFilePath: string, content?: string) => void) => {
     const stepBadgeLabel = detail.stepSource ?? detail.stepLabel;
     const stepBadgeTitle =
@@ -487,6 +487,7 @@ const renderCitation = (detail: CitationDetail, onCitationClicked: (citationFile
             ? buildCitationPath({ sourcefile: detail.sourcefile, sourcepage: detail.sourcepage, storageurl: detail.storageUrl })
             : "";
     const citationPath = structuredPath || path;
+    const selectionId = `${citationPath}::${detail.index}`;
     return renderToStaticMarkup(
         <span className="citationBadgeContainer">
             <a
@@ -494,6 +495,7 @@ const renderCitation = (detail: CitationDetail, onCitationClicked: (citationFile
                 aria-label={citationAriaLabel}
                 title={detail.reference}
                 data-citation-path={citationPath}
+                data-citation-selection-id={selectionId}
                 data-citation-index={String(detail.index)}
                 data-citation-text={detail.reference}
                 data-citation-content={detail.content ?? ""}
