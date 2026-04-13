@@ -31,10 +31,6 @@ expect.set_options(timeout=15_000)
 
 CITATION_SELECTOR = "a.citation, button.citation, a[class*='citation'], button[class*='citation']"
 
-# Snapshot file paths
-STREAMING_SNAPSHOT = "tests/snapshots/test_app/test_chat_citations_stream/client0/result.jsonlines"
-NONSTREAMING_SNAPSHOT = "tests/snapshots/test_app/test_chat_citations_nonstream/client0/result.json"
-
 # Page title — customized for this legal RAG fork
 PAGE_TITLE = "Civil Procedure Copilot"
 
@@ -182,9 +178,7 @@ class TestCitationsStreaming:
         """Set up mock streaming route and navigate to the app."""
 
         def handle_stream(route: Route):
-            with open(STREAMING_SNAPSHOT) as f:
-                jsonl = f.read()
-            route.fulfill(body=jsonl, status=200, headers={"Transfer-encoding": "Chunked"})
+            route.fulfill(body=DEFAULT_STREAMING_SNAPSHOT, status=200, headers={"Transfer-encoding": "Chunked"})
 
         setup_config_mocks(page)
         page.route("*/**/chat/stream", handle_stream)
@@ -318,9 +312,7 @@ class TestCitationsNonStreaming:
         """Set up mock non-streaming route and navigate to the app."""
 
         def handle_chat(route: Route):
-            with open(NONSTREAMING_SNAPSHOT) as f:
-                json_data = f.read()
-            route.fulfill(body=json_data, status=200)
+            route.fulfill(body=DEFAULT_NONSTREAMING_SNAPSHOT, status=200)
 
         setup_config_mocks(page)
         page.route("*/**/chat", handle_chat)
@@ -370,9 +362,7 @@ class TestCitationStructure:
         """Set up mock streaming route and navigate."""
 
         def handle_stream(route: Route):
-            with open(STREAMING_SNAPSHOT) as f:
-                jsonl = f.read()
-            route.fulfill(body=jsonl, status=200, headers={"Transfer-encoding": "Chunked"})
+            route.fulfill(body=DEFAULT_STREAMING_SNAPSHOT, status=200, headers={"Transfer-encoding": "Chunked"})
 
         setup_config_mocks(page)
         page.route("*/**/chat/stream", handle_stream)
@@ -433,9 +423,7 @@ class TestCitationSwitching:
     @pytest.fixture(autouse=True)
     def setup_route(self, page: Page, live_server_url: str):  # noqa: F811
         def handle_stream(route: Route):
-            with open(STREAMING_SNAPSHOT) as f:
-                jsonl = f.read()
-            route.fulfill(body=jsonl, status=200, headers={"Transfer-encoding": "Chunked"})
+            route.fulfill(body=DEFAULT_STREAMING_SNAPSHOT, status=200, headers={"Transfer-encoding": "Chunked"})
 
         setup_config_mocks(page)
         page.route("*/**/chat/stream", handle_stream)
@@ -619,6 +607,126 @@ def build_streaming_snapshot(sources: list, answer_text: str, question: str = "T
     line3 = json.dumps({"delta": {"content": answer_text, "role": None}})
     line4 = json.dumps({"delta": {"role": "assistant"}, "context": context_block, "session_state": None})
     return f"{line1}\n{line2}\n{line3}\n{line4}\n"
+
+
+def build_nonstreaming_snapshot(sources: list, answer_text: str, question: str = "Test question") -> str:
+    """Build a non-streaming JSON response string from source definitions and answer text."""
+    citations_list = [s["citation"] for s in sources]
+    text_data = [dict(s) for s in sources]
+    search_results = [
+        {
+            "type": "searchIndex",
+            "id": s["id"],
+            "content": s["content"][:80],
+            "category": s["category"],
+            "sourcepage": s["sourcepage"],
+            "sourcefile": s["sourcefile"],
+            "oids": None,
+            "groups": None,
+            "captions": [{"additional_properties": {}, "text": f"Caption: {s['sourcefile']}.", "highlights": []}],
+            "score": 0.089,
+            "reranker_score": 3.95,
+            "activity": None,
+            "images": None,
+        }
+        for s in sources
+    ]
+    thoughts = [
+        {
+            "title": "Prompt to generate search query",
+            "description": [{"role": "system", "content": f"Generate search query for: {question}"}],
+            "props": {
+                "model": "gpt-4.1-mini",
+                "token_usage": {"prompt_tokens": 50, "completion_tokens": 200, "reasoning_tokens": 0, "total_tokens": 250},
+            },
+        },
+        {
+            "title": "Search using generated search query",
+            "description": "generated search query",
+            "props": {
+                "use_semantic_captions": False,
+                "use_semantic_ranker": True,
+                "use_query_rewriting": False,
+                "top": len(sources),
+                "filter": None,
+                "use_vector_search": True,
+                "use_text_search": True,
+                "search_text_embeddings": True,
+                "search_image_embeddings": False,
+            },
+        },
+        {"title": "Search results", "description": search_results, "props": None},
+        {
+            "title": "Prompt to generate answer",
+            "description": [
+                {"role": "system", "content": "Answer based on sources below."},
+                {"role": "user", "content": question},
+            ],
+            "props": {"model": "gpt-4.1-mini"},
+        },
+    ]
+    response = {
+        "message": {"content": answer_text, "role": "assistant"},
+        "context": {
+            "data_points": {"text": text_data, "images": [], "citations": citations_list, "external_results_metadata": []},
+            "thoughts": thoughts,
+            "followup_questions": None,
+        },
+        "session_state": None,
+    }
+    return json.dumps(response)
+
+
+# ---------------------------------------------------------------------------
+# Default snapshot sources — built from EXPECTED_CITATIONS for the 3 core
+# test classes (Streaming, NonStreaming, Structure) so they no longer depend
+# on external snapshot files.
+# ---------------------------------------------------------------------------
+
+DEFAULT_SOURCES = [
+    make_source(
+        id="cpr-part24-24_2",
+        subsection_id="24.2",
+        sourcepage="Part 24",
+        sourcefile="Part 24 - Summary judgment",
+        category="Civil Procedure Rules and Practice Directions",
+        content="The court may give summary judgment against a claimant or defendant where that party has no real prospect of succeeding on the claim or issue.",
+    ),
+    make_source(
+        id="pd44-1_1",
+        subsection_id="1.1",
+        sourcepage="PD44",
+        sourcefile="Practice Direction 44 - General rules about costs",
+        category="Civil Procedure Rules and Practice Directions",
+        content="This Practice Direction supplements Part 44. The court has discretion as to whether costs are payable by one party to another.",
+    ),
+    make_source(
+        id="pre-action-conduct-4",
+        subsection_id="4",
+        sourcepage="Practice Direction - Pre-Action Conduct and Protocols",
+        sourcefile="Practice Direction - Pre-Action Conduct and Protocols",
+        category="Civil Procedure Rules and Practice Directions",
+        content="The court will consider whether a party has complied with this Practice Direction or the relevant pre-action protocol when making orders about costs.",
+    ),
+    make_source(
+        id="commercial-guide-D5_3",
+        subsection_id="D5.3",
+        sourcepage="The Commercial Court Guide",
+        sourcefile="The Commercial Court Guide",
+        category="Commercial Court",
+        content="A case management conference should be fixed as soon as practicable and not later than 14 weeks after service of the defence.",
+    ),
+]
+
+DEFAULT_ANSWER_TEXT = (
+    "The court may give summary judgment where a party has no real prospect of succeeding on the claim [1]. "
+    "The court has discretion as to whether costs are payable by one party to another [2]. "
+    "The court will consider whether a party has complied with this Practice Direction or the relevant pre-action protocol [3]. "
+    "A case management conference should be fixed as soon as practicable [4]."
+)
+
+DEFAULT_STREAMING_SNAPSHOT = build_streaming_snapshot(DEFAULT_SOURCES, DEFAULT_ANSWER_TEXT, TEST_QUESTION)
+DEFAULT_NONSTREAMING_SNAPSHOT = build_nonstreaming_snapshot(DEFAULT_SOURCES, DEFAULT_ANSWER_TEXT, TEST_QUESTION)
 
 
 # ---------------------------------------------------------------------------
