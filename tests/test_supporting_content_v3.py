@@ -59,7 +59,6 @@ def cpr_document_single():
         reranker_score=3.2,
         updated="2024-01-15",
         subsection_id="35.1",
-        subsections=["35.1"],
     )
 
 
@@ -85,7 +84,6 @@ def cpr_document_multi():
         reranker_score=3.8,
         updated="2024-02-01",
         subsection_id="7.2",
-        subsections=["7.2", "7.3"],
     )
 
 
@@ -109,7 +107,6 @@ def court_guide_document():
         reranker_score=2.9,
         updated="2024-03-10",
         subsection_id="D5.3",
-        subsections=["D5.3"],
     )
 
 
@@ -129,7 +126,6 @@ def kbd_annex_document():
         reranker_score=1.5,
         updated="2024-01-20",
         subsection_id="",
-        subsections=[],
     )
 
 
@@ -149,7 +145,6 @@ def pd_document():
         reranker_score=2.0,
         updated="2024-01-25",
         subsection_id="1.1",
-        subsections=["1.1"],
     )
 
 
@@ -167,7 +162,6 @@ def document_no_url():
         reranker_score=1.0,
         updated="",
         subsection_id="Rule 3.1",
-        subsections=["Rule 3.1"],
     )
 
 
