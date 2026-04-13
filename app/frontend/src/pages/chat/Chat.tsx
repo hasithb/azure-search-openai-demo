@@ -131,6 +131,27 @@ const Chat = () => {
     const [hideMinimalRetrievalReasoningOption, setHideMinimalRetrievalReasoningOption] = useState<boolean>(false);
     const streamingDisabledByOverrides = useAgenticKnowledgeBase && webSourceEnabled;
 
+    const normalizeCitationSelectionText = (value?: string) => (value || "").trim();
+
+    const sameCitationMetadata = (left?: StructuredCitationMetadata, right?: StructuredCitationMetadata) => {
+        if (!left && !right) {
+            return true;
+        }
+
+        if (!left || !right) {
+            return false;
+        }
+
+        return (
+            normalizeCitationSelectionText(left.subsectionId) === normalizeCitationSelectionText(right.subsectionId) &&
+            normalizeCitationSelectionText(left.sourcepage) === normalizeCitationSelectionText(right.sourcepage) &&
+            normalizeCitationSelectionText(left.sourcefile) === normalizeCitationSelectionText(right.sourcefile) &&
+            normalizeCitationSelectionText(left.category) === normalizeCitationSelectionText(right.category) &&
+            normalizeCitationSelectionText(left.content) === normalizeCitationSelectionText(right.content) &&
+            normalizeCitationSelectionText(left.storageUrl) === normalizeCitationSelectionText(right.storageUrl)
+        );
+    };
+
     const audio = useRef(new Audio()).current;
     const [isPlaying, setIsPlaying] = useState(false);
 
@@ -552,7 +573,14 @@ const Chat = () => {
             return;
         }
 
-        if (activeCitation === citation && activeAnalysisPanelTab === AnalysisPanelTabs.SupportingContentTab && selectedAnswer === index) {
+        const sameSupportingSelection =
+            activeCitation === citation &&
+            activeAnalysisPanelTab === AnalysisPanelTabs.SupportingContentTab &&
+            selectedAnswer === index &&
+            normalizeCitationSelectionText(activeCitationContent) === normalizeCitationSelectionText(citationContent) &&
+            sameCitationMetadata(activeCitationMetadata, metadata);
+
+        if (sameSupportingSelection) {
             setActiveAnalysisPanelTab(undefined);
         } else {
             setActiveCitation(citation);

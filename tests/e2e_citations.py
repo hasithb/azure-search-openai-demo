@@ -474,6 +474,61 @@ class TestCitationSwitching:
         supporting_tab = page.get_by_role("tab", name="Supporting content")
         expect(supporting_tab).not_to_be_visible()
 
+    def test_switch_between_same_document_subsections_keeps_panel_open(self, page: Page, live_server_url: str):  # noqa: F811
+        """Verify that switching between inline citations from the same document updates the highlighted subsection instead of closing the panel."""
+        shared_full_content = (
+            "## 24.2 Standard for summary judgment\n\n"
+            "The court may give summary judgment against a claimant or defendant where that party has no real prospect of succeeding on the claim or issue.\n\n"
+            "## 24.3 Evidence requirements\n\n"
+            "The applicant must file evidence in support of the application for summary judgment and serve that evidence on the respondent."
+        )
+        same_document_sources = [
+            make_source(
+                id="cpr-part24-24_2",
+                subsection_id="24.2",
+                sourcepage="Part 24 - Summary Judgment",
+                sourcefile="Part 24",
+                category="Civil Procedure Rules and Practice Directions",
+                content="The court may give summary judgment against a claimant or defendant where that party has no real prospect of succeeding on the claim or issue.",
+                full_content=shared_full_content,
+            ),
+            make_source(
+                id="cpr-part24-24_3",
+                subsection_id="24.3",
+                sourcepage="Part 24 - Summary Judgment",
+                sourcefile="Part 24",
+                category="Civil Procedure Rules and Practice Directions",
+                content="The applicant must file evidence in support of the application for summary judgment and serve that evidence on the respondent.",
+                full_content=shared_full_content,
+            ),
+        ]
+        snapshot = build_streaming_snapshot(
+            same_document_sources,
+            "Summary judgment is only available where a party has no real prospect of succeeding [1]. The application must also be supported by evidence served on the respondent [2].",
+        )
+
+        page.unroute("*/**/chat/stream")
+
+        def handle_stream(route: Route):
+            route.fulfill(body=snapshot, status=200, headers={"Transfer-encoding": "Chunked"})
+
+        page.route("*/**/chat/stream", handle_stream)
+
+        submit_question(page, TEST_QUESTION)
+        expect(page.get_by_text("Summary judgment is only available")).to_be_visible()
+
+        inline_citations = page.locator(".supContainer")
+        expect(inline_citations.nth(0)).to_be_visible()
+        expect(inline_citations.nth(1)).to_be_visible()
+
+        inline_citations.nth(0).click()
+        expect(page.get_by_text("Supporting content")).to_be_visible()
+        expect(page.locator("#highlighted-subsection")).to_contain_text("24.2 Standard for summary judgment")
+
+        inline_citations.nth(1).click()
+        expect(page.get_by_text("Supporting content")).to_be_visible()
+        expect(page.locator("#highlighted-subsection")).to_contain_text("24.3 Evidence requirements")
+
 
 # ---------------------------------------------------------------------------
 # Snapshot Builder — generates mock response data from source definitions
