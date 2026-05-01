@@ -56,7 +56,6 @@ const Chat = () => {
     const [isHistoryPanelOpen, setIsHistoryPanelOpen] = useState(false);
     const [promptTemplate, setPromptTemplate] = useState<string>("");
     const [temperature, setTemperature] = useState<number>(0.3);
-    const [seed, setSeed] = useState<number | null>(null);
     const [minimumRerankerScore, setMinimumRerankerScore] = useState<number>(1.9);
     const [minimumSearchScore, setMinimumSearchScore] = useState<number>(0);
     const [retrieveCount, setRetrieveCount] = useState<number>(7);
@@ -65,6 +64,7 @@ const Chat = () => {
     const [useSemanticRanker, setUseSemanticRanker] = useState<boolean>(true);
     const [useQueryRewriting, setUseQueryRewriting] = useState<boolean>(false);
     const [reasoningEffort, setReasoningEffort] = useState<string>("");
+    const [reasoningEffortOptions, setReasoningEffortOptions] = useState<string[]>([]);
     const [streamingEnabled, setStreamingEnabled] = useState<boolean>(true);
     const [shouldStream, setShouldStream] = useState<boolean>(true);
     const previousShouldStreamRef = useRef<boolean>(true);
@@ -179,6 +179,7 @@ const Chat = () => {
             setUseQueryRewriting(config.showQueryRewritingOption);
             setShowQueryRewritingOption(config.showQueryRewritingOption);
             setShowReasoningEffortOption(config.showReasoningEffortOption);
+            setReasoningEffortOptions(config.reasoningEffortOptions || []);
             setStreamingEnabled(config.streamingEnabled);
             if (config.showReasoningEffortOption) {
                 setReasoningEffort(config.defaultReasoningEffort);
@@ -366,8 +367,7 @@ const Chat = () => {
                         language: i18n.language,
                         use_agentic_knowledgebase: useAgenticKnowledgeBase,
                         use_web_source: webSourceSupported ? webSourceEnabled : false,
-                        use_sharepoint_source: sharePointSourceSupported ? sharePointSourceEnabled : false,
-                        ...(seed !== null ? { seed: seed } : {})
+                        use_sharepoint_source: sharePointSourceSupported ? sharePointSourceEnabled : false
                     }
                 },
                 // AI Chat Protocol: Client must pass on any session state received from the server
@@ -456,9 +456,6 @@ const Chat = () => {
                 break;
             case "temperature":
                 setTemperature(value);
-                break;
-            case "seed":
-                setSeed(value);
                 break;
             case "minimumRerankerScore":
                 setMinimumRerankerScore(value);
@@ -934,13 +931,13 @@ const Chat = () => {
                             temperature={temperature}
                             retrieveCount={retrieveCount}
                             agenticReasoningEffort={agenticReasoningEffort}
-                            seed={seed}
                             minimumSearchScore={minimumSearchScore}
                             minimumRerankerScore={minimumRerankerScore}
                             useSemanticRanker={useSemanticRanker}
                             useSemanticCaptions={useSemanticCaptions}
                             useQueryRewriting={useQueryRewriting}
                             reasoningEffort={reasoningEffort}
+                            reasoningEffortOptions={reasoningEffortOptions}
                             excludeCategory={excludeCategory}
                             includeCategory={includeCategory}
                             retrievalMode={retrievalMode}

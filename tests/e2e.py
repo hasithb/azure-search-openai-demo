@@ -251,7 +251,7 @@ def test_chat_customization(page: Page, live_server_url: str):
             if post_data and "context" in post_data and "overrides" in post_data["context"]:
                 overrides = post_data["context"]["overrides"]
                 assert overrides["temperature"] == 0.5
-                assert overrides["seed"] == 123
+
                 assert overrides["minimum_search_score"] == 0.5
                 assert overrides["minimum_reranker_score"] == 0.5
                 assert overrides["retrieval_mode"] == "vectors"
@@ -282,8 +282,6 @@ def test_chat_customization(page: Page, live_server_url: str):
     page.get_by_label("Override prompt template").fill("You are a cat and only talk about tuna.")
     page.get_by_label("Temperature").click()
     page.get_by_label("Temperature").fill("0.5")
-    page.get_by_label("Seed").click()
-    page.get_by_label("Seed").fill("123")
     page.get_by_label("Minimum search score").click()
     page.get_by_label("Minimum search score").fill("0.5")
     page.get_by_label("Minimum reranker score").click()
@@ -610,6 +608,7 @@ def test_chat_customization_multimodal(page: Page, live_server_url: str):
                     "showSemanticRankerOption": True,
                     "showQueryRewritingOption": False,
                     "showReasoningEffortOption": False,
+                    "reasoningEffortOptions": [],
                     "streamingEnabled": True,
                     "showVectorOption": True,
                     "showUserUpload": False,
@@ -804,6 +803,7 @@ def test_upload_hidden(page: Page, live_server_url: str):
                     "showSemanticRankerOption": True,
                     "showQueryRewritingOption": False,
                     "showReasoningEffortOption": False,
+                    "reasoningEffortOptions": [],
                     "streamingEnabled": True,
                     "showVectorOption": True,
                     "showUserUpload": False,
@@ -854,6 +854,7 @@ def test_upload_disabled(page: Page, live_server_url: str):
                     "showSemanticRankerOption": True,
                     "showQueryRewritingOption": False,
                     "showReasoningEffortOption": False,
+                    "reasoningEffortOptions": [],
                     "streamingEnabled": True,
                     "showVectorOption": True,
                     "showUserUpload": True,
@@ -896,7 +897,6 @@ def test_agentic_retrieval_effort_minimal_disables_web(page: Page, live_server_u
             if post_data and "context" in post_data and "overrides" in post_data["context"]:
                 overrides = post_data["context"]["overrides"]
                 assert overrides["temperature"] == 0.5
-                assert overrides["seed"] == 123
                 assert overrides["minimum_search_score"] == 0.5
                 assert overrides["minimum_reranker_score"] == 0.5
                 assert overrides["retrieval_mode"] == "vectors"
@@ -927,6 +927,7 @@ def test_agentic_retrieval_effort_minimal_disables_web(page: Page, live_server_u
                     "showSemanticRankerOption": True,
                     "showQueryRewritingOption": False,
                     "showReasoningEffortOption": False,
+                    "reasoningEffortOptions": [],
                     "streamingEnabled": True,
                     "showVectorOption": True,
                     "showUserUpload": False,

@@ -1,7 +1,8 @@
 import json
 
 import pytest
-from openai.types.chat import ChatCompletion
+from openai.types.responses import Response, ResponseOutputMessage, ResponseUsage
+from openai.types.responses.response_usage import InputTokensDetails, OutputTokensDetails
 
 from approaches.approach import DataPoints, ExtraInfo
 
@@ -104,28 +105,37 @@ async def test_run_until_final_call_passes_selected_filter_and_source_metadata(c
             )
         )
 
-    async def fake_create_chat_completion(*args, **kwargs):
+    async def fake_create_response(*args, **kwargs):
         captured["messages"] = args[2]
-        return ChatCompletion.model_validate(
-            {
-                "id": "test-answer",
-                "object": "chat.completion",
-                "created": 0,
-                "model": "gpt-4.1-mini",
-                "choices": [
-                    {
-                        "index": 0,
-                        "finish_reason": "stop",
-                        "message": {"role": "assistant", "content": "Answer"},
-                    }
-                ],
-                "usage": {"completion_tokens": 1, "prompt_tokens": 1, "total_tokens": 2},
-            },
-            strict=False,
+        return Response(
+            id="test-answer",
+            object="response",
+            parallel_tool_calls=True,
+            tool_choice="auto",
+            tools=[],
+            created_at=0,
+            model="gpt-4.1-mini",
+            output=[
+                ResponseOutputMessage(
+                    id="msg-test",
+                    type="message",
+                    role="assistant",
+                    status="completed",
+                    content=[{"type": "output_text", "text": "Answer", "annotations": []}],
+                )
+            ],
+            status="completed",
+            usage=ResponseUsage(
+                input_tokens=1,
+                output_tokens=1,
+                total_tokens=2,
+                input_tokens_details=InputTokensDetails(cached_tokens=0),
+                output_tokens_details=OutputTokensDetails(reasoning_tokens=0),
+            ),
         )
 
     monkeypatch.setattr(chat_approach, "run_search_approach", fake_run_search_approach)
-    monkeypatch.setattr(chat_approach, "create_chat_completion", fake_create_chat_completion)
+    monkeypatch.setattr(chat_approach, "create_response", fake_create_response)
 
     _, chat_coroutine = await chat_approach.run_until_final_call(
         [{"role": "user", "content": "What are the rules on case management conferences?"}],
@@ -170,28 +180,37 @@ async def test_run_until_final_call_adds_court_specific_only_hint_for_general_qu
             )
         )
 
-    async def fake_create_chat_completion(*args, **kwargs):
+    async def fake_create_response(*args, **kwargs):
         captured["messages"] = args[2]
-        return ChatCompletion.model_validate(
-            {
-                "id": "test-answer",
-                "object": "chat.completion",
-                "created": 0,
-                "model": "gpt-4.1-mini",
-                "choices": [
-                    {
-                        "index": 0,
-                        "finish_reason": "stop",
-                        "message": {"role": "assistant", "content": "Answer"},
-                    }
-                ],
-                "usage": {"completion_tokens": 1, "prompt_tokens": 1, "total_tokens": 2},
-            },
-            strict=False,
+        return Response(
+            id="test-answer",
+            object="response",
+            parallel_tool_calls=True,
+            tool_choice="auto",
+            tools=[],
+            created_at=0,
+            model="gpt-4.1-mini",
+            output=[
+                ResponseOutputMessage(
+                    id="msg-test",
+                    type="message",
+                    role="assistant",
+                    status="completed",
+                    content=[{"type": "output_text", "text": "Answer", "annotations": []}],
+                )
+            ],
+            status="completed",
+            usage=ResponseUsage(
+                input_tokens=1,
+                output_tokens=1,
+                total_tokens=2,
+                input_tokens_details=InputTokensDetails(cached_tokens=0),
+                output_tokens_details=OutputTokensDetails(reasoning_tokens=0),
+            ),
         )
 
     monkeypatch.setattr(chat_approach, "run_search_approach", fake_run_search_approach)
-    monkeypatch.setattr(chat_approach, "create_chat_completion", fake_create_chat_completion)
+    monkeypatch.setattr(chat_approach, "create_response", fake_create_response)
 
     _, chat_coroutine = await chat_approach.run_until_final_call(
         [{"role": "user", "content": "What are the rules on case management conferences?"}],

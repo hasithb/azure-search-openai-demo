@@ -12,7 +12,6 @@ export type ChatAppRequestOverrides = {
     reasoning_effort?: string;
     include_category?: string;
     exclude_category?: string;
-    seed?: number;
     top?: number;
     retrieval_reasoning_effort?: string;
     temperature?: number;
@@ -123,6 +122,7 @@ export type ChatAppRequest = {
 
 export type Config = {
     defaultReasoningEffort: string;
+    reasoningEffortOptions: string[];
     defaultRetrievalReasoningEffort: string;
     // CUSTOM: Category filter flag from backend customizations
     showCategoryFilter?: boolean;

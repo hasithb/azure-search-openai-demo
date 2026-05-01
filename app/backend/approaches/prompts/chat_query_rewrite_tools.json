@@ -1,30 +1,28 @@
 [{
     "type": "function",
-    "function": {
-        "name": "search_sources",
-        "description": "Retrieve sources from the Azure AI Search index containing CPR Parts, Practice Directions, Pre-Action Protocols, and Court Guides. Always expand abbreviations and acronyms to their full legal meaning with the relevant CPR rule number. For example, use 'CPR 31.16 disclosure before proceedings' instead of 'PAD', and 'CPR Part 24 summary judgment' instead of 'SJ'.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "legal_concept_analysis": {
-                    "type": "string",
-                    "description": "REQUIRED FIRST STEP: Before writing the search query, briefly state (1) what specific legal concept/rule/provision the user is asking about based on your general knowledge of English civil procedure, (2) the specific CPR rule number or Practice Direction that is the PRIMARY authoritative source, and (3) key terms that distinguish this source from similar-sounding documents. For example: 'Pre-action disclosure is governed by CPR 31.16, not Pre-Action Protocols. Key terms: disclosure before proceedings started, likely parties, standard disclosure scope. Target CPR Part 31 not Pre-Action Protocol documents.'"
-                },
-                "search_query": {
-                    "type": "string",
-                    "description": "Query string to retrieve documents from azure search. MUST be informed by your legal_concept_analysis. Include the specific CPR rule or Part number identified in your analysis, eg: 'CPR 31.16 pre-action disclosure before proceedings', 'CPR Part 24 summary judgment no real prospect', 'CPR 3.9 relief from sanctions', 'Part 52 appeals time limit'. Target the PRIMARY authoritative source, not documents that merely mention the topic."
-                },
-                "subsection_hint": {
-                    "type": "string",
-                    "description": "Specific subsection identifier for precise citation when available (e.g., '1.1' for rule 1.1, 'A4.1' for court guide section A4.1, 'Para 1.1' for practice direction paragraph 1.1). Use an empty string when no precise subsection is named."
-                },
-                "related_aspects": {
-                    "type": "string",
-                    "description": "Optional. When the user's question covers a BROAD topic that spans multiple related CPR rules or sub-concepts, list 1-3 additional specific search queries separated by | that target secondary aspects the primary search_query may miss. For example, if the primary query targets CPR 31.6 standard disclosure, related aspects might be 'CPR 31.3 right to inspect disclosed documents | CPR 31.12 specific disclosure order'. Only use this when the topic genuinely spans multiple rules. Leave empty for focused single-rule questions."
-                }
+    "name": "search_sources",
+    "description": "Retrieve sources from the Azure AI Search index containing CPR Parts, Practice Directions, Pre-Action Protocols, and Court Guides. Always expand abbreviations and acronyms to their full legal meaning with the relevant CPR rule number. For example, use 'CPR 31.16 disclosure before proceedings' instead of 'PAD', and 'CPR Part 24 summary judgment' instead of 'SJ'.",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "legal_concept_analysis": {
+                "type": "string",
+                "description": "REQUIRED FIRST STEP: Before writing the search query, briefly state (1) what specific legal concept/rule/provision the user is asking about based on your general knowledge of English civil procedure, (2) the specific CPR rule number or Practice Direction that is the PRIMARY authoritative source, and (3) key terms that distinguish this source from similar-sounding documents. For example: 'Pre-action disclosure is governed by CPR 31.16, not Pre-Action Protocols. Key terms: disclosure before proceedings started, likely parties, standard disclosure scope. Target CPR Part 31 not Pre-Action Protocol documents.'"
             },
-            "required": ["legal_concept_analysis", "search_query"]
-        }
+            "search_query": {
+                "type": "string",
+                "description": "Query string to retrieve documents from azure search. MUST be informed by your legal_concept_analysis. Include the specific CPR rule or Part number identified in your analysis, eg: 'CPR 31.16 pre-action disclosure before proceedings', 'CPR Part 24 summary judgment no real prospect', 'CPR 3.9 relief from sanctions', 'Part 52 appeals time limit'. Target the PRIMARY authoritative source, not documents that merely mention the topic."
+            },
+            "subsection_hint": {
+                "type": "string",
+                "description": "Specific subsection identifier for precise citation when available (e.g., '1.1' for rule 1.1, 'A4.1' for court guide section A4.1, 'Para 1.1' for practice direction paragraph 1.1). Use an empty string when no precise subsection is named."
+            },
+            "related_aspects": {
+                "type": "string",
+                "description": "Optional. When the user's question covers a BROAD topic that spans multiple related CPR rules or sub-concepts, list 1-3 additional specific search queries separated by | that target secondary aspects the primary search_query may miss. For example, if the primary query targets CPR 31.6 standard disclosure, related aspects might be 'CPR 31.3 right to inspect disclosed documents | CPR 31.12 specific disclosure order'. Only use this when the topic genuinely spans multiple rules. Leave empty for focused single-rule questions."
+            }
+        },
+        "required": ["legal_concept_analysis", "search_query"]
     }
 }]
 
