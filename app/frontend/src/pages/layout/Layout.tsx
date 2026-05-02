@@ -23,7 +23,7 @@ const Layout = () => {
             <header className={styles.header} role={"banner"}>
                 <div className={styles.headerContainer}>
                     <Link to="/" className={styles.headerTitleContainer}>
-                        <h3 className={styles.headerTitle}>{t("headerTitle")}</h3>
+                        <span className={styles.headerTitle}>{t("headerTitle")}</span>
                     </Link>
                     <div className={styles.loginMenuContainer}>
                         <HelpAboutPanel />

@@ -109,7 +109,7 @@ const Chat = () => {
     const [speechUrls, setSpeechUrls] = useState<(string | null)[]>([]);
 
     // CUSTOM: Load categories for dropdown
-    const { categories = [] } = useCategories();
+    const { categories = [], error: categoryLoadError } = useCategories();
 
     const [showMultimodalOptions, setShowMultimodalOptions] = useState<boolean>(false);
     const [showSemanticRankerOption, setShowSemanticRankerOption] = useState<boolean>(false);
@@ -442,6 +442,14 @@ const Chat = () => {
     useEffect(() => {
         getConfig();
     }, []);
+
+    useEffect(() => {
+        // CUSTOM: If category loading fails, allow searching across all sources by default
+        // instead of blocking the chat on an unavailable /api/categories endpoint.
+        if (showCategoryFilter && categoryLoadError && includeCategory.trim() === "" && !allCategoriesSelected) {
+            setAllCategoriesSelected(true);
+        }
+    }, [showCategoryFilter, categoryLoadError, includeCategory, allCategoriesSelected]);
 
     // Preserve streaming preference when agentic retrieval forces streaming off.
     useEffect(() => {

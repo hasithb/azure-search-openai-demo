@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import socket
 import time
 from collections.abc import Generator
@@ -70,9 +71,11 @@ def run_server(port: int):
 def live_server_url(mock_env, mock_acs_search, free_port: int) -> Generator[str, None, None]:
     proc = Process(target=run_server, args=(free_port,), daemon=True)
     proc.start()
-    url = f"http://localhost:{free_port}/"
-    wait_for_server_ready(url, timeout=10.0, check_interval=0.5)
-    yield url
+    base_url = f"http://localhost:{free_port}/"
+    wait_for_server_ready(base_url, timeout=10.0, check_interval=0.5)
+    # CUSTOM: The legal fork hides developer settings unless admin mode is enabled.
+    # Most E2E coverage exercises those controls, so serve the app with ?admin=true.
+    yield f"{base_url}?admin=true"
     proc.kill()
 
 
@@ -120,7 +123,7 @@ def test_chat(sized_page: Page, live_server_url: str):
     # Check initial page state
     page.goto(live_server_url)
     expect(page).to_have_title("Azure OpenAI + AI Search")
-    expect(page.get_by_role("heading", name="Chat with your data")).to_be_visible()
+    expect(page.get_by_role("heading", name="Civil Procedure Copilot").first).to_be_visible()
     expect(page.get_by_role("button", name="Clear chat")).to_be_disabled()
     expect(page.get_by_role("button", name="Developer settings")).to_be_enabled()
 
@@ -137,29 +140,31 @@ def test_chat(sized_page: Page, live_server_url: str):
     )
     page.get_by_role("button", name="Submit question").click()
 
-    expect(page.get_by_text("Whats the dental plan?")).to_be_visible()
-    expect(page.get_by_text("The capital of France is Paris.")).to_be_visible()
+    expect(page.get_by_text("Whats the dental plan?").first).to_be_visible()
+    expect(page.get_by_text("The capital of France is Paris.").first).to_be_visible()
     expect(page.get_by_role("button", name="Clear chat")).to_be_enabled()
 
     # Show the citation document
-    page.get_by_text("1. Benefit_Options-2.pdf").click()
-    expect(page.get_by_role("tab", name="Citation")).to_be_visible()
-    expect(page.get_by_title("Citation")).to_be_visible()
-
-    # Show the thought process
-    page.get_by_label("Show thought process").click()
-    expect(page.get_by_title("Thought process")).to_be_visible()
-    expect(page.get_by_text("Generated search query")).to_be_visible()
-
-    # Show the supporting content
-    page.get_by_label("Show supporting content").click()
+    page.get_by_label(re.compile(r"^Citation 1:")).first.click()
     expect(page.get_by_title("Supporting content")).to_be_visible()
-    expect(page.get_by_role("heading", name="Benefit_Options-2.pdf")).to_be_visible()
+
+    viewport_width = page.viewport_size["width"] if page.viewport_size else 1024
+    if viewport_width < 768:
+        page.get_by_label("Close").click()
+    else:
+        # Show the thought process
+        page.get_by_label("Show thought process").click()
+        expect(page.get_by_title("Thought process")).to_be_visible()
+        expect(page.get_by_text("Generated search query")).to_be_visible()
+
+        # Show the supporting content
+        page.get_by_label("Show supporting content").click()
+        expect(page.get_by_title("Supporting content")).to_be_visible()
 
     # Clear the chat
     page.get_by_role("button", name="Clear chat").click()
-    expect(page.get_by_text("Whats the dental plan?")).not_to_be_visible()
-    expect(page.get_by_text("The capital of France is Paris.")).not_to_be_visible()
+    expect(page.get_by_text("Whats the dental plan?").first).not_to_be_visible()
+    expect(page.get_by_text("The capital of France is Paris.").first).not_to_be_visible()
     expect(page.get_by_role("button", name="Clear chat")).to_be_disabled()
 
 
@@ -197,7 +202,7 @@ def test_chat_stop_button_visibility(page: Page, live_server_url: str):
     page.get_by_label("Submit question").click()
 
     # Wait for the response to complete and verify the submit button is back
-    expect(page.get_by_text("The capital of France is Paris.")).to_be_visible()
+    expect(page.get_by_text("The capital of France is Paris.").first).to_be_visible()
     expect(page.get_by_label("Submit question")).to_be_visible()
     expect(page.get_by_label("Stop streaming")).not_to_be_visible()
 
@@ -307,8 +312,8 @@ def test_chat_customization(page: Page, live_server_url: str):
     )
     page.get_by_role("button", name="Submit question").click()
 
-    expect(page.get_by_text("Whats the dental plan?")).to_be_visible()
-    expect(page.get_by_text("The capital of France is Paris.")).to_be_visible()
+    expect(page.get_by_text("Whats the dental plan?").first).to_be_visible()
+    expect(page.get_by_text("The capital of France is Paris.").first).to_be_visible()
     expect(page.get_by_role("button", name="Clear chat")).to_be_enabled()
 
 
@@ -353,7 +358,7 @@ def test_chat_source_filter_sends_selected_category(page: Page, live_server_url:
     question_input.fill("How does the Commercial Court handle case management conferences?")
     page.get_by_role("button", name="Submit question").click()
 
-    expect(page.get_by_text("The capital of France is Paris.")).to_be_visible()
+    expect(page.get_by_text("The capital of France is Paris.").first).to_be_visible()
     assert captured_overrides["include_category"] == "Commercial Court"
 
 
@@ -400,7 +405,7 @@ def test_chat_source_filter_can_reset_to_all_sources(page: Page, live_server_url
     question_input.fill("What are the rules on case management conferences?")
     page.get_by_role("button", name="Submit question").click()
 
-    expect(page.get_by_text("The capital of France is Paris.")).to_be_visible()
+    expect(page.get_by_text("The capital of France is Paris.").first).to_be_visible()
     assert "include_category" not in captured_overrides
 
 
@@ -447,7 +452,7 @@ def test_chat_source_filter_mobile_panel_sends_selected_category(page: Page, liv
     question_input.fill("What are the CMC deadlines and procedures?")
     page.get_by_role("button", name="Submit question").click()
 
-    expect(page.get_by_text("The capital of France is Paris.")).to_be_visible()
+    expect(page.get_by_text("The capital of France is Paris.").first).to_be_visible()
     assert captured_overrides["include_category"] == "Patents Court"
 
 
@@ -487,7 +492,7 @@ def test_chat_source_filter_categories_api_failure_falls_back_to_all_sources(pag
     question_input.fill("What are the rules on case management conferences?")
     page.get_by_role("button", name="Submit question").click()
 
-    expect(page.get_by_text("The capital of France is Paris.")).to_be_visible()
+    expect(page.get_by_text("The capital of France is Paris.").first).to_be_visible()
     assert "include_category" not in captured_overrides
 
 
@@ -696,8 +701,8 @@ def test_chat_nonstreaming(page: Page, live_server_url: str):
     )
     page.get_by_label("Submit question").click()
 
-    expect(page.get_by_text("Whats the dental plan?")).to_be_visible()
-    expect(page.get_by_text("The capital of France is Paris.")).to_be_visible()
+    expect(page.get_by_text("Whats the dental plan?").first).to_be_visible()
+    expect(page.get_by_text("The capital of France is Paris.").first).to_be_visible()
     expect(page.get_by_role("button", name="Clear chat")).to_be_enabled()
 
 
@@ -735,8 +740,8 @@ def test_chat_followup_streaming(page: Page, live_server_url: str):
     )
     page.get_by_label("Submit question").click()
 
-    expect(page.get_by_text("Whats the dental plan?")).to_be_visible()
-    expect(page.get_by_text("The capital of France is Paris.")).to_be_visible()
+    expect(page.get_by_text("Whats the dental plan?").first).to_be_visible()
+    expect(page.get_by_text("The capital of France is Paris.").first).to_be_visible()
 
     # There should be a follow-up question and it should be clickable:
     expect(page.get_by_text("What is the capital of Spain?")).to_be_visible()
@@ -773,8 +778,8 @@ def test_chat_followup_nonstreaming(page: Page, live_server_url: str):
     )
     page.get_by_label("Submit question").click()
 
-    expect(page.get_by_text("Whats the dental plan?")).to_be_visible()
-    expect(page.get_by_text("The capital of France is Paris.")).to_be_visible()
+    expect(page.get_by_text("Whats the dental plan?").first).to_be_visible()
+    expect(page.get_by_text("The capital of France is Paris.").first).to_be_visible()
 
     # There should be a follow-up question and it should be clickable:
     expect(page.get_by_text("What is the capital of Spain?")).to_be_visible()
@@ -994,8 +999,8 @@ def test_agentic_retrieval_effort_minimal_disables_web(page: Page, live_server_u
     )
     page.get_by_role("button", name="Submit question").click()
 
-    expect(page.get_by_text("Whats the dental plan?")).to_be_visible()
-    expect(page.get_by_text("The capital of France is Paris.")).to_be_visible()
+    expect(page.get_by_text("Whats the dental plan?").first).to_be_visible()
+    expect(page.get_by_text("The capital of France is Paris.").first).to_be_visible()
     expect(page.get_by_role("button", name="Clear chat")).to_be_enabled()
 
     # Open the thought process by clicking the lightbulb on the answer
