@@ -217,7 +217,7 @@ const dataPointMatchesCitation = (dataPoint: any, citation: string): boolean => 
 };
 
 const normalizeAnswerText = (answer: ChatAppResponse, isStreaming: boolean): string => {
-    let parsedAnswer = answer.message.content.trim();
+    let parsedAnswer = answer.output_text.trim();
 
     // CUSTOM: Apply citation sanitization before parsing
     if (isFeatureEnabled("citationSanitizer")) {

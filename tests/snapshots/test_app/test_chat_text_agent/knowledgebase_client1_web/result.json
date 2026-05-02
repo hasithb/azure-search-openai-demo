@@ -164,5 +164,6 @@
         "content": "There is a whistleblower policy. [ref_id:0] You can also visit [https://contoso.example] for more information.",
         "role": "assistant"
     },
+    "output_text": "There is a whistleblower policy. [ref_id:0] You can also visit [https://contoso.example] for more information.",
     "session_state": null
 }
