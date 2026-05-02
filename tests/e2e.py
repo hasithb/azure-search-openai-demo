@@ -86,6 +86,52 @@ def sized_page(page: Page, request):
     yield page
 
 
+# CUSTOM: Deterministic /api/categories stub so tests don't race against the
+# in-process server's Azure credential failure path.  Tests that need specific
+# category behaviour register their own page.route() AFTER this fixture runs;
+# Playwright's LIFO ordering means those per-test handlers fire first, making
+# this default transparent to them.
+@pytest.fixture(autouse=True)
+def _stub_categories(page: Page):
+    def handle(route: Route):
+        route.fulfill(
+            body=json.dumps(
+                {
+                    "categories": [
+                        {"key": "Commercial Court", "text": "Commercial Court"},
+                        {"key": "Patents Court", "text": "Patents Court"},
+                    ]
+                }
+            ),
+            status=200,
+            headers={"Content-Type": "application/json"},
+        )
+
+    page.route("*/**/api/categories", handle)
+
+
+def select_all_sources(page: Page) -> None:
+    """Select the 'All Sources' option in the source-filter dropdown.
+
+    Works for both desktop (>= 768 px wide) and mobile (< 768 px wide) layouts.
+    Should be called after the page has navigated and the categories response
+    has been received so the dropdown is ready.
+
+    The Fluent UI multiselect Dropdown does not auto-close when an option is
+    selected, so we press Escape to dismiss it before the caller continues.
+    """
+    viewport_width = page.viewport_size["width"] if page.viewport_size else 1024
+    if viewport_width < 768:
+        page.get_by_test_id("chat-input-mobile-settings").click()
+        page.locator("#chat-source-filter-mobile-button").click()
+    else:
+        page.locator("#chat-source-filter-desktop-button").click()
+    page.locator("#source-filter-option-all-sources").click()
+    # Dismiss the open multiselect dropdown so subsequent Axe/DOM checks see
+    # a clean layout with no portal listbox outside landmark regions.
+    page.keyboard.press("Escape")
+
+
 def test_home(page: Page, live_server_url: str):
     page.goto(live_server_url)
     expect(page).to_have_title("Azure OpenAI + AI Search")
@@ -120,12 +166,16 @@ def test_chat(sized_page: Page, live_server_url: str):
 
     page.route("*/**/chat/stream", handle)
 
-    # Check initial page state
-    page.goto(live_server_url)
+    # Check initial page state – wait for categories so the source-filter renders
+    with page.expect_response("**/api/categories"):
+        page.goto(live_server_url)
     expect(page).to_have_title("Azure OpenAI + AI Search")
     expect(page.get_by_role("heading", name="Civil Procedure Copilot").first).to_be_visible()
     expect(page.get_by_role("button", name="Clear chat")).to_be_disabled()
     expect(page.get_by_role("button", name="Developer settings")).to_be_enabled()
+
+    # Select All Sources so the category filter doesn't block submit
+    select_all_sources(page)
 
     # Check accessibility of page in initial state
     # Exclude Tabster dummy elements which are internal to Fluent UI v9 focus management
@@ -186,9 +236,13 @@ def test_chat_stop_button_visibility(page: Page, live_server_url: str):
 
     page.route("*/**/chat/stream", handle)
 
-    # Check initial page state
-    page.goto(live_server_url)
+    # Check initial page state – wait for categories so source filter renders
+    with page.expect_response("**/api/categories"):
+        page.goto(live_server_url)
     expect(page).to_have_title("Azure OpenAI + AI Search")
+
+    # Select All Sources so the category filter doesn't block submit
+    select_all_sources(page)
 
     # Verify the submit button is visible initially (not the stop button)
     expect(page.get_by_label("Submit question")).to_be_visible()
@@ -223,9 +277,13 @@ def test_chat_stop_restores_question(page: Page, live_server_url: str):
 
     page.route("*/**/chat/stream", handle)
 
-    # Check initial page state
-    page.goto(live_server_url)
+    # Check initial page state – wait for categories so source filter renders
+    with page.expect_response("**/api/categories"):
+        page.goto(live_server_url)
     expect(page).to_have_title("Azure OpenAI + AI Search")
+
+    # Select All Sources so the category filter doesn't block submit
+    select_all_sources(page)
 
     # Type a question
     question_input = page.get_by_placeholder("Type a new question (e.g. does my plan cover annual eye exams?)")
@@ -277,9 +335,13 @@ def test_chat_customization(page: Page, live_server_url: str):
 
     page.route("*/**/chat", handle)
 
-    # Check initial page state
-    page.goto(live_server_url)
+    # Check initial page state – wait for categories so source filter renders
+    with page.expect_response("**/api/categories"):
+        page.goto(live_server_url)
     expect(page).to_have_title("Azure OpenAI + AI Search")
+
+    # Select All Sources before opening Developer Settings to allow submit
+    select_all_sources(page)
 
     # Customize all the settings
     page.get_by_role("button", name="Developer settings").click()
@@ -486,8 +548,11 @@ def test_chat_source_filter_categories_api_failure_falls_back_to_all_sources(pag
     source_filter = page.locator("#chat-source-filter-desktop-button")
     expect(source_filter).to_be_visible()
     source_filter.click()
+    # Verify the All Sources option is visible in the dropdown (fallback applied it)
     expect(page.locator("#source-filter-option-all-sources")).to_be_visible()
-    page.locator("#source-filter-option-all-sources").click()
+    # Close without clicking – the fallback already set allCategoriesSelected=true;
+    # clicking the option would *toggle* it back to false and block submit.
+    page.keyboard.press("Escape")
 
     question_input.fill("What are the rules on case management conferences?")
     page.get_by_role("button", name="Submit question").click()
@@ -518,6 +583,9 @@ def test_chat_no_source_selected_shows_warning_preserves_input(page: Page, live_
 
     with page.expect_response("**/api/categories"):
         page.goto(live_server_url)
+    # Wait for the source filter button to be visible; this confirms that
+    # showCategoryFilter=true has been applied from the /config response.
+    page.locator("#chat-source-filter-desktop-button").wait_for(state="visible")
     question_input = page.locator("textarea, input[type='text']").first
     expect(question_input).to_be_visible()
 
@@ -638,9 +706,13 @@ def test_chat_customization_multimodal(page: Page, live_server_url: str):
     page.route("*/**/config", handle_config)
     page.route("*/**/chat", handle_chat)
 
-    # Check initial page state
-    page.goto(live_server_url)
+    # Check initial page state – wait for categories so source filter renders
+    with page.expect_response("**/api/categories"):
+        page.goto(live_server_url)
     expect(page).to_have_title("Azure OpenAI + AI Search")
+
+    # Select All Sources before opening Developer Settings to allow submit
+    select_all_sources(page)
 
     # Open Developer settings
     page.get_by_role("button", name="Developer settings").click()
@@ -686,10 +758,15 @@ def test_chat_nonstreaming(page: Page, live_server_url: str):
 
     page.route("*/**/chat", handle)
 
-    # Check initial page state
-    page.goto(live_server_url)
+    # Check initial page state – wait for categories so source filter renders
+    with page.expect_response("**/api/categories"):
+        page.goto(live_server_url)
     expect(page).to_have_title("Azure OpenAI + AI Search")
     expect(page.get_by_role("button", name="Developer settings")).to_be_enabled()
+
+    # Select All Sources before opening Developer Settings to allow submit
+    select_all_sources(page)
+
     page.get_by_role("button", name="Developer settings").click()
     page.get_by_text("Stream chat completion responses").click()
     page.locator("button").filter(has_text="Close").click()
@@ -725,10 +802,15 @@ def test_chat_followup_streaming(page: Page, live_server_url: str):
 
     page.route("*/**/chat/stream", handle)
 
-    # Check initial page state
-    page.goto(live_server_url)
+    # Check initial page state – wait for categories so source filter renders
+    with page.expect_response("**/api/categories"):
+        page.goto(live_server_url)
     expect(page).to_have_title("Azure OpenAI + AI Search")
     expect(page.get_by_role("button", name="Developer settings")).to_be_enabled()
+
+    # Select All Sources before opening Developer Settings to allow submit
+    select_all_sources(page)
+
     page.get_by_role("button", name="Developer settings").click()
     page.get_by_text("Suggest follow-up questions").click()
     page.locator("button").filter(has_text="Close").click()
@@ -762,10 +844,15 @@ def test_chat_followup_nonstreaming(page: Page, live_server_url: str):
 
     page.route("*/**/chat", handle)
 
-    # Check initial page state
-    page.goto(live_server_url)
+    # Check initial page state – wait for categories so source filter renders
+    with page.expect_response("**/api/categories"):
+        page.goto(live_server_url)
     expect(page).to_have_title("Azure OpenAI + AI Search")
     expect(page.get_by_role("button", name="Developer settings")).to_be_enabled()
+
+    # Select All Sources before opening Developer Settings to allow submit
+    select_all_sources(page)
+
     page.get_by_role("button", name="Developer settings").click()
     page.get_by_text("Stream chat completion responses").click()
     page.get_by_text("Suggest follow-up questions").click()
@@ -949,6 +1036,9 @@ def test_agentic_retrieval_effort_minimal_disables_web(page: Page, live_server_u
                     "ragSendTextSources": True,
                     "webSourceEnabled": True,
                     "sharepointSourceEnabled": True,
+                    # Explicitly disable category filter: this test controls its own config
+                    # and the frontend feature flag defaults to true when key is absent.
+                    "showCategoryFilter": False,
                 }
             ),
             status=200,

@@ -74,6 +74,7 @@ const Chat = () => {
     const [excludeCategory, setExcludeCategory] = useState<string>("");
     // CUSTOM: Category filter and mobile dropdown state
     const [allCategoriesSelected, setAllCategoriesSelected] = useState<boolean>(false);
+    const hasAppliedAllSourcesFallbackRef = useRef<boolean>(false);
     const [showMobileDropdown, setShowMobileDropdown] = useState<boolean>(false);
     const [userHasInteracted, setUserHasInteracted] = useState<boolean>(false);
     const [userTriedToSearch, setUserTriedToSearch] = useState<boolean>(false);
@@ -446,7 +447,15 @@ const Chat = () => {
     useEffect(() => {
         // CUSTOM: If category loading fails, allow searching across all sources by default
         // instead of blocking the chat on an unavailable /api/categories endpoint.
-        if (showCategoryFilter && categoryLoadError && includeCategory.trim() === "" && !allCategoriesSelected) {
+        // The ref-guard prevents this from re-applying after the user explicitly deselects.
+        if (
+            showCategoryFilter &&
+            categoryLoadError &&
+            includeCategory.trim() === "" &&
+            !allCategoriesSelected &&
+            !hasAppliedAllSourcesFallbackRef.current
+        ) {
+            hasAppliedAllSourcesFallbackRef.current = true;
             setAllCategoriesSelected(true);
         }
     }, [showCategoryFilter, categoryLoadError, includeCategory, allCategoriesSelected]);
