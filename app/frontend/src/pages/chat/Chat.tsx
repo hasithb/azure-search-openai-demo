@@ -448,13 +448,7 @@ const Chat = () => {
         // CUSTOM: If category loading fails, allow searching across all sources by default
         // instead of blocking the chat on an unavailable /api/categories endpoint.
         // The ref-guard prevents this from re-applying after the user explicitly deselects.
-        if (
-            showCategoryFilter &&
-            categoryLoadError &&
-            includeCategory.trim() === "" &&
-            !allCategoriesSelected &&
-            !hasAppliedAllSourcesFallbackRef.current
-        ) {
+        if (showCategoryFilter && categoryLoadError && includeCategory.trim() === "" && !allCategoriesSelected && !hasAppliedAllSourcesFallbackRef.current) {
             hasAppliedAllSourcesFallbackRef.current = true;
             setAllCategoriesSelected(true);
         }
