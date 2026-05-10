@@ -57,6 +57,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt
 
+      - name: Reset scrape workspace
+        run: |
+          rm -rf data/legal-scraper/processed/Upload data/legal-scraper/reports
+          mkdir -p data/legal-scraper/processed/Upload data/legal-scraper/reports
+
       - name: Scrape Civil Procedure Rules
         run: python scripts/legal-scraper/scrape_cpr.py
 
@@ -70,6 +75,31 @@ jobs:
             exit 1
           fi
         continue-on-error: true
+
+      - name: Verify CPR-only artifact contents
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          upload_dir = Path("data/legal-scraper/processed/Upload")
+          bad_files = []
+          for path in sorted(upload_dir.glob("*.json")):
+              with path.open("r", encoding="utf-8") as handle:
+                  doc = json.load(handle)
+              if isinstance(doc, list):
+                  sample = doc[0] if doc else {}
+              else:
+                  sample = doc
+              category = sample.get("category")
+              if category != "Civil Procedure Rules and Practice Directions":
+                  bad_files.append(f"{path.name}: {category!r}")
+
+          if bad_files:
+              raise SystemExit(
+                  "Non-CPR files detected in scrape artifact:\n" + "\n".join(bad_files)
+              )
+          PY
 
       - name: Upload scraped data artifact
         uses: actions/upload-artifact@v4
@@ -87,14 +117,15 @@ jobs:
           retention-days: 7
 
   # ──────────────────────────────────────────────────────────────────────────────
-  # Step 2: Diff analysis + Upload to production index v3
-  # (Requires Production environment approval — single gate for all Azure ops)
+  # Step 2: Diff analysis only
+  # (No approval required — read-only comparison against the current index)
   # ──────────────────────────────────────────────────────────────────────────────
-  upload-to-index:
+  diff-analysis:
     needs: scrape-and-validate
     if: needs.scrape-and-validate.result == 'success'
     runs-on: ubuntu-latest
-    environment: Production
+    outputs:
+      has_changes: ${{ steps.diff.outputs.has_changes }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -111,64 +142,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt
 
+      - name: Reset diff workspace
+        run: |
+          rm -rf data/legal-scraper/processed/Upload data/legal-scraper/reports
+          mkdir -p data/legal-scraper/processed/Upload data/legal-scraper/reports
+
       - name: Download CPR data
         uses: actions/download-artifact@v4
         with:
           name: cpr-scraped-data
           path: data/legal-scraper/processed/Upload/
-
-      - name: Azure Login
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Add runner IP to search firewall
-        id: firewall
-        run: |
-          RUNNER_IP=$(curl -s https://ifconfig.me)
-          echo "Runner IP: ${RUNNER_IP}"
-          echo "runner_ip=${RUNNER_IP}" >> $GITHUB_OUTPUT
-          SEARCH_RG="rg-cpr-rag-uksouth"
-          SEARCH_SVC="${{ secrets.AZURE_SEARCH_SERVICE }}"
-          CAPP_NAME="capps-backend-gz2m4s637t5me"
-
-          # Collect Container App outbound IPs to keep live app working
-          CAPP_IPS=$(az containerapp show -g "${SEARCH_RG}" -n "${CAPP_NAME}" \
-            --query "properties.outboundIpAddresses" -o tsv 2>/dev/null | tr '\t' '\n' | sort -u | head -100)
-          echo "Container App outbound IPs count: $(echo "$CAPP_IPS" | wc -l)"
-
-          # Build comma-separated IP list: runner + container app outbound IPs + admin IP
-          ALL_IPS="${RUNNER_IP},90.241.195.154"
-          for ip in ${CAPP_IPS}; do
-            ALL_IPS="${ALL_IPS},${ip}"
-          done
-          echo "Total IPs for whitelist: $(echo "${ALL_IPS}" | tr ',' '\n' | wc -l)"
-
-          # Add IPs to search service firewall
-          echo "Adding IPs to search service firewall..."
-          az search service update -g "${SEARCH_RG}" -n "${SEARCH_SVC}" \
-            --ip-rules "${ALL_IPS}" 2>&1
-
-          # Wait for propagation
-          echo "Waiting 30s for firewall propagation..."
-          sleep 30
-
-          # Test data plane access
-          TOKEN=$(python3 -c "
-          from azure.identity import ClientSecretCredential
-          c = ClientSecretCredential('${{ secrets.AZURE_TENANT_ID }}', '${{ secrets.AZURE_CLIENT_ID }}', '${{ secrets.AZURE_CLIENT_SECRET }}')
-          t = c.get_token('https://search.azure.com/.default')
-          print(t.token)
-          ")
-          SEARCH_EP="https://${SEARCH_SVC}.search.windows.net"
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            -H "Authorization: Bearer ${TOKEN}" \
-            "${SEARCH_EP}/indexes('${{ env.AZURE_SEARCH_INDEX }}')/docs?\$top=1&\$select=id&api-version=2023-11-01")
-          echo "Doc access after IP whitelist: HTTP ${STATUS}"
-        env:
-          AZURE_SEARCH_SERVICE: ${{ secrets.AZURE_SEARCH_SERVICE }}
 
       - name: Run diff analysis (dry run)
         id: diff
@@ -183,16 +166,6 @@ jobs:
           AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
 
-      - name: Check validation status
-        id: check
-        run: |
-          validation="${{ needs.scrape-and-validate.outputs.validation_status }}"
-          if [ "$validation" = "success" ]; then
-            echo "validation_ok=true" >> $GITHUB_OUTPUT
-          else
-            echo "validation_ok=false" >> $GITHUB_OUTPUT
-          fi
-
       - name: Create diff summary
         if: always()
         run: |
@@ -201,6 +174,18 @@ jobs:
           echo "**Target Index:** \`${{ env.AZURE_SEARCH_INDEX }}\`" >> $GITHUB_STEP_SUMMARY
           echo "**Run Date:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
           echo "**Source:** CPR (Civil Procedure Rules, Practice Directions, Pre-Action Protocols)" >> $GITHUB_STEP_SUMMARY
+          echo "**Validation Status:** ${{ needs.scrape-and-validate.outputs.validation_status }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            echo "**Approval:** Not required for this run because \`dry_run\` is enabled." >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ steps.diff.outputs.has_changes }}" != "true" ]; then
+            echo "**Approval:** Not required because the diff found no index changes." >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ needs.scrape-and-validate.outputs.validation_status }}" != "success" ] && [ "${{ github.event.inputs.force_upload }}" != "true" ]; then
+            echo "**Approval:** Not required because validation failed and \`force_upload\` was not enabled." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Approval:** A single Production approval will be requested before the upload job starts." >> $GITHUB_STEP_SUMMARY
+          fi
           echo "" >> $GITHUB_STEP_SUMMARY
 
           if [ -f "data/legal-scraper/reports/upload_plan.txt" ]; then
@@ -220,39 +205,169 @@ jobs:
           path: data/legal-scraper/reports/
           retention-days: 30
 
-      - name: Gate upload on validation and dry_run
-        id: gate
-        run: |
-          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
-            echo "🔍 Dry-run mode — skipping upload."
-            echo "skip=true" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-          validation="${{ steps.check.outputs.validation_ok }}"
-          force="${{ github.event.inputs.force_upload }}"
-          if [ "$validation" != "true" ] && [ "$force" != "true" ]; then
-            echo "❌ Validation failed and force_upload not set — skipping upload."
-            echo "skip=true" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-          echo "skip=false" >> $GITHUB_OUTPUT
+  # ──────────────────────────────────────────────────────────────────────────────
+  # Step 3: Upload to production index v3
+  # (Requires Production environment approval only when a write will occur)
+  # ──────────────────────────────────────────────────────────────────────────────
+  upload-to-index:
+    needs: [scrape-and-validate, diff-analysis]
+    if: >-
+      needs.scrape-and-validate.result == 'success' &&
+      needs.diff-analysis.result == 'success' &&
+      github.event.inputs.dry_run != 'true' &&
+      needs.diff-analysis.outputs.has_changes == 'true' &&
+      (needs.scrape-and-validate.outputs.validation_status == 'success' || github.event.inputs.force_upload == 'true')
+    runs-on: ubuntu-latest
+    environment: Production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Upload to index v3
-        if: steps.gate.outputs.skip != 'true'
-        uses: nick-fields/retry@v3
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          timeout_minutes: 45
-          max_attempts: 3
-          retry_wait_seconds: 60
-          command: python scripts/legal-scraper/upload_with_embeddings.py --input Upload
-        env:
-          AZURE_SEARCH_SERVICE: ${{ secrets.AZURE_SEARCH_SERVICE }}
-          AZURE_SEARCH_INDEX: ${{ env.AZURE_SEARCH_INDEX }}
-          AZURE_OPENAI_SERVICE: ${{ secrets.AZURE_OPENAI_SERVICE }}
-          AZURE_OPENAI_EMB_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_EMB_DEPLOYMENT }}
-          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: 'requirements-dev.txt'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Reset upload workspace
+        run: |
+          rm -rf data/legal-scraper/processed/Upload data/legal-scraper/reports
+          mkdir -p data/legal-scraper/processed/Upload data/legal-scraper/reports
+
+      - name: Download CPR data
+        uses: actions/download-artifact@v4
+        with:
+          name: cpr-scraped-data
+          path: data/legal-scraper/processed/Upload/
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Resolve Azure uploader runtime
+        id: azure-uploader
+        run: |
+          APP_RG="rg-cpr-rag-uksouth"
+          APP_NAME="capps-backend-gz2m4s637t5me"
+          REGISTRY_SERVER=$(az containerapp show -g "${APP_RG}" -n "${APP_NAME}" --query "properties.template.containers[0].image" -o tsv | cut -d/ -f1)
+          IDENTITY_ID=$(az containerapp show -g "${APP_RG}" -n "${APP_NAME}" --query "keys(identity.userAssignedIdentities)[0]" -o tsv)
+          CLIENT_ID=$(az identity show --ids "${IDENTITY_ID}" --query clientId -o tsv)
+          ACR_NAME="${REGISTRY_SERVER%%.azurecr.io}"
+          IMAGE_TAG="legal-scraper-uploader:${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          CONTAINER_NAME="legal-scraper-uploader-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+
+          # Extract Azure service config from the deployed container app
+          # (more reliable than separate GitHub secrets)
+          SEARCH_SERVICE=$(az containerapp show -g "${APP_RG}" -n "${APP_NAME}" --query "properties.template.containers[0].env[?name=='AZURE_SEARCH_SERVICE'].value | [0]" -o tsv)
+          OPENAI_SERVICE=$(az containerapp show -g "${APP_RG}" -n "${APP_NAME}" --query "properties.template.containers[0].env[?name=='AZURE_OPENAI_SERVICE'].value | [0]" -o tsv)
+          OPENAI_EMB_DEPLOYMENT=$(az containerapp show -g "${APP_RG}" -n "${APP_NAME}" --query "properties.template.containers[0].env[?name=='AZURE_OPENAI_EMB_DEPLOYMENT'].value | [0]" -o tsv)
+
+          echo "Resolved: SEARCH_SERVICE=${SEARCH_SERVICE} OPENAI_SERVICE=${OPENAI_SERVICE} EMB_DEPLOYMENT=${OPENAI_EMB_DEPLOYMENT}"
+
+          echo "app_resource_group=${APP_RG}" >> $GITHUB_OUTPUT
+          echo "registry_server=${REGISTRY_SERVER}" >> $GITHUB_OUTPUT
+          echo "acr_name=${ACR_NAME}" >> $GITHUB_OUTPUT
+          echo "identity_id=${IDENTITY_ID}" >> $GITHUB_OUTPUT
+          echo "client_id=${CLIENT_ID}" >> $GITHUB_OUTPUT
+          echo "image_tag=${IMAGE_TAG}" >> $GITHUB_OUTPUT
+          echo "container_name=${CONTAINER_NAME}" >> $GITHUB_OUTPUT
+          echo "search_service=${SEARCH_SERVICE}" >> $GITHUB_OUTPUT
+          echo "openai_service=${OPENAI_SERVICE}" >> $GITHUB_OUTPUT
+          echo "openai_emb_deployment=${OPENAI_EMB_DEPLOYMENT}" >> $GITHUB_OUTPUT
+
+      - name: Build Azure uploader image
+        run: |
+          az acr build \
+            -r "${{ steps.azure-uploader.outputs.acr_name }}" \
+            -t "${{ steps.azure-uploader.outputs.image_tag }}" \
+            -f scripts/legal-scraper/Dockerfile.aci-uploader \
+            .
+
+      - name: Upload to index from Azure
+        run: |
+          mkdir -p data/legal-scraper/processed
+
+          az container delete \
+            -g "${{ steps.azure-uploader.outputs.app_resource_group }}" \
+            -n "${{ steps.azure-uploader.outputs.container_name }}" \
+            --yes >/dev/null 2>&1 || true
+
+          az container create \
+            -g "${{ steps.azure-uploader.outputs.app_resource_group }}" \
+            -n "${{ steps.azure-uploader.outputs.container_name }}" \
+            --os-type Linux \
+            --image "${{ steps.azure-uploader.outputs.registry_server }}/${{ steps.azure-uploader.outputs.image_tag }}" \
+            --registry-login-server "${{ steps.azure-uploader.outputs.registry_server }}" \
+            --acr-identity "${{ steps.azure-uploader.outputs.identity_id }}" \
+            --assign-identity "${{ steps.azure-uploader.outputs.identity_id }}" \
+            --restart-policy Never \
+            --cpu 2 \
+            --memory 4 \
+            --environment-variables \
+              AZURE_CLIENT_ID="${{ steps.azure-uploader.outputs.client_id }}" \
+              AZURE_SEARCH_SERVICE="${{ steps.azure-uploader.outputs.search_service }}" \
+              AZURE_SEARCH_INDEX="${{ env.AZURE_SEARCH_INDEX }}" \
+              AZURE_OPENAI_SERVICE="${{ steps.azure-uploader.outputs.openai_service }}" \
+              AZURE_OPENAI_EMB_DEPLOYMENT="${{ steps.azure-uploader.outputs.openai_emb_deployment }}" \
+            --command-line "python scripts/legal-scraper/upload_with_embeddings.py --input Upload" \
+            --no-wait \
+            -o none
+
+          terminated=false
+          for attempt in $(seq 1 120); do
+            provisioning=$(az container show -g "${{ steps.azure-uploader.outputs.app_resource_group }}" -n "${{ steps.azure-uploader.outputs.container_name }}" --query provisioningState -o tsv 2>/dev/null || true)
+            state=$(az container show -g "${{ steps.azure-uploader.outputs.app_resource_group }}" -n "${{ steps.azure-uploader.outputs.container_name }}" --query "containers[0].instanceView.currentState.state" -o tsv 2>/dev/null || true)
+            exit_code=$(az container show -g "${{ steps.azure-uploader.outputs.app_resource_group }}" -n "${{ steps.azure-uploader.outputs.container_name }}" --query "containers[0].instanceView.currentState.exitCode" -o tsv 2>/dev/null || true)
+            echo "ACI status: provisioning=${provisioning} state=${state} exitCode=${exit_code}"
+
+            if [ "${state}" = "Terminated" ]; then
+              terminated=true
+              break
+            fi
+
+            if [ "${provisioning}" = "Failed" ]; then
+              break
+            fi
+
+            sleep 15
+          done
+
+          # Retry log retrieval (Azure ACI logs endpoint can return transient 500s)
+          for log_attempt in 1 2 3; do
+            if az container logs \
+              -g "${{ steps.azure-uploader.outputs.app_resource_group }}" \
+              -n "${{ steps.azure-uploader.outputs.container_name }}" \
+              > data/legal-scraper/processed/upload_statistics.txt 2>&1; then
+              break
+            fi
+            echo "Log retrieval attempt ${log_attempt} failed, retrying in 5s..."
+            sleep 5
+          done
+
+          echo "=== Container logs ==="
+          cat data/legal-scraper/processed/upload_statistics.txt || true
+          echo "=== End container logs ==="
+
+          if [ "${terminated}" != "true" ]; then
+            echo "Container did not reach a terminated state in time."
+            az container show -g "${{ steps.azure-uploader.outputs.app_resource_group }}" -n "${{ steps.azure-uploader.outputs.container_name }}" --query 'instanceView.events[].{name:name,message:message}' -o table || true
+            exit 1
+          fi
+
+          final_exit=$(az container show -g "${{ steps.azure-uploader.outputs.app_resource_group }}" -n "${{ steps.azure-uploader.outputs.container_name }}" --query "containers[0].instanceView.currentState.exitCode" -o tsv)
+          echo "Azure uploader exit code: ${final_exit}"
+          if [ "${final_exit}" != "0" ]; then
+            exit 1
+          fi
 
       - name: Upload statistics
         if: always()
@@ -276,13 +391,10 @@ jobs:
             echo '```' >> $GITHUB_STEP_SUMMARY
           fi
 
-      - name: Remove runner IP from search firewall
+      - name: Delete Azure uploader container
         if: always()
         run: |
-          RUNNER_IP="${{ steps.firewall.outputs.runner_ip }}"
-          if [ -n "${RUNNER_IP}" ]; then
-            echo "Removing runner IP ${RUNNER_IP} from search service firewall..."
-            az search service update -g "rg-cpr-rag-uksouth" -n "${{ secrets.AZURE_SEARCH_SERVICE }}" \
-              --ip-rules "" 2>&1 || echo "Warning: failed to remove IP rule"
-            echo "Search firewall cleaned up."
-          fi
+          az container delete \
+            -g "${{ steps.azure-uploader.outputs.app_resource_group }}" \
+            -n "${{ steps.azure-uploader.outputs.container_name }}" \
+            --yes || true
