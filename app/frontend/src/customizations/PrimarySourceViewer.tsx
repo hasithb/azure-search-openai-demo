@@ -14,7 +14,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { isIframeBlocked, pickDistinctivePhrase, buildTextFragmentUrl } from "./externalSourceHandler";
+import { isIframeBlocked, pickDistinctivePhrase, buildTextFragmentUrl, cleanPassageContent } from "./externalSourceHandler";
 import type { StructuredCitationMetadata } from "./citationMetadata";
 import { loadPdfDocument, parsePageNumber, buildSearchNeedles, highlightInTextLayer, type PdfDocument, type HighlightResult } from "./pdfHighlighter";
 import styles from "./PrimarySourceViewer.module.css";
@@ -439,7 +439,10 @@ function Toolbar({ docName, where, status }: { docName: string; where: string; s
 }
 
 function PassageBanner({ metadata, title }: { metadata?: StructuredCitationMetadata; title: string }) {
-    const quote = (metadata?.content || "").trim();
+    const raw = (metadata?.content || "").trim();
+    if (!raw) return null;
+    // Strip all index noise ([breadcrumbs], ## headings, rule numbers) before display.
+    const quote = cleanPassageContent(raw);
     if (!quote) return null;
     return (
         <div className={styles.banner}>

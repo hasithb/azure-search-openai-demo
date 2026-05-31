@@ -54,39 +54,56 @@ _FRAME_BUSTER_RE = re.compile(
 )
 
 # Highlight script injected into the proxied page.
-# Reads window.__HIGHLIGHT_PHRASE__, walks text nodes, wraps the first match
-# in a <mark> and scrolls it into view.
+# Reads window.__HIGHLIGHT_PHRASE__, builds a flexible regex that matches
+# the phrase with any internal whitespace, then wraps the first match in
+# a <mark> and scrolls it into view.
+# Key correctness fix: use the regex match's own .index/.length to slice the
+# ORIGINAL text node content, not the indices from the normalised string.
 _HIGHLIGHT_SCRIPT = r"""
 <script>
 (function() {
-  try {
-    var phrase = window.__HIGHLIGHT_PHRASE__;
-    if (!phrase || phrase.length < 3) return;
-    var norm = function(s) { return s.replace(/\s+/g, ' ').toLowerCase().trim(); };
-    var normPhrase = norm(phrase);
-    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
-    var node;
-    while ((node = walker.nextNode())) {
-      var text = norm(node.textContent || '');
-      var idx = text.indexOf(normPhrase);
-      if (idx === -1) continue;
-      var parent = node.parentNode;
-      if (!parent) continue;
-      var before = node.textContent.slice(0, idx);
-      var matched = node.textContent.slice(idx, idx + phrase.length);
-      var after = node.textContent.slice(idx + phrase.length);
-      var mark = document.createElement('mark');
-      mark.style.cssText = 'background:#fde68a;color:inherit;border-radius:2px;scroll-margin:120px;padding:0 2px';
-      mark.textContent = matched;
-      var frag = document.createDocumentFragment();
-      if (before) frag.appendChild(document.createTextNode(before));
-      frag.appendChild(mark);
-      if (after) frag.appendChild(document.createTextNode(after));
-      parent.replaceChild(frag, node);
-      mark.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      break;
-    }
-  } catch(e) {}
+  function run() {
+    try {
+      var phrase = window.__HIGHLIGHT_PHRASE__;
+      if (!phrase || phrase.length < 3) return;
+      // Build a flexible regex: collapse phrase whitespace, escape special chars,
+      // then allow any whitespace between words so it matches across DOM whitespace.
+      var escaped = phrase.trim()
+        .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        .replace(/\s+/g, '\\s+');
+      var re = new RegExp(escaped, 'i');
+      var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+      var node;
+      while ((node = walker.nextNode())) {
+        var nodeText = node.textContent || '';
+        var m = re.exec(nodeText);
+        if (!m) continue;
+        var parent = node.parentNode;
+        if (!parent || parent.nodeName === 'SCRIPT' || parent.nodeName === 'STYLE') continue;
+        var before = nodeText.slice(0, m.index);
+        var matched = m[0];
+        var after = nodeText.slice(m.index + matched.length);
+        var mark = document.createElement('mark');
+        mark.style.cssText = 'background:#fde68a;color:inherit;border-radius:2px;scroll-margin:120px;padding:0 2px;outline:2px solid #f59e0b';
+        mark.textContent = matched;
+        var frag = document.createDocumentFragment();
+        if (before) frag.appendChild(document.createTextNode(before));
+        frag.appendChild(mark);
+        if (after) frag.appendChild(document.createTextNode(after));
+        parent.replaceChild(frag, node);
+        mark.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+    } catch(e) {}
+  }
+  // Run after DOM is ready, and once more after a short delay for pages that
+  // render content via JavaScript (e.g. hydration, lazy loading).
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', run);
+  } else {
+    run();
+  }
+  setTimeout(run, 800);
 })();
 </script>
 """

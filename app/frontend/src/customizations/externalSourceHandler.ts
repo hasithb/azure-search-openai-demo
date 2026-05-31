@@ -16,16 +16,37 @@ export const isIframeBlocked = (url: string): boolean => {
 };
 
 /**
+ * Remove all backend index noise from a passage string:
+ *   - [BREADCRUMB > PATH] annotations (anywhere in the string)
+ *   - Markdown headings (## 1.1, # Title, etc.)
+ *   - Bare rule/section numbers at the start of a line (1.1, 3.2A, etc.)
+ *   - Paragraph labels like (1), (a), (i) at the start of a segment
+ * Returns plain, human-readable prose.
+ */
+export function cleanPassageContent(content: string): string {
+    return content
+        .replace(/\[[^\]]*\]/g, "") // strip ALL [breadcrumb] annotations
+        .replace(/^#{1,6}\s*/gm, "") // strip ## markdown headings
+        .replace(/^\s*\d+\.\d+[A-Z]?\s+/gm, "") // strip rule numbers like 1.1 or 3.2A
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+/**
  * Pick a short, distinctive phrase from extracted passage content for use as a
- * highlight target. Strips leading breadcrumb annotations like [PART X > Y],
- * then returns the first ~8 words of the actual passage text.
+ * highlight target. Strips all index noise, then returns the first ~8 words of
+ * the actual passage text.
  */
 export function pickDistinctivePhrase(content: string | undefined): string {
     if (!content) return "";
-    // Strip leading [BREADCRUMB] annotations the backend injects.
-    const stripped = content.replace(/^(\[[^\]]*\]\s*)+/, "").trim();
-    // Take first ~8 words.
-    const words = stripped.split(/\s+/).slice(0, 8).join(" ");
+    const clean = cleanPassageContent(content);
+    // Take first ~8 words, skipping any leading (1)/(a) paragraph labels.
+    const words = clean
+        .replace(/^(\(\w+\)\s*)+/, "") // skip leading (1) (a) etc.
+        .trim()
+        .split(/\s+/)
+        .slice(0, 8)
+        .join(" ");
     return words;
 }
 
