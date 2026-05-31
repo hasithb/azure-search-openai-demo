@@ -17,6 +17,8 @@ export interface StructuredCitationMetadata {
     category: string;
     content: string;
     storageUrl: string;
+    /** Full section text from the index (dp.full_content). Used as a reader-view fallback. */
+    fullContent: string;
 }
 
 /**
@@ -25,7 +27,7 @@ export interface StructuredCitationMetadata {
  */
 export function extractMetadataFromDataPoint(dp: SourceTextItem | undefined | null): StructuredCitationMetadata {
     if (!dp) {
-        return { subsectionId: "", sourcepage: "", sourcefile: "", category: "", content: "", storageUrl: "" };
+        return { subsectionId: "", sourcepage: "", sourcefile: "", category: "", content: "", storageUrl: "", fullContent: "" };
     }
     return {
         subsectionId: (dp.subsection_id ?? "").trim(),
@@ -33,12 +35,24 @@ export function extractMetadataFromDataPoint(dp: SourceTextItem | undefined | nu
         sourcefile: (dp.sourcefile ?? "").trim(),
         category: (dp.category ?? "").trim(),
         content: (dp.content ?? "").trim(),
-        storageUrl: (dp.storageurl ?? "").trim()
+        storageUrl: (dp.storageurl ?? "").trim(),
+        fullContent: (dp.full_content ?? "").trim()
     };
 }
 
 function normalizeLabelPart(value: string): string {
     return value.trim().replace(/\s+/g, " ").toLowerCase();
+}
+
+function sourcepageAlreadyCoversSourcefile(sourcepage: string, sourcefile: string): boolean {
+    const normalizedSourcepage = normalizeLabelPart(sourcepage);
+    const normalizedSourcefile = normalizeLabelPart(sourcefile);
+
+    if (!normalizedSourcepage || !normalizedSourcefile) {
+        return false;
+    }
+
+    return normalizedSourcepage === normalizedSourcefile || normalizedSourcepage.startsWith(`${normalizedSourcefile} `);
 }
 
 /**
@@ -67,7 +81,8 @@ export function buildCitationLabel(metadata: Partial<StructuredCitationMetadata>
     if (
         sourcefile &&
         normalizeLabelPart(sourcefile) !== normalizeLabelPart(sourcepage) &&
-        normalizeLabelPart(sourcefile) !== normalizeLabelPart(subsectionId)
+        normalizeLabelPart(sourcefile) !== normalizeLabelPart(subsectionId) &&
+        !sourcepageAlreadyCoversSourcefile(sourcepage, sourcefile)
     ) {
         parts.push(sourcefile);
     }

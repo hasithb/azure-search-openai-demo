@@ -17,7 +17,9 @@ from azure.cognitiveservices.speech import (
     SpeechSynthesizer,
 )
 from azure.identity.aio import (
+    AzureCliCredential,
     AzureDeveloperCliCredential,
+    ChainedTokenCredential,
     ManagedIdentityCredential,
     get_bearer_token_provider,
 )
@@ -49,7 +51,7 @@ from approaches.chatreadretrieveread import ChatReadRetrieveReadApproach
 from approaches.promptmanager import PromptManager
 from chat_history.cosmosdb import chat_history_cosmosdb_bp
 from customizations.config import fetch_available_sources, is_deployed_ui_compat_enabled, is_feature_enabled
-from customizations.routes import categories_bp, feedback_bp
+from customizations.routes import categories_bp, feedback_bp, proxy_source_bp
 from config import (
     CONFIG_AGENTIC_KNOWLEDGEBASE_ENABLED,
     CONFIG_AUTH_CLIENT,
@@ -511,7 +513,7 @@ async def setup_clients():
     # Use the current user identity for keyless authentication to Azure services.
     # This assumes you use 'azd auth login' locally, and managed identity when deployed on Azure.
     # The managed identity is setup in the infra/ folder.
-    azure_credential: AzureDeveloperCliCredential | ManagedIdentityCredential
+    azure_credential: ChainedTokenCredential | AzureDeveloperCliCredential | ManagedIdentityCredential
     azure_ai_token_provider: Callable[[], Awaitable[str]]
     if RUNNING_ON_AZURE:
         current_app.logger.info("Setting up Azure credential using ManagedIdentityCredential")
@@ -527,9 +529,13 @@ async def setup_clients():
             azure_credential = ManagedIdentityCredential()
     elif AZURE_TENANT_ID:
         current_app.logger.info(
-            "Setting up Azure credential using AzureDeveloperCliCredential with tenant_id %s", AZURE_TENANT_ID
+            "Setting up Azure credential using AzureDeveloperCliCredential with tenant_id %s (with AzureCliCredential fallback)", AZURE_TENANT_ID
         )
-        azure_credential = AzureDeveloperCliCredential(tenant_id=AZURE_TENANT_ID, process_timeout=60)
+        # CUSTOM: Fall back to AzureCliCredential if azd token is expired (e.g. >90 day inactivity)
+        azure_credential = ChainedTokenCredential(
+            AzureCliCredential(tenant_id=AZURE_TENANT_ID, process_timeout=60),
+            AzureDeveloperCliCredential(tenant_id=AZURE_TENANT_ID, process_timeout=60),
+        )
     else:
         current_app.logger.info("Setting up Azure credential using AzureDeveloperCliCredential for home tenant")
         azure_credential = AzureDeveloperCliCredential(process_timeout=60)
@@ -796,6 +802,7 @@ def create_app():
     app.register_blueprint(chat_history_cosmosdb_bp)
     app.register_blueprint(categories_bp)
     app.register_blueprint(feedback_bp)
+    app.register_blueprint(proxy_source_bp)
 
     if os.getenv("APPLICATIONINSIGHTS_CONNECTION_STRING"):
         app.logger.info("APPLICATIONINSIGHTS_CONNECTION_STRING is set, enabling Azure Monitor")

@@ -44,7 +44,9 @@ export default defineConfig({
             // CUSTOM: Category filter API route
             "/api/categories": "http://localhost:50505",
             // CUSTOM: Legal feedback API route
-            "/api/feedback": "http://localhost:50505"
+            "/api/feedback": "http://localhost:50505",
+            // CUSTOM: Primary source reverse proxy (strips X-Frame-Options for legal sources)
+            "/api/proxy-source": "http://localhost:50505"
         }
     }
 });

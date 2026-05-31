@@ -14,7 +14,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { isIframeBlocked } from "./externalSourceHandler";
+import { isIframeBlocked, pickDistinctivePhrase, buildTextFragmentUrl } from "./externalSourceHandler";
 import type { StructuredCitationMetadata } from "./citationMetadata";
 import { loadPdfDocument, parsePageNumber, buildSearchNeedles, highlightInTextLayer, type PdfDocument, type HighlightResult } from "./pdfHighlighter";
 import styles from "./PrimarySourceViewer.module.css";
@@ -61,13 +61,19 @@ export function PrimarySourceViewer({ citationFilePath, metadata, citationLabel,
     const extension = citationFilePath ? getExtension(citationFilePath) : "";
     const isPdf = extension === "pdf";
 
+    // Keep a stable ref to the latest onVerified so its changing identity never
+    // re-triggers the effects below (parents commonly pass an inline callback,
+    // and including it in deps caused an infinite render loop / React #185).
+    const onVerifiedRef = useRef(onVerified);
+    onVerifiedRef.current = onVerified;
+
     // Non-PDF sources can't be auto-verified inside the panel (cross-document iframe);
     // report "none" once so the parent doesn't show a false verification tick.
     useEffect(() => {
         if (citationFilePath && !isPdf) {
-            onVerified?.("none");
+            onVerifiedRef.current?.("none");
         }
-    }, [citationFilePath, isPdf, onVerified]);
+    }, [citationFilePath, isPdf]);
 
     if (!citationFilePath) {
         return <div className={styles.message}>No primary source available for this citation.</div>;
@@ -92,21 +98,30 @@ export function PrimarySourceViewer({ citationFilePath, metadata, citationLabel,
 
     const openInNewTab = () => window.open(externalSource || citationFilePath, "_blank", "noopener,noreferrer");
 
-    // External source that blocks embedding (justice.gov.uk, legislation.gov.uk, ...) -> banner + open in new tab.
-    // This is the common case for the Civil Procedure Rules, whose only primary source is the iframe-blocked HTML page.
+    // External source that blocks direct embedding (justice.gov.uk, legislation.gov.uk, ...).
+    // Route through the same-origin reverse proxy (/api/proxy-source) which strips the
+    // X-Frame-Options / frame-ancestors headers and injects a highlight script so the cited
+    // passage is visible in-panel. A secondary "Open in new tab" button (with a Scroll-To-Text-
+    // Fragment deep link) is shown below the frame as an escape hatch.
     if (externalSource && isIframeBlocked(externalSource)) {
+        const phrase = pickDistinctivePhrase(metadata?.content);
+        const proxySrc = `/api/proxy-source?url=${encodeURIComponent(externalSource)}&q=${encodeURIComponent(phrase)}`;
+        const newTabUrl = buildTextFragmentUrl(externalSource, metadata?.content);
+        const docName = citationLabel || docNameFromPath(citationFilePath);
         return (
             <div className={styles.primarySource}>
-                <PassageBanner metadata={metadata} title="This source can't be embedded" />
-                <div className={styles.fallbackBox}>
-                    <div className={styles.fallbackIcon}>🚫</div>
-                    <p>
-                        <strong>The provider blocks display inside other sites.</strong>
-                    </p>
-                    <p>
-                        We can take you straight to the cited passage in a new browser tab. The extracted text is shown above and on the Supporting content tab.
-                    </p>
-                    <button className={styles.fallbackButton} onClick={openInNewTab}>
+                <Toolbar docName={docName} where={metadata?.subsectionId ? `→ ${metadata.subsectionId}` : ""} status="none" />
+                <PassageBanner metadata={metadata} title="Cited passage — highlighted in the source below" />
+                <iframe
+                    key={proxySrc}
+                    title="Primary source"
+                    src={proxySrc}
+                    className={styles.frame}
+                    style={{ height, border: "none", width: "100%" }}
+                    sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+                />
+                <div className={styles.fallbackBox} style={{ marginTop: 8 }}>
+                    <button className={styles.fallbackButton} onClick={() => window.open(newTabUrl, "_blank", "noopener,noreferrer")}>
                         Open primary source in new tab
                     </button>
                 </div>
@@ -121,6 +136,32 @@ export function PrimarySourceViewer({ citationFilePath, metadata, citationLabel,
             <div className={styles.primarySource}>
                 <Toolbar docName={docName} where="" status="none" />
                 <img src={citationFilePath} alt={docName} style={{ maxWidth: "100%", borderRadius: 8 }} />
+            </div>
+        );
+    }
+
+    // When there is no embeddable live source we must not point an iframe at a local
+    // /content/<sourcefile> path that the backend can't serve. Many corpus entries (e.g. the
+    // court guides) are indexed as chunks whose source document isn't browsable in-app and
+    // carry no external storageUrl, so their citation path has no real file behind it (often no
+    // file extension at all). Embedding it just renders a raw "Not Found" page. Detect that case
+    // and show the extracted passage gracefully instead.
+    const browsableWebTypes = ["html", "htm", "md", "txt"];
+    const hasEmbeddableSource = !!externalSource || browsableWebTypes.includes(extension);
+    if (!hasEmbeddableSource) {
+        return (
+            <div className={styles.primarySource}>
+                <Toolbar docName={docName} where={metadata?.subsectionId ? `→ ${metadata.subsectionId}` : ""} status="none" />
+                <PassageBanner metadata={metadata} title="Cited passage from the primary source" />
+                <div className={styles.fallbackBox}>
+                    <div className={styles.fallbackIcon}>📄</div>
+                    <p>
+                        <strong>This source document can't be displayed in the panel.</strong>
+                    </p>
+                    <p>
+                        The extracted passage is shown above and on the Supporting content tab. Verify the wording there against your own copy of the document.
+                    </p>
+                </div>
             </div>
         );
     }
@@ -152,6 +193,11 @@ function PdfHighlightView({ citationFilePath, metadata, citationLabel, needles, 
     const scrollRef = useRef<HTMLDivElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
     const docRef = useRef<PdfDocument | null>(null);
+
+    // Stable ref to onVerified so the render effect (which intentionally excludes
+    // it from deps) always calls the latest parent callback without re-running.
+    const onVerifiedRef = useRef(onVerified);
+    onVerifiedRef.current = onVerified;
 
     const [numPages, setNumPages] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
@@ -189,7 +235,7 @@ function PdfHighlightView({ citationFilePath, metadata, citationLabel, needles, 
                 console.error("Failed to load primary source PDF", err);
                 if (!cancelled) {
                     setStatus("error");
-                    onVerified?.("none");
+                    onVerifiedRef.current?.("none");
                 }
             }
         })();
@@ -266,7 +312,7 @@ function PdfHighlightView({ citationFilePath, metadata, citationLabel, needles, 
                 if (shouldHighlight) {
                     const { firstSpan, quality } = highlightInTextLayer(textLayerDiv, needles, HIGHLIGHT_CLASS);
                     applyStatus(quality);
-                    onVerified?.(quality);
+                    onVerifiedRef.current?.(quality);
                     if (firstSpan) {
                         setTimeout(() => {
                             if (!cancelled) firstSpan.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -274,13 +320,13 @@ function PdfHighlightView({ citationFilePath, metadata, citationLabel, needles, 
                     }
                 } else {
                     setStatus("none");
-                    onVerified?.("none");
+                    onVerifiedRef.current?.("none");
                 }
             } catch (err) {
                 if (!cancelled && (err as Error)?.name !== "RenderingCancelledException") {
                     console.error("Failed to render primary source page", err);
                     setStatus("error");
-                    onVerified?.("none");
+                    onVerifiedRef.current?.("none");
                 }
             }
         })();

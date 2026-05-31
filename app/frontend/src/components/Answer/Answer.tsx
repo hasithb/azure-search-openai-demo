@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "@fluentui/react-components";
 import { Copy24Regular, Checkmark24Regular, LightbulbFilament24Regular, ClipboardTextLtr24Regular } from "@fluentui/react-icons";
 import { useTranslation } from "react-i18next";
@@ -54,6 +54,16 @@ export const Answer = ({
     const { t } = useTranslation();
     const sanitizedAnswerHtml = DOMPurify.sanitize(parsedAnswer.answerHtml);
     const [copied, setCopied] = useState(false);
+    // CUSTOM: Gate citation list visibility to avoid flicker during streaming
+    const [showCitations, setShowCitations] = useState(false);
+    useEffect(() => {
+        if (isStreaming) {
+            setShowCitations(false);
+            return;
+        }
+        const timer = setTimeout(() => setShowCitations(true), 150);
+        return () => clearTimeout(timer);
+    }, [isStreaming]);
     // CUSTOM: Only show Thought Process button in admin mode
     const adminMode = isAdminMode();
 
@@ -157,18 +167,60 @@ export const Answer = ({
                 const escaped = subsection.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
                 const subsectionPattern = new RegExp(`(^|\\n)\\s*${escaped}\\b`, "i");
 
-                return dataPointsArray.find(dataPoint => {
-                    const sourcepage = String(dataPoint.sourcepage || "").trim();
-                    const sourcefile = String(dataPoint.sourcefile || "").trim();
-                    const subsectionId = String(dataPoint.subsection_id || "").trim();
-                    const content = String(dataPoint.content || "");
-
+                // Stage 0: exact match on subsection_id + sourcepage + sourcefile
+                const exactAll = dataPointsArray.find(dp => {
                     return (
-                        (subsectionId === subsection && sourcepage === sourcePage && sourcefile === sourceFile) ||
-                        (subsectionPattern.test(content) && sourcepage === sourcePage && sourcefile === sourceFile) ||
-                        (sourcepage === sourcePage && sourcefile === sourceFile)
+                        String(dp.subsection_id || "").trim() === subsection &&
+                        String(dp.sourcepage || "").trim() === sourcePage &&
+                        String(dp.sourcefile || "").trim() === sourceFile
                     );
                 });
+                if (exactAll) return exactAll;
+
+                // Stage 1: subsection in content start + exact page/file
+                const contentMeta = dataPointsArray.find(dp => {
+                    return (
+                        subsectionPattern.test(String(dp.content || "")) &&
+                        String(dp.sourcepage || "").trim() === sourcePage &&
+                        String(dp.sourcefile || "").trim() === sourceFile
+                    );
+                });
+                if (contentMeta) return contentMeta;
+
+                // Stage 2: exact sourcepage + sourcefile
+                const exact = dataPointsArray.find(dp => {
+                    return String(dp.sourcepage || "").trim() === sourcePage && String(dp.sourcefile || "").trim() === sourceFile;
+                });
+                if (exact) return exact;
+
+                // Stage 3: fuzzy includes (partial match on sourcepage or sourcefile)
+                const fuzzy = dataPointsArray.find(dp => {
+                    const dpSourcepage = String(dp.sourcepage || "").trim();
+                    const dpSourcefile = String(dp.sourcefile || "").trim();
+                    return (
+                        dpSourcepage.includes(sourcePage) ||
+                        sourcePage.includes(dpSourcepage) ||
+                        dpSourcefile.includes(sourceFile) ||
+                        sourceFile.includes(dpSourcefile)
+                    );
+                });
+                if (fuzzy) return fuzzy;
+
+                // Stage 4: court guide fallback — match by sourcefile for non-CPR sources
+                const isCourtGuideCategory = (value?: string) => {
+                    if (!value) return false;
+                    return value.toLowerCase() !== "civil procedure rules and practice directions".toLowerCase();
+                };
+                const courtGuide = dataPointsArray.find(dp => {
+                    const dpSourcefile = String(dp.sourcefile || "").trim();
+                    const dpSourcepage = String(dp.sourcepage || "").trim();
+                    const dpCategory = String(dp.category || "").trim();
+                    if (!isCourtGuideCategory(dpCategory)) return false;
+                    if (!dpSourcefile || dpSourcefile !== sourceFile) return false;
+                    if (!sourcePage) return true;
+                    return dpSourcepage.includes(sourcePage) || sourcePage.includes(dpSourcepage);
+                });
+                return courtGuide;
             }
 
             if (parsedCitation.kind === "two") {
@@ -228,7 +280,8 @@ export const Answer = ({
                         sourcefile: supContainer.getAttribute("data-sourcefile") || "",
                         category: supContainer.getAttribute("data-category") || "",
                         content: finalCitationContent,
-                        storageUrl: ""
+                        storageUrl: "",
+                        fullContent: ""
                     };
                     const hasMetadata = metadata.subsectionId || metadata.sourcepage || metadata.sourcefile || metadata.category;
                     onCitationClicked(citationPath, finalCitationContent || undefined, hasMetadata ? metadata : undefined, selectionId);
@@ -290,7 +343,7 @@ export const Answer = ({
                 </div>
             </div>
 
-            {!!parsedAnswer.citations.length && (
+            {showCitations && !!parsedAnswer.citations.length && (
                 <div>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: "5px" }}>
                         <span className={styles.citationLearnMore}>{t("citationWithColon")}</span>
@@ -322,7 +375,8 @@ export const Answer = ({
                                               sourcefile: citation.sourcefile || "",
                                               category: citation.category || "",
                                               content: citation.content || "",
-                                              storageUrl: citation.storageUrl || ""
+                                              storageUrl: citation.storageUrl || "",
+                                              fullContent: ""
                                           }
                                         : undefined;
                                 const citationPath = citMeta
