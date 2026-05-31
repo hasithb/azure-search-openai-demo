@@ -58,3 +58,6 @@ export { deduplicatePreservingSubsections } from "./chunkDeduplicator";
 
 // Citation metadata display component
 export { CitationMetadataDisplay } from "./CitationMetadataDisplay";
+
+// Primary source viewer (live PDF/HTML with the cited section highlighted)
+export { PrimarySourceViewer } from "./PrimarySourceViewer";

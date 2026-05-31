@@ -208,6 +208,73 @@
     outline-offset: 2px;
 }
 
+/* CUSTOM: Primary source button — emphasised as the lawyer-facing validation action */
+.primarySourceButton {
+    background: #1f6feb;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.primarySourceButton::before {
+    content: "⤢";
+    font-size: 14px;
+    line-height: 1;
+}
+
+.primarySourceButton:hover {
+    background: #1657c4;
+}
+
+.primarySourceButton:focus {
+    outline: 2px solid #1f6feb;
+    outline-offset: 2px;
+}
+
+/* CUSTOM: Button turns green once the cited text is verified as an exact match in the primary source */
+.primarySourceButtonVerified {
+    background: #15803d;
+}
+
+.primarySourceButtonVerified::before {
+    content: "✓";
+}
+
+.primarySourceButtonVerified:hover {
+    background: #126c34;
+}
+
+.primarySourceButtonVerified:focus {
+    outline-color: #15803d;
+}
+
+/* CUSTOM: Button turns amber when an approximate match is located in the primary source */
+.primarySourceButtonApprox {
+    background: #b45309;
+}
+
+.primarySourceButtonApprox::before {
+    content: "≈";
+}
+
+.primarySourceButtonApprox:hover {
+    background: #97440a;
+}
+
+.primarySourceButtonApprox:focus {
+    outline-color: #b45309;
+}
+
+/* CUSTOM: Verification tick shown once the cited text is located in the primary source */
 .highlightedSubsectionBox {
     margin: 14px 0;
     padding: 12px 14px;

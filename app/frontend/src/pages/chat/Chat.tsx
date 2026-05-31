@@ -101,6 +101,8 @@ const Chat = () => {
     const [activeCitationLabel, setActiveCitationLabel] = useState<string>("");
     // CUSTOM: Structured metadata for precise SupportingContent matching
     const [activeCitationMetadata, setActiveCitationMetadata] = useState<StructuredCitationMetadata | undefined>();
+    // CUSTOM: Primary-source verification results, keyed by citation file path
+    const [citationVerification, setCitationVerification] = useState<Record<string, "exact" | "approximate" | "none">>({});
     const [activeAnalysisPanelTab, setActiveAnalysisPanelTab] = useState<AnalysisPanelTabs | undefined>(undefined);
     const [enableCitationTab, setEnableCitationTab] = useState(false);
 
@@ -878,6 +880,8 @@ const Chat = () => {
                                 activeCitationLabel={activeCitationLabel}
                                 activeCitationContent={activeCitationContent}
                                 activeCitationMetadata={activeCitationMetadata}
+                                activeCitationVerified={activeCitation ? citationVerification[activeCitation] : undefined}
+                                onCitationVerified={result => activeCitation && setCitationVerification(prev => ({ ...prev, [activeCitation]: result }))}
                             />
                         </div>
                     </>
@@ -898,6 +902,8 @@ const Chat = () => {
                         activeCitationLabel={activeCitationLabel}
                         activeCitationContent={activeCitationContent}
                         activeCitationMetadata={activeCitationMetadata}
+                        activeCitationVerified={activeCitation ? citationVerification[activeCitation] : undefined}
+                        onCitationVerified={result => activeCitation && setCitationVerification(prev => ({ ...prev, [activeCitation]: result }))}
                     />
                 )}
 

@@ -25,6 +25,10 @@ interface SupportingContentProps {
     onViewSourceDocument?: (citation: string) => void;
     // CUSTOM: Structured metadata for precise subsection matching
     activeCitationMetadata?: StructuredCitationMetadata;
+    // CUSTOM: Switch the analysis panel to the Primary Source tab (live PDF/HTML highlight)
+    onShowInPrimarySource?: () => void;
+    // CUSTOM: Primary-source verification result for the active citation
+    verifiedStatus?: "exact" | "approximate" | "none";
 }
 
 export function resolveTargetSubsection(activeCitationReference?: string, activeCitationMetadata?: StructuredCitationMetadata): string | null {
@@ -159,7 +163,9 @@ export const SupportingContent = ({
     activeCitationReference,
     activeCitationContent,
     onViewSourceDocument,
-    activeCitationMetadata
+    activeCitationMetadata,
+    onShowInPrimarySource,
+    verifiedStatus
 }: SupportingContentProps) => {
     const supportingContent = toContentArray(rawSupportingContent);
     const { t } = useTranslation();
@@ -368,6 +374,25 @@ export const SupportingContent = ({
                     </div>
                 );
             } else {
+                // CUSTOM: Fallback – the merged card's full_content may come from a different
+                // chunk than the one that contains the cited subsection (e.g. PD 51R 2.1 is in
+                // chunk_000 but the bestFullText may be chunk_006 covering section 7+).
+                // Use activeCitationMetadata.content directly when it carries the subsection text.
+                const fallbackRaw = activeCitationMetadata?.content;
+                if (fallbackRaw && fallbackRaw.trim()) {
+                    const fallbackOriginal = stripLeadingIndexPrefix(fallbackRaw);
+                    const formattedHighlightedContent = formatSupportingContentHtml(cleanSupportingContentForDisplay(fallbackOriginal), {
+                        highlight: true,
+                        sourceInfo
+                    });
+                    return (
+                        <div className={styles.itemContent}>
+                            <div style={{ fontFamily: "inherit", margin: 0, lineHeight: "1.4" }}>
+                                <div dangerouslySetInnerHTML={{ __html: formattedHighlightedContent }} />
+                            </div>
+                        </div>
+                    );
+                }
                 const formattedDisplayContent = formatSupportingContentHtml(displayContent);
                 return (
                     <div className={styles.itemContent}>
@@ -709,6 +734,32 @@ export const SupportingContent = ({
                         {renderContent(parsedItem.content, isActive, targetSubsection ?? undefined, displayTitle)}
 
                         <div className={styles.supportingContentActions}>
+                            {/* CUSTOM: Jump to the live primary source with the cited section highlighted */}
+                            {isActive && onShowInPrimarySource && (
+                                <button
+                                    className={`${styles.primarySourceButton} ${
+                                        verifiedStatus === "exact"
+                                            ? styles.primarySourceButtonVerified
+                                            : verifiedStatus === "approximate"
+                                              ? styles.primarySourceButtonApprox
+                                              : ""
+                                    }`}
+                                    onClick={onShowInPrimarySource}
+                                    title={
+                                        verifiedStatus === "exact"
+                                            ? "Verified: the cited text was located in the live primary source. Click to open the Primary Source tab and view it highlighted."
+                                            : verifiedStatus === "approximate"
+                                              ? "A close match was located in the live primary source. Click to open the Primary Source tab and review it."
+                                              : "Open the Primary Source tab to load the live document and highlight this section"
+                                    }
+                                >
+                                    {verifiedStatus === "exact"
+                                        ? "Verified in primary source — open"
+                                        : verifiedStatus === "approximate"
+                                          ? "Likely match — open in primary source"
+                                          : "Show in primary source"}
+                                </button>
+                            )}
                             {hasDocumentUrl && (
                                 <>
                                     {/* Only show "View Source" (in-panel) for admins; everyone else gets "View Source in New Tab" */}

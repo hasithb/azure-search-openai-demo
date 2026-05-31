@@ -33,7 +33,12 @@ export const CUSTOM_FEATURES = {
 
     // Preserve subsection boundaries during chunk deduplication — keeps chunks from
     // different subsections of the same document as separate items
-    preserveSubsectionBoundaries: true
+    preserveSubsectionBoundaries: true,
+
+    // Primary source tab — open the live PDF/HTML for a citation and highlight the
+    // cited section/subsection in the original document (PDF.js text-layer highlight).
+    // Lets lawyers validate AI findings against the primary source without manual hunting.
+    primarySourceTab: true
 };
 
 export function isFeatureEnabled(featureName: keyof typeof CUSTOM_FEATURES): boolean {
