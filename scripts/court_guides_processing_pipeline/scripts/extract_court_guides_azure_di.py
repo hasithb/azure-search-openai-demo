@@ -40,6 +40,9 @@ AZURE_DI_ENDPOINT = os.getenv(
     "AZURE_DOCUMENTINTELLIGENCE_ENDPOINT",
     "https://cog-di-gz2m4s637t5me.cognitiveservices.azure.com/",
 )
+DI_MODEL_ID = "prebuilt-layout"
+DI_OUTPUT_CONTENT_FORMAT = "markdown"
+EXTRACTION_MANIFEST = "court_guides_extraction_manifest.json"
 
 
 def sha256_file(path: str | Path) -> str:
@@ -746,6 +749,7 @@ def process_pdf(pdf_path: str, output_dir: str, dry_run: bool = False) -> list[d
 
     split_level = metadata.get("split_level", 2)
     annex_as_single = metadata.get("annex_as_single", True)
+    pdf_sha256 = sha256_file(pdf_path)
 
     logger.info("Processing: %s (category=%s, split_level=%d, annex_as_single=%s)",
                 pdf_name, metadata["category"], split_level, annex_as_single)
@@ -754,12 +758,12 @@ def process_pdf(pdf_path: str, output_dir: str, dry_run: bool = False) -> list[d
     md_path = os.path.join(output_dir, Path(pdf_name).stem + "_azure_di.md")
     if os.path.exists(md_path):
         logger.info("Reusing cached markdown from %s", md_path)
-        with open(md_path) as f:
+        with open(md_path, encoding="utf-8") as f:
             markdown = f.read()
     else:
         markdown = parse_with_azure_di(pdf_path)
         if not dry_run:
-            with open(md_path, "w") as f:
+            with open(md_path, "w", encoding="utf-8") as f:
                 f.write(markdown)
             logger.info("Saved raw markdown to %s", md_path)
 
@@ -803,6 +807,23 @@ def process_pdf(pdf_path: str, output_dir: str, dry_run: bool = False) -> list[d
         with open(output_path, "w") as f:
             json.dump(doc_dicts, f, indent=2, ensure_ascii=False)
         logger.info("Saved %d documents to %s", len(doc_dicts), output_path)
+        processed_sha256 = sha256_file(output_path)
+        manifest_path = Path(output_dir) / EXTRACTION_MANIFEST
+        manifest = {}
+        if manifest_path.exists():
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest.setdefault("schema_version", 1)
+        manifest.setdefault("model_id", DI_MODEL_ID)
+        manifest.setdefault("output_content_format", DI_OUTPUT_CONTENT_FORMAT)
+        manifest.setdefault("guides", {})
+        manifest["guides"][pdf_name] = {
+            "pdf_sha256": pdf_sha256,
+            "markdown_sha256": hashlib.sha256(markdown.encode("utf-8")).hexdigest(),
+            "processed_json": output_name,
+            "processed_json_sha256": processed_sha256,
+            "document_count": len(doc_dicts),
+        }
+        manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
     return doc_dicts
 
