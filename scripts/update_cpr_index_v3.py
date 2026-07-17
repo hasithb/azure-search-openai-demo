@@ -121,7 +121,7 @@ ACTION_LIST = [
     {"sourcefile": "Devolution Issues and Crown Office Applications in Wales (Welsh)", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/devolution_issues_welsh", "section": "D"},
     {"sourcefile": "PRACTICE DIRECTION 5C", "azure_id": None, "url": "https://www.justice.gov.uk/practice-direction-5c-ce-file-electronic-filing-and-case-management-system", "section": "D"},
     # ── Bonus: Debt Claims PAP (PDF) ──
-    {"sourcefile": "Pre-Action Protocol for Debt Claims", "azure_id": None, "url": "DISCOVER_FROM_PROTOCOL_PAGE", "section": "DEBT"},
+    {"sourcefile": "Pre-Action Protocol for Debt Claims", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/pdf/protocols/debt-pap.pdf", "section": "DEBT"},
 ]
 
 CATEGORY = "Civil Procedure Rules and Practice Directions"
