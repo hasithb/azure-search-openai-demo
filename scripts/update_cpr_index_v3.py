@@ -186,12 +186,26 @@ def clean_html(soup: BeautifulSoup) -> BeautifulSoup:
     return soup
 
 
-def scrape_page(session: requests.Session, url: str) -> Optional[dict]:
+def scrape_page(
+    session: requests.Session,
+    action_entry: dict | str,
+    prefetched_result: Optional[tuple] = None,
+) -> Optional[dict]:
     """
     Scrape a single justice.gov.uk page.
     Returns {"content": str, "title": str, "updated": str} or None.
     """
-    soup = fetch_soup(session, url)
+    if isinstance(action_entry, dict):
+        url = action_entry["url"]
+    else:
+        url = action_entry
+
+    if prefetched_result is not None:
+        soup, final_url, redirect_count = prefetched_result
+    else:
+        soup = fetch_soup(session, url)
+        final_url = url
+        redirect_count = 0
     if not soup:
         return None
 
@@ -296,7 +310,13 @@ def scrape_page(session: requests.Session, url: str) -> Optional[dict]:
     if h1_match:
         title = h1_match.group(1).strip()
 
-    return {"content": full_content, "title": title, "updated": updated}
+    return {
+        "content": full_content,
+        "title": title,
+        "updated": updated,
+        "_final_url": final_url,
+        "_redirect_count": redirect_count,
+    }
 
 
 # ---------------------------------------------------------------------------
