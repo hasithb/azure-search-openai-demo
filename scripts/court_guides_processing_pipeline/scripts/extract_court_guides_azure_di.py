@@ -792,6 +792,11 @@ def main():
         default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "outputs_azure_di"),
         help="Output directory for processed JSONs (default: ../outputs_azure_di/)",
     )
+    parser.add_argument(
+        "--capture-canonical",
+        action="store_true",
+        help="Download all configured canonical PDFs before extraction",
+    )
     parser.add_argument("--dry-run", action="store_true", help="Parse and report only, no file output")
     args = parser.parse_args()
 
