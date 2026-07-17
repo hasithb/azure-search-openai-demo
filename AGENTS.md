@@ -110,6 +110,15 @@ Use mocks from tests/conftest.py to mock external services. Prefer mocking at th
 
 For source-filter UI changes, prefer Playwright tests in `tests/e2e.py` that intercept `/api/categories` and the outgoing chat request, then assert the `include_category` override sent by the browser rather than relying on live retrieval behaviour.
 
+For index update approval, use `scripts/audit_source_documents.py` with a read-only
+Search snapshot and `--html-fidelity`. Approval requires 100% matching substantive
+legal blocks across every available canonical PDF and HTML source. N-gram and page
+coverage metrics are diagnostic only; unavailable, empty, unclassified, parse-failed,
+ambiguous, or unmatched blocks must block approval. The structured uploader diff reports
+removed CPR documents for review and does not delete them automatically. Every
+production write, including scheduled runs, is gated by the GitHub `Production`
+environment.
+
 For the built localhost app, use `scripts/test_live_citation_click.py` as a smoke test for the citation badge click flow. It verifies that clicking a rendered citation opens Supporting Content and creates a highlighted subsection anchor against the real built frontend served at `http://localhost:50505`.
 
 For A/B evaluation of the current chat flow against the experimental planner-validator-repair retrieval prototype, use `scripts/test_planner_ab_compare.py`. It bootstraps the same backend clients locally, runs the current solution and the experimental path side by side, and writes a JSON summary to `scripts/planner_ab_results.json`.
@@ -120,11 +129,27 @@ For testing whether giving the query rewrite tool more knowledge about the searc
 
 For testing whether pre-filtering by category improves court-specific queries, use `scripts/test_category_filter_impact.py`. It compares unfiltered search against category-filtered search for court-specific and CPR queries across 7 test cases. Results are written to `scripts/category_filter_results.json`. Key finding: category filtering can hurt broad CPR queries by over-narrowing the result set.
 
+For evaluating whether a self-hosted SearXNG metasearch instance improves answers for questions that benefit from current web context (court fees, current official forms, guide version currency, recent rule updates, remote hearings, etc.), use `scripts/test_searxng_web_augmentation.py`. It runs 20 hybrid-benefit questions and 5 regression questions across three modes: A (index only, current behaviour), B (SearXNG snippets injected into the prompt), and C (SearXNG discovery plus fetched page text). By default it restricts web results to official UK legal domains (gov.uk, judiciary.gov.uk, legislation.gov.uk, bailii.org, etc.). Results are written to `scripts/searxng_augmentation_results.json`. Key env vars: `APP_URL` (default `http://localhost:50505`), `SEARXNG_URL` (default `http://localhost:8080`), `OFFICIAL_DOMAINS_ONLY` (default `1`), `SKIP_MODE_C` (default `0`). If SearXNG is not running, only Mode A executes and Modes B/C are skipped gracefully. Start SearXNG locally with: `docker run -d -p 8080:8080 searxng/searxng`
+
 When you're running tests, make sure you activate the .venv virtual environment first:
 
 ```shell
 source .venv/bin/activate
 ```
+
+The repository's default `pytest` target is the `tests/` directory, as configured
+in `pyproject.toml`. This keeps operational scripts under `scripts/` from being
+collected as tests. The `tests/adhoc/` directory is excluded for the same reason:
+these checks may make live requests or require a running app. Run those scripts
+explicitly when their prerequisites are available.
+
+Tests marked `live` are also excluded from bare `pytest`; run `pytest -m live`
+explicitly when Azure credentials, the required index, or a running local app
+are available.
+
+Tests marked `integration` are excluded from bare `pytest` when they require
+external service fixtures or application startup. Run `pytest -m "live or
+integration"` for the full environment-dependent test set.
 
 To check for coverage, run the following command:
 
@@ -137,6 +162,56 @@ Open the cov_annotate directory to view the annotated source code. There will be
 For each file that has less than 100% test coverage, find the matching file in cov_annotate and review the file.
 
 If a line starts with a ! (exclamation mark), it means that the line is not covered by tests. Add tests to cover the missing lines.
+
+## Index accuracy & subsection audit
+
+The script `scripts/validate_index_accuracy.py` audits the live Azure AI Search index (`legal-court-rag-index-v3` on `gptkb-gz2m4s637t5me`) on two axes:
+
+1. Subsection audit (offline, index reads only): per source family (CPR, court guides) it reports structured field population (`subsection_id` / `subsections[]`), whether a subsection anchor is detectable in each chunk's `content` via the backend's own `SubsectionExtractor`, orphan chunks (no detectable subsection), mega-chunks (granularity too coarse), field/content mismatches, duplicate sourcepages, and CPR Part / Practice Direction coverage.
+2. Retrieval accuracy (online, optional): samples ground-truth questions, calls the running app `/chat` with the correct `include_category`, and checks the expected category and any referenced Part/PD/section appear in retrieved sources.
+
+Run it with:
+
+```shell
+source .venv/bin/activate
+python scripts/validate_index_accuracy.py                 # full audit + retrieval (app must be running)
+python scripts/validate_index_accuracy.py --no-retrieval  # offline structural audit only
+python scripts/validate_index_accuracy.py --retrieval-sample 3
+```
+
+Results are written to `scripts/index_accuracy_results.json`. Key baseline findings (2026-06): every category has ~100% content-anchor detectability (only ~3 title/contents orphans), CPR covers 87/89 Parts (43 and 78 are genuinely defunct) plus 123 PDs, and the dominant subsectioning issue is coarse "mega-chunks" — 199 CPR Parts are stored whole (one chunk = an entire Part with 30-100+ subsections) and King's Bench averages ~35 subsections/chunk. Structured `subsection_id`/`subsections[]` fields are populated for only 177/376 CPR docs and 0 court-guide docs, so runtime subsection extraction (not the index fields) is what the app depends on.
+
+For a canonical source-to-index fidelity audit, use `scripts/audit_source_documents.py`. It inventories the eight court-guide PDFs plus the CPR/web corpus, reads Search documents only, and never uploads, deletes, or re-embeds index content. Prefer a cached snapshot when rerunning or reviewing a previous result:
+
+```shell
+source .venv/bin/activate
+
+# Acquire the read-only Search inventory once.
+python scripts/audit_source_documents.py \
+  --write-snapshot reports/source_document_index_snapshot.json \
+  --json-output reports/source_document_accuracy.json \
+  --markdown-output reports/source_document_accuracy.md
+
+# Compare the canonical PDFs against the cached Search inventory.
+python scripts/audit_source_documents.py \
+  --family pdf \
+  --index-snapshot reports/source_document_index_snapshot.json \
+  --json-output reports/source_document_accuracy_pdf.json \
+  --markdown-output reports/source_document_accuracy_pdf.md
+
+# Fetch official HTML sources and compare them against the same cached inventory.
+python scripts/audit_source_documents.py \
+  --html-fidelity \
+  --index-snapshot reports/source_document_index_snapshot.json \
+  --json-output reports/source_document_accuracy.json \
+  --markdown-output reports/source_document_accuracy.md
+```
+
+The command exits with status `1` when it detects `FAIL` or `MISSING_FROM_INDEX` rows; this is an audit finding, not necessarily a tooling error. `UNAVAILABLE` rows identify sources that could not be fetched or parsed and should be reviewed separately. The HTML fidelity pass can take several minutes because it fetches the official source pages. Use `--family html` or `--source "sourcefile"` for a focused rerun. The generated JSON and Markdown reports include coverage, redirect, missing-rule, and low-coverage evidence details.
+
+The audit now adds a `remediation_status` field to each finding and a remediation summary. The classifications are `SOURCE_CHANGED`, `INDEX_INCOMPLETE`, `MANIFEST_DRIFT`, `SCRAPER_FAILURE`, `EXTRACTION_FAILURE`, `INTENTIONAL_EXCLUSION`, and `NEEDS_REVIEW`; clean `PASS` rows remain unclassified. Use `--source "Part 3"` or `--family html` for focused triage. HTML fidelity uses a resumable per-URL checkpoint at `reports/source_document_http_cache.json` by default; override it with `--html-cache` when running parallel or experimental crawls. Known aliases are attempted for Part 48, Practice Direction 48, and Practice Direction 40F, while failed fetches remain `UNAVAILABLE` rather than being treated as content failures.
+
+Recommended remediation order is: classify the IPEC and other missing sources as index incompleteness or intentional exclusion, inspect the lowest-coverage CPR/PD sources, review King's Bench PDF fidelity, reconcile index-only protocols and guides, then clean manifest and scraper drift. Do not re-index the full corpus from an audit result alone.
 
 ## Source hierarchy regression workflow
 
@@ -345,7 +420,57 @@ These are good first tasks to verify the harness works:
 
 Each run writes a JSON log to `scripts/computer_use_logs/` containing all screenshots (base64), model responses, and actions. The directory has a `.gitignore` to exclude generated logs.
 
+## User-level Copilot Azure proxy
+
+This repo no longer treats the Copilot Azure compatibility proxy as a repo-local service.
+
+Use the user-level `launchd` service documented in `docs/copilot_azure_proxy.md` when GitHub Copilot custom Azure models need the localhost temperature-sanitizing proxy.
+
+Repository tasks in `.vscode/tasks.json` should manage the user-level service with `launchctl` and health checks, not store shared Azure API keys or start a separate repo-owned proxy copy.
+
 ## Deploying the application
+
+### Index v4 release workflow
+
+Index v4 uses `.github/workflows/update-index-v4.yml`, separately from the
+legacy v3 updater. The workflow creates an immutable `v4`/`staging` Search
+index and paired knowledge base, generates embeddings with the managed
+identity, captures a verified Search snapshot, and runs the all-source
+fidelity audit. Any `FAIL`, `WARN`, `INDEX_ONLY`, `MISSING_FROM_INDEX`, or
+`UNAVAILABLE` source blocks the release evidence bundle.
+
+Only the `Production` environment may approve the promotion job. Promotion
+requires the exact candidate index/knowledge-base pair and keeps
+`legal-court-rag-index-v3` available as the rollback target. The workflow does
+not delete v3 and has no force-upload bypass. The application deployment must
+atomically update both `AZURE_SEARCH_INDEX` and
+`AZURE_SEARCH_KNOWLEDGEBASE_NAME` to the validated pair; do not update one
+without the other.
+
+The local r3 artifact can be regenerated and validated with:
+
+```shell
+source .venv/bin/activate
+python scripts/generate_v4_artifacts.py --snapshot-dir reports/html_oracle_snapshots --output-dir reports/index_v4_artifacts_r3
+python scripts/upload_v4_staging.py --index legal-court-rag-v4-staging-<release> --artifact reports/index_v4_artifacts_r3/documents_with_embeddings.jsonl
+```
+
+The second command is validation-only unless `--execute` is explicitly
+provided. Embeddings must be generated first with
+`scripts/generate_v4_embeddings.py`; empty vectors are rejected.
+
+The v4 release workflow also validates a dedicated candidate Container App
+revision before Production approval. The candidate must expose complete
+`/api/provenance` metadata and the audit job must provide five schema-1
+application reports with `status: PASS`: retrieval, category,
+source-hierarchy, citation, and ACL. Run the strict wrapper with
+`scripts/run_v4_application_gates.py`; it rejects localhost URLs, missing or
+non-passing reports, and any provenance mismatch. The combined report is
+required by both `scripts/build_v4_evidence_bundle.py` and
+`scripts/promote_v4_candidate.py`. The uploaded
+`documents_with_embeddings.jsonl` is the canonical artifact for
+`artifact_sha256`; `manifest.json` remains required for artifact metadata and
+equality validation.
 
 To deploy the application, use the `azd` CLI tool. Make sure you have the latest version of the `azd` CLI installed. Then, run the following command from the root of the repository:
 

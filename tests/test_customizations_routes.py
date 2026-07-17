@@ -8,6 +8,8 @@ import pytest
 import json
 from unittest import mock
 
+pytestmark = pytest.mark.integration
+
 
 @pytest.mark.asyncio
 class TestCategoriesEndpoint:

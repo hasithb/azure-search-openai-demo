@@ -11,9 +11,15 @@ known-local-folder = ["scripts"]
 line-length = 120
 
 [tool.pytest.ini_options]
-addopts = "-ra"
+addopts = "-ra -m 'not live and not integration'"
+testpaths = ["tests"]
+norecursedirs = ["adhoc"]
 pythonpath = ["app/backend", "scripts", "app/functions"]
 asyncio_default_fixture_loop_scope = "function"
+markers = [
+	"live: tests that require Azure services or a running local application",
+	"integration: tests that require external service fixtures or app startup",
+]
 
 [tool.coverage.paths]
 source = ["scripts", "app"]

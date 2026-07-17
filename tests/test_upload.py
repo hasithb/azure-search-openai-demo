@@ -10,6 +10,8 @@ from quart.datastructures import FileStorage
 
 from prepdocslib.embeddings import OpenAIEmbeddings
 
+pytestmark = pytest.mark.integration
+
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("directory_exists", [True, False])

@@ -13,6 +13,8 @@ from unittest import mock
 from io import BytesIO
 from datetime import datetime, timezone
 
+pytestmark = pytest.mark.integration
+
 
 @pytest.mark.asyncio
 async def test_feedback_saves_to_blob_storage(client):

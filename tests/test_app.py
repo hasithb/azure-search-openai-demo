@@ -11,6 +11,8 @@ from quart import Response as QuartResponse
 
 import app
 
+pytestmark = pytest.mark.integration
+
 
 def fake_response(http_code):
     return Response(http_code, request=Request(method="get", url="https://foo.bar/"))

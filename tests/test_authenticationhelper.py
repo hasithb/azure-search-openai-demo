@@ -16,6 +16,8 @@ from core.authentication import AuthenticationHelper, AuthError
 
 from .mocks import MockAsyncPageIterator, MockResponse
 
+pytestmark = pytest.mark.integration
+
 MockSearchIndex = SearchIndex(
     name="test",
     fields=[

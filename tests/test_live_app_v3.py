@@ -10,6 +10,9 @@ import json
 import subprocess
 import sys
 import re
+import pytest
+
+pytestmark = pytest.mark.live
 
 BASE_URL = "http://localhost:50505"
 passed = 0

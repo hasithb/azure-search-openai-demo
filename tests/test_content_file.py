@@ -20,6 +20,8 @@ from .mocks import (
     MockBlob,
 )
 
+pytestmark = pytest.mark.integration
+
 
 @pytest.mark.asyncio
 async def test_content_file(monkeypatch, mock_env, mock_acs_search, mock_blob_container_client_exists):

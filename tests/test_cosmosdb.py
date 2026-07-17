@@ -6,6 +6,8 @@ from azure.cosmos.aio import ContainerProxy
 
 from .mocks import MockAsyncPageIterator
 
+pytestmark = pytest.mark.integration
+
 for_sessions_query = [
     [
         {
