@@ -100,6 +100,11 @@ class LegalDocumentChunker:
             chunk_text = context_header + chunk_text
         
         return chunk_text
+
+    def _content_token_limit(self, rule_title: str, section_context: str, total_chunks: int = 2) -> int:
+        """Leave room for the context header added to multi-chunk documents."""
+        header = self.create_chunk_with_context("", 0, 0, 0, total_chunks, rule_title, section_context)
+        return max(1, self.max_tokens - self.count_tokens(header))
     
     def chunk_legal_document(self, text: str, document_id: str, 
                            rule_title: str) -> List[Dict]:
@@ -125,7 +130,9 @@ class LegalDocumentChunker:
         boundaries = self.find_legal_boundaries(text)
         
         if not boundaries:
-            return self._fallback_sentence_chunking(text, document_id, rule_title)
+            return self._fallback_sentence_chunking(
+                text, document_id, rule_title, self._content_token_limit(rule_title, "")
+            )
         
         chunks = []
         current_start = 0
@@ -143,6 +150,7 @@ class LegalDocumentChunker:
         # State tracking
         current_section_context = ""
         last_section_context = ""
+        content_token_limit = self._content_token_limit(rule_title, "")
 
         # Use a while loop to allow manual index manipulation (for retries after splitting)
         i = 0
@@ -165,7 +173,7 @@ class LegalDocumentChunker:
             candidate_text = text[current_start:boundary_pos]
             candidate_tokens = self.count_tokens(candidate_text)
             
-            if candidate_tokens <= self.max_tokens:
+            if candidate_tokens <= content_token_limit:
                 # It fits! 
                 # This boundary is now our "safe" aggregation point.
                 last_safe_boundary = boundary_pos
@@ -217,7 +225,11 @@ class LegalDocumentChunker:
                     # We can use the existing _find_safe_break_point logic but constrained.
                     
                     break_point = self._find_safe_break_point(
-                        text, current_start, boundary_pos, current_section_context
+                        text, current_start, boundary_pos, current_section_context,
+                        content_token_limit,
+                    )
+                    break_point = self._fit_break_point_to_token_limit(
+                        text, current_start, break_point, content_token_limit
                     )
                     
                     # If break_point fails to advance (edge case), force advance
@@ -239,6 +251,17 @@ class LegalDocumentChunker:
                     current_start = break_point
                     last_safe_boundary = current_start # Reset safe boundary
                     # Do not increment i. Re-eval rest of the section.
+
+        if current_start < len(text):
+            remaining_text = text[current_start:].strip()
+            if remaining_text:
+                chunks.append({
+                    'text': remaining_text,
+                    'token_count': self.count_tokens(remaining_text),
+                    'section_context': current_section_context,
+                    'start_pos': current_start,
+                    'end_pos': len(text),
+                })
 
         # Format chunks
         formatted_chunks = []
@@ -262,8 +285,8 @@ class LegalDocumentChunker:
         logger.info(f"Split document {document_id} into {len(formatted_chunks)} chunks")
         return formatted_chunks
     
-    def _find_safe_break_point(self, text: str, start: int, end: int, 
-                              section_context: str) -> int:
+    def _find_safe_break_point(self, text: str, start: int, end: int,
+                              section_context: str, max_content_tokens: int = None) -> int:
         """Find a safe place to break text while preserving legal meaning."""
         # Look for paragraph breaks, sentence endings, etc.
         search_text = text[start:end]
@@ -286,11 +309,26 @@ class LegalDocumentChunker:
                 break_point = start + best_match.end()
                 
                 # Ensure we don't create too small chunks
-                if break_point - start > self.max_tokens * 0.3:
+                token_limit = max_content_tokens or self.max_tokens
+                if break_point - start > token_limit * 0.3:
                     return break_point
         
         # Fallback to hard limit
-        return min(end, start + self.max_tokens * 4)  # Rough character estimate
+        token_limit = max_content_tokens or self.max_tokens
+        return min(end, start + token_limit * 4)  # Rough character estimate
+
+    def _fit_break_point_to_token_limit(self, text: str, start: int, end: int, max_content_tokens: int) -> int:
+        """Move a proposed split back until its stripped text fits by tokens."""
+        if self.count_tokens(text[start:end].strip()) <= max_content_tokens:
+            return end
+        low, high = start + 1, end
+        while low < high:
+            midpoint = (low + high + 1) // 2
+            if self.count_tokens(text[start:midpoint].strip()) <= max_content_tokens:
+                low = midpoint
+            else:
+                high = midpoint - 1
+        return low
     
     def _split_large_text(self, text: str, section_context: str) -> List[Dict]:
         """Split text that's still too large after boundary detection."""
@@ -321,8 +359,8 @@ class LegalDocumentChunker:
         
         return chunks
     
-    def _fallback_sentence_chunking(self, text: str, document_id: str, 
-                                   rule_title: str) -> List[Dict]:
+    def _fallback_sentence_chunking(self, text: str, document_id: str,
+                                   rule_title: str, max_content_tokens: int = None) -> List[Dict]:
         """Fallback chunking method when no legal boundaries are found."""
         logger.warning(f"No legal boundaries found for {document_id}, using sentence chunking")
         
@@ -333,7 +371,7 @@ class LegalDocumentChunker:
         
         for sentence in sentences:
             potential_chunk = current_chunk + " " + sentence if current_chunk else sentence
-            if self.count_tokens(potential_chunk) > self.max_tokens:
+            if self.count_tokens(potential_chunk) > (max_content_tokens or self.max_tokens):
                 if current_chunk:
                     chunks.append(current_chunk.strip())
                 current_chunk = sentence

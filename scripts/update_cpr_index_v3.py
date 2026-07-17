@@ -31,6 +31,7 @@ import time
 import logging
 import argparse
 import hashlib
+from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
@@ -83,7 +84,7 @@ ACTION_LIST = [
     {"sourcefile": "Practice Direction 16", "azure_id": "Practice_Direction_16", "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part16/pd_part16", "section": "A"},
     {"sourcefile": "Practice Direction 27A", "azure_id": "Practice_Direction_27A___Small_Claims_Track", "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part27/pd_part27", "section": "A"},
     {"sourcefile": "Practice Direction 41A", "azure_id": "Practice_Direction_41A___Provisional_Damages", "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part41/pd_part41a", "section": "A"},
-    {"sourcefile": "Practice Direction 51Z", "azure_id": "Practice_Direction_51ZG3___Pilot_scheme_for_certain_High_Court_qualified_one-way_costs_shifting__QOC", "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/practice-direction-51zh-access-to-public-domain-documents", "section": "A"},
+    {"sourcefile": "Practice Direction 51ZH", "azure_id": "Practice_Direction_51ZH___Access_to_Public_Domain_Documents", "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/practice-direction-51zh-access-to-public-domain-documents", "section": "A"},
     {"sourcefile": "Practice Direction 54D", "azure_id": "Practice_Direction_54D___Planning_Court_Claims", "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/practice-direction-54e-planning-court-claims", "section": "A"},
     {"sourcefile": "Practice Direction 57B", "azure_id": "Practice_Direction_57B___Proceedings_under_the_Presumption_of_Death_Act_2013", "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part57/practice-direction-57b-proceedings-under-the-presumption-of-death-act-2013", "section": "A"},
     {"sourcefile": "Practice Direction 62", "azure_id": "Practice_Direction_62", "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part62/pd_part62", "section": "A"},
@@ -122,6 +123,71 @@ ACTION_LIST = [
     {"sourcefile": "PRACTICE DIRECTION 5C", "azure_id": None, "url": "https://www.justice.gov.uk/practice-direction-5c-ce-file-electronic-filing-and-case-management-system", "section": "D"},
     # ── Bonus: Debt Claims PAP (PDF) ──
     {"sourcefile": "Pre-Action Protocol for Debt Claims", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/pdf/protocols/debt-pap.pdf", "section": "DEBT"},
+    {"sourcefile": "Practice Direction 1A", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part01/practice-direction-1a-participation-of-vulnerable-parties-or-witnesses", "section": "E"},
+    {"sourcefile": "Practice Direction 3F", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/practice-direction-3g-requests-for-the-appointment-of-an-advocate-to-the-court", "section": "E"},
+    {"sourcefile": "Practice Direction 17", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part17/pd_part17", "section": "E"},
+    {"sourcefile": "Practice Direction 18", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part18/pd_part18", "section": "E"},
+    {"sourcefile": "Practice Direction 20", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part20/pd_part20", "section": "E"},
+    {"sourcefile": "Practice Direction 22", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part22/pd_part22", "section": "E"},
+    {"sourcefile": "Practice Direction 29", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part29/pd_part29", "section": "E"},
+    {"sourcefile": "Practice Direction 32", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part32/pd_part32", "section": "E"},
+    {"sourcefile": "Practice Direction 35", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part35/pd_part35", "section": "E"},
+    {"sourcefile": "Practice Direction 37", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part37/pd_part37", "section": "E"},
+    {"sourcefile": "Practice Direction 42", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part42/pd_part42", "section": "E"},
+    {"sourcefile": "Practice Direction 49B", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part49/pd_part49b", "section": "E"},
+    {"sourcefile": "Practice Direction 49C", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part49/practice-direction-49c-consumer-credit-act-2006-unfair-relationships", "section": "E"},
+    {"sourcefile": "Practice Direction 49D", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part49/practice-direction-49d-claims-for-the-recovery-of-taxes-and-duties", "section": "E"},
+    {"sourcefile": "Practice Direction 49E", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part49/practice-direction-49e-alternative-procedure-for-claims", "section": "E"},
+    {"sourcefile": "Practice Direction 49F", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part49/practice-direction-49f-pre-action-protocol-for-low-value-personal-injury-claims-in-road-traffic-accidents-and-low-value-personal-injury-employers-liability-and-public-liability-claims-stage-3-procedure", "section": "E"},
+    {"sourcefile": "Practice Direction 51ZD", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/practice-direction-51zd-pilot-scheme-for-capping-costs-in-patent-cases-in-the-shorter-trial-scheme", "section": "E"},
+    {"sourcefile": "Practice Direction 51ZG1", "azure_id": None, "url": "https://www.justice.gov.uk/practice-direction-51zg1-pilot-scheme-for-cost-budgeting-in-certain-business-and-property-courts-and-certain-business-and-property-work-in-the-county-court", "section": "E"},
+    {"sourcefile": "Practice Direction 51ZG2", "azure_id": None, "url": "https://www.justice.gov.uk/practice-direction-51zg2-pilot-scheme-for-costs-budgeting-in-certain-claims-with-a-value-of-less-than-1-million", "section": "E"},
+    {"sourcefile": "Practice Direction 51ZG3", "azure_id": None, "url": "https://www.justice.gov.uk/practice-direction-51zg3-pilot-scheme-for-certain-high-court-qualified-one-way-costs-shifting-qocs-cases", "section": "E"},
+    {"sourcefile": "Practice Direction 53A", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part53/pd_part53", "section": "E"},
+    {"sourcefile": "Practice Direction 53B", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part53/practice-direction-53b-media-and-communications-claims", "section": "E"},
+    {"sourcefile": "Practice Direction 54B", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/pd_part54c", "section": "E"},
+    {"sourcefile": "Practice Direction 54E", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/practice-direction-54e-environmental-review-claims", "section": "E"},
+    {"sourcefile": "Practice Direction 56", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part56/pd_part56", "section": "E"},
+    {"sourcefile": "Practice Direction 56A", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part56/practice-direction-56a-renting-homes-wales-claims", "section": "E"},
+    {"sourcefile": "Practice Direction 57C", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/practice-direction-57c-proceedings-under-the-guardianship-missing-persons-act-2017", "section": "E"},
+    {"sourcefile": "Practice Direction 57AA", "azure_id": None, "url": "https://www.justice.gov.uk/practice-direction-business-and-property-courts", "section": "E"},
+    {"sourcefile": "Practice Direction 57AB", "azure_id": None, "url": "https://www.justice.gov.uk/practice-direction-57ab-shorter-and-flexible-trials-schemes", "section": "E"},
+    {"sourcefile": "Practice Direction 57AC", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-57a-business-and-property-courts/practice-direction-57ac-trial-witness-statements-in-the-business-and-property-courts", "section": "E"},
+    {"sourcefile": "Practice Direction 58", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part58/pd_part58", "section": "E"},
+    {"sourcefile": "Practice Direction 59", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part59/pd_part59", "section": "E"},
+    {"sourcefile": "Practice Direction 60", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part60/pd_part60", "section": "E"},
+    {"sourcefile": "Practice Direction 61", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part61/pd_part61", "section": "E"},
+    {"sourcefile": "Practice Direction 63AA", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/financial-list/practice-direction-63aa-financial-list", "section": "E"},
+    {"sourcefile": "Practice Direction 65", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part65/pd_part65", "section": "E"},
+    {"sourcefile": "Practice Direction 66", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part66/pd_part66", "section": "E"},
+    {"sourcefile": "Practice Direction 67", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part67/pd_part67", "section": "E"},
+    {"sourcefile": "Practice Direction 69", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part69/pd_part69", "section": "E"},
+    {"sourcefile": "Practice Direction 70A", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part70/pd_part70", "section": "E"},
+    {"sourcefile": "Practice Direction 70B", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part70/practice-direction-70b-debt-respite-scheme-under-the-financial-guidance-and-claims-act-2018", "section": "E"},
+    {"sourcefile": "Practice Direction 71", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part71/pd_part71", "section": "E"},
+    {"sourcefile": "Practice Direction 72", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part72/pd_part72", "section": "E"},
+    {"sourcefile": "Practice Direction 73", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part73/pd_part73", "section": "E"},
+    {"sourcefile": "Practice Direction 75", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part75/pd_part75", "section": "E"},
+    {"sourcefile": "Part 83", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-83-writs-and-warrants-general-provisions", "section": "E"},
+    {"sourcefile": "Practice Direction 83", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-83-writs-and-warrants-general-provisions/37-practice-direction-83-writs-and-warrants-general-provisions", "section": "E"},
+    {"sourcefile": "Part 84", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-84enforcement-by-taking-control-of-goods", "section": "E"},
+    {"sourcefile": "Practice Direction 84", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-84enforcement-by-taking-control-of-goods/practice-direction-84-enforcement-by-taking-control-of-goods", "section": "E"},
+    {"sourcefile": "Part 85", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-85-claims-on-controlled-goods-and-executed-goods", "section": "E"},
+    {"sourcefile": "Part 86", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-86-stakeholder-claims-and-applications", "section": "E"},
+    {"sourcefile": "Part 87", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-87-applications-for-writ-of-habeas-corpus", "section": "E"},
+    {"sourcefile": "Part 88", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-88-proceedings-under-the-counter-terrorism-and-security-act-2015", "section": "E"},
+    {"sourcefile": "Part 89", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/art-89-attachment-of-earnings", "section": "E"},
+    {"sourcefile": "Practice Direction – Pre-Action Conduct and Protocols", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/pd_pre-action_conduct", "section": "E"},
+    {"sourcefile": "Practice Direction – Competition Law", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/competitionlaw_pd", "section": "E"},
+    {"sourcefile": "Practice Direction – Civil Recovery Proceedings", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/civilrecovery_pd", "section": "E"},
+    {"sourcefile": "Practice Direction – Enterprise Act 2002 Warrant", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/appforwarrant_comp_act2002", "section": "E"},
+    {"sourcefile": "Practice Direction – Proceedings under Enactments Relating to Equality", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/proceedings_under_enactments_equality", "section": "E"},
+    {"sourcefile": "Practice Direction – County Court Closures", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/county_court_closures", "section": "E"},
+    {"sourcefile": "Practice Direction – Solicitors Negligence in Right to Buy Cases", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/practice-direction-solicitors-negligence-in-right-to-buy-cases", "section": "E"},
+    {"sourcefile": "Practice Direction – EU and EEA EFTA Citizens Rights", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/practice-direction-claims-relating-to-eu-and-eea-efta-citizens-rights-under-part-2-of-the-withdrawal-agreement-and-part-2-of-the-eea-efta-separation-agreement", "section": "E"},
+    {"sourcefile": "Pre-Action Protocol for Dilapidations", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/protocol/pre-action-protocol-for-claims-for-damages-in-relation-to-the-physical-state-of-commercial-property-at-termination-of-a-tenancy-the-dilapidations-protocol", "section": "E"},
+    {"sourcefile": "Pre-Action Protocol for Low Value Personal Injury EL PL Claims", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/protocol/pre-action-protocol-for-low-value-personal-injury-employers-liability-and-public-liability-claims", "section": "E"},
+    {"sourcefile": "Pre-Action Protocol for RTA Small Claims", "azure_id": None, "url": "https://www.justice.gov.uk/courts/procedure-rules/civil/protocol/pre-action-protocol-for-personal-injury-claims-below-the-small-claims-limit-in-road-traffic-accidents-the-rta-small-claims-protocol", "section": "E"},
 ]
 
 CATEGORY = "Civil Procedure Rules and Practice Directions"
@@ -236,7 +302,7 @@ def scrape_page(
     context_rule = ""
     paragraphs = []
 
-    elements = content_div.find_all(["h1", "h2", "h3", "h4", "p", "div", "li", "table"])
+    elements = content_div.find_all(["h1", "h2", "h3", "h4", "h5", "h6", "p", "div", "li", "table"])
     for elem in elements:
         if not elem.parent:
             continue
@@ -258,7 +324,12 @@ def scrape_page(
                         paragraphs.append(f"{bc}{row_text}")
             continue
 
-        text = elem.get_text(" ", strip=True)
+        text_element = elem
+        if elem.name == "li" and elem.find_all(["ol", "ul"]):
+            text_element = deepcopy(elem)
+            for nested_list in text_element.find_all(["ol", "ul"]):
+                nested_list.decompose()
+        text = text_element.get_text(" ", strip=True)
         if not text:
             continue
 
@@ -276,21 +347,25 @@ def scrape_page(
             r"|OBJECTIVES|PROPORTIONALITY|EXPERTS|SETTLEMENT|LIMITATION)",
             text, re.IGNORECASE,
         )
+        if elem.name in ["h2", "h3", "h4", "h5", "h6"]:
+            if len(text) < 100:
+                context_rule = text
+            paragraphs.append(f"## {text}")
+            continue
+
         if (
-            (elem.name in ["h2", "h3", "h4"])
-            or (
-                elem.name == "p"
-                and (
-                    re.match(r"^(Rule|Para\.?|Paragraph)\s*\d+|^\d+(\.\d+)?", text, re.IGNORECASE)
-                    or is_generic
-                )
+            elem.name == "p"
+            and (
+                re.match(r"^(Rule|Para\.?|Paragraph)\s*\d+|^\d+(\.\d+)?", text, re.IGNORECASE)
+                or is_generic
             )
-        ) and len(text) < 100:
+            and len(text) < 100
+        ):
             context_rule = text
             paragraphs.append(f"## {text}")
             continue
 
-        if elem.name in ["p", "li"] and not elem.find_all(["p", "li"]):
+        if elem.name in ["p", "li"]:
             bc = ""
             if context_part or context_rule:
                 parts = [c for c in [context_part, context_rule] if c]
@@ -410,20 +485,8 @@ def build_index_docs(action_entry: dict, scraped: dict) -> list[dict]:
     fallback_id = sanitize_id(sourcefile)
     doc_id = generate_id_from_content(title, content, fallback_id)
 
-    # Extract sourcefile from title (Part number)
+    # ACTION_LIST sourcefile is the canonical identifier; keep it unchanged.
     sf = sourcefile
-    if "–" in title:
-        sf_candidate = title.split("–")[0].strip()
-        if sf_candidate:
-            sf = sf_candidate
-    elif "-" in title:
-        sf_candidate = title.split("-")[0].strip()
-        if sf_candidate:
-            sf = sf_candidate
-
-    # For PAPs, keep the full sourcefile
-    if "pre-action" in sourcefile.lower() or "protocol" in sourcefile.lower():
-        sf = sourcefile
 
     # Chunk if needed
     chunker = LegalDocumentChunker(max_tokens=8000, overlap_tokens=200)
