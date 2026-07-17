@@ -16,6 +16,7 @@ Usage:
 """
 
 import argparse
+import hashlib
 import json
 import logging
 import os
@@ -24,6 +25,7 @@ import time
 import unicodedata
 from dataclasses import dataclass, field
 from pathlib import Path
+from urllib.request import Request, urlopen
 
 from azure.ai.documentintelligence import DocumentIntelligenceClient
 from azure.ai.documentintelligence.models import AnalyzeDocumentRequest
@@ -38,6 +40,32 @@ AZURE_DI_ENDPOINT = os.getenv(
     "AZURE_DOCUMENTINTELLIGENCE_ENDPOINT",
     "https://cog-di-gz2m4s637t5me.cognitiveservices.azure.com/",
 )
+
+
+def sha256_file(path: str | Path) -> str:
+    digest = hashlib.sha256()
+    with open(path, "rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def capture_canonical_guides(sources_dir: str | Path) -> list[str]:
+    """Download every configured guide into a clean, deterministic source set."""
+    target = Path(sources_dir)
+    target.mkdir(parents=True, exist_ok=True)
+    downloaded: list[str] = []
+    for filename, metadata in GUIDE_METADATA.items():
+        request = Request(metadata["storageUrl"], headers={"User-Agent": "legal-court-rag-release/1.0"})
+        with urlopen(request, timeout=120) as response:
+            payload = response.read()
+        if not payload.startswith(b"%PDF"):
+            raise ValueError(f"Canonical guide is not a PDF: {metadata['storageUrl']}")
+        path = target / filename
+        path.write_bytes(payload)
+        downloaded.append(filename)
+        logger.info("Captured %s (%d bytes, sha256=%s)", filename, len(payload), sha256_file(path))
+    return downloaded
 
 # ── Court Guide Metadata & Configuration ────────────────────────────────────────
 #
@@ -67,7 +95,7 @@ GUIDE_METADATA = {
     "35.16_JO_Kings_Bench_Division_Guide_2025_WEB4.pdf": {
         "category": "King's Bench Division",
         "sourcefile": "King's Bench Division Guide",
-        "storageUrl": "https://www.judiciary.uk/wp-content/uploads/2025/01/35.16_JO_Kings_Bench_Division_Guide_2025_WEB4.pdf",
+        "storageUrl": "https://www.judiciary.uk/wp-content/uploads/2025/04/35.16_JO_Kings_Bench_Division_Guide_2025_WEB4.pdf",
         "updated": "2025-01-01T00:00:00Z",
         "split_level": 2,
         "sourcepage_style": "numbered",
@@ -99,7 +127,7 @@ GUIDE_METADATA = {
     "The-Technology-and-Construction-Court-Guide.pdf": {
         "category": "Technology and Construction Court",
         "sourcefile": "Technology and Construction Court Guide",
-        "storageUrl": "https://www.judiciary.uk/wp-content/uploads/2022/12/TCC-Guide-Amended.pdf",
+        "storageUrl": "https://www.judiciary.uk/wp-content/uploads/2023/06/The-Technology-and-Construction-Court-Guide.pdf",
         "updated": "2022-10-01T00:00:00Z",
         "split_level": 4,
         "sourcepage_style": "section_dot",
@@ -808,6 +836,11 @@ def main():
         pdfs = [os.path.abspath(args.pdf)]
     else:
         sources_dir = os.path.abspath(args.sources_dir)
+        if args.capture_canonical:
+            os.makedirs(sources_dir, exist_ok=True)
+            for existing in Path(sources_dir).glob("*.pdf"):
+                existing.unlink()
+            capture_canonical_guides(sources_dir)
         pdfs = sorted(
             os.path.join(sources_dir, f)
             for f in os.listdir(sources_dir)
