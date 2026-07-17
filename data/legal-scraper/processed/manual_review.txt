@@ -1,0 +1,2873 @@
+====================================================================================================
+MANUAL LINE-BY-LINE REVIEW: final_all_sections.json  (314 records)
+====================================================================================================
+
+[001] ✓ OK  tier=2
+       ID         : Application for a Warrant under The Competition Act 1998 or Part 1 of the Digital Markets, Competition and Con
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/appforwarrant
+       subsec_id  : 4.1
+       subsections: ['1.1', '1.2', '10.1', '2.1', '3.1', '4.1', '6.1', '7.1', '8.1', '9.1']
+       page_secs  : ['1.1', '1.2', '2.1', '3.1', '4.1', '6.1', '7.1', '8.1', '9.1', '10.1']
+       content    : 48 lines | first: Document: Application for a Warrant under The Competition Act 1998 or Part 1 of the Digital Markets,
+
+[002] ✓ OK  tier=3
+       ID         : Cyfarwyddyd Ymarfer 54A – Adolygiad Barnwrol_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/cyfarwyddyd-ymarfer-54a-adolygiad-barnwrol
+       subsec_id  : 2.1
+       subsections: []
+       page_secs  : []
+       content    : 40 lines | first: Document: Cyfarwyddyd Ymarfer 54A – Adolygiad Barnwrol
+Section: 2.1 (1)  Ymdrinnir â hawliadau Rhan 
+
+[003] ✓ OK  tier=3
+       ID         : Cyfarwyddyd Ymarfer 54A – Adolygiad Barnwrol_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/cyfarwyddyd-ymarfer-54a-adolygiad-barnwrol
+       subsec_id  : 5.2
+       subsections: []
+       page_secs  : []
+       content    : 41 lines | first: Document: Cyfarwyddyd Ymarfer 54A – Adolygiad Barnwrol
+Section: 5.2 Pan mai’r diffynnydd neu barti â
+
+[004] ✓ OK  tier=3
+       ID         : Cyfarwyddyd Ymarfer 54A – Adolygiad Barnwrol_chunk_002
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/cyfarwyddyd-ymarfer-54a-adolygiad-barnwrol
+       subsec_id  : 12.3
+       subsections: []
+       page_secs  : []
+       content    : 52 lines | first: Document: Cyfarwyddyd Ymarfer 54A – Adolygiad Barnwrol
+Section: 12.3 Rhaid cyflwyno’r Hysbysiad Cais
+
+[005] ✓ OK  tier=3
+       ID         : Cyfarwyddyd Ymarfer 54A – Adolygiad Barnwrol_chunk_003
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/cyfarwyddyd-ymarfer-54a-adolygiad-barnwrol
+       subsec_id  : 17.1
+       subsections: []
+       page_secs  : []
+       content    : 22 lines | first: Document: Cyfarwyddyd Ymarfer 54A – Adolygiad Barnwrol
+Section: 17.1 (1) Mae’r adran hon yn berthnas
+
+[006] ✓ OK  tier=3
+       ID         : Cyfarwyddyd Ymarfer 54B – Ceisiadau Brys a Cheisiadau Eraill am Ryddhad Interim
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/cyfarwyddyd-ymarfer-54b-ceisiadau-brys-a-cheisiadau-eraill-am-ryddhad-interim
+       subsec_id  : CYFARWYDDYD YMARFER 54B – CEISIADAU BRYS A CHEISIADAU ERAILL AM RYDDHAD INTERIM
+       subsections: []
+       page_secs  : []
+       content    : 21 lines | first: # CYFARWYDDYD YMARFER 54B – CEISIADAU BRYS A CHEISIADAU ERAILL AM RYDDHAD INTERIM
+
+[007] ✓ OK  tier=3
+       ID         : Cyfarwyddyd Ymarfer 54C  – Llys Gweinyddol (Lleoliad)
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/cyfarwyddyd-ymarfer-54c-llys-gweinyddol-lleoliad
+       subsec_id  : CYFARWYDDYD YMARFER 54C  – LLYS GWEINYDDOL (LLEOLIAD)
+       subsections: []
+       page_secs  : []
+       content    : 35 lines | first: # CYFARWYDDYD YMARFER 54C  – LLYS GWEINYDDOL (LLEOLIAD)
+
+[008] ✓ OK  tier=3
+       ID         : Cyfarwyddyd Ymarfer 54D – Hawliadau Llys Cynllunio
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/cyfarwyddyd-ymarfer-54d-hawliadau-llys-cynllunio
+       subsec_id  : CYFARWYDDYD YMARFER 54D – HAWLIADAU LLYS CYNLLUNIO
+       subsections: []
+       page_secs  : []
+       content    : 24 lines | first: # CYFARWYDDYD YMARFER 54D – HAWLIADAU LLYS CYNLLUNIO
+
+[009] ✓ OK  tier=1
+       ID         : Part 10 – Acknowledgment Of Service
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part10
+       subsec_id  : 10.1
+       subsections: ['10.1', '10.2', '10.3', '10.4', '10.5']
+       page_secs  : ['10.1', '10.2', '10.3', '10.4', '10.5']
+       content    : 53 lines | first: # PART 10 – ACKNOWLEDGMENT OF SERVICE
+
+[010] ✓ OK  tier=1
+       ID         : Part 11 – Disputing The Court’S Jurisdiction
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part11
+       subsec_id  : 11.1
+       subsections: ['11.1']
+       page_secs  : ['11.1']
+       content    : 33 lines | first: # PART 11 – DISPUTING THE COURT’S JURISDICTION
+
+[011] ✓ OK  tier=1
+       ID         : Part 12 – Default Judgment
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part12
+       subsec_id  : 12.1
+       subsections: ['12.1', '12.2', '12.3', '12.4', '12.10', '12.11', '12.5', '12.7', '12.8', '12.9']
+       page_secs  : ['12.1', '12.2', '12.3', '12.4', '12.5', '12.7', '12.8', '12.9', '12.10', '12.11']
+       content    : 176 lines | first: # PART 12 – DEFAULT JUDGMENT
+
+[012] ✓ OK  tier=1
+       ID         : Part 13 – Setting Aside Or Varying Default Judgment
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part13
+       subsec_id  : 13.1
+       subsections: ['13.1', '13.2', '13.3', '13.4', '13.5', '13.6']
+       page_secs  : ['13.1', '13.2', '13.3', '13.4', '13.5', '13.6']
+       content    : 52 lines | first: # PART 13 – SETTING ASIDE OR VARYING DEFAULT JUDGMENT
+
+[013] ✓ OK  tier=3
+       ID         : Part 14 – Admissions
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part14
+       subsec_id  : PART 14 – ADMISSIONS
+       subsections: []
+       page_secs  : []
+       content    : 84 lines | first: # PART 14 – ADMISSIONS
+
+[014] ✓ OK  tier=3
+       ID         : Part 15 – Defence And Reply
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part15
+       subsec_id  : PART 15 – DEFENCE AND REPLY
+       subsections: []
+       page_secs  : []
+       content    : 49 lines | first: # PART 15 – DEFENCE AND REPLY
+
+[015] ✓ OK  tier=1
+       ID         : Part 16 – Statements Of Case
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part16
+       subsec_id  : 16.1
+       subsections: ['16.1', '16.2', '16.3', '16.4', '16.5', '16.6', '16.7', '16.8']
+       page_secs  : ['16.1', '16.2', '16.3', '16.4', '16.5', '16.6', '16.7', '16.8']
+       content    : 138 lines | first: # PART 16 – STATEMENTS OF CASE
+
+[016] ✓ OK  tier=1
+       ID         : Part 17 – Amendments To Statements Of Case
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part17
+       subsec_id  : 17.1
+       subsections: ['17.1', '17.2', '17.3', '17.4']
+       page_secs  : ['17.1', '17.2', '17.3', '17.4']
+       content    : 44 lines | first: # PART 17 – AMENDMENTS TO STATEMENTS OF CASE
+
+[017] ✓ OK  tier=1
+       ID         : Part 18 – Further Information
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part18
+       subsec_id  : 18.1
+       subsections: ['18.1', '18.2']
+       page_secs  : ['18.1', '18.2']
+       content    : 19 lines | first: # PART 18 – FURTHER INFORMATION
+
+[018] ✓ OK  tier=1
+       ID         : Part 19 – Parties And Group Litigation_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part19
+       subsec_id  : 19.1
+       subsections: ['19.1', '19.10', '19.11', '19.12', '19.13', '19.14', '19.15', '19.2', '19.3', '19.4']
+       page_secs  : ['19.1', '19.2', '19.3', '19.4', '19.4A', '19.5', '19.5A', '19.6', '19.7', '19.7A', '19.7B', '19.8']
+       content    : 207 lines | first: Document: Part 19 – Parties and Group Litigation
+Section: Parties – general
+Part 1 of 2
+============
+
+[019] ✓ OK  tier=1
+       ID         : Part 19 – Parties And Group Litigation_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part19
+       subsec_id  : 19.15
+       subsections: ['19.1', '19.10', '19.11', '19.12', '19.13', '19.14', '19.15', '19.2', '19.3', '19.4']
+       page_secs  : ['19.1', '19.2', '19.3', '19.4', '19.4A', '19.5', '19.5A', '19.6', '19.7', '19.7A', '19.7B', '19.8']
+       content    : 123 lines | first: Document: Part 19 – Parties and Group Litigation
+Section: 19.15
+Part 2 of 2
+========================
+
+[020] ✓ OK  tier=1
+       ID         : Part 1 – Overriding Objective
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part01
+       subsec_id  : 1.1
+       subsections: ['1.1', '1.2', '1.3', '1.4']
+       page_secs  : ['1.1', '1.2', '1.3', '1.4']
+       content    : 49 lines | first: # PART 1 – OVERRIDING OBJECTIVE
+
+[021] ✓ OK  tier=1
+       ID         : Part 20 – Counterclaims And Other Additional Claims
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part20
+       subsec_id  : 20.1
+       subsections: ['20.1', '20.2', '20.3', '20.11', '20.4', '20.5', '20.7', '20.6', '20.8', '20.9']
+       page_secs  : ['20.1', '20.2', '20.3', '20.4', '20.5', '20.6', '20.7', '20.8', '20.9', '20.10', '20.11', '20.12']
+       content    : 122 lines | first: # PART 20 – COUNTERCLAIMS AND OTHER ADDITIONAL CLAIMS
+
+[022] ✓ OK  tier=1
+       ID         : Part 21 – Children And Protected Parties_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part21
+       subsec_id  : 21.1
+       subsections: ['21.1', '21.2', '21.3', '21.6', '21.4', '21.5', '21.7', '21.8', '21.9', '21.10']
+       page_secs  : ['21.1', '21.2', '21.3', '21.4', '21.5', '21.6', '21.7', '21.8', '21.9', '21.10', '21.11', '21.12']
+       content    : 184 lines | first: Document: Part 21 – Children and Protected Parties
+Section: Scope of this Part
+Part 1 of 2
+=========
+
+[023] ✓ OK  tier=1
+       ID         : Part 21 – Children And Protected Parties_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part21
+       subsec_id  : 21.12
+       subsections: ['21.12', '21.11', '21.13']
+       page_secs  : ['21.1', '21.2', '21.3', '21.4', '21.5', '21.6', '21.7', '21.8', '21.9', '21.10', '21.11', '21.12']
+       content    : 52 lines | first: Document: Part 21 – Children and Protected Parties
+Section: 21.12
+Part 2 of 2
+======================
+
+[024] ✓ OK  tier=1
+       ID         : Part 22 – Statements Of Truth
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part22
+       subsec_id  : 22.1
+       subsections: ['22.1', '22.2', '22.3', '22.4']
+       page_secs  : ['22.1', '22.2', '22.3', '22.4']
+       content    : 52 lines | first: # PART 22 – STATEMENTS OF TRUTH
+
+[025] ✓ OK  tier=1
+       ID         : Part 23 – General Rules About Applications For Court Orders
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part23
+       subsec_id  : 23.2
+       subsections: ['23.2', '23.1', '23.3', '23.4', '23.5', '23.6', '23.7', '23.8', '23.9', '23.10']
+       page_secs  : ['23.1', '23.2', '23.3', '23.4', '23.5', '23.6', '23.7', '23.8', '23.9', '23.10', '23.11', '23.12']
+       content    : 97 lines | first: # PART 23 – GENERAL RULES ABOUT APPLICATIONS FOR COURT ORDERS
+
+[026] ✓ OK  tier=1
+       ID         : Part 24 – Summary Judgment
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part24
+       subsec_id  : 24.1
+       subsections: ['24.1', '24.2', '24.3']
+       page_secs  : ['24.1', '24.2', '24.3']
+       content    : 55 lines | first: # PART 24 – SUMMARY JUDGMENT
+
+[027] ✓ OK  tier=2
+       ID         : Part 25 – Interim Remedies And Security For Costs_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part25
+       subsec_id  : I
+       subsections: ['I', 'IV', 'III', 'VI']
+       page_secs  : ['I', 'III', 'IV', 'VI']
+       content    : 127 lines | first: Document: Part 25 – Interim Remedies and Security for Costs
+Section: Contents of this Part
+Part 1 of
+
+[028] ✓ OK  tier=2
+       ID         : Part 25 – Interim Remedies And Security For Costs_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part25
+       subsec_id  : VI
+       subsections: ['VI']
+       page_secs  : ['I', 'III', 'IV', 'VI']
+       content    : 72 lines | first: Document: Part 25 – Interim Remedies and Security for Costs
+Section: SECTION V Interim Payment Order
+
+[029] ✓ OK  tier=3
+       ID         : Part 26 – Case Management – Preliminary Stage_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part26
+       subsec_id  : PART 26 – CASE MANAGEMENT – PRELIMINARY STAGE
+       subsections: []
+       page_secs  : []
+       content    : 139 lines | first: Document: Part 26 – Case Management – Preliminary Stage
+Section: Scope of this Part
+Part 1 of 3
+====
+
+[030] ✓ OK  tier=3
+       ID         : Part 26 – Case Management – Preliminary Stage_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part26
+       subsec_id  : 26.9
+       subsections: []
+       page_secs  : []
+       content    : 150 lines | first: Document: Part 26 – Case Management – Preliminary Stage
+Section: 26.9. —(1) The small claims track i
+
+[031] ✓ OK  tier=3
+       ID         : Part 26 – Case Management – Preliminary Stage_chunk_002
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part26
+       subsec_id  : PART 26 – CASE MANAGEMENT – PRELIMINARY STAGE
+       subsections: []
+       page_secs  : []
+       content    : 24 lines | first: Document: Part 26 – Case Management – Preliminary Stage
+Section: Notice of allocation and assignment
+
+[032] ✓ OK  tier=1
+       ID         : Part 27 – The Small Claims Track
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part27
+       subsec_id  : 27.1
+       subsections: ['27.1', '27.14', '27.2', '27.3', '27.4', '27.6', '27.10', '27.5', '27.7', '27.8']
+       page_secs  : ['27.1', '27.2', '27.3', '27.4', '27.5', '27.6', '27.7', '27.8', '27.9', '27.10', '27.11', '27.14']
+       content    : 153 lines | first: # PART 27 – THE SMALL CLAIMS TRACK
+
+[033] ✓ OK  tier=2
+       ID         : Part 28 – The Fast Track And The Intermediate Track
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part28
+       subsec_id  : I
+       subsections: ['I', 'II', 'III', 'IV']
+       page_secs  : ['I', 'II', 'III', 'IV']
+       content    : 85 lines | first: # PART 28 – THE FAST TRACK AND THE INTERMEDIATE TRACK
+
+[034] ✓ OK  tier=1
+       ID         : Part 29 – The Multi-Track
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part29
+       subsec_id  : 29.1
+       subsections: ['29.1', '29.2', '29.3', '29.4', '29.5', '29.6', '29.7', '29.8', '29.9']
+       page_secs  : ['29.1', '29.2', '29.3', '29.4', '29.5', '29.6', '29.7', '29.8', '29.9']
+       content    : 77 lines | first: # PART 29 – THE MULTI-TRACK
+
+[035] ✓ OK  tier=1
+       ID         : Part 2 – Application And Interpretation Of The Rules
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part02
+       subsec_id  : 2.1
+       subsections: ['2.1', '2.2', '2.3', '2.4', '2.5', '2.6', '2.7', '2.8', '2.9', '2.10']
+       page_secs  : ['2.1', '2.2', '2.3', '2.4', '2.5', '2.6', '2.7', '2.8', '2.9', '2.10', '2.11']
+       content    : 150 lines | first: # PART 2 – APPLICATION AND INTERPRETATION OF THE RULES
+
+[036] ✓ OK  tier=1
+       ID         : Part 30 – Transfer
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part30
+       subsec_id  : 30.1
+       subsections: ['30.1', '30.2', '30.3', '30.4', '30.5', '30.6', '30.7', '30.8']
+       page_secs  : ['30.1', '30.2', '30.3', '30.4', '30.5', '30.6', '30.7', '30.8']
+       content    : 83 lines | first: # PART 30 – TRANSFER
+
+[037] ✓ OK  tier=1
+       ID         : Part 31 – Disclosure And Inspection Of Documents_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part31
+       subsec_id  : 31.1
+       subsections: ['31.1', '31.2', '31.3', '31.8', '31.19', '31.6', '31.10', '31.12', '31.4', '31.5']
+       page_secs  : ['31.1', '31.2', '31.3', '31.4', '31.5', '31.6', '31.7', '31.8', '31.9', '31.10', '31.11', '31.12']
+       content    : 202 lines | first: Document: Part 31 – Disclosure and Inspection of Documents
+Section: Scope of this Part
+Part 1 of 2
+=
+
+[038] ✓ OK  tier=1
+       ID         : Part 31 – Disclosure And Inspection Of Documents_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part31
+       subsec_id  : 31.19
+       subsections: ['31.19', '31.20', '31.21', '31.22', '31.23']
+       page_secs  : ['31.1', '31.2', '31.3', '31.4', '31.5', '31.6', '31.7', '31.8', '31.9', '31.10', '31.11', '31.12']
+       content    : 46 lines | first: Document: Part 31 – Disclosure and Inspection of Documents
+Section: 31.19
+Part 2 of 2
+==============
+
+[039] ✓ OK  tier=1
+       ID         : Part 32 – Evidence
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part32
+       subsec_id  : 32.1
+       subsections: ['32.1', '32.2', '32.3', '32.4', '32.5', '32.6', '32.7', '32.8', '32.9', '32.10']
+       page_secs  : ['32.1', '32.2', '32.3', '32.4', '32.5', '32.6', '32.7', '32.8', '32.9', '32.10', '32.11', '32.12']
+       content    : 146 lines | first: # PART 32 – EVIDENCE
+
+[040] ✓ OK  tier=1
+       ID         : Part 33 – Miscellaneous Rules About Evidence
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part33
+       subsec_id  : 33.1
+       subsections: ['33.1', '33.2', '33.3', '33.4', '33.5', '33.6', '33.7', '33.8', '33.9']
+       page_secs  : ['33.1', '33.2', '33.3', '33.4', '33.5', '33.6', '33.7', '33.8', '33.9']
+       content    : 92 lines | first: # PART 33 – MISCELLANEOUS RULES ABOUT EVIDENCE
+
+[041] ✓ OK  tier=1
+       ID         : Part 34 – Witnesses, Depositions And Evidence For Foreign Courts_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part34
+       subsec_id  : 34.1
+       subsections: ['34.1', '34.2', '34.3', '34.4', '34.5', '34.6', '34.7', '34.8', '34.15', '34.9']
+       page_secs  : ['34.1', '34.2', '34.3', '34.4', '34.5', '34.6', '34.7', '34.8', '34.9', '34.10', '34.11', '34.12']
+       content    : 192 lines | first: Document: Part 34 – Witnesses, Depositions and Evidence for Foreign Courts
+Section: I WITNESSES AND 
+
+[042] ✓ OK  tier=1
+       ID         : Part 34 – Witnesses, Depositions And Evidence For Foreign Courts_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part34
+       subsec_id  : 34.19
+       subsections: ['34.19', '34.20', '34.17', '34.21']
+       page_secs  : ['34.1', '34.2', '34.3', '34.4', '34.5', '34.6', '34.7', '34.8', '34.9', '34.10', '34.11', '34.12']
+       content    : 46 lines | first: Document: Part 34 – Witnesses, Depositions and Evidence for Foreign Courts
+Section: 34.19
+Part 2 of 
+
+[043] ✓ OK  tier=2
+       ID         : Part 35 – Experts And Assessors
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part35
+       subsec_id  : 35.1
+       subsections: ['35.1', '35.2', '35.3', '35.4', '35.5', '35.6', '35.7', '35.8', '35.9', '35.10']
+       page_secs  : ['35.1', '35.2', '35.3', '35.4', '35.5', '35.6', '35.7', '35.8', '35.9', '35.10', '35.11', '35.12']
+       content    : 161 lines | first: # PART 35 – EXPERTS AND ASSESSORS
+
+[044] ✓ OK  tier=1
+       ID         : Part 36 – Offers To Settle_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part36
+       subsec_id  : 36.1
+       subsections: ['36.1', 'I', 'II', '36.2', '36.5', '36.3', '36.4', '36.13', '36.23', '36.7']
+       page_secs  : ['36.1', '36.2', '36.3', '36.4', '36.5', '36.6', '36.7', '36.8', '36.9', '36.10', '36.11', '36.12']
+       content    : 192 lines | first: Document: Part 36 – Offers to Settle
+Section: Scope of this Part
+Part 1 of 3
+=======================
+
+[045] ✓ OK  tier=1
+       ID         : Part 36 – Offers To Settle_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part36
+       subsec_id  : 36.17
+       subsections: ['36.17', '36.24', '36.18', '36.6', '36.19', '36.11', '36.13', 'II', '36.22', '36.23']
+       page_secs  : ['36.1', '36.2', '36.3', '36.4', '36.5', '36.6', '36.7', '36.8', '36.9', '36.10', '36.11', '36.12']
+       content    : 150 lines | first: Document: Part 36 – Offers to Settle
+Section: 36.17
+Part 2 of 3
+====================================
+
+[046] ✓ OK  tier=1
+       ID         : Part 36 – Offers To Settle_chunk_002
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part36
+       subsec_id  : 36.24
+       subsections: ['36.24', '36.17', 'I', '36.25', 'II', '36.26', '36.27', '36.28', '36.29', '36.30']
+       page_secs  : ['36.1', '36.2', '36.3', '36.4', '36.5', '36.6', '36.7', '36.8', '36.9', '36.10', '36.11', '36.12']
+       content    : 86 lines | first: Document: Part 36 – Offers to Settle
+Section: 36.24. —(1) Rule 36.17 applies with the following modi
+
+[047] ✓ OK  tier=2
+       ID         : Part 37 – Miscellaneous Provisions About Payments Into Court
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part37
+       subsec_id  : 37.1
+       subsections: ['37.1', '37.2', '37.3', '37.4']
+       page_secs  : ['37.1', '37.2', '37.3', '37.4']
+       content    : 25 lines | first: # PART 37 – MISCELLANEOUS PROVISIONS ABOUT PAYMENTS INTO COURT
+
+[048] ✓ OK  tier=1
+       ID         : Part 38 – Discontinuance
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part38
+       subsec_id  : 38.1
+       subsections: ['38.1', '38.2', '38.3', '38.4', '38.5', '38.6', '38.7', '38.8']
+       page_secs  : ['38.1', '38.2', '38.3', '38.4', '38.5', '38.6', '38.7', '38.8']
+       content    : 80 lines | first: # PART 38 – DISCONTINUANCE
+
+[049] ✓ OK  tier=1
+       ID         : Part 39 – Miscellaneous Provisions Relating To Hearings
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part39
+       subsec_id  : 39.1
+       subsections: ['39.1', '39.2', '39.3', '39.4', '39.5', '39.6', '39.7']
+       page_secs  : ['39.1', '39.2', '39.3', '39.4', '39.5', '39.6', '39.7']
+       content    : 85 lines | first: # PART 39 – MISCELLANEOUS PROVISIONS RELATING TO HEARINGS
+
+[050] ✓ OK  tier=1
+       ID         : Part 3 – The Court’S Case Management Powers_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part03
+       subsec_id  : I
+       subsections: ['I', '3.1', '3.1A', '3.2', '3.3', '3.4', '3.5', '3.5A', '3.6', '3.9']
+       page_secs  : ['3.1', '3.1A', '3.2', '3.3', '3.4', '3.5', '3.5A', '3.6', '3.7', '3.7B', '3.8', '3.9']
+       content    : 162 lines | first: Document: Part 3 – The Court’s Case Management Powers
+Section: I CASE MANAGEMENT
+Part 1 of 3
+=======
+
+[051] ✓ OK  tier=1
+       ID         : Part 3 – The Court’S Case Management Powers_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part03
+       subsec_id  : 3.7B
+       subsections: ['3.7B', '3.8', '3.9', '3.10', '3.11', 'II', '3.12', '3.13', '3.14']
+       page_secs  : ['3.1', '3.1A', '3.2', '3.3', '3.4', '3.5', '3.5A', '3.6', '3.7', '3.7B', '3.8', '3.9']
+       content    : 175 lines | first: Document: Part 3 – The Court’s Case Management Powers
+Section: 3.7A1
+Part 2 of 3
+===================
+
+[052] ✓ OK  tier=1
+       ID         : Part 3 – The Court’S Case Management Powers_chunk_002
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part03
+       subsec_id  : 3.15
+       subsections: ['3.15', '3.16', '3.17', '3.18', 'III', '3.19', '3.20', '3.21']
+       page_secs  : ['3.1', '3.1A', '3.2', '3.3', '3.4', '3.5', '3.5A', '3.6', '3.7', '3.7B', '3.8', '3.9']
+       content    : 102 lines | first: Document: Part 3 – The Court’s Case Management Powers
+Section: 3.15
+Part 3 of 3
+====================
+
+[053] ✓ OK  tier=1
+       ID         : Part 40 – Judgments, Orders, Sale Of Land Etc._chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part40
+       subsec_id  : I
+       subsections: ['I', '40.1', '40.2', '40.6', '40.3', '40.4', '40.5', '40.7', '40.10', '40.8']
+       page_secs  : ['40.1', '40.2', '40.3', '40.4', '40.5', '40.6', '40.7', '40.8', '40.8A', '40.9', '40.9A', '40.10']
+       content    : 180 lines | first: Document: Part 40 – Judgments, Orders, Sale of Land Etc.
+Section: I JUDGMENTS AND ORDERS
+Part 1 of 2
+
+[054] ✓ OK  tier=1
+       ID         : Part 40 – Judgments, Orders, Sale Of Land Etc._chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part40
+       subsec_id  : 40.14
+       subsections: ['40.14', '40.14A', '40.14B', 'II', '40.15', '40.16', '40.17', '40.18', '40.19', 'III']
+       page_secs  : ['40.1', '40.2', '40.3', '40.4', '40.5', '40.6', '40.7', '40.8', '40.8A', '40.9', '40.9A', '40.10']
+       content    : 79 lines | first: Document: Part 40 – Judgments, Orders, Sale of Land Etc.
+Section: 40.14
+Part 2 of 2
+================
+
+[055] ✓ OK  tier=2
+       ID         : Part 41 – Damages
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part41
+       subsec_id  : 41.1
+       subsections: ['41.1', '41.2', '41.3', '41.4', '41.5', '41.6', '41.7', '41.8', '41.9', '41.10']
+       page_secs  : ['41.1', '41.2', '41.3', '41.4', '41.5', '41.6', '41.7', '41.8', '41.9', '41.10']
+       content    : 111 lines | first: # PART 41 – DAMAGES
+
+[056] ✓ OK  tier=1
+       ID         : Part 42 – Change Of Solicitor
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part42
+       subsec_id  : 42.1
+       subsections: ['42.1', '42.2', '42.3', '42.4']
+       page_secs  : ['42.1', '42.2', '42.3', '42.4']
+       content    : 61 lines | first: # PART 42 – CHANGE OF SOLICITOR
+
+[057] ✓ OK  tier=1
+       ID         : Part 44 – General Rules About Costs_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-44-general-rules-about-costs
+       subsec_id  : I
+       subsections: ['I', '44.1', '44.6', '44.2', '44.3', '44.5', '44.4', '44.7', '44.8', '44.9']
+       page_secs  : ['44.1', '44.2', '44.3', '44.4', '44.5', '44.6', '44.7', '44.8', '44.9', '44.10', '44.11', '44.12']
+       content    : 217 lines | first: Document: Part 44 – General Rules about Costs
+Section: I GENERAL
+Part 1 of 2
+=======================
+
+[058] ✓ OK  tier=1
+       ID         : Part 44 – General Rules About Costs_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-44-general-rules-about-costs
+       subsec_id  : 44.13
+       subsections: ['44.13', '44.17', '44.14', '44.15', '44.16', '44.9', '44.12', 'III', '44.18', '44.3']
+       page_secs  : ['44.1', '44.2', '44.3', '44.4', '44.5', '44.6', '44.7', '44.8', '44.9', '44.10', '44.11', '44.12']
+       content    : 55 lines | first: Document: Part 44 – General Rules about Costs
+Section: 44.13
+Part 2 of 2
+===========================
+
+[059] ✓ OK  tier=2
+       ID         : Part 45 – Fixed Costs_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part45-fixed-costs
+       subsec_id  : I
+       subsections: ['I', 'IV', 'VI', 'VII', 'VIII', 'X', 'II', 'IX']
+       page_secs  : ['I', 'II', 'III', 'IV', 'IX', 'V', 'VI', 'VII', 'VIII', 'X']
+       content    : 163 lines | first: Document: Part 45 – Fixed Costs
+Section: SECTION I General Provisions
+Part 1 of 4
+==================
+
+[060] ✓ OK  tier=2
+       ID         : Part 45 – Fixed Costs_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part45-fixed-costs
+       subsec_id  : II
+       subsections: ['II', 'V', 'III', 'IX', 'VI', 'VII']
+       page_secs  : ['I', 'II', 'III', 'IV', 'IX', 'V', 'VI', 'VII', 'VIII', 'X']
+       content    : 184 lines | first: Document: Part 45 – Fixed Costs
+Section: Scope and application
+Part 2 of 4
+=========================
+
+[061] ✓ OK  tier=2
+       ID         : Part 45 – Fixed Costs_chunk_002
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part45-fixed-costs
+       subsec_id  : VI
+       subsections: ['VI', 'IV', 'VII', 'VIII', 'IX']
+       page_secs  : ['I', 'II', 'III', 'IV', 'IX', 'V', 'VI', 'VII', 'VIII', 'X']
+       content    : 188 lines | first: Document: Part 45 – Fixed Costs
+Section: 45.40. —(1) This rule sets out the procedure where—
+Part 3 
+
+[062] ✓ OK  tier=2
+       ID         : Part 45 – Fixed Costs_chunk_003
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part45-fixed-costs
+       subsec_id  : X
+       subsections: ['X']
+       page_secs  : ['I', 'II', 'III', 'IV', 'IX', 'V', 'VI', 'VII', 'VIII', 'X']
+       content    : 57 lines | first: Document: Part 45 – Fixed Costs
+Section: 45.62. —(1) This rule applies—
+Part 4 of 4
+================
+
+[063] ✓ OK  tier=1
+       ID         : Part 46 – Costs-Special Cases_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-46-costs-special-cases
+       subsec_id  : I
+       subsections: ['46.1', '46.10', '46.13', '46.14', '46.15', '46.16', '46.17', '46.18', '46.19', '46.2']
+       page_secs  : ['46.1', '46.2', '46.3', '46.4', '46.5', '46.6', '46.7', '46.8', '46.9', '46.10', '46.13', '46.14']
+       content    : 217 lines | first: Document: Part 46 – Costs special cases
+Section: I COSTS PAYABLE BY OR TO PARTICULAR PERSONS
+Part 1 
+
+[064] ✓ OK  tier=1
+       ID         : Part 46 – Costs-Special Cases_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-46-costs-special-cases
+       subsec_id  : 46.19
+       subsections: ['46.1', '46.10', '46.13', '46.14', '46.15', '46.16', '46.17', '46.18', '46.19', '46.2']
+       page_secs  : ['46.1', '46.2', '46.3', '46.4', '46.5', '46.6', '46.7', '46.8', '46.9', '46.10', '46.13', '46.14']
+       content    : 115 lines | first: Document: Part 46 – Costs special cases
+Section: 46.19
+Part 2 of 2
+=================================
+
+[065] ✓ OK  tier=1
+       ID         : Part 47 – Procedure For Assessment Of Costs And Default Provisions_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-47-procedure-for-detailed-assessment
+       subsec_id  : I
+       subsections: ['47.1', '47.10', '47.11', '47.12', '47.13', '47.14', '47.15', '47.16', '47.17', '47.18']
+       page_secs  : ['47.1', '47.2', '47.3', '47.4', '47.5', '47.6', '47.7', '47.8', '47.9', '47.10', '47.11', '47.12']
+       content    : 179 lines | first: Document: Part 47 – Procedure for Assessment of Costs and Default Provisions
+Section: I GENERAL RULE
+
+[066] ✓ OK  tier=1
+       ID         : Part 47 – Procedure For Assessment Of Costs And Default Provisions_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-47-procedure-for-detailed-assessment
+       subsec_id  : 47.18
+       subsections: ['47.1', '47.10', '47.11', '47.12', '47.13', '47.14', '47.15', '47.16', '47.17', '47.18']
+       page_secs  : ['47.1', '47.2', '47.3', '47.4', '47.5', '47.6', '47.7', '47.8', '47.9', '47.10', '47.11', '47.12']
+       content    : 61 lines | first: Document: Part 47 – Procedure for Assessment of Costs and Default Provisions
+Section: 47.18
+Part 2 o
+
+[067] ✓ OK  tier=2
+       ID         : Part 48 – Part 2 Of The Legal Aid, Sentencing And Punishment Of Offenders Act 2012 Relating To Civil Litigatio
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-48-part-2of-the-legal-aid,-sentencing-and-punishment-of-offenders-act-2012-relating-to-civil-litigation-funding-and-costs-transitional-provision-in-relation-to-pre-commencement-funding-arrangements
+       subsec_id  : 48.1
+       subsections: ['48.1', '48.2']
+       page_secs  : ['48.1', '48.2']
+       content    : 42 lines | first: # PART 48 – PART 2 OF THE LEGAL AID, SENTENCING AND PUNISHMENT OF OFFENDERS ACT 2012 RELATING TO CIV
+
+[068] ✓ OK  tier=3
+       ID         : Part 49 – Specialist Proceedings
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part49
+       subsec_id  : PART 49 – SPECIALIST PROCEEDINGS
+       subsections: []
+       page_secs  : []
+       content    : 5 lines | first: # PART 49 – SPECIALIST PROCEEDINGS
+
+[069] ✓ OK  tier=3
+       ID         : Part 4 – Forms
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part04
+       subsec_id  : PART 4 – FORMS
+       subsections: []
+       page_secs  : []
+       content    : 10 lines | first: # PART 4 – FORMS
+
+[070] ✓ OK  tier=3
+       ID         : Part 50 – Application Of The Schedules
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part50
+       subsec_id  : PART 50 – APPLICATION OF THE SCHEDULES
+       subsections: []
+       page_secs  : []
+       content    : 21 lines | first: # PART 50 – APPLICATION OF THE SCHEDULES
+
+[071] ✓ OK  tier=2
+       ID         : Part 51 – Transitional Arrangements And Pilot Schemes
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part51
+       subsec_id  : 51.1
+       subsections: ['51.1', '51.2', '51.3']
+       page_secs  : ['51.1', '51.2', '51.3']
+       content    : 15 lines | first: # PART 51 – TRANSITIONAL ARRANGEMENTS AND PILOT SCHEMES
+
+[072] ✓ OK  tier=1
+       ID         : Part 52 – Appeals_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part52
+       subsec_id  : I
+       subsections: ['52.1', '52.10', '52.11', '52.12', '52.13', '52.14', '52.15', '52.16', '52.17', '52.18']
+       page_secs  : ['52.1', '52.2', '52.3', '52.4', '52.5', '52.5A', '52.6', '52.7', '52.8', '52.9', '52.10', '52.11']
+       content    : 234 lines | first: Document: Part 52 – Appeals
+Section: I SCOPE AND INTERPRETATION
+Part 1 of 2
+========================
+
+[073] ✓ OK  tier=1
+       ID         : Part 52 – Appeals_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part52
+       subsec_id  : 52.20
+       subsections: ['52.1', '52.10', '52.11', '52.12', '52.13', '52.14', '52.15', '52.16', '52.17', '52.18']
+       page_secs  : ['52.1', '52.2', '52.3', '52.4', '52.5', '52.5A', '52.6', '52.7', '52.8', '52.9', '52.10', '52.11']
+       content    : 166 lines | first: Document: Part 52 – Appeals
+Section: 52.19A
+Part 2 of 2
+============================================
+
+[074] ✓ OK  tier=2
+       ID         : Part 53 – Media And Communications Claims
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part53
+       subsec_id  : 53.1
+       subsections: ['53.1', '53.2', '53.3', '53.4', '53.5', '53.6']
+       page_secs  : ['53.1', '53.2', '53.3', '53.4', '53.5', '53.6']
+       content    : 43 lines | first: # PART 53 – MEDIA AND COMMUNICATIONS CLAIMS
+
+[075] ✓ OK  tier=1
+       ID         : Part 54 – Judicial Review And Statutory Review_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54
+       subsec_id  : I
+       subsections: ['I', '54.1', '54.1A', '54.2', '54.3', '54.4', '54.5', '54.6', '54.7', '54.7A']
+       page_secs  : ['54.1', '54.1A', '54.2', '54.3', '54.4', '54.5', '54.6', '54.7', '54.7A', '54.8', '54.9', '54.10']
+       content    : 228 lines | first: Document: Part 54 – Judicial Review and Statutory Review
+Section: I JUDICIAL REVIEW
+Part 1 of 2
+====
+
+[076] ✓ OK  tier=1
+       ID         : Part 54 – Judicial Review And Statutory Review_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54
+       subsec_id  : 54.20
+       subsections: ['54.20', 'II', '54.21', '54.22', '54.23', '54.24', '54.1A', '54.10', '54.16', '54.19']
+       page_secs  : ['54.1', '54.1A', '54.2', '54.3', '54.4', '54.5', '54.6', '54.7', '54.7A', '54.8', '54.9', '54.10']
+       content    : 108 lines | first: Document: Part 54 – Judicial Review and Statutory Review
+Section: 54.20 The court may
+Part 2 of 2
+==
+
+[077] ✓ OK  tier=1
+       ID         : Part 55 – Possession Claims_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part55
+       subsec_id  : 55.1
+       subsections: ['55.1', 'I', '55.2', 'III', 'II', '55.3', '55.4', '55.5', '55.6', '55.7']
+       page_secs  : ['55.1', '55.2', '55.3', '55.4', '55.5', '55.6', '55.7', '55.8', '55.9', '55.10', '55.10A', '55.11']
+       content    : 248 lines | first: Document: Part 55 – Possession Claims
+Section: Coronavirus – temporary provision
+Part 1 of 3
+=======
+
+[078] ✓ OK  tier=1
+       ID         : Part 55 – Possession Claims_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part55
+       subsec_id  : 55.22
+       subsections: ['55.22', '55.3', '55.23', '55.6', '55.24', '55.25', '55.21', 'I', '55.26', '55.27']
+       page_secs  : ['55.1', '55.2', '55.3', '55.4', '55.5', '55.6', '55.7', '55.8', '55.9', '55.10', '55.10A', '55.11']
+       content    : 248 lines | first: Document: Part 55 – Possession Claims
+Section: 55.22
+Part 2 of 3
+===================================
+
+[079] ✓ OK  tier=1
+       ID         : Part 55 – Possession Claims_chunk_002
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part55
+       subsec_id  : I
+       subsections: ['I']
+       page_secs  : ['55.1', '55.2', '55.3', '55.4', '55.5', '55.6', '55.7', '55.8', '55.9', '55.10', '55.10A', '55.11']
+       content    : 65 lines | first: Document: Part 55 – Possession Claims
+Section: 55.45
+Part 3 of 3
+===================================
+
+[080] ✓ OK  tier=1
+       ID         : Part 56 – Landlord And Tenant Claims And Miscellaneous Provisions About Land And Claims Under The Renting Home
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part56
+       subsec_id  : I
+       subsections: ['I', '56.1', '56.2', '56.3', 'II', '56.4']
+       page_secs  : ['56.1', '56.2', '56.3', '56.4', 'I', 'II']
+       content    : 82 lines | first: # PART 56 – LANDLORD AND TENANT CLAIMS AND MISCELLANEOUS PROVISIONS ABOUT LAND AND CLAIMS UNDER THE 
+
+[081] ✓ OK  tier=2
+       ID         : Part 57A – Business And Property Courts
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-57a-business-and-property-courts
+       subsec_id  : 57A.1
+       subsections: ['57A.1', '57A.2', '57A.3']
+       page_secs  : ['57A.1', '57A.2', '57A.3']
+       content    : 15 lines | first: # PART 57A – BUSINESS AND PROPERTY COURTS
+
+[082] ✓ OK  tier=1
+       ID         : Part 57 – Probate, Inheritance, Presumption Of Death And Guardianship Of Missing Persons_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part57
+       subsec_id  : 57.1
+       subsections: ['57.1', 'I', '57.2', '57.3', '57.4', '57.5', '57.6', '57.7', '57.8', '57.9']
+       page_secs  : ['57.1', '57.2', '57.3', '57.4', '57.5', '57.6', '57.7', '57.8', '57.9', '57.10', '57.11', '57.12']
+       content    : 151 lines | first: Document: Part 57 – Probate, Inheritance, Presumption of Death and guardianship of missing persons
+S
+
+[083] ✓ OK  tier=1
+       ID         : Part 57 – Probate, Inheritance, Presumption Of Death And Guardianship Of Missing Persons_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part57
+       subsec_id  : 57.16
+       subsections: ['57.16', 'V', '57.17', '57.18', '57.19', '57.20', '57.21', '57.22', '57.23']
+       page_secs  : ['57.1', '57.2', '57.3', '57.4', '57.5', '57.6', '57.7', '57.8', '57.9', '57.10', '57.11', '57.12']
+       content    : 135 lines | first: Document: Part 57 – Probate, Inheritance, Presumption of Death and guardianship of missing persons
+S
+
+[084] ✓ OK  tier=1
+       ID         : Part 57 – Probate, Inheritance, Presumption Of Death And Guardianship Of Missing Persons_chunk_002
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part57
+       subsec_id  : I
+       subsections: ['I']
+       page_secs  : ['57.1', '57.2', '57.3', '57.4', '57.5', '57.6', '57.7', '57.8', '57.9', '57.10', '57.11', '57.12']
+       content    : 64 lines | first: Document: Part 57 – Probate, Inheritance, Presumption of Death and guardianship of missing persons
+S
+
+[085] ✓ OK  tier=2
+       ID         : Part 58 – Commercial Court
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part58
+       subsec_id  : 58.1
+       subsections: ['58.1', '58.2', '58.3', '58.4', '58.5', '58.6', '58.7', '58.8', '58.9', '58.10']
+       page_secs  : ['58.1', '58.2', '58.3', '58.4', '58.5', '58.6', '58.7', '58.8', '58.9', '58.10', '58.11', '58.12']
+       content    : 92 lines | first: # PART 58 – COMMERCIAL COURT
+
+[086] ✓ OK  tier=2
+       ID         : Part 59 – Circuit Commercial Courts
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part59
+       subsec_id  : 59.1
+       subsections: ['59.1', '59.2', '59.3', '59.4', '59.5', '59.6', '59.7', '59.8', '59.9', '59.10']
+       page_secs  : ['59.1', '59.2', '59.3', '59.4', '59.5', '59.6', '59.7', '59.8', '59.9', '59.10', '59.11', '59.12']
+       content    : 79 lines | first: # PART 59 – CIRCUIT COMMERCIAL COURTS
+
+[087] ✓ OK  tier=1
+       ID         : Part 5 – Court Documents
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part05
+       subsec_id  : 5.1
+       subsections: ['5.1', '5.2', '5.3', '5.4', '5.4B', '5.4C', '5.4D', '5.5']
+       page_secs  : ['5.1', '5.2', '5.3', '5.4', '5.4B', '5.4C', '5.4D', '5.5']
+       content    : 93 lines | first: # PART 5 – COURT DOCUMENTS
+
+[088] ✓ OK  tier=2
+       ID         : Part 60 – Technology And Construction Court Claims
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part60
+       subsec_id  : 60.1
+       subsections: ['60.1', '60.2', '60.3', '60.4', '60.5', '60.6', '60.7']
+       page_secs  : ['60.1', '60.2', '60.3', '60.4', '60.5', '60.6', '60.7']
+       content    : 52 lines | first: # PART 60 – TECHNOLOGY AND CONSTRUCTION COURT CLAIMS
+
+[089] ✓ OK  tier=2
+       ID         : Part 61 – Admiralty Claims_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part61
+       subsec_id  : 61.1
+       subsections: ['61.1', '61.7', '61.8', '61.2', '61.3', '61.4', '61.5', '61.6']
+       page_secs  : ['61.1', '61.2', '61.3', '61.4', '61.5', '61.6', '61.7', '61.8', '61.9', '61.10', '61.11', '61.12']
+       content    : 224 lines | first: Document: Part 61 – Admiralty Claims
+Section: Scope and interpretation
+Part 1 of 2
+=================
+
+[090] ✓ OK  tier=2
+       ID         : Part 61 – Admiralty Claims_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part61
+       subsec_id  : 61.9
+       subsections: ['61.9', '61.4', '61.7', '61.10', '61.11', '61.12', '61.13']
+       page_secs  : ['61.1', '61.2', '61.3', '61.4', '61.5', '61.6', '61.7', '61.8', '61.9', '61.10', '61.11', '61.12']
+       content    : 125 lines | first: Document: Part 61 – Admiralty Claims
+Section: 61.9
+Part 2 of 2
+=====================================
+
+[091] ✓ OK  tier=1
+       ID         : Part 62 – Arbitration Claims_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part62
+       subsec_id  : 62.1
+       subsections: ['62.1', 'I', '62.2', 'II', 'III', '62.3', '62.4', '62.5', '62.6', '62.7']
+       page_secs  : ['62.1', '62.2', '62.3', '62.4', '62.5', '62.6', '62.7', '62.8', '62.9', '62.10', '62.11', '62.12']
+       content    : 211 lines | first: Document: Part 62 – Arbitration Claims
+Section: Scope of this Part and interpretation
+Part 1 of 2
+==
+
+[092] ✓ OK  tier=1
+       ID         : Part 62 – Arbitration Claims_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part62
+       subsec_id  : 62.18
+       subsections: ['62.18', 'I', '62.19', '62.20', 'II', '62.21']
+       page_secs  : ['62.1', '62.2', '62.3', '62.4', '62.5', '62.6', '62.7', '62.8', '62.9', '62.10', '62.11', '62.12']
+       content    : 111 lines | first: Document: Part 62 – Arbitration Claims
+Section: 62.18
+Part 2 of 2
+==================================
+
+[093] ✓ OK  tier=1
+       ID         : Part 63A – Financial List
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/financial-list
+       subsec_id  : 63A.1
+       subsections: ['63A.1', '63A.2', '63A.3', '63A.4']
+       page_secs  : ['63A.1', '63A.2', '63A.3', '63A.4']
+       content    : 28 lines | first: # PART 63A –  FINANCIAL LIST
+
+[094] ✓ OK  tier=1
+       ID         : Part 63 – Intellectual Property Claims_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part63
+       subsec_id  : 63.1
+       subsections: ['63.1', '63.27', 'I', '63.2', '63.3', '63.5', '63.6', '63.7', '63.8', '63.9']
+       page_secs  : ['63.1', '63.2', '63.3', '63.5', '63.6', '63.7', '63.8', '63.9', '63.10', '63.11', '63.12', '63.13']
+       content    : 231 lines | first: Document: Part 63 – Intellectual Property Claims
+Section: Scope of this Part and interpretation
+Part
+
+[095] ✓ OK  tier=1
+       ID         : Part 63 – Intellectual Property Claims_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part63
+       subsec_id  : 63.27
+       subsections: ['63.27', '63.13', '63.2', '63.28', '63.1', '63.18', '63.20', '63.21', '63.22', '63.25']
+       page_secs  : ['63.1', '63.2', '63.3', '63.5', '63.6', '63.7', '63.8', '63.9', '63.10', '63.11', '63.12', '63.13']
+       content    : 32 lines | first: Document: Part 63 – Intellectual Property Claims
+Section: 63.27
+Part 2 of 2
+========================
+
+[096] ✓ OK  tier=2
+       ID         : Part 64 – Estates, Trusts And Charities
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part64
+       subsec_id  : 64.1
+       subsections: ['64.1', '64.2', '64.3', '64.4', '64.5', '64.6']
+       page_secs  : ['64.1', '64.2', '64.3', '64.4', '64.5', '64.6']
+       content    : 58 lines | first: # PART 64 – ESTATES, TRUSTS AND CHARITIES
+
+[097] ✓ OK  tier=3
+       ID         : Part 65 – Proceedings Relating To Anti-Social Behaviour And Harassment_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part65
+       subsec_id  : I
+       subsections: []
+       page_secs  : []
+       content    : 172 lines | first: Document: Part 65 – Proceedings Relating to Anti-Social Behaviour and Harassment
+Section: I Housing 
+
+[098] ✓ OK  tier=3
+       ID         : Part 65 – Proceedings Relating To Anti-Social Behaviour And Harassment_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part65
+       subsec_id  : 65.28
+       subsections: []
+       page_secs  : []
+       content    : 178 lines | first: Document: Part 65 – Proceedings Relating to Anti-Social Behaviour and Harassment
+Section: 65.28
+Part
+
+[099] ✓ OK  tier=3
+       ID         : Part 65 – Proceedings Relating To Anti-Social Behaviour And Harassment_chunk_002
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part65
+       subsec_id  : PART 65 – PROCEEDINGS RELATING TO ANTI-SOCIAL BEHAVIOUR AND HARASSMENT
+       subsections: []
+       page_secs  : []
+       content    : 69 lines | first: Document: Part 65 – Proceedings Relating to Anti-Social Behaviour and Harassment
+Section: Applicatio
+
+[100] ✓ OK  tier=2
+       ID         : Part 66 – Crown Proceedings
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part66
+       subsec_id  : 66.1
+       subsections: ['66.1', '66.2', '66.3', '66.4', '66.5', '66.6', '66.7']
+       page_secs  : ['66.1', '66.2', '66.3', '66.4', '66.5', '66.6', '66.7']
+       content    : 66 lines | first: # PART 66 – CROWN PROCEEDINGS
+
+[101] ✓ OK  tier=1
+       ID         : Part 67 – Proceedings Relating To Solicitors
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part67
+       subsec_id  : 67.1
+       subsections: ['67.1', '67.2', '67.3', '67.4']
+       page_secs  : ['67.1', '67.2', '67.3', '67.4']
+       content    : 69 lines | first: # PART 67 – PROCEEDINGS RELATING TO SOLICITORS
+
+[102] ✓ OK  tier=3
+       ID         : Part 68 – Proceedings under the European Union (Withdrawal) Act 2018
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-68-proceedings-under-the-european-union-withdrawal-act-2018
+       subsec_id  : Part 68 PROCEEDINGS UNDER THE EUROPEAN UNION (WITHDRAWAL) ACT 2018
+       subsections: []
+       page_secs  : []
+       content    : 68 lines | first: # Part 68 PROCEEDINGS UNDER THE EUROPEAN UNION (WITHDRAWAL) ACT 2018
+
+[103] ✓ OK  tier=2
+       ID         : Part 69 – Court’S Power To Appoint A Receiver
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part69
+       subsec_id  : 69.1
+       subsections: ['69.1', '69.2', '69.3', '69.4', '69.5', '69.6', '69.7', '69.8', '69.9', '69.10']
+       page_secs  : ['69.1', '69.2', '69.3', '69.4', '69.5', '69.6', '69.7', '69.8', '69.9', '69.10', '69.11']
+       content    : 103 lines | first: # PART 69 – COURT’S POWER TO APPOINT A RECEIVER
+
+[104] ✓ OK  tier=1
+       ID         : Part 6 – Service Of Documents_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part06
+       subsec_id  : I
+       subsections: ['I', '6.1', '6.2', 'II', '6.3', '6.5', '6.7', '6.8', '6.9', '6.10']
+       page_secs  : ['6.1', '6.2', '6.3', '6.4', '6.5', '6.6', '6.7', '6.8', '6.9', '6.10', '6.11', '6.12']
+       content    : 241 lines | first: Document: Part 6 – Service of Documents
+Section: I SCOPE OF THIS PART AND INTERPRETATION
+Part 1 of 3
+
+[105] ✓ OK  tier=1
+       ID         : Part 6 – Service Of Documents_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part06
+       subsec_id  : 6.23
+       subsections: ['6.23', 'IV', '6.10', '6.27', '6.40', '6.47', '6.24', '6.25', '6.26', '6.15']
+       page_secs  : ['6.1', '6.2', '6.3', '6.4', '6.5', '6.6', '6.7', '6.8', '6.9', '6.10', '6.11', '6.12']
+       content    : 217 lines | first: Document: Part 6 – Service of Documents
+Section: 6.23
+Part 2 of 3
+==================================
+
+[106] ✓ OK  tier=1
+       ID         : Part 6 – Service Of Documents_chunk_002
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part06
+       subsec_id  : 6.44
+       subsections: ['6.44', '6.45', '6.43', '6.46', '6.47', 'V', '6.48', '6.49', '6.31', '6.50']
+       page_secs  : ['6.1', '6.2', '6.3', '6.4', '6.5', '6.6', '6.7', '6.8', '6.9', '6.10', '6.11', '6.12']
+       content    : 97 lines | first: Document: Part 6 – Service of Documents
+Section: 6.44
+Part 3 of 3
+==================================
+
+[107] ✓ OK  tier=1
+       ID         : Part 70 – General Rules About Enforcement Of Judgments And Orders
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part70
+       subsec_id  : 70.2A
+       subsections: ['70.2A']
+       page_secs  : ['70.2A']
+       content    : 90 lines | first: # PART 70 – GENERAL RULES ABOUT ENFORCEMENT OF JUDGMENTS AND ORDERS
+
+[108] ✓ OK  tier=2
+       ID         : Part 71 – Orders To Obtain Information From Judgment Debtors
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part71
+       subsec_id  : 71.1
+       subsections: ['71.1', '71.2', '71.3', '71.4', '71.5', '71.6', '71.7', '71.8']
+       page_secs  : ['71.1', '71.2', '71.3', '71.4', '71.5', '71.6', '71.7', '71.8']
+       content    : 81 lines | first: # PART 71 – ORDERS TO OBTAIN INFORMATION FROM JUDGMENT DEBTORS
+
+[109] ✓ OK  tier=2
+       ID         : Part 72 – Third Party Debt Orders
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part72
+       subsec_id  : 72.1
+       subsections: ['72.1', '72.2', '72.4', '72.3', '72.5', '72.6', '72.7', '72.8', '72.9', '72.10']
+       page_secs  : ['72.1', '72.2', '72.3', '72.4', '72.5', '72.6', '72.7', '72.8', '72.9', '72.10', '72.11']
+       content    : 134 lines | first: # PART 72 – THIRD PARTY DEBT ORDERS
+
+[110] ✓ OK  tier=1
+       ID         : Part 73 – Charging Orders, Stop Orders And Stop Notices_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part73
+       subsec_id  : 73.1
+       subsections: ['73.1', 'I', 'II', 'III', '73.4', '73.6', '73.2', '73.3', '73.10A', '73.7']
+       page_secs  : ['73.1', '73.2', '73.3', '73.4', '73.5', '73.6', '73.7', '73.8', '73.9', '73.10', '73.10A', '73.10B']
+       content    : 175 lines | first: Document: Part 73 – Charging Orders, Stop Orders and Stop Notices
+Section: Scope of this Part and in
+
+[111] ✓ OK  tier=1
+       ID         : Part 73 – Charging Orders, Stop Orders And Stop Notices_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part73
+       subsec_id  : 73.10B
+       subsections: ['73.10B', '73.10', '73.10C', 'II', '73.11', '73.12', '73.7', '73.13', '73.14', '73.15']
+       page_secs  : ['73.1', '73.2', '73.3', '73.4', '73.5', '73.6', '73.7', '73.8', '73.9', '73.10', '73.10A', '73.10B']
+       content    : 113 lines | first: Document: Part 73 – Charging Orders, Stop Orders and Stop Notices
+Section: 73.10B
+Part 2 of 2
+======
+
+[112] ✓ OK  tier=1
+       ID         : Part 74 – Enforcement Of Judgments In Different Jurisdictions_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part74
+       subsec_id  : 74.1
+       subsections: ['74.1', 'I', 'II', 'III', 'VI', '74.2', '74.3', '74.4', '74.5', '74.6']
+       page_secs  : ['74.1', '74.2', '74.3', '74.4', '74.5', '74.6', '74.7', '74.9', '74.10', '74.11', '74.12', '74.13']
+       content    : 185 lines | first: Document: Part 74 – Enforcement of Judgments in Different Jurisdictions
+Section: Scope of this Part 
+
+[113] ✓ OK  tier=1
+       ID         : Part 74 – Enforcement Of Judgments In Different Jurisdictions_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part74
+       subsec_id  : 74.14
+       subsections: ['74.14', '74.15', '74.16', '74.6', '74.7', '74.17', '74.18', 'VI', '74.34', '74.35']
+       page_secs  : ['74.1', '74.2', '74.3', '74.4', '74.5', '74.6', '74.7', '74.9', '74.10', '74.11', '74.12', '74.13']
+       content    : 104 lines | first: Document: Part 74 – Enforcement of Judgments in Different Jurisdictions
+Section: 74.14
+Part 2 of 2
+=
+
+[114] ✓ OK  tier=2
+       ID         : Part 75 – Traffic Enforcement
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part75
+       subsec_id  : 75.1
+       subsections: ['75.1', '75.2', '75.3', '75.4', '75.5', '75.6', '75.7', '75.8', '75.9', '75.10']
+       page_secs  : ['75.1', '75.2', '75.3', '75.4', '75.5', '75.6', '75.7', '75.8', '75.9', '75.10', '75.11']
+       content    : 122 lines | first: # PART 75 – TRAFFIC ENFORCEMENT
+
+[115] ✓ OK  tier=2
+       ID         : Part 76 – Proceedings Under The Prevention Of Terrorism Act 2005_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part76
+       subsec_id  : 76.1
+       subsections: ['76.1', '76.2', '76.3', '76.4', '76.5', '76.30', '76.6', '76.18', '76.28', '76.29']
+       page_secs  : ['76.1', '76.2', '76.3', '76.4', '76.5', '76.6', '76.7', '76.8', '76.9', '76.10', '76.11', '76.12']
+       content    : 198 lines | first: Document: Part 76 – Proceedings Under the Prevention of Terrorism Act 2005
+Section: I APPLICATION OF
+
+[116] ✓ OK  tier=2
+       ID         : Part 76 – Proceedings Under The Prevention Of Terrorism Act 2005_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part76
+       subsec_id  : 76.22
+       subsections: ['76.22', '76.23', '76.25', '76.24', '76.26', '76.27', '76.28', '76.29', '76.30', '76.31']
+       page_secs  : ['76.1', '76.2', '76.3', '76.4', '76.5', '76.6', '76.7', '76.8', '76.9', '76.10', '76.11', '76.12']
+       content    : 141 lines | first: Document: Part 76 – Proceedings Under the Prevention of Terrorism Act 2005
+Section: 76.22
+Part 2 of 
+
+[117] ✓ OK  tier=2
+       ID         : Part 77 – Provisions In Support Of Criminal Justice_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part77
+       subsec_id  : 77.1
+       subsections: ['77.1', '77.2', '77.3', '77.4', '77.5', '77.6', '77.7', '77.8', '77.9', '77.10']
+       page_secs  : ['77.1', '77.2', '77.3', '77.4', '77.5', '77.6', '77.7', '77.8', '77.9', '77.10', '77.11', '77.12']
+       content    : 186 lines | first: Document: Part 77 – Provision in Support of Criminal Justice
+Section: Scope of this Part
+Part 1 of 2
+
+[118] ⚠ ISSUE  tier=2
+       ID         : Part 77 – Provisions In Support Of Criminal Justice_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part77
+       subsec_id  : 77.1
+       subsections: []
+       page_secs  : ['77.1', '77.2', '77.3', '77.4', '77.5', '77.6', '77.7', '77.8', '77.9', '77.10', '77.11', '77.12']
+       content    : 93 lines | first: Document: Part 77 – Provision in Support of Criminal Justice
+Section: 77.25. —(1) Where the court co
+       *** tier-1/2 page with sections but chunk claims none (coverage gap)
+
+[119] ✓ OK  tier=2
+       ID         : Part 79 – Proceedings under the counter-terrorism act 2008, part 1 of the terrorist asset-freezing etc. act 20
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part79
+       subsec_id  : 79.29
+       subsections: ['79.1', '79.10', '79.11', '79.12', '79.13', '79.14', '79.15', '79.16', '79.17', '79.18']
+       page_secs  : ['79.1', '79.2', '79.3', '79.4', '79.5', '79.6', '79.7', '79.8', '79.9', '79.10', '79.11', '79.12']
+       content    : 31 lines | first: Document: Part 79 – Proceedings under the counter-terrorism act 2008, part 1 of the terrorist asset-
+
+[120] ✓ OK  tier=1
+       ID         : Part 7 – How To Start Proceedings – The Claim Form
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part07
+       subsec_id  : 7.1
+       subsections: ['7.1', '7.2', '7.3', '7.4', '7.5', '7.10', '7.6', '7.7', '7.8', '7.9']
+       page_secs  : ['7.1', '7.2', '7.3', '7.4', '7.5', '7.6', '7.7', '7.8', '7.9', '7.10', '7.11', '7.12']
+       content    : 109 lines | first: # PART 7 – HOW TO START PROCEEDINGS – THE CLAIM FORM
+
+[121] ✓ OK  tier=2
+       ID         : Part 80 – Proceedings Under The Terrorism Prevention And Investigation_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part80
+       subsec_id  : 80.1
+       subsections: ['80.1', '80.2', '80.3', '80.4', '80.5', '80.6', '80.26', '80.24', '80.25', '80.7']
+       page_secs  : ['80.1', '80.2', '80.3', '80.4', '80.5', '80.6', '80.7', '80.8', '80.9', '80.10', '80.11', '80.12']
+       content    : 222 lines | first: Document: Part 80 – Proceedings under the Terrorism Prevention and Investigation Measures Act 2011
+S
+
+[122] ✓ OK  tier=2
+       ID         : Part 80 – Proceedings Under The Terrorism Prevention And Investigation_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part80
+       subsec_id  : 80.22
+       subsections: ['80.22', '80.23', '80.24', '80.25', '80.21', '80.26', '80.27', '80.28', '80.29', '80.30']
+       page_secs  : ['80.1', '80.2', '80.3', '80.4', '80.5', '80.6', '80.7', '80.8', '80.9', '80.10', '80.11', '80.12']
+       content    : 108 lines | first: Document: Part 80 – Proceedings under the Terrorism Prevention and Investigation Measures Act 2011
+S
+
+[123] ✓ OK  tier=3
+       ID         : Part 81 – Applications And Proceedings In Relation To Contempt Of Court
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-81-applications-and-proceedings-in-relation-to-contempt-of-court
+       subsec_id  : PART 81 – Applications and Proceedings in Relation to Contempt of Court
+       subsections: []
+       page_secs  : []
+       content    : 91 lines | first: # PART 81 – Applications and Proceedings in Relation to Contempt of Court
+
+[124] ✓ OK  tier=1
+       ID         : Part 82 – Closed Material Procedure_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-82-closed-material-procedure
+       subsec_id  : I
+       subsections: ['8.21', '82.1', '82.10', '82.11', '82.12', '82.13', '82.14', '82.15', '82.16', '82.17']
+       page_secs  : ['8.21', '82.1', '82.2', '82.3', '82.4', '82.5', '82.6', '82.7', '82.8', '82.9', '82.10', '82.11']
+       content    : 180 lines | first: Document: Part 82 – Closed material procedure
+Section: I APPLICATION OF THIS PART
+Part 1 of 2
+======
+
+[125] ✓ OK  tier=1
+       ID         : Part 82 – Closed Material Procedure_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-82-closed-material-procedure
+       subsec_id  : 82.20
+       subsections: ['8.21', '82.1', '82.10', '82.11', '82.12', '82.13', '82.14', '82.15', '82.16', '82.17']
+       page_secs  : ['8.21', '82.1', '82.2', '82.3', '82.4', '82.5', '82.6', '82.7', '82.8', '82.9', '82.10', '82.11']
+       content    : 164 lines | first: Document: Part 82 – Closed material procedure
+Section: 82.20
+Part 2 of 2
+===========================
+
+[126] ✓ OK  tier=1
+       ID         : Part 83 – Writs And Warrants – General Provisions_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-83-writs-and-warrants-general-provisions
+       subsec_id  : 83.15
+       subsections: ['83.15', 'I', '83.1', 'II', 'III', 'IV', '83.2', '83.3', '83.4', '83.5']
+       page_secs  : ['83.1', '83.2', '83.3', '83.4', '83.5', '83.6', '83.7', '83.8', '83.9', '83.10', '83.11', '83.12']
+       content    : 178 lines | first: Document: Part 83 Writs and Warrants – General Provisions
+Section: Rule 83.15
+Part 1 of 3
+==========
+
+[127] ✓ OK  tier=1
+       ID         : Part 83 – Writs And Warrants – General Provisions_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-83-writs-and-warrants-general-provisions
+       subsec_id  : III
+       subsections: ['III', '83.9', '83.10', '83.11', '83.12', '83.13', '83.14', 'IV', '83.15', '83.16']
+       page_secs  : ['83.1', '83.2', '83.3', '83.4', '83.5', '83.6', '83.7', '83.8', '83.9', '83.10', '83.11', '83.12']
+       content    : 173 lines | first: Document: Part 83 Writs and Warrants – General Provisions
+Section: 83.8A
+Part 2 of 3
+===============
+
+[128] ✓ OK  tier=1
+       ID         : Part 83 – Writs And Warrants – General Provisions_chunk_002
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-83-writs-and-warrants-general-provisions
+       subsec_id  : 83.19
+       subsections: ['83.19', '83.20', '83.21', '83.22', '83.23', '83.24', '83.25', '83.26', '83.27', '83.28']
+       page_secs  : ['83.1', '83.2', '83.3', '83.4', '83.5', '83.6', '83.7', '83.8', '83.9', '83.10', '83.11', '83.12']
+       content    : 147 lines | first: Document: Part 83 Writs and Warrants – General Provisions
+Section: 83.19
+Part 3 of 3
+===============
+
+[129] ✓ OK  tier=1
+       ID         : Part 84 – Enforcement By Taking Control Of Goods
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-84enforcement-by-taking-control-of-goods
+       subsec_id  : I
+       subsections: ['I', '84.1', '84.2', 'II', '84.3', 'III', '84.4', '84.5', '84.6', '84.7']
+       page_secs  : ['84.1', '84.2', '84.3', '84.4', '84.5', '84.6', '84.7', '84.8', '84.9', '84.10', '84.11', '84.12']
+       content    : 176 lines | first: # PART 84 – ENFORCEMENT BY TAKING CONTROL OF GOODS
+
+[130] ✓ OK  tier=1
+       ID         : Part 85 – Claims On Controlled Goods And Executed Goods_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-85-claims-on-controlled-goods-and-executed-goods
+       subsec_id  : I
+       subsections: ['I', '85.1', 'II', 'III', 'IV', 'V', 'VI', '85.2', '85.3', '85.4']
+       page_secs  : ['85.1', '85.2', '85.3', '85.4', '85.5', '85.6', '85.7', '85.8', '85.9', '85.10', '85.11', '85.12']
+       content    : 163 lines | first: Document: Part 85 Claims on Controlled Goods and Executed Goods
+Section: SECTION I SCOPE AND INTERPR
+
+[131] ✓ OK  tier=1
+       ID         : Part 85 – Claims On Controlled Goods And Executed Goods_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-85-claims-on-controlled-goods-and-executed-goods
+       subsec_id  : 85.8
+       subsections: ['85.8', '85.4', '85.6', '85.9', 'VI', '85.10', '85.11', '85.12', 'I']
+       page_secs  : ['85.1', '85.2', '85.3', '85.4', '85.5', '85.6', '85.7', '85.8', '85.9', '85.10', '85.11', '85.12']
+       content    : 87 lines | first: Document: Part 85 Claims on Controlled Goods and Executed Goods
+Section: 85.8
+Part 2 of 2
+==========
+
+[132] ✓ OK  tier=1
+       ID         : Part 86 – Stakeholder Claims And Applications
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-86-stakeholder-claims-and-applications
+       subsec_id  : 86.1
+       subsections: ['86.1', '86.2', '86.3', '86.4', '86.5']
+       page_secs  : ['86.1', '86.2', '86.3', '86.4', '86.5']
+       content    : 47 lines | first: # PART 86 – STAKEHOLDER CLAIMS AND APPLICATIONS
+
+[133] ✓ OK  tier=1
+       ID         : Part 87 – Applications For Writ Of Habeas Corpus
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-87-applications-for-writ-of-habeas-corpus
+       subsec_id  : I
+       subsections: ['I', '87.1', 'II', 'III', '87.2', '87.3', '87.7', '87.4', '87.5', '87.6']
+       page_secs  : ['87.1', '87.2', '87.3', '87.4', '87.5', '87.6', '87.7', '87.8', '87.9', '87.10', '87.11', '87.12']
+       content    : 109 lines | first: # PART 87 – APPLICATIONS FOR WRIT OF HABEAS CORPUS
+
+[134] ✓ OK  tier=1
+       ID         : Part 88 – Proceedings Under The Counter-Terrorism And Security Act 2015_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-88-proceedings-under-the-counter-terrorism-and-security-act-2015
+       subsec_id  : I
+       subsections: ['88.1', '88.10', '88.11', '88.12', '88.13', '88.14', '88.15', '88.16', '88.17', '88.18']
+       page_secs  : ['88.1', '88.2', '88.3', '88.4', '88.5', '88.6', '88.7', '88.8', '88.9', '88.10', '88.11', '88.12']
+       content    : 182 lines | first: Document: Part 88 Proceedings under the Counter-terrorism and Security Act 2015
+Section: I APPLICATI
+
+[135] ✓ OK  tier=1
+       ID         : Part 88 – Proceedings Under The Counter-Terrorism And Security Act 2015_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-88-proceedings-under-the-counter-terrorism-and-security-act-2015
+       subsec_id  : 88.22
+       subsections: ['88.1', '88.10', '88.11', '88.12', '88.13', '88.14', '88.15', '88.16', '88.17', '88.18']
+       page_secs  : ['88.1', '88.2', '88.3', '88.4', '88.5', '88.6', '88.7', '88.8', '88.9', '88.10', '88.11', '88.12']
+       content    : 146 lines | first: Document: Part 88 Proceedings under the Counter-terrorism and Security Act 2015
+Section: 88.22
+Part 
+
+[136] ✓ OK  tier=1
+       ID         : Part 89 – Attachment Of Earnings_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/art-89-attachment-of-earnings
+       subsec_id  : I
+       subsections: ['I', '89.1', '89.2', 'II', '89.3', '89.4', '89.5', '89.6', '89.7', '89.8']
+       page_secs  : ['89.1', '89.2', '89.3', '89.4', '89.5', '89.6', '89.7', '89.8', '89.9', '89.10', '89.11', '89.12']
+       content    : 187 lines | first: Document: Part 89 Attachment of earnings
+Section: SECTION I – GENERAL
+Part 1 of 2
+==================
+
+[137] ✓ OK  tier=1
+       ID         : Part 89 – Attachment Of Earnings_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/art-89-attachment-of-earnings
+       subsec_id  : 89.19
+       subsections: ['89.19', '89.3', '89.4', '89.5', '89.20', '89.21', '89.22']
+       page_secs  : ['89.1', '89.2', '89.3', '89.4', '89.5', '89.6', '89.7', '89.8', '89.9', '89.10', '89.11', '89.12']
+       content    : 47 lines | first: Document: Part 89 Attachment of earnings
+Section: 89.19
+Part 2 of 2
+================================
+
+[138] ✓ OK  tier=1
+       ID         : Part 8 – Alternative Procedure For Claims
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part08
+       subsec_id  : 8.1
+       subsections: ['8.1', '8.9', '8.2', '8.2A', '8.3', '8.4', '8.5', '8.6', '8.7', '8.8']
+       page_secs  : ['8.1', '8.2', '8.2A', '8.3', '8.4', '8.5', '8.6', '8.7', '8.8', '8.9']
+       content    : 101 lines | first: # PART 8 – ALTERNATIVE PROCEDURE FOR CLAIMS
+
+[139] ✓ OK  tier=1
+       ID         : Part 9 – Responding To Particulars Of Claim – General
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part09
+       subsec_id  : 9.1
+       subsections: ['9.1', '9.2']
+       page_secs  : ['9.1', '9.2']
+       content    : 13 lines | first: # PART 9 – RESPONDING TO PARTICULARS OF CLAIM – GENERAL
+
+[140] ✓ OK  tier=1
+       ID         : Practice Direction 16 – Statements Of Case_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part16/pd_part16
+       subsec_id  : 1.1
+       subsections: ['1.1']
+       page_secs  : ['1.1']
+       content    : 182 lines | first: Document: Practice Direction 16
+Section: General
+Part 1 of 2
+=======================================
+
+[141] ⚠ ISSUE  tier=1
+       ID         : Practice Direction 16 – Statements Of Case_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part16/pd_part16
+       subsec_id  : 1.1
+       subsections: []
+       page_secs  : ['1.1']
+       content    : 14 lines | first: Document: Practice Direction 16
+Section: Human Rights
+Part 2 of 2
+==================================
+       *** tier-1/2 page with sections but chunk claims none (coverage gap)
+
+[142] ✓ OK  tier=1
+       ID         : Practice Direction 17 – Amendments To Statements Of Case
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part17/pd_part17
+       subsec_id  : 1.1
+       subsections: ['1.1', '2.1']
+       page_secs  : ['1.1', '2.1']
+       content    : 29 lines | first: # PRACTICE DIRECTION 17 – AMENDMENTS TO STATEMENTS OF CASE
+
+[143] ✓ OK  tier=1
+       ID         : Practice Direction 18 – Further Information
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part18/pd_part18
+       subsec_id  : 1.1
+       subsections: ['1.1', '2.1', '3.1', '4.1']
+       page_secs  : ['1.1', '2.1', '3.1', '4.1']
+       content    : 69 lines | first: # PRACTICE DIRECTION 18 – FURTHER INFORMATION
+
+[144] ✓ OK  tier=3
+       ID         : Practice Direction 19A – Derivative Claims
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part19/pd_part19a
+       subsec_id  : PRACTICE DIRECTION 19A – DERIVATIVE CLAIMS
+       subsections: []
+       page_secs  : []
+       content    : 14 lines | first: # PRACTICE DIRECTION 19A – DERIVATIVE CLAIMS
+
+[145] ✓ OK  tier=1
+       ID         : Practice Direction 19B – Group Litigation
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part19/pd_part19b
+       subsec_id  : 2.1
+       subsections: ['1.1', '10.1', '11.1', '12.1', '13.1', '14.1', '15.1', '16.1', '2.1', '3.1']
+       page_secs  : ['1.1', '2.1', '3.1', '3.5', '3.6', '3.7', '4.1', '5.1', '6.1', '7.1', '8.1', '9.1']
+       content    : 113 lines | first: # PRACTICE DIRECTION 19B – GROUP LITIGATION
+
+[146] ✓ OK  tier=3
+       ID         : Practice Direction 1A – Participation Of Vulnerable Parties Or Witnesses
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part01/practice-direction-1a-participation-of-vulnerable-parties-or-witnesses
+       subsec_id  : PRACTICE DIRECTION 1A – PARTICIPATION OF VULNERABLE PARTIES OR WITNESSES
+       subsections: []
+       page_secs  : []
+       content    : 38 lines | first: # PRACTICE DIRECTION 1A – PARTICIPATION OF VULNERABLE PARTIES OR WITNESSES
+
+[147] ✓ OK  tier=1
+       ID         : Practice Direction 20 – Counterclaims And Other Additional Claims
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part20/pd_part20
+       subsec_id  : 1.1
+       subsections: ['1.1', '2.1', '5.1', '6.1', '7.1']
+       page_secs  : ['1.1', '2.1', '5.1', '6.1', '7.1']
+       content    : 51 lines | first: # PRACTICE DIRECTION 20 – COUNTERCLAIMS AND OTHER ADDITIONAL CLAIMS
+
+[148] ✓ OK  tier=1
+       ID         : Practice Direction 22 – Statements Of Truth
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part22/pd_part22
+       subsec_id  : 1.1
+       subsections: ['1.1', '2.1', '3.1']
+       page_secs  : ['1.1', '2.1', '3.1']
+       content    : 66 lines | first: # PRACTICE DIRECTION 22 – STATEMENTS OF TRUTH
+
+[149] ✓ OK  tier=1
+       ID         : Practice Direction 23A – Applications
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part23/pd_part23a
+       subsec_id  : 2.1
+       subsections: ['2.1', '3.1', '4.1', '5A.1', 'I']
+       page_secs  : ['2.1', '3.1', '4.1', '5A.1', 'I']
+       content    : 70 lines | first: # PRACTICE DIRECTION 23A – APPLICATIONS
+
+[150] ✓ OK  tier=3
+       ID         : Practice Direction 26 – Case Management – Preliminary Stage: Allocation, Reallocation, Assignment And Reassign
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part26/pd_part26
+       subsec_id  : 15
+       subsections: []
+       page_secs  : []
+       content    : 94 lines | first: Document: Practice Direction 26 – Case management – preliminary stage: allocation, reallocation, ass
+
+[151] ✓ OK  tier=1
+       ID         : Practice Direction 27A – Small Claims Track
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part27/pd_part27
+       subsec_id  : 2.1
+       subsections: ['1.1', '2.1', '3.1', '4.1', '5.1', '6.1', '7.1', '8.1']
+       page_secs  : ['1.1', '2.1', '3.1', '4.1', '5.1', '6.1', '7.1', '8.1']
+       content    : 123 lines | first: # PRACTICE DIRECTION 27A – SMALL CLAIMS TRACK
+
+[152] ✓ OK  tier=2
+       ID         : Practice Direction 28 – The Fast Track And The Intermediate Track
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part28/pd_part28
+       subsec_id  : I
+       subsections: ['I', 'II']
+       page_secs  : ['I', 'II']
+       content    : 158 lines | first: # PRACTICE DIRECTION 28 – THE FAST TRACK AND THE INTERMEDIATE TRACK
+
+[153] ✓ OK  tier=1
+       ID         : Practice Direction 29 – The Multi-Track_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part29/pd_part29
+       subsec_id  : 1.1
+       subsections: ['1.1', '10.1', '2.1', '3.1', '3A.1', '4.1', '5.1', '6.1', '7.1', '8.1']
+       page_secs  : ['1.1', '2.1', '3.1', '3A.1', '4.1', '5.1', '6.1', '7.1', '8.1', '9.1', '10.1']
+       content    : 176 lines | first: Document: Practice Direction 29
+Section: This Practice Direction supplements CPR Part 29
+Part 1 of 2
+
+[154] ✓ OK  tier=1
+       ID         : Practice Direction 29 – The Multi-Track_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part29/pd_part29
+       subsec_id  : 8.1
+       subsections: ['1.1', '10.1', '2.1', '3.1', '3A.1', '4.1', '5.1', '6.1', '7.1', '8.1']
+       page_secs  : ['1.1', '2.1', '3.1', '3A.1', '4.1', '5.1', '6.1', '7.1', '8.1', '9.1', '10.1']
+       content    : 51 lines | first: Document: Practice Direction 29
+Section: 7.4
+Part 2 of 2
+===========================================
+
+[155] ✓ OK  tier=1
+       ID         : Practice Direction 2A – Court Offices
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part02/pd_part02a
+       subsec_id  : 1
+       subsections: ['1', '2.1', '3.1', 'Annex']
+       page_secs  : ['1', '2.1', '3.1', 'Annex']
+       content    : 43 lines | first: # PRACTICE DIRECTION 2A – COURT OFFICES
+
+[156] ✓ OK  tier=1
+       ID         : Practice Direction 2B – Allocation Of Cases To Levels Of Judiciary
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part02/pd_part02b
+       subsec_id  : I
+       subsections: ['10.1', '11.1', '12.1', '13.1', '15.1', '2.1', '4.1', '6.1', '7.1', '8.1']
+       page_secs  : ['2.1', '4.1', '6.1', '7.1', '8.1', '9.1', '10.1', '11.1', '12.1', '13.1', '15.1', 'I']
+       content    : 137 lines | first: # PRACTICE DIRECTION 2B – ALLOCATION OF CASES TO LEVELS OF JUDICIARY
+
+[157] ✓ OK  tier=1
+       ID         : Practice Direction 2C – Starting Proceedings In The County Court
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part02/practice-direction-2c-starting-proceedings-in-the-county-court
+       subsec_id  : 3.1
+       subsections: ['1.1', '2.1', '3.1', '4.1', '5.1']
+       page_secs  : ['1.1', '2.1', '3.1', '4.1', '5.1']
+       content    : 33 lines | first: # PRACTICE DIRECTION 2C – STARTING PROCEEDINGS IN THE COUNTY COURT
+
+[158] ✓ OK  tier=3
+       ID         : Practice Direction 2E – Jurisdiction Of The County Court That May Be Exercised By A Legal Adviser
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part02/practice-direction-2e-jurisdiction-of-the-county-court-that-may-be-exercised-by-a-legal-adviser
+       subsec_id  : PRACTICE DIRECTION 2E – JURISDICTION OF THE COUNTY COURT THAT MAY BE EXERCISED BY A LEGAL ADVISER
+       subsections: []
+       page_secs  : []
+       content    : 66 lines | first: # PRACTICE DIRECTION 2E – JURISDICTION OF THE COUNTY COURT THAT MAY BE EXERCISED BY A LEGAL ADVISER
+
+[159] ✓ OK  tier=3
+       ID         : Practice Direction 2F – Court Sittings
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part02/pd_part39b
+       subsec_id  : PRACTICE DIRECTION 2F – COURT SITTINGS
+       subsections: []
+       page_secs  : []
+       content    : 47 lines | first: # PRACTICE DIRECTION 2F – COURT SITTINGS
+
+[160] ✓ OK  tier=1
+       ID         : Practice Direction 30 – Transfer
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part30/pd_part30
+       subsec_id  : 4.1
+       subsections: ['3.1', '4.1', '5.1', '6.1', '7.1', '8.1', '8.3', '8.7']
+       page_secs  : ['3.1', '4.1', '5.1', '6.1', '7.1', '8.1', '8.3', '8.7']
+       content    : 81 lines | first: # PRACTICE DIRECTION 30 – TRANSFER
+
+[161] ✓ OK  tier=1
+       ID         : Practice Direction 31A – Disclosure And Inspection
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part31/pd_part31a
+       subsec_id  : 1.1
+       subsections: ['1.1', '2.1', '2A.1', '3.1', '4.1', '5.1', '6.1', '7.1', '8.1', 'Annex']
+       page_secs  : ['1.1', '2.1', '2A.1', '3.1', '4.1', '5.1', '6.1', '7.1', '8.1', 'Annex']
+       content    : 72 lines | first: # PRACTICE DIRECTION 31A – DISCLOSURE AND INSPECTION
+
+[162] ✓ OK  tier=1
+       ID         : Practice Direction 31B – Disclosure Of Electronic Documents_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part31/pd_part31b
+       subsec_id  : Schedule
+       subsections: ['1.1', '6.1', '7.1', '8.1', '10.1', '14.1', '17.1', '20.1', '25.1', '28.1']
+       page_secs  : ['1.1', '6.1', '7.1', '8.1', '10.1', '14.1', '17.1', '20.1', '25.1', '28.1', '30.1', '31.1']
+       content    : 160 lines | first: Document: Practice Direction 31B – Disclosure of Electronic Documents
+Section: This Practice Directi
+
+[163] ⚠ ISSUE  tier=1
+       ID         : Practice Direction 31B – Disclosure Of Electronic Documents_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part31/pd_part31b
+       subsec_id  : 1.1
+       subsections: []
+       page_secs  : ['1.1', '6.1', '7.1', '8.1', '10.1', '14.1', '17.1', '20.1', '25.1', '28.1', '30.1', '31.1']
+       content    : 38 lines | first: Document: Practice Direction 31B – Disclosure of Electronic Documents
+Section: Proposals for the met
+       *** tier-1/2 page with sections but chunk claims none (coverage gap)
+
+[164] ✓ OK  tier=1
+       ID         : Practice Direction 31C – Disclosure And Inspection In Relation To Competition Claims
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part31/practice-direction-31c-disclosure-and-inspection-in-relation-to-competition-claims
+       subsec_id  : 1.1
+       subsections: ['1.1', '2.1']
+       page_secs  : ['1.1', '2.1']
+       content    : 59 lines | first: # PRACTICE DIRECTION 31C – DISCLOSURE AND INSPECTION IN RELATION TO COMPETITION CLAIMS
+
+[165] ✓ OK  tier=1
+       ID         : Practice Direction 32 – Evidence_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part32/pd_part32
+       subsec_id  : 3.1
+       subsections: ['10.1', '11.1', '12.1', '13.1', '14.1', '15.1', '16.1', '17.1', '18.1', '19.1']
+       page_secs  : ['2.1', '3.1', '4.1', '5.1', '6.1', '7.1', '8.1', '9.1', '10.1', '11.1', '12.1', '13.1']
+       content    : 207 lines | first: Document: Practice Direction 32
+Section: This Practice Direction supplements CPR Part 32
+Part 1 of 2
+
+[166] ✓ OK  tier=1
+       ID         : Practice Direction 32 – Evidence_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part32/pd_part32
+       subsec_id  : 27.1
+       subsections: ['10.1', '11.1', '12.1', '13.1', '14.1', '15.1', '16.1', '17.1', '18.1', '19.1']
+       page_secs  : ['2.1', '3.1', '4.1', '5.1', '6.1', '7.1', '8.1', '9.1', '10.1', '11.1', '12.1', '13.1']
+       content    : 105 lines | first: Document: Practice Direction 32
+Section: AGREED BUNDLES FOR HEARINGS
+Part 2 of 2
+===================
+
+[167] ✓ OK  tier=3
+       ID         : Practice Direction 33 – Civil Evidence Act 1995
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part33/pd_part33
+       subsec_id  : PRACTICE DIRECTION 33 – CIVIL EVIDENCE ACT 1995
+       subsections: []
+       page_secs  : []
+       content    : 8 lines | first: # PRACTICE DIRECTION 33 – CIVIL EVIDENCE ACT 1995
+
+[168] ✓ OK  tier=3
+       ID         : Practice Direction 34A – Depositions And Court Attendance By Witnesses
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part34/pd_part34a
+       subsec_id  : PRACTICE DIRECTION 34A – DEPOSITIONS AND COURT ATTENDANCE BY WITNESSES
+       subsections: []
+       page_secs  : []
+       content    : 169 lines | first: # PRACTICE DIRECTION 34A – DEPOSITIONS AND COURT ATTENDANCE BY WITNESSES
+
+[169] ✓ OK  tier=2
+       ID         : Practice Direction 34B – Fees For Examiners Of The Court
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part34/pd_part34b
+       subsec_id  : 1.1
+       subsections: ['1.1', '1.2', '2.1', '2.2', '2.3', '3.1', '4.1', '4.2', '4.3', '5.1']
+       page_secs  : ['1.1', '1.2', '2.1', '2.2', '2.3', '3.1', '4.1', '4.2', '4.3', '5.1', '5.2']
+       content    : 50 lines | first: # PRACTICE DIRECTION 34B – FEES FOR EXAMINERS OF THE COURT
+
+[170] ✓ OK  tier=1
+       ID         : Practice Direction 35 – Experts And Assessors
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part35/pd_part35
+       subsec_id  : 2.1
+       subsections: ['1.1', '10.1', '11.1', '2.1', '3.1', '4.1', '5.1', '6.1', '7.1', '8.1']
+       page_secs  : ['1.1', '2.1', '3.1', '4.1', '5.1', '6.1', '7.1', '8.1', '9.1', '10.1', '11.1']
+       content    : 115 lines | first: # PRACTICE DIRECTION 35 – EXPERTS AND ASSESSORS
+
+[171] ✓ OK  tier=3
+       ID         : Practice Direction 36 – Offers To Settle
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part36/pd_part36a
+       subsec_id  : PRACTICE DIRECTION 36 – OFFERS TO SETTLE
+       subsections: []
+       page_secs  : []
+       content    : 27 lines | first: # PRACTICE DIRECTION 36 – OFFERS TO SETTLE
+
+[172] ✓ OK  tier=3
+       ID         : Practice Direction 37 – Miscellaneous Provisions About Payments Into Court
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part37/pd_part37
+       subsec_id  : PRACTICE DIRECTION 37 – MISCELLANEOUS PROVISIONS ABOUT PAYMENTS INTO COURT
+       subsections: []
+       page_secs  : []
+       content    : 108 lines | first: # PRACTICE DIRECTION 37 – MISCELLANEOUS PROVISIONS ABOUT PAYMENTS INTO COURT
+
+[173] ✓ OK  tier=1
+       ID         : Practice Direction 3A – Striking Out A Statement Of Case
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part03/pd_part03a
+       subsec_id  : 1.1
+       subsections: ['1.1', '2.1', '3.1', '4.1', '5.1', '6.1']
+       page_secs  : ['1.1', '2.1', '3.1', '4.1', '5.1', '6.1']
+       content    : 45 lines | first: # PRACTICE DIRECTION 3A – STRIKING OUT A STATEMENT OF CASE
+
+[174] ✓ OK  tier=3
+       ID         : Practice Direction 3B – Sanctions For Non-Payment Of Fees
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part03/pd_part03b
+       subsec_id  : PRACTICE DIRECTION 3B – SANCTIONS FOR NON-PAYMENT OF FEES
+       subsections: []
+       page_secs  : []
+       content    : 5 lines | first: # PRACTICE DIRECTION 3B – SANCTIONS FOR NON-PAYMENT OF FEES
+
+[175] ✓ OK  tier=1
+       ID         : Practice Direction 3C – Civil Restraint Orders
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part03/pd_part03c
+       subsec_id  : 1
+       subsections: ['1', '2.1', '3.1', '4.1', '5.1']
+       page_secs  : ['1', '2.1', '3.1', '4.1', '5.1']
+       content    : 132 lines | first: # PRACTICE DIRECTION 3C – CIVIL RESTRAINT ORDERS
+
+[176] ✓ OK  tier=1
+       ID         : Practice Direction 3D – Costs Management
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part03/practice-direction-3e-costs-management
+       subsec_id  : 1
+       subsections: ['1', 'Annex C']
+       page_secs  : ['1', 'Annex C']
+       content    : 129 lines | first: # PRACTICE DIRECTION 3D – COSTS MANAGEMENT
+
+[177] ✓ OK  tier=1
+       ID         : Practice Direction 3E – Costs Capping
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part03/practice-direction-3f-costs-capping
+       subsec_id  : 3
+       subsections: ['3', 'I', '1.1', '2', '4.1', 'II', '5.1']
+       page_secs  : ['1.1', '2', '3', '4.1', '5.1', 'I', 'II']
+       content    : 35 lines | first: # PRACTICE DIRECTION 3E – COSTS CAPPING
+
+[178] ✓ OK  tier=2
+       ID         : Practice Direction 40A – Accounts, Inquiries Etc.
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part40/pd_part40a
+       subsec_id  : 1.1
+       subsections: ['1.1', '1.2', '1.3', '1.4', '3.1', '3.2', '3.3', '6.1', '6.2', '11.1']
+       page_secs  : ['1.1', '1.2', '1.3', '1.4', '3.1', '3.2', '3.3', '6.1', '6.2', '11.1', '11.2', '11.3']
+       content    : 110 lines | first: # PRACTICE DIRECTION 40A – ACCOUNTS, INQUIRIES ETC.
+
+[179] ✓ OK  tier=1
+       ID         : Practice Direction 40B – Judgments And Orders
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part40/pd_part40b
+       subsec_id  : 1.1
+       subsections: ['1.1', '10.1', '11.1', '12.1', '13.1', '14.1', '15.1', '2.1', '3.1', '4.1']
+       page_secs  : ['1.1', '2.1', '3.1', '4.1', '5.1', '6.1', '7.1', '8.1', '9.1', '10.1', '11.1', '12.1']
+       content    : 150 lines | first: # PRACTICE DIRECTION 40B – JUDGMENTS AND ORDERS
+
+[180] ✓ OK  tier=2
+       ID         : Practice Direction 40D – [Practice Direction 40D –] Pd_Part40E
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part40/pd_part40d
+       subsec_id  : 1.1
+       subsections: ['1.1', '1.2', '1.3', '1.4', '1.5', '3.1', '3.2', '3.3', '3.4', '4.1']
+       page_secs  : ['1.1', '1.2', '1.3', '1.4', '1.5', '3.1', '3.2', '3.3', '3.4', '4.1', '4.2', '4.3']
+       content    : 114 lines | first: # PRACTICE DIRECTION 40D –
+
+[181] ✓ OK  tier=2
+       ID         : Practice Direction 40E – Reserved Judgments
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part40/pd_part40e
+       subsec_id  : 1.1
+       subsections: ['1.1', '1.2', '2.1', '2.2', '2.3', '2.4', '2.5', '2.6', '2.7', '2.8']
+       page_secs  : ['1.1', '1.2', '2.1', '2.2', '2.3', '2.4', '2.5', '2.6', '2.7', '2.8', '2.9', '3.1']
+       content    : 63 lines | first: # PRACTICE DIRECTION 40E – RESERVED JUDGMENTS
+
+[182] ✓ OK  tier=3
+       ID         : Practice Direction 40F – Non-disclosure injunctions information collection scheme
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part40/practice-direction-40f-non-disclosure-injunctions-information-collection-scheme
+       subsec_id  : NON-DISCLOSURE ORDERS INFORMATION SCHEME
+       subsections: []
+       page_secs  : []
+       content    : 56 lines | first: # NON-DISCLOSURE ORDERS INFORMATION SCHEME
+
+[183] ✓ OK  tier=2
+       ID         : Practice Direction 41A – Provisional Damages
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part41/pd_part41a
+       subsec_id  : 1.1
+       subsections: ['1.1', '2.1', '2.2', '2.3', '2.4', '2.5', '2.6', '3.1', '3.2', '3.3']
+       page_secs  : ['1.1', '2.1', '2.2', '2.3', '2.4', '2.5', '2.6', '3.1', '3.2', '3.3', '3.4', '3.5']
+       content    : 92 lines | first: # PRACTICE DIRECTION 41A – PROVISIONAL DAMAGES
+
+[184] ✓ OK  tier=2
+       ID         : Practice Direction 41B – Periodical Payments Under The Damages Act 1996
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part41/pd_part41b
+       subsec_id  : 2.1
+       subsections: ['2.1', '2.2']
+       page_secs  : ['2.1', '2.2']
+       content    : 51 lines | first: # PRACTICE DIRECTION 41B – PERIODICAL PAYMENTS UNDER THE DAMAGES ACT 1996
+
+[185] ✓ OK  tier=1
+       ID         : Practice Direction 42 – Change Of Solicitor
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part42/pd_part42
+       subsec_id  : 1.1
+       subsections: ['1.1', '2.1', '3.1', '4.1', '5.1']
+       page_secs  : ['1.1', '2.1', '3.1', '4.1', '5.1']
+       content    : 51 lines | first: # PRACTICE DIRECTION 42 – CHANGE OF SOLICITOR
+
+[186] ✓ OK  tier=1
+       ID         : Practice Direction 44 – General Rules About Costs_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-44-general-rules-about-costs/part-44-general-rules-about-costs2
+       subsec_id  : I
+       subsections: ['1.1', '10.1', '11.1', '12.1', '2.1', '2.10', '2.11', '2.12', '2.13', '2.14']
+       page_secs  : ['1.1', '2.1', '2.2', '2.3', '2.9', '2.10', '2.11', '2.12', '2.13', '2.14', '3.1', '4.1']
+       content    : 214 lines | first: Document: Practice Direction 44 – General Rules About Costs
+Section: SECTION I – GENERAL
+Part 1 of 2
+
+[187] ✓ OK  tier=1
+       ID         : Practice Direction 44 – General Rules About Costs_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-44-general-rules-about-costs/part-44-general-rules-about-costs2
+       subsec_id  : II
+       subsections: ['1.1', '10.1', '11.1', '12.1', '2.1', '2.10', '2.11', '2.12', '2.13', '2.14']
+       page_secs  : ['1.1', '2.1', '2.2', '2.3', '2.9', '2.10', '2.11', '2.12', '2.13', '2.14', '3.1', '4.1']
+       content    : 29 lines | first: Document: Practice Direction 44 – General Rules About Costs
+Section: 11.2
+Part 2 of 2
+==============
+
+[188] ✓ OK  tier=1
+       ID         : Practice Direction 45 – Tables Of Fixed Costs (2024)_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part45-fixed-costs/practice-direction-45-fixed-costs
+       subsec_id  : I
+       subsections: ['I']
+       page_secs  : ['I']
+       content    : 165 lines | first: Document: Practice Direction 45 – Table of Fixed Costs (2024)
+Section: This Practice Direction suppl
+
+[189] ⚠ ISSUE  tier=1
+       ID         : Practice Direction 45 – Tables Of Fixed Costs (2024)_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part45-fixed-costs/practice-direction-45-fixed-costs
+       subsec_id  : I
+       subsections: []
+       page_secs  : ['I']
+       content    : 122 lines | first: Document: Practice Direction 45 – Table of Fixed Costs (2024)
+Section: TABLE 11: rule 45.29 – amount
+       *** tier-1/2 page with sections but chunk claims none (coverage gap)
+
+[190] ⚠ ISSUE  tier=1
+       ID         : Practice Direction 45 – Tables Of Fixed Costs (2024)_chunk_002
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part45-fixed-costs/practice-direction-45-fixed-costs
+       subsec_id  : I
+       subsections: []
+       page_secs  : ['I']
+       content    : 175 lines | first: Document: Practice Direction 45 – Table of Fixed Costs (2024)
+Section: 4
+Part 3 of 3
+===============
+       *** tier-1/2 page with sections but chunk claims none (coverage gap)
+
+[191] ✓ OK  tier=1
+       ID         : Practice Direction 46 – Costs Special Cases_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-46-costs-special-cases/practice-direction-46-costs-special-cases
+       subsec_id  : 1.1
+       subsections: ['1.1', '2.1', '3.1', '4.1', '5.1', '6.1', '7.1', '9.1', '10.1']
+       page_secs  : ['1.1', '2.1', '3.1', '4.1', '5.1', '6.1', '7.1', '9.1', '10.1']
+       content    : 158 lines | first: Document: Practice Direction 46 – Costs Special Cases
+Section: This Practice Direction supplements P
+
+[192] ⚠ ISSUE  tier=1
+       ID         : Practice Direction 46 – Costs Special Cases_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-46-costs-special-cases/practice-direction-46-costs-special-cases
+       subsec_id  : 1.1
+       subsections: []
+       page_secs  : ['1.1', '2.1', '3.1', '4.1', '5.1', '6.1', '7.1', '9.1', '10.1']
+       content    : 23 lines | first: Document: Practice Direction 46 – Costs Special Cases
+Section: Table B
+Part 2 of 2
+=================
+       *** tier-1/2 page with sections but chunk claims none (coverage gap)
+
+[193] ✓ OK  tier=1
+       ID         : Practice Direction 47 – Procedure For Detailed Assessment Of Costs And Default Provisions_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-47-procedure-for-detailed-assessment/practice-direction-46-costs-special-cases2
+       subsec_id  : 1.1
+       subsections: ['1.1', '2', '3.1', '4.1', '5.1', '5.7', '7', '19', '5.12']
+       page_secs  : ['1.1', '2', '3.1', '4.1', '5.1', '5.7', '5.10', '5.11', '5.12', '6.1', '7', '8.1']
+       content    : 106 lines | first: Document: Practice Direction 47 – Procedure for Detailed Assessment of Costs and Default Provisions
+
+
+[194] ✓ OK  tier=1
+       ID         : Practice Direction 47 – Procedure For Detailed Assessment Of Costs And Default Provisions_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-47-procedure-for-detailed-assessment/practice-direction-46-costs-special-cases2
+       subsec_id  : 5.10
+       subsections: ['5.10', '2', '5.11', '5.12', '7', '15', '19', '6.1', '3.1', '8.1']
+       page_secs  : ['1.1', '2', '3.1', '4.1', '5.1', '5.7', '5.10', '5.11', '5.12', '6.1', '7', '8.1']
+       content    : 96 lines | first: Document: Practice Direction 47 – Procedure for Detailed Assessment of Costs and Default Provisions
+
+
+[195] ✓ OK  tier=1
+       ID         : Practice Direction 47 – Procedure For Detailed Assessment Of Costs And Default Provisions_chunk_002
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-47-procedure-for-detailed-assessment/practice-direction-46-costs-special-cases2
+       subsec_id  : 13.1
+       subsections: ['13.1', '2', '7', '15', '14.1', '16.1', '3.1', '17.1']
+       page_secs  : ['1.1', '2', '3.1', '4.1', '5.1', '5.7', '5.10', '5.11', '5.12', '6.1', '7', '8.1']
+       content    : 113 lines | first: Document: Practice Direction 47 – Procedure for Detailed Assessment of Costs and Default Provisions
+
+
+[196] ✓ OK  tier=1
+       ID         : Practice Direction 47 – Procedure For Detailed Assessment Of Costs And Default Provisions_chunk_003
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-47-procedure-for-detailed-assessment/practice-direction-46-costs-special-cases2
+       subsec_id  : 17.6
+       subsections: ['17.6', '2', '7', '18.1', '19', '20.1', '15']
+       page_secs  : ['1.1', '2', '3.1', '4.1', '5.1', '5.7', '5.10', '5.11', '5.12', '6.1', '7', '8.1']
+       content    : 205 lines | first: Document: Practice Direction 47 – Procedure for Detailed Assessment of Costs and Default Provisions
+
+
+[197] ✓ OK  tier=1
+       ID         : Practice Direction 47 – Procedure For Detailed Assessment Of Costs And Default Provisions_chunk_004
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-47-procedure-for-detailed-assessment/practice-direction-46-costs-special-cases2
+       subsec_id  : 15
+       subsections: ['15', '2', '7']
+       page_secs  : ['1.1', '2', '3.1', '4.1', '5.1', '5.7', '5.10', '5.11', '5.12', '6.1', '7', '8.1']
+       content    : 80 lines | first: Document: Practice Direction 47 – Procedure for Detailed Assessment of Costs and Default Provisions
+
+
+[198] ✓ OK  tier=2
+       ID         : Practice Direction 48 – Part 2 Of The Legal Aid, Sentencing And Punishment Of Offenders Act 2012 Relating To C
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-48-part-2of-the-legal-aid,-sentencing-and-punishment-of-offenders-act-2012-relating-to-civil-litigation-funding-and-costs-transitional-provision-in-relation-to-pre-commencement-funding-arrangements/part-48-part-2of-the-legal-aid,-sentencing-and-punishment-of-offenders-act-2012-relating-to-civil-litigation-funding-and-costs-transitional-provision-in-relation-to-pre-commencement-funding-arrangements2
+       subsec_id  : 1.1
+       subsections: ['1.1', '1.2', '1.3', '1.4', '2.1', '2.2', '3.1', '3.2', '4.1', '4.2']
+       page_secs  : ['1.1', '1.2', '1.3', '1.4', '2.1', '2.2', '3.1', '3.2', '4.1', '4.2']
+       content    : 40 lines | first: # PRACTICE DIRECTION 48 – PART 2 OF THE LEGAL AID, SENTENCING AND PUNISHMENT OF OFFENDERS ACT 2012 R
+
+[199] ✓ OK  tier=2
+       ID         : Practice Direction 49A – Applications Under The Companies Acts And Related Legislation
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part49/pd_part49a
+       subsec_id  : I
+       subsections: ['I', 'II', 'III', 'IV', 'V']
+       page_secs  : ['I', 'II', 'III', 'IV', 'V']
+       content    : 129 lines | first: # PRACTICE DIRECTION 49A – APPLICATIONS UNDER THE COMPANIES ACTS AND RELATED LEGISLATION
+
+[200] ✓ OK  tier=3
+       ID         : Practice Direction 49B – Mesothelioma Claims
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part49/pd_part49b
+       subsec_id  : PRACTICE DIRECTION 49B – MESOTHELIOMA CLAIMS
+       subsections: []
+       page_secs  : []
+       content    : 83 lines | first: # PRACTICE DIRECTION 49B – MESOTHELIOMA CLAIMS
+
+[201] ✓ OK  tier=3
+       ID         : Practice Direction 49C – Consumer Credit Act 2006 – Unfair Relationships_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part49/practice-direction-49c-consumer-credit-act-2006-unfair-relationships
+       subsec_id  : PRACTICE DIRECTION 49C – CONSUMER CREDIT ACT 2006 – UNFAIR RELATIONSHIPS
+       subsections: []
+       page_secs  : []
+       content    : 148 lines | first: Document: Practice direction 49C: Consumer Credit Act 2006 – unfair relationships
+Section: Para 1.1
+
+
+[202] ✓ OK  tier=3
+       ID         : Practice Direction 49C – Consumer Credit Act 2006 – Unfair Relationships_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part49/practice-direction-49c-consumer-credit-act-2006-unfair-relationships
+       subsec_id  : 9.2
+       subsections: []
+       page_secs  : []
+       content    : 19 lines | first: Document: Practice direction 49C: Consumer Credit Act 2006 – unfair relationships
+Section: 9.2 In a 
+
+[203] ✓ OK  tier=3
+       ID         : Practice Direction 49D – Claims For The Recovery Of Taxes And Duties
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part49/practice-direction-49d-claims-for-the-recovery-of-taxes-and-duties
+       subsec_id  : PRACTICE DIRECTION 49D – CLAIMS FOR THE RECOVERY OF TAXES AND DUTIES
+       subsections: []
+       page_secs  : []
+       content    : 52 lines | first: # PRACTICE DIRECTION 49D – CLAIMS FOR THE RECOVERY OF TAXES AND DUTIES
+
+[204] ✓ OK  tier=3
+       ID         : Practice Direction 49E – Alternative Procedure For Claims_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part49/practice-direction-49e-alternative-procedure-for-claims
+       subsec_id  : PRACTICE DIRECTION 49E – ALTERNATIVE PROCEDURE FOR CLAIMS
+       subsections: []
+       page_secs  : []
+       content    : 232 lines | first: Document: Practice direction 49E: Alternative procedure for claims
+Section: Para 1.1
+Part 1 of 3
+===
+
+[205] ✓ OK  tier=3
+       ID         : Practice Direction 49E – Alternative Procedure For Claims_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part49/practice-direction-49e-alternative-procedure-for-claims
+       subsec_id  : PRACTICE DIRECTION 49E – ALTERNATIVE PROCEDURE FOR CLAIMS
+       subsections: []
+       page_secs  : []
+       content    : 170 lines | first: Document: Practice direction 49E: Alternative procedure for claims
+Section: Applications under secti
+
+[206] ✓ OK  tier=3
+       ID         : Practice Direction 49E – Alternative Procedure For Claims_chunk_002
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part49/practice-direction-49e-alternative-procedure-for-claims
+       subsec_id  : 21.1
+       subsections: []
+       page_secs  : []
+       content    : 72 lines | first: Document: Practice direction 49E: Alternative procedure for claims
+Section: 21.1 This paragraph rela
+
+[207] ✓ OK  tier=3
+       ID         : Practice Direction 49F – Pre-Action Protocol For Low Value Personal Injury Claims In Road Traffic Accidents An
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part49/practice-direction-49f-pre-action-protocol-for-low-value-personal-injury-claims-in-road-traffic-accidents-and-low-value-personal-injury-employers-liability-and-public-liability-claims-stage-3-procedure
+       subsec_id  : 8.3
+       subsections: []
+       page_secs  : []
+       content    : 74 lines | first: Document: Practice direction 49F: Pre-Action Protocol for Low Value Personal Injury Claims in Road T
+
+[208] ✓ OK  tier=3
+       ID         : Practice Direction 49G – Applications Under Part Iii Of The Family Law Reform Act 1969 For Use Of Scientific T
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part49/practice-direction-49g-applications-under-part-iii-of-the-family-law-reform-act-1969-for-use-of-scientific-tests-to-determine-parentage
+       subsec_id  : PRACTICE DIRECTION 49G – APPLICATIONS UNDER PART III OF THE FAMILY LAW REFORM ACT 1969 FOR USE OF SCIENTIFIC TESTS TO DETERMINE PARENTAGE
+       subsections: []
+       page_secs  : []
+       content    : 29 lines | first: # PRACTICE DIRECTION 49G – APPLICATIONS UNDER PART III OF THE FAMILY LAW REFORM ACT 1969 FOR USE OF 
+
+[209] ✓ OK  tier=3
+       ID         : Practice Direction 51Y – Video Or Audio Hearings During Coronavirus Pandemic
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part51/practice-direction-51y-video-or-audio-hearings-during-coronavirus-pandemic
+       subsec_id  : PRACTICE DIRECTION 51Y – VIDEO OR AUDIO HEARINGS DURING CORONAVIRUS PANDEMIC
+       subsections: []
+       page_secs  : []
+       content    : 7 lines | first: # PRACTICE DIRECTION 51Y – VIDEO OR AUDIO HEARINGS DURING CORONAVIRUS PANDEMIC
+
+[210] ✓ OK  tier=2
+       ID         : Practice Direction 51Zb – The Damages Claims Pilot_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part51/practice-direction-51zb-the-damages-claims-pilot
+       subsec_id  : 1.1
+       subsections: ['1.1', '2.1', '3.1', '3.2', '3.10', '3.12', '3.13', '3.14', '4.1', '5.1']
+       page_secs  : ['1.1', '1.2', '1.3', '1.4', '1.5', '1.6', '1.7', '1.8', '1.9', '2.1', '2.2', '3.1']
+       content    : 200 lines | first: Document: Practice Direction 51ZB – The Damages Claims Pilot
+Section: Paragraph 1.1
+Part 1 of 3
+====
+
+[211] ✓ OK  tier=2
+       ID         : Practice Direction 51Zb – The Damages Claims Pilot_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part51/practice-direction-51zb-the-damages-claims-pilot
+       subsec_id  : 3.14
+       subsections: ['3.14', '3.15', '4.1', '3.11', '4.2', '4.3', '3.9', '4.4', '5.1', '8.4']
+       page_secs  : ['1.1', '1.2', '1.3', '1.4', '1.5', '1.6', '1.7', '1.8', '1.9', '2.1', '2.2', '3.1']
+       content    : 162 lines | first: Document: Practice Direction 51ZB – The Damages Claims Pilot
+Section: 3.14
+Part 2 of 3
+=============
+
+[212] ✓ OK  tier=2
+       ID         : Practice Direction 51Zb – The Damages Claims Pilot_chunk_002
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part51/practice-direction-51zb-the-damages-claims-pilot
+       subsec_id  : 7.7
+       subsections: ['7.7', '7.2', '7A.1', '3.4', '6.6', '7A.2', '8.1', '8.2', '8.3', '8.4']
+       page_secs  : ['1.1', '1.2', '1.3', '1.4', '1.5', '1.6', '1.7', '1.8', '1.9', '2.1', '2.2', '3.1']
+       content    : 96 lines | first: Document: Practice Direction 51ZB – The Damages Claims Pilot
+Section: 7.7
+Part 3 of 3
+==============
+
+[213] ✓ OK  tier=3
+       ID         : Practice Direction 51Zc – The Small Claims Paper Determination Pilot
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part51/practice-direction-51zc-the-small-claims-paper-determination-pilot
+       subsec_id  : PRACTICE DIRECTION 51ZC – THE SMALL CLAIMS PAPER DETERMINATION PILOT
+       subsections: []
+       page_secs  : []
+       content    : 46 lines | first: # PRACTICE DIRECTION 51ZC – THE SMALL CLAIMS PAPER DETERMINATION PILOT
+
+[214] ✓ OK  tier=3
+       ID         : Practice Direction 51Ze – Small Claims Track Automatic Referral To Mediation Pilot Scheme
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part51/practice-direction-51ze-small-claims-track-automatic-referral-to-mediation-pilot-scheme
+       subsec_id  : PRACTICE DIRECTION 51ZE – SMALL CLAIMS TRACK AUTOMATIC REFERRAL TO MEDIATION PILOT SCHEME
+       subsections: []
+       page_secs  : []
+       content    : 101 lines | first: # PRACTICE DIRECTION 51ZE – SMALL CLAIMS TRACK AUTOMATIC REFERRAL TO MEDIATION PILOT SCHEME
+
+[215] ✓ OK  tier=3
+       ID         : Practice Direction 51Zf – Part 3 Of The Domestic Abuse Act 2021: Provision During Piloted Commencement_chunk_0
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/practice-direction-51zf-part-3-of-the-domestic-abuse-act-2021-provision-during-piloted-commencement
+       subsec_id  : 21.3
+       subsections: []
+       page_secs  : []
+       content    : 106 lines | first: Document: Practice Direction 51ZF – Part 3 of the Domestic Abuse Act 2021: provision during piloted 
+
+[216] ✓ OK  tier=1
+       ID         : Practice Direction 52A – Appeals_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part52/pd_part52
+       subsec_id  : I
+       subsections: ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', '3.9', '4.1']
+       page_secs  : ['3.9', '4.1', '4.2', '4.3', '4.4', '4.6', '4.7', '6.1', '6.4', '6.5', 'I', 'II']
+       content    : 174 lines | first: Document: Practice Direction 52A – Appeals: General provisions
+Section: Contents of this Practice Di
+
+[217] ✓ OK  tier=1
+       ID         : Practice Direction 52A – Appeals_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part52/pd_part52
+       subsec_id  : VI
+       subsections: ['VI', '6.1', '6.4', '6.5', 'VII', 'VIII']
+       page_secs  : ['3.9', '4.1', '4.2', '4.3', '4.4', '4.6', '4.7', '6.1', '6.4', '6.5', 'I', 'II']
+       content    : 47 lines | first: Document: Practice Direction 52A – Appeals: General provisions
+Section: 5.1
+Part 2 of 2
+============
+
+[218] ✓ OK  tier=1
+       ID         : Practice Direction 52B – Appeals In The County Court And High Court
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part52/practice-direction-52b-appeals-in-the-county-courts-and-high-court
+       subsec_id  : I
+       subsections: ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII']
+       page_secs  : ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII']
+       content    : 97 lines | first: # Practice Direction 52B – appeals in the County Court and high court
+
+[219] ✓ OK  tier=1
+       ID         : Practice Direction 52C – Appeals To The Court Of Appeal_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part52/practice-direction-52c-appeals-to-the-court-of-appeal
+       subsec_id  : VII
+       subsections: ['11.1', '12.1', '13.1', '14.1', '18.1', '19.1', '20.1', '22.1', '23.1', '24.1']
+       page_secs  : ['3.1', '4.1', '5.1', '6.1', '7.1', '8.1', '9.1', '11.1', '12.1', '13.1', '14.1', '18.1']
+       content    : 184 lines | first: Document: Practice Direction 52C – Appeals to the Court of Appeal
+Section: This Practice Direction s
+
+[220] ✓ OK  tier=1
+       ID         : Practice Direction 52C – Appeals To The Court Of Appeal_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part52/practice-direction-52c-appeals-to-the-court-of-appeal
+       subsec_id  : 31.1
+       subsections: ['11.1', '12.1', '13.1', '14.1', '18.1', '19.1', '20.1', '22.1', '23.1', '24.1']
+       page_secs  : ['3.1', '4.1', '5.1', '6.1', '7.1', '8.1', '9.1', '11.1', '12.1', '13.1', '14.1', '18.1']
+       content    : 112 lines | first: Document: Practice Direction 52C – Appeals to the Court of Appeal
+Section: Bundle of documents
+Part 
+
+[221] ✓ OK  tier=1
+       ID         : Practice Direction 52D – Statutory Appeals And Appeals Subject To Special Provision_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part52/practice-direction-52d-statutory-appeals-and-appeals-subject-to-special-provision
+       subsec_id  : I
+       subsections: ['I', 'II', 'III', 'IV', '3.4', '3.5', '3.6', '4.1', '5.1', '6.1']
+       page_secs  : ['3.4', '3.5', '3.6', '4.1', '5.1', '6.1', '7.1', '8.1', '9.1', '10.1', '11.1', '12.1']
+       content    : 184 lines | first: Document: Practice Direction 52D – Statutory appeals and appeals subject to special provision
+Sectio
+
+[222] ✓ OK  tier=1
+       ID         : Practice Direction 52D – Statutory Appeals And Appeals Subject To Special Provision_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part52/practice-direction-52d-statutory-appeals-and-appeals-subject-to-special-provision
+       subsec_id  : 15.1
+       subsections: ['15.1', '16.1', '17.1', '18.1', '19.1', '21.1', '22.1', '23.1', '24.1', '25.1']
+       page_secs  : ['3.4', '3.5', '3.6', '4.1', '5.1', '6.1', '7.1', '8.1', '9.1', '10.1', '11.1', '12.1']
+       content    : 192 lines | first: Document: Practice Direction 52D – Statutory appeals and appeals subject to special provision
+Sectio
+
+[223] ✓ OK  tier=1
+       ID         : Practice Direction 52D – Statutory Appeals And Appeals Subject To Special Provision_chunk_002
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part52/practice-direction-52d-statutory-appeals-and-appeals-subject-to-special-provision
+       subsec_id  : 29.1
+       subsections: ['29.1', '30.1', '31.1', '31.2', '31.3', '32.1']
+       page_secs  : ['3.4', '3.5', '3.6', '4.1', '5.1', '6.1', '7.1', '8.1', '9.1', '10.1', '11.1', '12.1']
+       content    : 69 lines | first: Document: Practice Direction 52D – Statutory appeals and appeals subject to special provision
+Sectio
+
+[224] ✓ OK  tier=2
+       ID         : Practice Direction 52E – Appeals By Way Of Case Stated
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part52/practice-direction-52e-appeals-by-way-of-case-stated
+       subsec_id  : I
+       subsections: ['I', 'II', 'III', '1.1', '1.2', '2.1', '2.2', '2.3', '2.4', '3.1']
+       page_secs  : ['1.1', '1.2', '2.1', '2.2', '2.3', '2.4', '3.1', '3.2', '3.3', '3.4', '3.5', '3.6']
+       content    : 105 lines | first: # Practice Direction 52E – appeals by way of case stated
+
+[225] ✓ OK  tier=3
+       ID         : Practice Direction 53A – Transferring Proceedings To And From The Media And Communications List
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part53/pd_part53
+       subsec_id  : PRACTICE DIRECTION 53A – TRANSFERRING PROCEEDINGS TO AND FROM THE MEDIA AND COMMUNICATIONS LIST
+       subsections: []
+       page_secs  : []
+       content    : 13 lines | first: # PRACTICE DIRECTION 53A – TRANSFERRING PROCEEDINGS TO AND FROM THE MEDIA AND COMMUNICATIONS LIST
+
+[226] ✓ OK  tier=3
+       ID         : Practice Direction 53B – Media And Communications Claims
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part53/practice-direction-53b-media-and-communications-claims
+       subsec_id  : PRACTICE DIRECTION 53B – MEDIA AND COMMUNICATIONS CLAIMS
+       subsections: []
+       page_secs  : []
+       content    : 123 lines | first: # PRACTICE DIRECTION 53B – MEDIA AND COMMUNICATIONS CLAIMS
+
+[227] ✓ OK  tier=1
+       ID         : Practice Direction 54A – Judicial Review_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/pd_part54a
+       subsec_id  : I
+       subsections: ['I']
+       page_secs  : ['I']
+       content    : 127 lines | first: Document: Practice Direction 54A – Judicial review
+Section: This Practice Direction supplements Part
+
+[228] ⚠ ISSUE  tier=1
+       ID         : Practice Direction 54A – Judicial Review_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/pd_part54a
+       subsec_id  : I
+       subsections: []
+       page_secs  : ['I']
+       content    : 21 lines | first: Document: Practice Direction 54A – Judicial review
+Section: 18.1 (1) This section applies where—
+Par
+       *** tier-1/2 page with sections but chunk claims none (coverage gap)
+
+[229] ✓ OK  tier=2
+       ID         : Practice Direction 54B – Urgent Applications And Other Applications For Interim Relief
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/pd_part54c
+       subsec_id  : I
+       subsections: ['I', 'II', 'III', 'IV']
+       page_secs  : ['I', 'II', 'III', 'IV']
+       content    : 21 lines | first: # PRACTICE DIRECTION 54B – URGENT APPLICATIONS AND OTHER APPLICATIONS FOR INTERIM RELIEF
+
+[230] ✓ OK  tier=3
+       ID         : Practice Direction 54C – Administrative Court (Venue)
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/pd_part54d
+       subsec_id  : PRACTICE DIRECTION 54C – ADMINISTRATIVE COURT (VENUE)
+       subsections: []
+       page_secs  : []
+       content    : 40 lines | first: # PRACTICE DIRECTION 54C – ADMINISTRATIVE COURT (VENUE)
+
+[231] ✓ OK  tier=2
+       ID         : Practice Direction 54D – Planning Court Claims And Appeals To The Planning Court_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/practice-direction-54e-planning-court-claims
+       subsec_id  : I
+       subsections: ['I', 'II', 'III', 'V', 'VI', 'IV']
+       page_secs  : ['I', 'II', 'III', 'IV', 'V', 'VI']
+       content    : 170 lines | first: Document: Practice Direction 54D – Planning Court Claims
+Section: This Practice Direction supplement
+
+[232] ✓ OK  tier=2
+       ID         : Practice Direction 54D – Planning Court Claims And Appeals To The Planning Court_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/practice-direction-54e-planning-court-claims
+       subsec_id  : V
+       subsections: ['V', 'VI']
+       page_secs  : ['I', 'II', 'III', 'IV', 'V', 'VI']
+       content    : 133 lines | first: Document: Practice Direction 54D – Planning Court Claims
+Section: 4.34 Directions under paragraph 4.
+
+[233] ✓ OK  tier=3
+       ID         : Practice Direction 54E – Environmental Review Claims
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part54/practice-direction-54e-environmental-review-claims
+       subsec_id  : PRACTICE DIRECTION 54E – ENVIRONMENTAL REVIEW CLAIMS
+       subsections: []
+       page_secs  : []
+       content    : 88 lines | first: # PRACTICE DIRECTION 54E – ENVIRONMENTAL REVIEW CLAIMS
+
+[234] ✓ OK  tier=2
+       ID         : Practice Direction 55A – Possession Claims_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part55/pd_part55a
+       subsec_id  : I
+       subsections: ['I', '55.3', '55.4', '55.5', '55.6', '55.8', 'II', '55.18', 'III', 'IV']
+       page_secs  : ['55.3', '55.4', '55.5', '55.6', '55.8', '55.18', 'I', 'II', 'III', 'IV', 'V']
+       content    : 153 lines | first: Document: Practice Direction 55A – Possession Claims
+Section: SECTION I – GENERAL RULES
+Part 1 of 2
+
+
+[235] ✓ OK  tier=2
+       ID         : Practice Direction 55A – Possession Claims_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part55/pd_part55a
+       subsec_id  : I
+       subsections: ['I', 'II', 'IV']
+       page_secs  : ['55.3', '55.4', '55.5', '55.6', '55.8', '55.18', 'I', 'II', 'III', 'IV', 'V']
+       content    : 20 lines | first: Document: Practice Direction 55A – Possession Claims
+Section: 11.2 In Sections I, II and IV—
+Part 2 
+
+[236] ✓ OK  tier=2
+       ID         : Practice Direction 55B – Possession Claims Online
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part55/pd_part55b
+       subsec_id  : 2.1
+       subsections: ['2.1', '2.2', '2.3']
+       page_secs  : ['2.1', '2.2', '2.3']
+       content    : 155 lines | first: # PRACTICE DIRECTION 55B – POSSESSION CLAIMS ONLINE
+
+[237] ✓ OK  tier=2
+       ID         : Practice Direction 55B – Possession Claims Online_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part55/pd_part55b
+       subsec_id  : 2.1
+       subsections: ['2.1', '2.2', '2.3']
+       page_secs  : ['2.1', '2.2', '2.3']
+       content    : 161 lines | first: Document: Practice Direction 55B – Possession Claims Online
+Section: This Practice Direction supplem
+
+[238] ⚠ ISSUE  tier=2
+       ID         : Practice Direction 55B – Possession Claims Online_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part55/pd_part55b
+       subsec_id  : 2.1
+       subsections: []
+       page_secs  : ['2.1', '2.2', '2.3']
+       content    : 8 lines | first: Document: Practice Direction 55B – Possession Claims Online
+Section: 14.1 A facility will be provide
+       *** tier-1/2 page with sections but chunk claims none (coverage gap)
+
+[239] ✓ OK  tier=3
+       ID         : Practice Direction 56A – Renting Homes (Wales) Claims
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part56/practice-direction-56a-renting-homes-wales-claims
+       subsec_id  : PRACTICE DIRECTION 56A – RENTING HOMES (WALES) CLAIMS
+       subsections: []
+       page_secs  : []
+       content    : 61 lines | first: # PRACTICE DIRECTION 56A – RENTING HOMES (WALES) CLAIMS
+
+[240] ✓ OK  tier=2
+       ID         : Practice Direction 56 – Landlord And Tenant Claims And Miscellaneous Provisions About Land_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part56/pd_part56
+       subsec_id  : I
+       subsections: ['I', '56.2']
+       page_secs  : ['56.2', 'I', 'II']
+       content    : 143 lines | first: Document: Practice Direction 56
+Section: SECTION I – LANDLORD AND TENANT CLAIMS
+Part 1 of 3
+========
+
+[241] ✓ OK  tier=2
+       ID         : Practice Direction 56 – Landlord And Tenant Claims And Miscellaneous Provisions About Land_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part56/pd_part56
+       subsec_id  : II
+       subsections: ['II', 'I']
+       page_secs  : ['56.2', 'I', 'II']
+       content    : 155 lines | first: Document: Practice Direction 56
+Section: Unopposed claim where a Pubs Code tenant has given an MRO n
+
+[242] ⚠ ISSUE  tier=2
+       ID         : Practice Direction 56 – Landlord And Tenant Claims And Miscellaneous Provisions About Land_chunk_002
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part56/pd_part56
+       subsec_id  : I
+       subsections: []
+       page_secs  : ['56.2', 'I', 'II']
+       content    : 37 lines | first: Document: Practice Direction 56
+Section: 14.3 Where an application is made under section 26(1) or (2
+       *** tier-1/2 page with sections but chunk claims none (coverage gap)
+
+[243] ✓ OK  tier=3
+       ID         : Practice Direction 57Ac – Trial Witness Statements In The Business And Property Courts_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-57a-business-and-property-courts/practice-direction-57ac-trial-witness-statements-in-the-business-and-property-courts
+       subsec_id  : 1
+       subsections: []
+       page_secs  : []
+       content    : 107 lines | first: Document: Practice Direction 57AC: trial witness statements in the business and property courts
+Sect
+
+[244] ✓ OK  tier=3
+       ID         : Practice Direction 57Ac – Trial Witness Statements In The Business And Property Courts_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-57a-business-and-property-courts/practice-direction-57ac-trial-witness-statements-in-the-business-and-property-courts
+       subsec_id  : 3.10W
+       subsections: []
+       page_secs  : []
+       content    : 16 lines | first: Document: Practice Direction 57AC: trial witness statements in the business and property courts
+Sect
+
+[245] ✓ OK  tier=2
+       ID         : Practice Direction 57Ad – Disclosure In The Business And Property Courts_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-57a-business-and-property-courts/practice-direction-57ad-disclosure-in-the-business-and-property-courts
+       subsec_id  : I
+       subsections: ['I', 'II']
+       page_secs  : ['I', 'II']
+       content    : 107 lines | first: Document: Practice Direction 57AD – Disclosure for the Business and Property Courts
+Section: 1. Gene
+
+[246] ⚠ ISSUE  tier=2
+       ID         : Practice Direction 57Ad – Disclosure In The Business And Property Courts_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-57a-business-and-property-courts/practice-direction-57ad-disclosure-in-the-business-and-property-courts
+       subsec_id  : I
+       subsections: []
+       page_secs  : ['I', 'II']
+       content    : 83 lines | first: Document: Practice Direction 57AD – Disclosure for the Business and Property Courts
+Section: 7. Iden
+       *** tier-1/2 page with sections but chunk claims none (coverage gap)
+
+[247] ✓ OK  tier=2
+       ID         : Practice Direction 57Ad – Disclosure In The Business And Property Courts_chunk_002
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-57a-business-and-property-courts/practice-direction-57ad-disclosure-in-the-business-and-property-courts
+       subsec_id  : II
+       subsections: ['II']
+       page_secs  : ['I', 'II']
+       content    : 125 lines | first: Document: Practice Direction 57AD – Disclosure for the Business and Property Courts
+Section: 11. Dis
+
+[248] ✓ OK  tier=2
+       ID         : Practice Direction 57Ad – Disclosure In The Business And Property Courts_chunk_003
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-57a-business-and-property-courts/practice-direction-57ad-disclosure-in-the-business-and-property-courts
+       subsec_id  : I
+       subsections: ['I']
+       page_secs  : ['I', 'II']
+       content    : 71 lines | first: Document: Practice Direction 57AD – Disclosure for the Business and Property Courts
+Section: Subsequ
+
+[249] ⚠ ISSUE  tier=2
+       ID         : Practice Direction 57Ad – Disclosure In The Business And Property Courts_chunk_004
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-57a-business-and-property-courts/practice-direction-57ad-disclosure-in-the-business-and-property-courts
+       subsec_id  : I
+       subsections: []
+       page_secs  : ['I', 'II']
+       content    : 45 lines | first: Document: Practice Direction 57AD – Disclosure for the Business and Property Courts
+Section: Appendi
+       *** tier-1/2 page with sections but chunk claims none (coverage gap)
+
+[250] ✓ OK  tier=1
+       ID         : Practice Direction 57B – Proceedings Under The Presumption Of Death Act 2013
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part57/practice-direction-57b-proceedings-under-the-presumption-of-death-act-2013
+       subsec_id  : 1.1
+       subsections: ['1.1', '2.1', '3.1']
+       page_secs  : ['1.1', '2.1', '3.1']
+       content    : 80 lines | first: # PRACTICE DIRECTION 57B – PROCEEDINGS UNDER THE PRESUMPTION OF DEATH ACT 2013
+
+[251] ✓ OK  tier=2
+       ID         : Practice Direction 57 – Probate
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part57/pd_part57
+       subsec_id  : 1.1
+       subsections: ['1.1', '1.2', '2.1', '2.2', '2.3', '2.4', '3.1', '3.2', '3.3', '5.1']
+       page_secs  : ['1.1', '1.2', '2.1', '2.2', '2.3', '2.4', '3.1', '3.2', '3.3', '5.1', '5.2', '6.1']
+       content    : 161 lines | first: # PRACTICE DIRECTION 57 – PROBATE
+
+[252] ✓ OK  tier=2
+       ID         : Practice Direction 58 – Commercial Court
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part58/pd_part58
+       subsec_id  : 1.1
+       subsections: ['1.1', '1.2', '1.3', '1.4', '2.1', '2.2', '2.3', '2.4', '3.1', '3.2']
+       page_secs  : ['1.1', '1.2', '1.3', '1.4', '2.1', '2.2', '2.3', '2.4', '3.1', '3.2', '3.3', '4.1']
+       content    : 134 lines | first: # PRACTICE DIRECTION 58 – COMMERCIAL COURT
+
+[253] ✓ OK  tier=2
+       ID         : Practice Direction 59 – Circuit Commercial Courts
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part59/pd_part59
+       subsec_id  : 1.1
+       subsections: ['1.1', '1.2', '1.3', '1.4', '2.1', '2.2', '2.3', '2.4', '3.1', '3.2']
+       page_secs  : ['1.1', '1.2', '1.3', '1.4', '2.1', '2.2', '2.3', '2.4', '3.1', '3.2', '4.1', '4.2']
+       content    : 152 lines | first: # PRACTICE DIRECTION 59 –CIRCUIT COMMERCIAL COURTS
+
+[254] ✓ OK  tier=1
+       ID         : Practice Direction 5A – Court Documents_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part05/pd_part05a
+       subsec_id  : 1
+       subsections: ['1', '2.1', '3.1', '4.1', '4A.1', '5.1', '6.1', 'Appendix']
+       page_secs  : ['1', '2.1', '3.1', '4.1', '4A.1', '5.1', '6.1', 'Appendix']
+       content    : 153 lines | first: Document: Practice Direction 5A – Court Documents
+Section: This Practice Direction supplements CPR P
+
+[255] ✓ OK  tier=1
+       ID         : Practice Direction 5A – Court Documents_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part05/pd_part05a
+       subsec_id  : 1
+       subsections: ['1']
+       page_secs  : ['1', '2.1', '3.1', '4.1', '4A.1', '5.1', '6.1', 'Appendix']
+       content    : 24 lines | first: Document: Practice Direction 5A – Court Documents
+Section: 4
+Part 2 of 2
+===========================
+
+[256] ✓ OK  tier=1
+       ID         : Practice Direction 5B – Communication And Filing Of Documents By E-Mail
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part05/pd_part05b
+       subsec_id  : 1.1
+       subsections: ['1.1', '2.1', '3.1', '4.1', '5.1', 'I', 'II']
+       page_secs  : ['1.1', '2.1', '3.1', '4.1', '5.1', 'I', 'II']
+       content    : 71 lines | first: # PRACTICE DIRECTION 5B – COMMUNICATION AND FILING OF DOCUMENTS BY E-MAIL
+
+[257] ✓ OK  tier=3
+       ID         : Practice Direction 60 – Technology And Construction Court Claims
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part60/pd_part60
+       subsec_id  : PRACTICE DIRECTION 60 – TECHNOLOGY AND CONSTRUCTION COURT CLAIMS
+       subsections: []
+       page_secs  : []
+       content    : 90 lines | first: # PRACTICE DIRECTION 60 – TECHNOLOGY AND CONSTRUCTION COURT CLAIMS
+
+[258] ✓ OK  tier=2
+       ID         : Practice Direction 61 – Admiralty Claims_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part61/pd_part61
+       subsec_id  : 61.1
+       subsections: ['61.1', '61.3', '61.4', '61.5', '61.7', '61.8', '61.9', '61.10', '61.11']
+       page_secs  : ['61.1', '61.3', '61.4', '61.5', '61.7', '61.8', '61.9', '61.10', '61.11']
+       content    : 187 lines | first: Document: Practice Direction 61
+Section: 61.1 – Scope
+Part 1 of 2
+==================================
+
+[259] ✓ OK  tier=2
+       ID         : Practice Direction 61 – Admiralty Claims_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part61/pd_part61
+       subsec_id  : 61.11
+       subsections: ['61.11']
+       page_secs  : ['61.1', '61.3', '61.4', '61.5', '61.7', '61.8', '61.9', '61.10', '61.11']
+       content    : 103 lines | first: Document: Practice Direction 61
+Section: 10.4 An acknowledgment of service in a limitation claim mus
+
+[260] ✓ OK  tier=2
+       ID         : Practice Direction 62 – Arbitration
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part62/pd_part62
+       subsec_id  : I
+       subsections: ['I', '1.1', '1.2', '1.3', '62.3', '2.1', '2.2', '2.3', '62.4', '4.1']
+       page_secs  : ['1.1', '1.2', '1.3', '2.1', '2.2', '2.3', '4.1', '4.2', '4.3', '5.1', '6.1', '6.2']
+       content    : 167 lines | first: # PRACTICE DIRECTION 62 – ARBITRATION
+
+[261] ✓ OK  tier=1
+       ID         : Practice Direction 63A – Intellectual Property Claims_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part63/pd_part63
+       subsec_id  : I
+       subsections: ['I', 'II', 'III', 'IV', 'V', '2.1', '3.1', '4.1', '5.1', '6.1']
+       page_secs  : ['2.1', '3.1', '4.1', '5.1', '6.1', '7.1', '8.1', '9.1', '10.1', '11.1', '12.1', '13.1']
+       content    : 146 lines | first: Document: Practice Direction 63
+Section: This Practice Direction supplements CPR Part 63
+Part 1 of 2
+
+[262] ✓ OK  tier=1
+       ID         : Practice Direction 63A – Intellectual Property Claims_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part63/pd_part63
+       subsec_id  : 11.1
+       subsections: ['11.1', '12.1', '13.1', '14.1', 'II', '16.1', 'III', '17.1', '18.1', '19.1']
+       page_secs  : ['2.1', '3.1', '4.1', '5.1', '6.1', '7.1', '8.1', '9.1', '10.1', '11.1', '12.1', '13.1']
+       content    : 132 lines | first: Document: Practice Direction 63
+Section: Request to limit a European patent (UK) under the European 
+
+[263] ✓ OK  tier=1
+       ID         : Practice Direction 64A – Estates, Trusts And Charities
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part64/pd_part64a
+       subsec_id  : I
+       subsections: ['1.1', '10.1', '1A.1', '2.1', '3.1', '4.1', '5.1', '6.1', '7.1', '8.1']
+       page_secs  : ['1.1', '1A.1', '2.1', '3.1', '4.1', '5.1', '6.1', '7.1', '8.1', '9.1', '10.1', 'Appendix']
+       content    : 99 lines | first: # PRACTICE DIRECTION 64A – ESTATES, TRUSTS AND CHARITIES
+
+[264] ✓ OK  tier=2
+       ID         : Practice Direction 64B – Applications To The Court For Directions By Trustees In Relation To The Administratio
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part64/pd_part64b
+       subsec_id  : 4.1
+       subsections: ['4.1', '4.2', '4.3', '4.4', '5.1', '6.1', '6.2', '6.3', '7.1', '7.2']
+       page_secs  : ['4.1', '4.2', '4.3', '4.4', '5.1', '6.1', '6.2', '6.3', '7.1', '7.2', '7.3', '7.4']
+       content    : 71 lines | first: # PRACTICE DIRECTION 64B – APPLICATIONS TO THE COURT FOR DIRECTIONS BY TRUSTEES IN RELATION TO THE A
+
+[265] ✓ OK  tier=2
+       ID         : Practice Direction 65 – Anti-Social Behaviour And Harassment
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part65/pd_part65
+       subsec_id  : III
+       subsections: ['III', 'V', 'I', 'II', 'IV', 'VI', 'VII']
+       page_secs  : ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII']
+       content    : 143 lines | first: # PRACTICE DIRECTION 65 – ANTI-SOCIAL BEHAVIOUR AND HARASSMENT
+
+[266] ✓ OK  tier=2
+       ID         : Practice Direction 66 – Crown Proceedings
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part66/pd_part66
+       subsec_id  : 1.1
+       subsections: ['1.1', '1.2', '2.1']
+       page_secs  : ['1.1', '1.2', '2.1']
+       content    : 31 lines | first: # PRACTICE DIRECTION 66 – CROWN PROCEEDINGS
+
+[267] ✓ OK  tier=1
+       ID         : Practice Direction 67 – Proceedings Relating To Solicitors
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part67/pd_part67
+       subsec_id  : 2.1
+       subsections: ['1.1', '2.1', '3.1', '4.1', '5.1']
+       page_secs  : ['1.1', '2.1', '3.1', '4.1', '5.1']
+       content    : 45 lines | first: # PRACTICE DIRECTION 67 – PROCEEDINGS RELATING TO SOLICITORS
+
+[268] ✓ OK  tier=1
+       ID         : Practice Direction 69 – Court’S Power To Appoint A Receiver
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part69/pd_part69
+       subsec_id  : 1.1
+       subsections: ['1.1', '10.1', '2.1', '3.1', '4.1', '5.1', '6.1', '8.1', '9.1']
+       page_secs  : ['1.1', '2.1', '3.1', '4.1', '5.1', '6.1', '8.1', '9.1', '10.1']
+       content    : 99 lines | first: # PRACTICE DIRECTION 69 – COURT’S POWER TO APPOINT A RECEIVER
+
+[269] ✓ OK  tier=1
+       ID         : Practice Direction 6A – Service Within The United Kingdom
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part06/pd_part06a
+       subsec_id  : 1.1
+       subsections: ['1.1', '2.1', '3.1', '4.1', '5.1', '6.1', '7.1', '8.1', '9.1', '10.1']
+       page_secs  : ['1.1', '2.1', '3.1', '4.1', '5.1', '6.1', '7.1', '8.1', '9.1', '10.1', 'Annex']
+       content    : 142 lines | first: # PRACTICE DIRECTION 6A – SERVICE WITHIN THE UNITED KINGDOM
+
+[270] ✓ OK  tier=1
+       ID         : Practice Direction 6B – Service Out Of The Jurisdiction
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part06/pd_part06b
+       subsec_id  : 1.1
+       subsections: ['1.1', '2.1', '3.1', '4.1', '5.1', '6.1', '7.1', '7.2']
+       page_secs  : ['1.1', '2.1', '3.1', '4.1', '5.1', '6.1', '7.1', '7.2']
+       content    : 158 lines | first: # PRACTICE DIRECTION 6B – SERVICE OUT OF THE JURISDICTION
+
+[271] ✓ OK  tier=1
+       ID         : Practice Direction 70A – Enforcement Of Judgments And Orders
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part70/pd_part70
+       subsec_id  : 2.1
+       subsections: ['2.1', 'II']
+       page_secs  : ['2.1', 'II']
+       content    : 120 lines | first: # PRACTICE DIRECTION 70A – ENFORCEMENT OF JUDGMENTS AND ORDERS
+
+[272] ✓ OK  tier=3
+       ID         : Practice Direction 70B – Debt Respite Scheme Under The Financial Guidance And Claims Act 2018
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part70/practice-direction-70b-debt-respite-scheme-under-the-financial-guidance-and-claims-act-2018
+       subsec_id  : PRACTICE DIRECTION 70B – DEBT RESPITE SCHEME UNDER THE FINANCIAL GUIDANCE AND CLAIMS ACT 2018
+       subsections: []
+       page_secs  : []
+       content    : 26 lines | first: # PRACTICE DIRECTION 70B – DEBT RESPITE SCHEME UNDER THE FINANCIAL GUIDANCE AND CLAIMS ACT 2018
+
+[273] ✓ OK  tier=3
+       ID         : Practice Direction 71 – Orders To Obtain Information From Judgment Debtors
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part71/pd_part71
+       subsec_id  : PRACTICE DIRECTION 71 – ORDERS TO OBTAIN INFORMATION FROM JUDGMENT DEBTORS
+       subsections: []
+       page_secs  : []
+       content    : 65 lines | first: # PRACTICE DIRECTION 71 – ORDERS TO OBTAIN INFORMATION FROM JUDGMENT DEBTORS
+
+[274] ✓ OK  tier=3
+       ID         : Practice Direction 72 – Third Party Debt Orders
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part72/pd_part72
+       subsec_id  : PRACTICE DIRECTION 72 – THIRD PARTY DEBT ORDERS
+       subsections: []
+       page_secs  : []
+       content    : 71 lines | first: # PRACTICE DIRECTION 72 – THIRD PARTY DEBT ORDERS
+
+[275] ✓ OK  tier=2
+       ID         : Practice Direction 73 – Charging Orders, Stop Orders And Stop Notices
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part73/pd_part73
+       subsec_id  : I
+       subsections: ['I', 'II', 'III']
+       page_secs  : ['I', 'II', 'III']
+       content    : 78 lines | first: # PRACTICE DIRECTION 73 – CHARGING ORDERS, STOP ORDERS AND STOP NOTICES
+
+[276] ✓ OK  tier=2
+       ID         : Practice Direction 74A – Enforcement Of Judgments In Different Jurisdictions
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part74/pd_part74a
+       subsec_id  : I
+       subsections: ['I', 'II']
+       page_secs  : ['I', 'II']
+       content    : 66 lines | first: # PRACTICE DIRECTION 74A – ENFORCEMENT OF JUDGMENTS IN DIFFERENT JURISDICTIONS
+
+[277] ✓ OK  tier=1
+       ID         : Practice Direction 75 – Traffic Enforcement
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part75/pd_part75
+       subsec_id  : 1.1
+       subsections: ['1.1', '2.1', '3.1', '3A.1', '4.1', '5.1', '6.1', '7.1', '8.1']
+       page_secs  : ['1.1', '2.1', '3.1', '3A.1', '4.1', '5.1', '6.1', '7.1', '8.1']
+       content    : 142 lines | first: # PRACTICE DIRECTION 75 – TRAFFIC ENFORCEMENT
+
+[278] ✓ OK  tier=2
+       ID         : Practice Direction 77 – Applications For And Relating To Serious Crime Prevention Orders And Referral Of Relea
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part77/pd_part77
+       subsec_id  : 1.1
+       subsections: ['1.1', '1.2', '1.3', '1.4', '1.5', '2.1', '3.1', '3.2', '4.1']
+       page_secs  : ['1.1', '1.2', '1.3', '1.4', '1.5', '2.1', '3.1', '3.2', '4.1']
+       content    : 64 lines | first: # PRACTICE DIRECTION 77 – APPLICATIONS FOR AND RELATING TO SERIOUS CRIME PREVENTION ORDERS AND REFER
+
+[279] ✓ OK  tier=3
+       ID         : Practice Direction 7A – How To Start Proceedings – The Claim Form
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part07/pd_part07a
+       subsec_id  : PRACTICE DIRECTION 7A – HOW TO START PROCEEDINGS – THE CLAIM FORM
+       subsections: []
+       page_secs  : []
+       content    : 98 lines | first: # PRACTICE DIRECTION 7A – HOW TO START PROCEEDINGS – THE CLAIM FORM
+
+[280] ✓ OK  tier=1
+       ID         : Practice Direction 7B – Production Centre
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part07/pd_part07c
+       subsec_id  : 1.1
+       subsections: ['1.1', '5.2', '5', '2.1', '5.2A', '3.1', '4.1', '5.1', '5.3']
+       page_secs  : ['1.1', '2.1', '3.1', '4.1', '5', '5.1', '5.2', '5.2A', '5.3']
+       content    : 115 lines | first: # PRACTICE DIRECTION 7B – PRODUCTION CENTRE
+
+[281] ✓ OK  tier=1
+       ID         : Practice Direction 7C – Money Claim Online
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part07/pd_part07e
+       subsec_id  : 1.1
+       subsections: ['1.1', '10.1', '11.1', '12.1', '13.1', '2.1', '3.1', '4.1', '5.1', '6.1']
+       page_secs  : ['1.1', '2.1', '3.1', '4.1', '5.1', '6.1', '7.1', '8.1', '9.1', '10.1', '11.1', '12.1']
+       content    : 146 lines | first: # PRACTICE DIRECTION 7C – MONEY CLAIM ONLINE
+
+[282] ✓ OK  tier=2
+       ID         : Practice Direction 83 – Writs And Warrants – General Provisions
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-83-writs-and-warrants-general-provisions/37-practice-direction-83-writs-and-warrants-general-provisions
+       subsec_id  : I
+       subsections: ['I', 'II', 'III', 'IV']
+       page_secs  : ['I', 'II', 'III', 'IV']
+       content    : 32 lines | first: # PRACTICE DIRECTION 83 – WRITS AND WARRANTS – GENERAL PROVISIONS
+
+[283] ✓ OK  tier=3
+       ID         : Practice Direction 84 – Enforcement By Taking Control Of Goods
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-84enforcement-by-taking-control-of-goods/practice-direction-84-enforcement-by-taking-control-of-goods
+       subsec_id  : PRACTICE DIRECTION 84 – ENFORCEMENT BY TAKING CONTROL OF GOODS
+       subsections: []
+       page_secs  : []
+       content    : 47 lines | first: # PRACTICE DIRECTION 84 – ENFORCEMENT BY TAKING CONTROL OF GOODS
+
+[284] ✓ OK  tier=3
+       ID         : Practice Direction  27B – Claims Under The Pre-Action Protocol For Personal Injury Claims Below The Small Clai
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part27/practice-direction-27b-claims-under-the-pre-action-protocol-for-personal-injury-claims-below-the-small-claims-limit-in-road-traffic-accidents-court-procedure
+       subsec_id  : APPENDIX
+       subsections: []
+       page_secs  : []
+       content    : 92 lines | first: Document: Practice Direction 27B – Claims Under the Pre-Action Protocol for Personal Injury Claims B
+
+[285] ✓ OK  tier=2
+       ID         : Practice Direction – Competition Law – claims relating to the application of chapters I and II of part I of th
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/competitionlaw_pd
+       subsec_id  : 1.1
+       subsections: ['1.1', '1.2', '2.1', '2.2', '2.3', '2.4', '3.1', '3.2', '3A.1', '3A.2']
+       page_secs  : ['1.1', '1.2', '2.1', '2.2', '2.3', '2.4', '3.1', '3.2', '3A.1', '3A.2', '3A.3', '3A.4']
+       content    : 89 lines | first: # PRACTICE DIRECTION – COMPETITION LAW – CLAIMS RELATING TO THE APPLICATION OF CHAPTERS I AND II OF 
+
+[286] ✓ OK  tier=1
+       ID         : Practice Direction – Pre-Action Conduct and Protocols
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/rules/pd_pre-action_conduct
+       subsec_id  : 3.1
+       subsections: ['1.1', '12.1', '13.1', '17.1', '18.1', '3.1', '4.1', '6.1', '7.1', '8.1']
+       page_secs  : ['1.1', '3.1', '4.1', '6.1', '7.1', '8.1', '12.1', '13.1', '17.1', '18.1']
+       content    : 65 lines | first: # PRACTICE DIRECTION – PRE-ACTION CONDUCT AND PROTOCOLS
+
+[287] ✓ OK  tier=2
+       ID         : Pre-Action Protocol for Claims for Damages in Relation to the Physical State of Commercial Property at Termina
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/protocol/pre-action-protocol-for-claims-for-damages-in-relation-to-the-physical-state-of-commercial-property-at-termination-of-a-tenancy-the-dilapidations-protocol
+       subsec_id  : 1.1
+       subsections: ['1.1', '1.2', '1.3', '1.4', '1.5', '2.1', '2.2', '3.1', '3.2', '3.3']
+       page_secs  : ['1.1', '1.2', '1.3', '1.4', '1.5', '2.1', '2.2', '3.1', '3.2', '3.3', '3.4', '3.5']
+       content    : 18 lines | first: Document: Pre-Action Protocol for Claims for Damages in Relation to the Physical State of Commercial
+
+[288] ✓ OK  tier=2
+       ID         : Pre-Action Protocol for Disease and Illness Claims_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/protocol/prot_dis
+       subsec_id  : 1.1
+       subsections: ['1.1', '1.2', '1.3', '1.4', '1.5', '2.1', '2.2', '2.3', '2.4', '2.5']
+       page_secs  : ['1.1', '1.2', '1.3', '1.4', '1.5', '2.1', '2.2', '2.3', '2.4', '2.5', '2.6', '2.7']
+       content    : 204 lines | first: Document: Pre-Action Protocol for Disease and Illness Claims
+Section: 1 INTRODUCTION
+Part 1 of 3
+===
+
+[289] ✓ OK  tier=2
+       ID         : Pre-Action Protocol for Disease and Illness Claims_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/protocol/prot_dis
+       subsec_id  : 6.5
+       subsections: ['6.5', '9.1', '2.7', '1.1', '1.2', '1.3', '1.4', '1.5', '2.1', '3.2']
+       page_secs  : ['1.1', '1.2', '1.3', '1.4', '1.5', '2.1', '2.2', '2.3', '2.4', '2.5', '2.6', '2.7']
+       content    : 211 lines | first: Document: Pre-Action Protocol for Disease and Illness Claims
+Section: 1.
+Part 2 of 3
+===============
+
+[290] ⚠ ISSUE  tier=2
+       ID         : Pre-Action Protocol for Disease and Illness Claims_chunk_002
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/protocol/prot_dis
+       subsec_id  : 1.1
+       subsections: []
+       page_secs  : ['1.1', '1.2', '1.3', '1.4', '1.5', '2.1', '2.2', '2.3', '2.4', '2.5', '2.6', '2.7']
+       content    : 56 lines | first: Document: Pre-Action Protocol for Disease and Illness Claims
+Section: 2. I have not made any claim t
+       *** tier-1/2 page with sections but chunk claims none (coverage gap)
+
+[291] ✓ OK  tier=1
+       ID         : Pre-Action Protocol for Housing Conditions Claims (England)_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/protocol/prot_hou
+       subsec_id  : 1.1
+       subsections: ['1.1', '2.1', '3.1', '4', '4.1', '5.1', 'Annex A', 'Annex C', 'Annex D', 'Annex B']
+       page_secs  : ['1.1', '2.1', '3.1', '4', '4.1', '5.1', '6.1', '7.1', '8.1', '9.1', '10.1', '11.1']
+       content    : 155 lines | first: Document: Pre-Action Protocol for Housing Conditions Claims (England)
+Section: 1 INTRODUCTION
+Part 1
+
+[292] ✓ OK  tier=1
+       ID         : Pre-Action Protocol for Housing Conditions Claims (England)_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/protocol/prot_hou
+       subsec_id  : 1.1
+       subsections: ['8.1', '9.1', '10.1', '11.1', '12.1']
+       page_secs  : ['1.1', '2.1', '3.1', '4', '4.1', '5.1', '6.1', '7.1', '8.1', '9.1', '10.1', '11.1']
+       content    : 105 lines | first: Document: Pre-Action Protocol for Housing Conditions Claims (England)
+Section: (a) Letter from tenan
+
+[293] ✓ OK  tier=3
+       ID         : Pre-Action Protocol for Housing Disrepair Cases (Wales)_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/protocol/pre-action-protocol-for-housing-disrepair-cases-wales
+       subsec_id  : 1
+       subsections: []
+       page_secs  : []
+       content    : 151 lines | first: Document: Pre-Action Protocol for Housing Disrepair Cases (Wales)
+Section: 1 INTRODUCTION
+Part 1 of 
+
+[294] ✓ OK  tier=3
+       ID         : Pre-Action Protocol for Housing Disrepair Cases (Wales)_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/protocol/pre-action-protocol-for-housing-disrepair-cases-wales
+       subsec_id  : Pre-Action Protocol for Housing Disrepair Cases (Wales)
+       subsections: []
+       page_secs  : []
+       content    : 105 lines | first: Document: Pre-Action Protocol for Housing Disrepair Cases (Wales)
+Section: (a) Letter from tenant’s 
+
+[295] ✓ OK  tier=1
+       ID         : Pre-Action Protocol for Judicial Review
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/protocol/prot_jrv
+       subsec_id  : annexa
+       subsections: ['annexa', 'annexb', 'annexc']
+       page_secs  : ['annexa', 'annexb', 'annexc']
+       content    : 120 lines | first: # Pre-Action Protocol for Judicial Review
+
+[296] ✓ OK  tier=1
+       ID         : Pre-Action Protocol for Low Value Personal Injury Claims in Road Traffic Accidents_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/protocol/pre-action-protocol-for-low-value-personal-injury-claims-in-road-traffic-accidents-31-july-2013
+       subsec_id  : I
+       subsections: ['I', '1.1', '7.8A']
+       page_secs  : ['1.1', '6.19A', '7.8A', 'I']
+       content    : 147 lines | first: Document: Pre-Action Protocol for Low Value Personal Injury Claims in Road Traffic Accidents
+Section
+
+[297] ✓ OK  tier=1
+       ID         : Pre-Action Protocol for Low Value Personal Injury Claims in Road Traffic Accidents_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/protocol/pre-action-protocol-for-low-value-personal-injury-claims-in-road-traffic-accidents-31-july-2013
+       subsec_id  : 6.19A
+       subsections: ['6.19A', '7.8A']
+       page_secs  : ['1.1', '6.19A', '7.8A', 'I']
+       content    : 143 lines | first: Document: Pre-Action Protocol for Low Value Personal Injury Claims in Road Traffic Accidents
+Section
+
+[298] ✓ OK  tier=1
+       ID         : Pre-Action Protocol for Low Value Personal Injury Claims in Road Traffic Accidents_chunk_002
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/protocol/pre-action-protocol-for-low-value-personal-injury-claims-in-road-traffic-accidents-31-july-2013
+       subsec_id  : 1.1
+       subsections: ['1.1']
+       page_secs  : ['1.1', '6.19A', '7.8A', 'I']
+       content    : 118 lines | first: Document: Pre-Action Protocol for Low Value Personal Injury Claims in Road Traffic Accidents
+Section
+
+[299] ✓ OK  tier=1
+       ID         : Pre-Action Protocol for Low Value Personal Injury Claims in Road Traffic Accidents_chunk_003
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/protocol/pre-action-protocol-for-low-value-personal-injury-claims-in-road-traffic-accidents-31-july-2013
+       subsec_id  : I
+       subsections: ['I']
+       page_secs  : ['1.1', '6.19A', '7.8A', 'I']
+       content    : 105 lines | first: Document: Pre-Action Protocol for Low Value Personal Injury Claims in Road Traffic Accidents
+Section
+
+[300] ✓ OK  tier=1
+       ID         : Pre-Action Protocol for Low Value Personal Injury (Employers’ Liability and Public Liability) Claims_chunk_002
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/protocol/pre-action-protocol-for-low-value-personal-injury-employers-liability-and-public-liability-claims
+       subsec_id  : 7.48
+       subsections: ['1.1', '2.1', '3.1', '4.1', '5.1', '5.10', '5.11', '5.3', '5.7', '5.9']
+       page_secs  : ['1.1', '2.1', '3.1', '4.1', '5.1', '5.3', '5.7', '5.9', '5.10', '5.11', '6.1', '6.6']
+       content    : 30 lines | first: Document: Pre-Action Protocol for Low Value Personal Injury (Employers’ Liability and Public Liabili
+
+[301] ✓ OK  tier=3
+       ID         : Pre-Action Protocol for Personal Injury Claims below the Small Claims Limit in Road Traffic Accidents (“The RT
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/protocol/pre-action-protocol-for-personal-injury-claims-below-the-small-claims-limit-in-road-traffic-accidents-the-rta-small-claims-protocol
+       subsec_id  : 12.12
+       subsections: []
+       page_secs  : []
+       content    : 81 lines | first: Document: Pre-Action Protocol for Personal Injury Claims below the Small Claims Limit in Road Traffi
+
+[302] ✓ OK  tier=1
+       ID         : Pre-Action Protocol for Personal Injury Claims_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/protocol/prot_pic
+       subsec_id  : 3
+       subsections: ['3', '1.1', '3.1', '5.1', '4.1', '1.6', '1.7', '7', '2.1', '7.2']
+       page_secs  : ['1.1', '1.6', '1.7', '2.1', '3', '3.1', '4.1', '5.1', '5.7', '6.1', '7', '7.2']
+       content    : 145 lines | first: Document: Pre-Action Protocol for Personal Injury Claims
+Section: 1. Introduction
+Part 1 of 3
+======
+
+[303] ✓ OK  tier=1
+       ID         : Pre-Action Protocol for Personal Injury Claims_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/protocol/prot_pic
+       subsec_id  : 9.1
+       subsections: ['9.1', '3', '10.1', '11.1', '7']
+       page_secs  : ['1.1', '1.6', '1.7', '2.1', '3', '3.1', '4.1', '5.1', '5.7', '6.1', '7', '7.2']
+       content    : 213 lines | first: Document: Pre-Action Protocol for Personal Injury Claims
+Section: 9.1.2  Some of the options for res
+
+[304] ✓ OK  tier=1
+       ID         : Pre-Action Protocol for Personal Injury Claims_chunk_002
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/protocol/prot_pic
+       subsec_id  : 3
+       subsections: ['3', '7']
+       page_secs  : ['1.1', '1.6', '1.7', '2.1', '3', '3.1', '4.1', '5.1', '5.7', '6.1', '7', '7.2']
+       content    : 87 lines | first: Document: Pre-Action Protocol for Personal Injury Claims
+Section: SECTION I – Construction (Health, 
+
+[305] ✓ OK  tier=1
+       ID         : Pre-Action Protocol for Possession Claims based on Mortgage or Home Purchase Plan Arrears in Respect of Reside
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/protocol/prot_mha
+       subsec_id  : I
+       subsections: ['I', '1.1', '2.1', '3.1', '4.1', 'II', '5.1', '7.1', '6.1', '8.1']
+       page_secs  : ['1.1', '2.1', '3.1', '4.1', '5.1', '6.1', '7.1', '8.1', 'I', 'II']
+       content    : 80 lines | first: # Pre-Action Protocol for Possession Claims based on Mortgage or Home Purchase Plan Arrears in Respe
+
+[306] ✓ OK  tier=1
+       ID         : Pre-Action Protocol for Possession Claims by Social Landlords
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/protocol/pre-action-protocol-for-possession-claims-by-social-landlords
+       subsec_id  : I
+       subsections: ['2.1', '2.10', '2.11', '2.8', 'I', 'II', 'III']
+       page_secs  : ['2.1', '2.8', '2.10', '2.11', 'I', 'II', 'III']
+       content    : 65 lines | first: # Pre-Action Protocol for Possession Claims by Social Landlords
+
+[307] ✓ OK  tier=2
+       ID         : Pre-Action Protocol for Professional Negligence_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/protocol/prot_neg
+       subsec_id  : 9.2
+       subsections: ['9.2', '9.3', '9.4']
+       page_secs  : ['9.2', '9.3', '9.4']
+       content    : 86 lines | first: Document: Pre-Action Protocol for Professional Negligence
+Section: INTRODUCTION
+Part 1 of 2
+========
+
+[308] ✓ OK  tier=2
+       ID         : Pre-Action Protocol for Professional Negligence_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/protocol/prot_neg
+       subsec_id  : 9.4
+       subsections: ['9.4']
+       page_secs  : ['9.2', '9.3', '9.4']
+       content    : 32 lines | first: Document: Pre-Action Protocol for Professional Negligence
+Section: 10 Documents
+Part 2 of 2
+========
+
+[309] ✓ OK  tier=3
+       ID         : Pre-Action Protocol for Resolution of Package Travel Claims_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/protocol/pre-action-protocol-for-resolution-of-package-travel-claims
+       subsec_id  : Pre-action protocol for resolution of package travel claims
+       subsections: []
+       page_secs  : []
+       content    : 168 lines | first: Document: Pre-Action Protocol for Resolution of Package Travel Claims
+Section: Introduction
+Part 1 o
+
+[310] ✓ OK  tier=3
+       ID         : Pre-Action Protocol for Resolution of Package Travel Claims_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/protocol/pre-action-protocol-for-resolution-of-package-travel-claims
+       subsec_id  : Pre-action protocol for resolution of package travel claims
+       subsections: []
+       page_secs  : []
+       content    : 31 lines | first: Document: Pre-Action Protocol for Resolution of Package Travel Claims
+Section: Next steps
+Part 2 of 
+
+[311] ✓ OK  tier=3
+       ID         : Pre-Action Protocol for the Construction and Engineering Disputes
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/protocol/prot_ced
+       subsec_id  : Pre-Action Protocol for Construction and Engineering Disputes 2nd edition
+       subsections: []
+       page_secs  : []
+       content    : 75 lines | first: # Pre-Action Protocol for Construction and Engineering Disputes 2nd edition
+
+[312] ✓ OK  tier=1
+       ID         : Pre-Action Protocol for the Resolution of Clinical Disputes_chunk_000
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/protocol/prot_rcd
+       subsec_id  : annex a
+       subsections: ['annex a', 'annex b', 'annex c']
+       page_secs  : ['annex a', 'annex b', 'annex c']
+       content    : 142 lines | first: Document: Pre-Action Protocol for the Resolution of Clinical Disputes
+Section: 1 INTRODUCTION
+Part 1
+
+[313] ⚠ ISSUE  tier=1
+       ID         : Pre-Action Protocol for the Resolution of Clinical Disputes_chunk_001
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/protocol/prot_rcd
+       subsec_id  : annex a
+       subsections: []
+       page_secs  : ['annex a', 'annex b', 'annex c']
+       content    : 91 lines | first: Document: Pre-Action Protocol for the Resolution of Clinical Disputes
+Section: TEMPLATES FOR LETTERS
+       *** tier-1/2 page with sections but chunk claims none (coverage gap)
+
+[314] ✓ OK  tier=2
+       ID         : Pre-action Protocol for Media and Communications Claims
+       URL        : https://www.justice.gov.uk/courts/procedure-rules/civil/protocol/prot_def
+       subsec_id  : 3.1
+       subsections: ['3.1', '3.2', '3.3', '3.4', '3.5', '3.6', '3.8']
+       page_secs  : ['3.1', '3.2', '3.3', '3.4', '3.5', '3.6', '3.8']
+       content    : 89 lines | first: # Pre-action Protocol for Media and Communications Claims
+
+====================================================================================================
+ANOMALY SUMMARY  (13 records with issues)
+====================================================================================================
+  [118] Part 77 – Provisions In Support Of Criminal Justice_chunk_001
+          -> tier-1/2 page with sections but chunk claims none (coverage gap)
+  [141] Practice Direction 16 – Statements Of Case_chunk_001
+          -> tier-1/2 page with sections but chunk claims none (coverage gap)
+  [163] Practice Direction 31B – Disclosure Of Electronic Documents_chunk_001
+          -> tier-1/2 page with sections but chunk claims none (coverage gap)
+  [189] Practice Direction 45 – Tables Of Fixed Costs (2024)_chunk_001
+          -> tier-1/2 page with sections but chunk claims none (coverage gap)
+  [190] Practice Direction 45 – Tables Of Fixed Costs (2024)_chunk_002
+          -> tier-1/2 page with sections but chunk claims none (coverage gap)
+  [192] Practice Direction 46 – Costs Special Cases_chunk_001
+          -> tier-1/2 page with sections but chunk claims none (coverage gap)
+  [228] Practice Direction 54A – Judicial Review_chunk_001
+          -> tier-1/2 page with sections but chunk claims none (coverage gap)
+  [238] Practice Direction 55B – Possession Claims Online_chunk_001
+          -> tier-1/2 page with sections but chunk claims none (coverage gap)
+  [242] Practice Direction 56 – Landlord And Tenant Claims And Miscellaneous Provisions 
+          -> tier-1/2 page with sections but chunk claims none (coverage gap)
+  [246] Practice Direction 57Ad – Disclosure In The Business And Property Courts_chunk_0
+          -> tier-1/2 page with sections but chunk claims none (coverage gap)
+  [249] Practice Direction 57Ad – Disclosure In The Business And Property Courts_chunk_0
+          -> tier-1/2 page with sections but chunk claims none (coverage gap)
+  [290] Pre-Action Protocol for Disease and Illness Claims_chunk_002
+          -> tier-1/2 page with sections but chunk claims none (coverage gap)
+  [313] Pre-Action Protocol for the Resolution of Clinical Disputes_chunk_001
+          -> tier-1/2 page with sections but chunk claims none (coverage gap)
+
+TIER DISTRIBUTION:
+  tier 1: 167 chunks
+  tier 2: 83 chunks
+  tier 3: 64 chunks

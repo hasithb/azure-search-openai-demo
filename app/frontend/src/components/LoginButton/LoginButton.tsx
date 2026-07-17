@@ -1,9 +1,9 @@
-import { DefaultButton } from "@fluentui/react";
+import { Button } from "@fluentui/react-components";
 import { useMsal } from "@azure/msal-react";
 import { useTranslation } from "react-i18next";
 
 import styles from "./LoginButton.module.css";
-import { getRedirectUri, loginRequest, appServicesLogout, getUsername, checkLoggedIn } from "../../authConfig";
+import { getRedirectUri, loginRequest, appServicesLogout, getUsername, checkLoggedIn, useMsalLogin, usePlatformAuth } from "../../authConfig";
 import { useState, useEffect, useContext } from "react";
 import { LoginContext } from "../../loginContext";
 
@@ -27,6 +27,10 @@ export const LoginButton = () => {
     }, [instance]);
 
     const handleLoginPopup = () => {
+        if (!useMsalLogin) {
+            return;
+        }
+
         /**
          * When using popup and silent APIs, we recommend setting the redirectUri to a blank page or a page
          * that does not implement MSAL. Keep in mind that all redirect routes must be registered with the application
@@ -49,6 +53,11 @@ export const LoginButton = () => {
     };
 
     const handleLogoutPopup = () => {
+        if (usePlatformAuth) {
+            appServicesLogout();
+            return;
+        }
+
         try {
             const activeAccount = instance.getActiveAccount();
             if (activeAccount) {
@@ -75,11 +84,13 @@ export const LoginButton = () => {
         }
     };
 
+    if (usePlatformAuth && !loggedIn) {
+        return null;
+    }
+
     return (
-        <DefaultButton
-            text={loggedIn ? `${t("logout")}\n${username}` : `${t("login")}`}
-            className={styles.loginButton}
-            onClick={loggedIn ? handleLogoutPopup : handleLoginPopup}
-        ></DefaultButton>
+        <Button className={styles.loginButton} onClick={loggedIn ? handleLogoutPopup : handleLoginPopup}>
+            {loggedIn ? `${t("logout")}\n${username}` : `${t("login")}`}
+        </Button>
     );
 };

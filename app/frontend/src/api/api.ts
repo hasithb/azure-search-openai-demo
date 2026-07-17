@@ -22,26 +22,7 @@ export async function configApi(): Promise<Config> {
     return (await response.json()) as Config;
 }
 
-export async function askApi(request: ChatAppRequest, idToken: string | undefined): Promise<ChatAppResponse> {
-    const headers = await getHeaders(idToken);
-    const response = await fetch(`${BACKEND_URI}/ask`, {
-        method: "POST",
-        headers: { ...headers, "Content-Type": "application/json" },
-        body: JSON.stringify(request)
-    });
-
-    if (response.status > 299 || !response.ok) {
-        throw Error(`Request failed with status ${response.status}`);
-    }
-    const parsedResponse: ChatAppResponseOrError = await response.json();
-    if (parsedResponse.error) {
-        throw Error(parsedResponse.error);
-    }
-
-    return parsedResponse as ChatAppResponse;
-}
-
-export async function chatApi(request: ChatAppRequest, shouldStream: boolean, idToken: string | undefined): Promise<Response> {
+export async function chatApi(request: ChatAppRequest, shouldStream: boolean, idToken: string | undefined, signal: AbortSignal): Promise<Response> {
     let url = `${BACKEND_URI}/chat`;
     if (shouldStream) {
         url += "/stream";
@@ -50,7 +31,8 @@ export async function chatApi(request: ChatAppRequest, shouldStream: boolean, id
     return await fetch(url, {
         method: "POST",
         headers: { ...headers, "Content-Type": "application/json" },
-        body: JSON.stringify(request)
+        body: JSON.stringify(request),
+        signal: signal
     });
 }
 
@@ -89,7 +71,7 @@ export function getCitationFilePath(citation: string): string {
     return `/content/${encodeURIComponent(citation)}`;
 }
 
-export async function uploadFileApi(request: FormData, idToken: string): Promise<SimpleAPIResponse> {
+export async function uploadFileApi(request: FormData, idToken: string | undefined): Promise<SimpleAPIResponse> {
     const response = await fetch("/upload", {
         method: "POST",
         headers: await getHeaders(idToken),
@@ -104,7 +86,7 @@ export async function uploadFileApi(request: FormData, idToken: string): Promise
     return dataResponse;
 }
 
-export async function deleteUploadedFileApi(filename: string, idToken: string): Promise<SimpleAPIResponse> {
+export async function deleteUploadedFileApi(filename: string, idToken: string | undefined): Promise<SimpleAPIResponse> {
     const headers = await getHeaders(idToken);
     const response = await fetch("/delete_uploaded", {
         method: "POST",
@@ -120,7 +102,7 @@ export async function deleteUploadedFileApi(filename: string, idToken: string): 
     return dataResponse;
 }
 
-export async function listUploadedFilesApi(idToken: string): Promise<string[]> {
+export async function listUploadedFilesApi(idToken: string | undefined): Promise<string[]> {
     const response = await fetch(`/list_uploaded`, {
         method: "GET",
         headers: await getHeaders(idToken)
@@ -134,7 +116,7 @@ export async function listUploadedFilesApi(idToken: string): Promise<string[]> {
     return dataResponse;
 }
 
-export async function postChatHistoryApi(item: any, idToken: string): Promise<any> {
+export async function postChatHistoryApi(item: any, idToken: string | undefined): Promise<any> {
     const headers = await getHeaders(idToken);
     const response = await fetch("/chat_history", {
         method: "POST",
@@ -150,7 +132,11 @@ export async function postChatHistoryApi(item: any, idToken: string): Promise<an
     return dataResponse;
 }
 
-export async function getChatHistoryListApi(count: number, continuationToken: string | undefined, idToken: string): Promise<HistoryListApiResponse> {
+export async function getChatHistoryListApi(
+    count: number,
+    continuationToken: string | undefined,
+    idToken: string | undefined
+): Promise<HistoryListApiResponse> {
     const headers = await getHeaders(idToken);
     let url = `${BACKEND_URI}/chat_history/sessions?count=${count}`;
     if (continuationToken) {
@@ -170,7 +156,7 @@ export async function getChatHistoryListApi(count: number, continuationToken: st
     return dataResponse;
 }
 
-export async function getChatHistoryApi(id: string, idToken: string): Promise<HistoryApiResponse> {
+export async function getChatHistoryApi(id: string, idToken: string | undefined): Promise<HistoryApiResponse> {
     const headers = await getHeaders(idToken);
     const response = await fetch(`/chat_history/sessions/${id}`, {
         method: "GET",
@@ -185,7 +171,7 @@ export async function getChatHistoryApi(id: string, idToken: string): Promise<Hi
     return dataResponse;
 }
 
-export async function deleteChatHistoryApi(id: string, idToken: string): Promise<any> {
+export async function deleteChatHistoryApi(id: string, idToken: string | undefined): Promise<any> {
     const headers = await getHeaders(idToken);
     const response = await fetch(`/chat_history/sessions/${id}`, {
         method: "DELETE",

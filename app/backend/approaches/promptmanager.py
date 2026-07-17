@@ -1,85 +1,119 @@
 import json
 import pathlib
-import asyncio
-import openai
-from quart import abort
+from typing import Any, cast
 
-import prompty
-from openai.types.chat import ChatCompletionMessageParam
+from jinja2 import Environment, FileSystemLoader
+from openai.types.responses import (
+    EasyInputMessageParam,
+    FunctionToolParam,
+)
 
 
 class PromptManager:
-
-    def load_prompt(self, path: str):
-        raise NotImplementedError
-
-    def load_tools(self, path: str):
-        raise NotImplementedError
-
-    def render_prompt(self, prompt, data) -> list[ChatCompletionMessageParam]:
-        raise NotImplementedError
-
-    def messages_to_readable(self, messages: list[ChatCompletionMessageParam]) -> str:
-        """Convert messages to human-readable format for UI display"""
-        raise NotImplementedError
-
-
-class PromptyManager(PromptManager):
+    """Builds OpenAI response messages from Jinja2 templates."""
 
     PROMPTS_DIRECTORY = pathlib.Path(__file__).parent / "prompts"
 
-    def load_prompt(self, path: str):
-        return prompty.load(self.PROMPTS_DIRECTORY / path)
+    def __init__(self):
+        self.env = Environment(
+            loader=FileSystemLoader(self.PROMPTS_DIRECTORY),
+            autoescape=False,
+            trim_blocks=True,
+            lstrip_blocks=True,
+        )
 
-    def load_tools(self, path: str):
-        return json.loads(open(self.PROMPTS_DIRECTORY / path).read())
+    def build_system_prompt(self, template_path: str, template_variables: dict[str, Any]) -> EasyInputMessageParam:
+        """Build a single system message. Use for simple prompts like query rewrite.
 
-    def render_prompt(self, prompt, data) -> list[ChatCompletionMessageParam]:
-        return prompty.prepare(prompt, data)
+        Args:
+            template_path: Path to the system message template file
+            template_variables: Dictionary of variables to pass to the template
 
-    def messages_to_readable(self, messages: list[ChatCompletionMessageParam]) -> str:
-        """Convert messages to human-readable format for UI display"""
-        if not messages:
-            return "No messages"
-        
-        readable_parts = []
+        Returns:
+            A system message
+        """
+        content = self.env.get_template(template_path).render(**template_variables).strip()
+        return {"role": "system", "content": content}
+
+    def build_user_prompt(
+        self,
+        template_path: str,
+        template_variables: dict[str, Any],
+        image_sources: list[str] | None = None,
+    ) -> EasyInputMessageParam:
+        """Build a single user message with optional images.
+
+        Args:
+            template_path: Path to the user message template file
+            template_variables: Dictionary of variables to pass to the template
+            image_sources: Optional list of image URLs to include in the message
+
+        Returns:
+            A user message
+        """
+        user_text = self.env.get_template(template_path).render(**template_variables).strip()
+        if image_sources:
+            user_content: list[dict[str, Any]] = [{"type": "input_text", "text": user_text}]
+            for image in image_sources:
+                user_content.append({"type": "input_image", "image_url": image})
+            return cast(EasyInputMessageParam, {"role": "user", "content": user_content})
+        return {"role": "user", "content": user_text}
+
+    def build_conversation(
+        self,
+        system_template_path: str,
+        system_template_variables: dict[str, Any],
+        user_template_path: str,
+        user_template_variables: dict[str, Any],
+        user_image_sources: list[str] | None = None,
+        past_messages: list[EasyInputMessageParam] | None = None,
+    ) -> list[EasyInputMessageParam]:
+        """Build a full conversation with system, history, and user message.
+
+        Args:
+            system_template_path: Path to the system message template file
+            system_template_variables: Dictionary of variables to pass to the system template
+            user_template_path: Path to the user message template file
+            user_template_variables: Dictionary of variables to pass to the user template
+            user_image_sources: Optional list of image URLs to include in the user message
+            past_messages: Optional list of past messages to include as conversation history
+
+        Returns:
+            A list of EasyInputMessageParam messages
+        """
+        messages: list[EasyInputMessageParam] = []
+
+        # System message
+        messages.append(self.build_system_prompt(system_template_path, system_template_variables))
+
+        # Past messages (conversation history)
+        for msg in past_messages or []:
+            messages.append(cast(EasyInputMessageParam, msg))
+
+        # User message (with optional images)
+        messages.append(self.build_user_prompt(user_template_path, user_template_variables, user_image_sources))
+
+        return messages
+
+    def load_tools(self, path: str) -> list[FunctionToolParam]:
+        """Load tools from a JSON file."""
+        with open(self.PROMPTS_DIRECTORY / path) as f:
+            return cast(list[FunctionToolParam], json.load(f))
+
+    # CUSTOM: Helper to convert messages to human-readable format for thought steps
+    def messages_to_readable(self, messages: list[EasyInputMessageParam]) -> str:
+        """Convert a list of EasyInputMessageParam to a readable string for debugging."""
+        parts: list[str] = []
         for msg in messages:
-            if isinstance(msg, dict):
-                role = msg.get("role", "unknown")
-                content = msg.get("content", "")
-            else:
-                role = getattr(msg, "role", "unknown")
-                content = getattr(msg, "content", "")
-            
-            # Format content nicely
-            if isinstance(content, str):
-                formatted_content = content
-            elif isinstance(content, list):
-                # Handle content arrays (multimodal messages)
-                formatted_content = json.dumps(content, indent=2)
-            else:
-                formatted_content = str(content)
-            
-            readable_parts.append(f"{role.upper()}:\n{formatted_content}")
-        
-        return "\n\n".join(readable_parts)
-
-    async def execute_with_timeout(self, client, model, messages, temperature=0.2, **kwargs):
-        """Execute OpenAI call with timeout and error handling."""
-        try:
-            response = await asyncio.wait_for(
-                client.chat.completions.create(
-                    model=model,
-                    messages=messages,
-                    temperature=temperature,
-                    **kwargs
-                ),
-                timeout=60
-            )
-            return response
-        except asyncio.TimeoutError:
-            abort(504, description="Upstream model timeout")
-        except openai.APIError as e:
-            abort(502, description=f"OpenAI API error: {e}")
-        except Exception as e:
-            abort(500, description=f"Generation failed: {e}")
+            role = msg.get("role", "unknown") if isinstance(msg, dict) else getattr(msg, "role", "unknown")
+            content = msg.get("content", "") if isinstance(msg, dict) else getattr(msg, "content", "")
+            if isinstance(content, list):
+                # Handle multi-part content (text + images)
+                text_parts = [p.get("text", "") for p in content if isinstance(p, dict) and p.get("type") == "text"]
+                content = " ".join(text_parts)
+            content_str = str(content) if content else ""
+            # Truncate long content
+            if len(content_str) > 500:
+                content_str = content_str[:500] + "..."
+            parts.append(f"[{role}]: {content_str}")
+        return "\n".join(parts)

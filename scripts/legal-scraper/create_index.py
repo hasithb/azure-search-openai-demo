@@ -49,7 +49,7 @@ def create_index():
 
     # Define fields
     fields = [
-        SimpleField(name="id", type=SearchFieldDataType.String, key=True),
+        SimpleField(name="id", type=SearchFieldDataType.String, key=True, filterable=True),
         SearchableField(name="content", type=SearchFieldDataType.String, analyzer_name="standard.lucene"),
         SearchField(
             name="embedding",

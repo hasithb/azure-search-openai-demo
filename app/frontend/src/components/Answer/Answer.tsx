@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState, useCallback } from "react";
-import { Stack, IconButton } from "@fluentui/react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Button } from "@fluentui/react-components";
+import { Copy24Regular, Checkmark24Regular, LightbulbFilament24Regular, ClipboardTextLtr24Regular } from "@fluentui/react-icons";
 import { useTranslation } from "react-i18next";
 import DOMPurify from "dompurify";
 import ReactMarkdown from "react-markdown";
@@ -7,24 +8,15 @@ import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 
 import styles from "./Answer.module.css";
-import { ChatAppResponse, SpeechConfig } from "../../api";
+import { ChatAppResponse, getCitationFilePath, SpeechConfig } from "../../api";
 import { parseAnswerToHtml } from "./AnswerParser";
-import { LegalFeedback, isAdminMode } from "../../customizations";
-
-// CUSTOM: Check if admin mode is enabled (via config or ?admin=true URL parameter)
-const adminMode = isAdminMode();
-
-// Simple AnswerIcon component (replace with your actual icon as needed)
-const AnswerIcon = () => (
-    <span role="img" aria-label="Answer">
-        💡
-    </span>
-);
-
-interface ConversationMessage {
-    role: "user" | "assistant";
-    content: string;
-}
+import { AnswerIcon } from "./AnswerIcon";
+import { SpeechOutputBrowser } from "./SpeechOutputBrowser";
+import { SpeechOutputAzure } from "./SpeechOutputAzure";
+// CUSTOM: Import admin mode check to gate Thought Process visibility
+import { buildCitationLabel, buildCitationPath, isAdminMode } from "../../customizations";
+// CUSTOM: Import structured citation metadata type
+import type { StructuredCitationMetadata } from "../../customizations";
 
 interface Props {
     answer: ChatAppResponse;
@@ -32,17 +24,15 @@ interface Props {
     speechConfig: SpeechConfig;
     isSelected?: boolean;
     isStreaming: boolean;
-    onCitationClicked: (filePath: string, citationContent?: string) => void;
+    // CUSTOM: Optional second arg passes citation content for display enrichment
+    //         Optional third arg passes structured metadata for precise matching
+    onCitationClicked: (filePath: string, content?: string, metadata?: StructuredCitationMetadata, selectionId?: string) => void;
     onThoughtProcessClicked: () => void;
     onSupportingContentClicked: () => void;
     onFollowupQuestionClicked?: (question: string) => void;
     showFollowupQuestions?: boolean;
     showSpeechOutputBrowser?: boolean;
     showSpeechOutputAzure?: boolean;
-    /** The user's prompt that generated this response */
-    userPrompt?: string;
-    /** Full conversation history for feedback context */
-    conversationHistory?: ConversationMessage[];
 }
 
 export const Answer = ({
@@ -57,28 +47,27 @@ export const Answer = ({
     onFollowupQuestionClicked,
     showFollowupQuestions,
     showSpeechOutputAzure,
-    showSpeechOutputBrowser,
-    userPrompt,
-    conversationHistory
+    showSpeechOutputBrowser
 }: Props) => {
     const followupQuestions = answer.context?.followup_questions;
-    const parsedAnswer = useMemo(() => parseAnswerToHtml(answer, isStreaming), [answer, isStreaming]);
+    const parsedAnswer = useMemo(() => parseAnswerToHtml(answer, isStreaming, onCitationClicked), [answer, isStreaming, onCitationClicked]);
     const { t } = useTranslation();
-
-    // Process the HTML to make citations clickable
-    const processedAnswerHtml = useMemo(() => {
-        let html = DOMPurify.sanitize(parsedAnswer.answerHtml);
-
-        // Citation superscripts are styled via CSS in Answer.module.css
-        // No need to add inline styles - the .citation-sup class handles styling
-
-        return html;
-    }, [parsedAnswer.answerHtml]);
-
+    const sanitizedAnswerHtml = DOMPurify.sanitize(parsedAnswer.answerHtml);
     const [copied, setCopied] = useState(false);
+    // CUSTOM: Gate citation list visibility to avoid flicker during streaming
+    const [showCitations, setShowCitations] = useState(false);
+    useEffect(() => {
+        if (isStreaming) {
+            setShowCitations(false);
+            return;
+        }
+        const timer = setTimeout(() => setShowCitations(true), 150);
+        return () => clearTimeout(timer);
+    }, [isStreaming]);
+    // CUSTOM: Only show Thought Process button in admin mode
+    const adminMode = isAdminMode();
 
-    // Add defensive handling for data_points before any .find() calls
-    const getDataPointsArray = (dataPoints: any): any[] => {
+    const getDataPointsArray = useCallback((dataPoints: any): any[] => {
         if (!dataPoints) {
             return [];
         }
@@ -88,60 +77,60 @@ export const Answer = ({
         }
 
         if (dataPoints.text && Array.isArray(dataPoints.text)) {
-            // Convert text array to object format for backward compatibility
-            return dataPoints.text.map((textItem: any, index: number) => {
+            return dataPoints.text.map((textItem: any, itemIndex: number) => {
                 if (typeof textItem === "string" && textItem.length > 0) {
                     const urlMatch = textItem.match(/^(https?:\/\/[^:]+):\s*/);
                     if (urlMatch) {
                         const content = textItem.substring(urlMatch[0].length);
                         return {
-                            id: index,
+                            id: itemIndex,
                             content,
                             storageUrl: urlMatch[1],
-                            sourcepage: `Source ${index + 1}`,
+                            sourcepage: `Source ${itemIndex + 1}`,
                             sourcefile: content.substring(0, 50) + "..."
                         };
                     }
+
                     return {
-                        id: index,
+                        id: itemIndex,
                         content: textItem,
-                        sourcepage: `Source ${index + 1}`,
+                        sourcepage: `Source ${itemIndex + 1}`,
                         sourcefile: textItem.substring(0, 50) + "..."
                     };
-                } else if (textItem && typeof textItem === "object") {
-                    // IMPORTANT: preserve all original fields (including subsection_id, subsection_index, original_doc_id, storageurl/url)
+                }
+
+                if (textItem && typeof textItem === "object") {
                     return {
-                        id: index,
+                        id: itemIndex,
                         ...textItem,
                         content: textItem.content || "",
                         storageUrl: textItem.storageUrl || textItem.storageurl || textItem.url || "",
-                        sourcepage: textItem.sourcepage || `Source ${index + 1}`,
+                        sourcepage: textItem.sourcepage || `Source ${itemIndex + 1}`,
                         sourcefile: textItem.sourcefile || ""
                     };
-                } else {
-                    return {
-                        id: index,
-                        content: String(textItem || ""),
-                        sourcepage: `Source ${index + 1}`,
-                        sourcefile: ""
-                    };
                 }
+
+                return {
+                    id: itemIndex,
+                    content: String(textItem || ""),
+                    sourcepage: `Source ${itemIndex + 1}`,
+                    sourcefile: ""
+                };
             });
         }
 
         return [];
-    };
+    }, []);
 
     type ParsedCitationLabel =
         | { kind: "full"; subsection: string; sourcePage: string; sourceFile: string }
         | { kind: "two"; partA: string; partB: string }
         | { kind: "single"; single: string };
 
-    // Parse citation label into stable parts (handles commas in sourcepage/sourcefile)
-    const parseCitationLabel = (citation: string): ParsedCitationLabel => {
+    const parseCitationLabel = useCallback((citation: string): ParsedCitationLabel => {
         const parts = citation
             .split(",")
-            .map(p => p.trim())
+            .map(part => part.trim())
             .filter(Boolean);
 
         if (parts.length >= 3) {
@@ -162,9 +151,8 @@ export const Answer = ({
         }
 
         return { kind: "single", single: citation };
-    };
+    }, []);
 
-    // Enhanced function to find matching content for a citation
     const findMatchingSupportingContent = useCallback(
         (citation: string) => {
             if (!answer.context?.data_points) {
@@ -174,59 +162,38 @@ export const Answer = ({
             const dataPointsArray = getDataPointsArray(answer.context.data_points);
             const parsedCitation = parseCitationLabel(citation);
 
-            console.log("Finding matching content for citation:", {
-                citation,
-                parsedCitation,
-                dataPointsLength: dataPointsArray.length
-            });
-
-            const isCourtGuideCategory = (value?: string) => {
-                if (!value) return false;
-                return value.toLowerCase() !== "civil procedure rules and practice directions".toLowerCase();
-            };
-
-            // Three-part citations: subsection, sourcePage, sourceFile
             if (parsedCitation.kind === "full") {
                 const { subsection, sourcePage, sourceFile } = parsedCitation;
-
-                // 0) Exact match on all three (subsection_id + sourcepage + sourcefile)
-                const exactAll = dataPointsArray.find(dp => {
-                    const dpSourcepage = String(dp.sourcepage || "").trim();
-                    const dpSourcefile = String(dp.sourcefile || "").trim();
-                    const dpSubsection = String(dp.subsection_id || "").trim();
-                    return dpSubsection === subsection && dpSourcepage === sourcePage && dpSourcefile === sourceFile;
-                });
-                if (exactAll) {
-                    console.log("Found exact match on subsection/sourcepage/sourcefile:", exactAll);
-                    return exactAll;
-                }
-
-                // 1) Match subsection in content start + exact page/file
                 const escaped = subsection.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-                const startsWithPattern = new RegExp(`(^|\\n)\\s*${escaped}\\b`, "i");
-                const contentAndMetaMatch = dataPointsArray.find(dp => {
-                    const dpSourcepage = String(dp.sourcepage || "").trim();
-                    const dpSourcefile = String(dp.sourcefile || "").trim();
-                    const dpContent = String(dp.content || "");
-                    return startsWithPattern.test(dpContent) && dpSourcepage === sourcePage && dpSourcefile === sourceFile;
-                });
-                if (contentAndMetaMatch) {
-                    console.log("Found content+meta match:", contentAndMetaMatch);
-                    return contentAndMetaMatch;
-                }
+                const subsectionPattern = new RegExp(`(^|\\n)\\s*${escaped}\\b`, "i");
 
-                // 2) Exact match on sourcepage + sourcefile as last resort
+                // Stage 0: exact match on subsection_id + sourcepage + sourcefile
+                const exactAll = dataPointsArray.find(dp => {
+                    return (
+                        String(dp.subsection_id || "").trim() === subsection &&
+                        String(dp.sourcepage || "").trim() === sourcePage &&
+                        String(dp.sourcefile || "").trim() === sourceFile
+                    );
+                });
+                if (exactAll) return exactAll;
+
+                // Stage 1: subsection in content start + exact page/file
+                const contentMeta = dataPointsArray.find(dp => {
+                    return (
+                        subsectionPattern.test(String(dp.content || "")) &&
+                        String(dp.sourcepage || "").trim() === sourcePage &&
+                        String(dp.sourcefile || "").trim() === sourceFile
+                    );
+                });
+                if (contentMeta) return contentMeta;
+
+                // Stage 2: exact sourcepage + sourcefile
                 const exact = dataPointsArray.find(dp => {
-                    const dpSourcepage = String(dp.sourcepage || "").trim();
-                    const dpSourcefile = String(dp.sourcefile || "").trim();
-                    return dpSourcepage === sourcePage && dpSourcefile === sourceFile;
+                    return String(dp.sourcepage || "").trim() === sourcePage && String(dp.sourcefile || "").trim() === sourceFile;
                 });
-                if (exact) {
-                    console.log("Found exact matching data point (page+file only):", exact);
-                    return exact;
-                }
+                if (exact) return exact;
 
-                // 3) Fuzzy includes
+                // Stage 3: fuzzy includes (partial match on sourcepage or sourcefile)
                 const fuzzy = dataPointsArray.find(dp => {
                     const dpSourcepage = String(dp.sourcepage || "").trim();
                     const dpSourcefile = String(dp.sourcefile || "").trim();
@@ -237,13 +204,14 @@ export const Answer = ({
                         sourceFile.includes(dpSourcefile)
                     );
                 });
-                if (fuzzy) {
-                    console.log("Found fuzzy matching data point:", fuzzy);
-                    return fuzzy;
-                }
+                if (fuzzy) return fuzzy;
 
-                // 4) Court guide fallback: match by sourcefile and optional sourcepage
-                const courtGuideCandidate = dataPointsArray.find(dp => {
+                // Stage 4: court guide fallback — match by sourcefile for non-CPR sources
+                const isCourtGuideCategory = (value?: string) => {
+                    if (!value) return false;
+                    return value.toLowerCase() !== "civil procedure rules and practice directions".toLowerCase();
+                };
+                const courtGuide = dataPointsArray.find(dp => {
                     const dpSourcefile = String(dp.sourcefile || "").trim();
                     const dpSourcepage = String(dp.sourcepage || "").trim();
                     const dpCategory = String(dp.category || "").trim();
@@ -252,42 +220,33 @@ export const Answer = ({
                     if (!sourcePage) return true;
                     return dpSourcepage.includes(sourcePage) || sourcePage.includes(dpSourcepage);
                 });
-                if (courtGuideCandidate) {
-                    console.log("Found court guide fallback match:", courtGuideCandidate);
-                    return courtGuideCandidate;
-                }
-
-                console.log("No matching data point found for three-part citation");
-                return undefined;
+                return courtGuide;
             }
 
-            // Two-part legacy citations
             if (parsedCitation.kind === "two") {
                 const { partA, partB } = parsedCitation;
-                const twoPartExact = dataPointsArray.find(dp => {
-                    const dpSourcepage = String(dp.sourcepage || "").trim();
-                    const dpSourcefile = String(dp.sourcefile || "").trim();
-                    return (dpSourcepage === partA && dpSourcefile === partB) || (dpSourcepage === partB && dpSourcefile === partA);
+                return dataPointsArray.find(dataPoint => {
+                    const sourcepage = String(dataPoint.sourcepage || "").trim();
+                    const sourcefile = String(dataPoint.sourcefile || "").trim();
+                    return (sourcepage === partA && sourcefile === partB) || (sourcepage === partB && sourcefile === partA);
                 });
-                if (twoPartExact) return twoPartExact;
             }
 
-            // Fallback
-            for (const dp of dataPointsArray) {
-                if (dp.sourcepage === citation || dp.sourcefile === citation) {
-                    return dp;
-                }
-            }
-
-            console.log("No matching content found for citation:", citation);
-            return undefined;
+            return dataPointsArray.find(dataPoint => {
+                const sourcepage = String(dataPoint.sourcepage || "").trim();
+                const sourcefile = String(dataPoint.sourcefile || "").trim();
+                return sourcepage === citation || sourcefile === citation;
+            });
         },
-        [answer.context?.data_points]
+        [answer.context?.data_points, getDataPointsArray, parseCitationLabel]
     );
 
     const handleCopy = () => {
-        // Single replace to remove all HTML tags to remove the citations
-        const textToCopy = processedAnswerHtml.replace(/<sup [^>]*>\d+<\/sup>|<[^>]+>/g, "");
+        const tempElement = document.createElement("div");
+        tempElement.innerHTML = sanitizedAnswerHtml;
+        tempElement.querySelectorAll("sup").forEach(node => node.remove());
+        tempElement.querySelectorAll(".citationStepBadge").forEach(node => node.remove());
+        const textToCopy = tempElement.textContent ?? "";
 
         navigator.clipboard
             .writeText(textToCopy)
@@ -298,194 +257,167 @@ export const Answer = ({
             .catch(err => console.error("Failed to copy text: ", err));
     };
 
-    // Get data points as array for supporting content button
-    const dataPointsArray = getDataPointsArray(answer.context?.data_points);
-    const hasDataPoints = dataPointsArray.length > 0;
-
-    // Gate citation list visibility to avoid flicker during streaming
-    const [showCitations, setShowCitations] = useState(false);
-    useEffect(() => {
-        if (isStreaming) {
-            setShowCitations(false);
-            return;
-        }
-        // Small delay to allow final citations to stabilize post-stream
-        const timer = setTimeout(() => setShowCitations(true), 150);
-        return () => clearTimeout(timer);
-    }, [isStreaming]);
-
-    // Enhanced click handler for superscript citation links
-    useEffect(() => {
-        const handleCitationClick = (e: Event) => {
+    // CUSTOM: Event delegation for inline superscript citations.
+    // renderToStaticMarkup strips React onClick handlers, so we use data-citation-path
+    // attributes and delegate clicks from the parent container.
+    const handleAnswerClick = useCallback(
+        (e: React.MouseEvent<HTMLDivElement>) => {
             const target = e.target as HTMLElement;
-
-            if (target.classList.contains("citation-sup") || target.closest(".citation-sup")) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                const citationElement = target.classList.contains("citation-sup") ? target : target.closest(".citation-sup");
-                const citationText = citationElement?.getAttribute("data-citation-text");
-                const citationContent = citationElement?.getAttribute("data-citation-content");
-
-                if (citationText) {
-                    console.log("Superscript citation clicked:", { citation: citationText });
-
-                    const matchingSupportingContent = findMatchingSupportingContent(citationText);
-                    let finalCitationContent = citationContent || matchingSupportingContent?.content || "";
-
-                    // Build normalized label strictly from citation parts + index fields
-                    let normalizedLabel = citationText;
-                    const parsedCitation = parseCitationLabel(citationText);
-                    if (parsedCitation.kind === "full") {
-                        const { subsection, sourcePage, sourceFile } = parsedCitation;
-                        normalizedLabel = [subsection, sourcePage, sourceFile].filter(Boolean).join(", ");
-                    } else if (matchingSupportingContent) {
-                        const sourcePage = matchingSupportingContent.sourcepage || "";
-                        const sourceFile = matchingSupportingContent.sourcefile || "";
-                        normalizedLabel = [sourcePage, sourceFile].filter(Boolean).join(", ");
-                    }
-
-                    console.log("Citation click - content:", {
-                        citation: normalizedLabel,
-                        hasContent: !!finalCitationContent,
-                        contentLength: finalCitationContent?.length || 0
-                    });
-
-                    onCitationClicked(normalizedLabel, finalCitationContent || undefined);
+            const supContainer = target.closest(".supContainer") as HTMLElement;
+            if (supContainer) {
+                const citationPath = supContainer.getAttribute("data-citation-path");
+                const selectionId = supContainer.getAttribute("data-citation-selection-id") || undefined;
+                const citationText = supContainer.getAttribute("data-citation-text") || supContainer.getAttribute("title") || "";
+                const citationContent = supContainer.getAttribute("data-citation-content") || "";
+                if (citationPath) {
+                    e.preventDefault();
+                    const matchingSupportingContent = citationText ? findMatchingSupportingContent(citationText) : undefined;
+                    const finalCitationContent = citationContent || matchingSupportingContent?.content || "";
+                    // CUSTOM: Extract structured metadata from data-attributes for precise SupportingContent matching
+                    const metadata: StructuredCitationMetadata = {
+                        subsectionId: supContainer.getAttribute("data-subsection-id") || "",
+                        sourcepage: supContainer.getAttribute("data-sourcepage") || "",
+                        sourcefile: supContainer.getAttribute("data-sourcefile") || "",
+                        category: supContainer.getAttribute("data-category") || "",
+                        content: finalCitationContent,
+                        storageUrl: "",
+                        fullContent: ""
+                    };
+                    const hasMetadata = metadata.subsectionId || metadata.sourcepage || metadata.sourcefile || metadata.category;
+                    onCitationClicked(citationPath, finalCitationContent || undefined, hasMetadata ? metadata : undefined, selectionId);
                 }
             }
-        };
-
-        // Add event listener to the answer container
-        const answerContainer = document.querySelector(`[data-answer-index="${index}"]`);
-        if (answerContainer) {
-            answerContainer.addEventListener("click", handleCitationClick);
-            return () => {
-                answerContainer.removeEventListener("click", handleCitationClick);
-            };
-        }
-    }, [onCitationClicked, index, findMatchingSupportingContent]);
-
-    const handleCitationLinkClick = useCallback(
-        (citationFilePath: string, citationContent?: string) => {
-            onCitationClicked(citationFilePath, citationContent);
         },
-        [onCitationClicked]
+        [findMatchingSupportingContent, onCitationClicked]
     );
 
     return (
-        <Stack className={`${styles.answerContainer} ${isSelected && styles.selected}`} verticalAlign="space-between" data-answer-index={index}>
-            <Stack.Item>
-                <Stack horizontal horizontalAlign="space-between">
+        <div
+            className={`${styles.answerContainer} ${isSelected ? styles.selected : ""}`}
+            style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}
+            data-answer-index={index}
+        >
+            <div>
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
                     <AnswerIcon />
                     <div>
-                        <IconButton
+                        <Button
+                            appearance="transparent"
                             style={{ color: "black" }}
-                            iconProps={{ iconName: copied ? "CheckMark" : "Copy" }}
+                            icon={copied ? <Checkmark24Regular /> : <Copy24Regular />}
                             title={copied ? t("tooltips.copied") : t("tooltips.copy")}
-                            ariaLabel={copied ? t("tooltips.copied") : t("tooltips.copy")}
+                            aria-label={copied ? t("tooltips.copied") : t("tooltips.copy")}
                             onClick={handleCopy}
                         />
-                        {/* CUSTOM: Only show thought process button in admin mode (add ?admin=true to URL) */}
                         {adminMode && (
-                            <IconButton
+                            <Button
+                                appearance="transparent"
                                 style={{ color: "black" }}
-                                iconProps={{ iconName: "Lightbulb" }}
+                                icon={<LightbulbFilament24Regular />}
                                 title={t("tooltips.showThoughtProcess")}
-                                ariaLabel={t("tooltips.showThoughtProcess")}
+                                aria-label={t("tooltips.showThoughtProcess")}
                                 onClick={() => onThoughtProcessClicked()}
-                                disabled={!answer.context?.thoughts?.length || isStreaming}
+                                disabled={!answer.context.thoughts?.length || isStreaming}
                             />
                         )}
-                        <IconButton
+                        <Button
+                            appearance="transparent"
                             style={{ color: "black" }}
-                            iconProps={{ iconName: "ClipboardList" }}
+                            icon={<ClipboardTextLtr24Regular />}
                             title={t("tooltips.showSupportingContent")}
-                            ariaLabel={t("tooltips.showSupportingContent")}
+                            aria-label={t("tooltips.showSupportingContent")}
                             onClick={() => onSupportingContentClicked()}
-                            disabled={!hasDataPoints || isStreaming}
+                            disabled={!answer.context.data_points || isStreaming}
                         />
+                        {showSpeechOutputAzure && (
+                            <SpeechOutputAzure answer={sanitizedAnswerHtml} index={index} speechConfig={speechConfig} isStreaming={isStreaming} />
+                        )}
+                        {showSpeechOutputBrowser && <SpeechOutputBrowser answer={sanitizedAnswerHtml} />}
                     </div>
-                </Stack>
-            </Stack.Item>
-
-            <Stack.Item grow>
-                <div className={styles.answerText}>
-                    <ReactMarkdown children={processedAnswerHtml} rehypePlugins={[rehypeRaw]} remarkPlugins={[remarkGfm]} />
                 </div>
-            </Stack.Item>
+            </div>
 
-            {/* Citations list - shown for all users below the answer content */}
-            {!!parsedAnswer.citations.length && showCitations && (
-                <Stack.Item>
-                    <Stack horizontal wrap tokens={{ childrenGap: 5 }}>
+            <div style={{ flexGrow: 1 }}>
+                <div className={styles.answerText} onClick={handleAnswerClick}>
+                    <ReactMarkdown children={sanitizedAnswerHtml} rehypePlugins={[rehypeRaw]} remarkPlugins={[remarkGfm]} />
+                </div>
+            </div>
+
+            {showCitations && !!parsedAnswer.citations.length && (
+                <div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "5px" }}>
                         <span className={styles.citationLearnMore}>{t("citationWithColon")}</span>
-                        {parsedAnswer.citations.map((citation, i) => {
-                            const matchingSupportingContent = findMatchingSupportingContent(citation);
-                            const citationContent = matchingSupportingContent?.content || "";
-                            const displayIndex = i + 1;
-
-                            // Build normalized label from the citation's own parts (preserve subsection like "D5.6")
-                            const parsedCitation = parseCitationLabel(citation);
-                            let subsection = "";
-                            let sourcePage = "";
-                            let sourceFile = "";
-
-                            if (parsedCitation.kind === "full") {
-                                subsection = parsedCitation.subsection;
-                                sourcePage = parsedCitation.sourcePage;
-                                sourceFile = parsedCitation.sourceFile;
+                        {parsedAnswer.citations.map(citation => {
+                            const isWeb = citation.isWeb;
+                            const displayIndex = citation.index;
+                            const reference = citation.reference;
+                            if (isWeb) {
+                                // Attempt to find the matching web data point to retrieve its title
+                                const webEntry = answer.context.data_points.external_results_metadata?.find(w => w.url === reference);
+                                const titleOrUrl = webEntry?.title?.trim() ? webEntry.title : reference;
+                                return (
+                                    <span key={`${reference}-${displayIndex}`} className={styles.citationEntry}>
+                                        <a className={styles.citation} title={reference} href={reference} target="_blank" rel="noopener noreferrer">
+                                            <span className={styles.citationIndexBadge}>[{displayIndex}]</span>
+                                            <span className={styles.citationLabel}>{titleOrUrl}</span>
+                                        </a>
+                                    </span>
+                                );
+                            } else {
+                                const path = getCitationFilePath(reference);
+                                const matchingSupportingContent = findMatchingSupportingContent(reference);
+                                // CUSTOM: Build metadata from citation detail for precise matching
+                                const citMeta: StructuredCitationMetadata | undefined =
+                                    citation.subsectionId || citation.sourcepage || citation.sourcefile || citation.category
+                                        ? {
+                                              subsectionId: citation.subsectionId || "",
+                                              sourcepage: citation.sourcepage || "",
+                                              sourcefile: citation.sourcefile || "",
+                                              category: citation.category || "",
+                                              content: citation.content || "",
+                                              storageUrl: citation.storageUrl || "",
+                                              fullContent: ""
+                                          }
+                                        : undefined;
+                                const citationPath = citMeta
+                                    ? buildCitationPath({ sourcefile: citMeta.sourcefile, sourcepage: citMeta.sourcepage, storageurl: citMeta.storageUrl })
+                                    : "";
+                                const displayLabel = buildCitationLabel(citMeta, reference);
+                                return (
+                                    <span key={`${reference}-${displayIndex}`} className={styles.citationEntry}>
+                                        <a
+                                            className={styles.citation}
+                                            title={reference}
+                                            onClick={e => {
+                                                e.preventDefault();
+                                                onCitationClicked(
+                                                    citationPath || path,
+                                                    matchingSupportingContent?.content || undefined,
+                                                    citMeta,
+                                                    `${citationPath || path}::${displayIndex}`
+                                                );
+                                            }}
+                                        >
+                                            <span className={styles.citationIndexBadge}>[{displayIndex}]</span>
+                                            <span className={styles.citationLabel}>{displayLabel}</span>
+                                        </a>
+                                    </span>
+                                );
                             }
-
-                            // If matching content exists, sync sourcepage/sourcefile from it (but keep subsection from citation)
-                            if (matchingSupportingContent) {
-                                sourcePage = matchingSupportingContent.sourcepage || sourcePage;
-                                sourceFile = matchingSupportingContent.sourcefile || sourceFile;
-                            }
-
-                            const normalizedLabelParts = [subsection, sourcePage, sourceFile].filter(Boolean);
-                            const normalizedLabel = normalizedLabelParts.join(", ");
-
-                            // Display concise text: subsection - sourcePage
-                            const displayText = subsection && sourcePage ? `${subsection} - ${sourcePage}` : normalizedLabel;
-
-                            return (
-                                <a
-                                    key={i}
-                                    className={styles.citation}
-                                    title={normalizedLabel}
-                                    onClick={e => {
-                                        e.preventDefault();
-                                        handleCitationLinkClick(normalizedLabel, citationContent);
-                                    }}
-                                    style={{ cursor: "pointer" }}
-                                >
-                                    {`${displayIndex}. ${displayText}`}
-                                </a>
-                            );
                         })}
-                    </Stack>
-                </Stack.Item>
+                    </div>
+                </div>
             )}
 
-            <Stack.Item>
-                <LegalFeedback
-                    messageId={`msg-${index}`}
-                    userPrompt={userPrompt}
-                    aiResponse={answer.message?.content}
-                    conversationHistory={conversationHistory}
-                    thoughts={answer.context?.thoughts}
-                />
-            </Stack.Item>
-
             {/* CUSTOM: Subtle AI disclaimer for legal compliance */}
-            <Stack.Item>
-                <div className={styles.aiDisclaimer}>AI-generated content may be incorrect. Always verify with the primary source documents cited above.</div>
-            </Stack.Item>
+            <div className={styles.aiDisclaimer}>AI-generated content may be incorrect. Always verify with the primary source documents cited above.</div>
 
             {!!followupQuestions?.length && showFollowupQuestions && onFollowupQuestionClicked && (
-                <Stack.Item>
-                    <Stack horizontal wrap className={`${!!parsedAnswer.citations.length ? styles.followupQuestionsList : ""}`} tokens={{ childrenGap: 6 }}>
+                <div>
+                    <div
+                        style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}
+                        className={`${!!parsedAnswer.citations.length ? styles.followupQuestionsList : ""}`}
+                    >
                         <span className={styles.followupQuestionLearnMore}>{t("followupQuestions")}</span>
                         {followupQuestions.map((x, i) => {
                             return (
@@ -494,42 +426,9 @@ export const Answer = ({
                                 </a>
                             );
                         })}
-                    </Stack>
-                </Stack.Item>
+                    </div>
+                </div>
             )}
-        </Stack>
+        </div>
     );
 };
-
-// Helper function to extract subsection from content
-function extractSubsection(content: string): string {
-    if (!content) return "";
-
-    const lines = content.split("\n");
-    const firstLine = lines[0]?.trim();
-
-    // Check if first line looks like a heading or rule number
-    if (firstLine && firstLine.length < 100) {
-        const cleaned = firstLine.replace(/^#+\s*/, "").trim();
-
-        if (/^\d+\.\d+/.test(cleaned) || /^Rule \d+/.test(cleaned) || /^Part \d+/.test(cleaned)) {
-            return cleaned;
-        }
-
-        return cleaned;
-    }
-
-    // Look for rule patterns in the content
-    const ruleMatch = content.match(/(?:Rule\s+)?(\d+\.\d+(?:\(\d+\))?(?:\([a-z]\))?)/i);
-    if (ruleMatch) {
-        return ruleMatch[0];
-    }
-
-    // Look for part patterns
-    const partMatch = content.match(/(Part\s+\d+[^.]*)/i);
-    if (partMatch) {
-        return partMatch[1].substring(0, 50);
-    }
-
-    return content.substring(0, 50).trim() + (content.length > 50 ? "..." : "");
-}

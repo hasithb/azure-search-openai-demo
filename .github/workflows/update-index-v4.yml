@@ -1,0 +1,508 @@
+name: Build and Promote Index v4
+
+on:
+  schedule:
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+    inputs:
+      release_id:
+        description: 'Immutable release suffix, for example 20260713-r3'
+        required: true
+        type: string
+      promote:
+        description: 'Request the separately approved Production promotion job'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: update-index-v4-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: '3.10'
+  SEARCH_INDEX: legal-court-rag-v4-staging-${{ inputs.release_id || github.run_number }}
+  SEARCH_KNOWLEDGEBASE: legal-court-rag-v4-staging-${{ inputs.release_id || github.run_number }}-agent-upgrade
+  ROLLBACK_INDEX: legal-court-rag-index-v3
+  ROLLBACK_KNOWLEDGEBASE: legal-court-rag-index-v3-agent-upgrade
+  V4_RELEASE_ID: ${{ inputs.release_id || github.run_number }}
+  V4_CANDIDATE_APP: ${{ vars.V4_CANDIDATE_APP }}
+  V4_CANDIDATE_URL: ${{ vars.V4_CANDIDATE_URL }}
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Validate immutable release and dedicated candidate
+        shell: bash
+        env:
+          AZURE_SEARCH_SERVICE: ${{ secrets.AZURE_SEARCH_SERVICE }}
+          AZURE_RESOURCE_GROUP: ${{ vars.V4_CANDIDATE_RESOURCE_GROUP }}
+          V4_CANDIDATE_APP: ${{ vars.V4_CANDIDATE_APP }}
+          V4_CANDIDATE_URL: ${{ vars.V4_CANDIDATE_URL }}
+          V4_RELEASE_ID: ${{ inputs.release_id || github.run_number }}
+        run: |
+          set -euo pipefail
+          : "${AZURE_RESOURCE_GROUP:?Set repository variable V4_CANDIDATE_RESOURCE_GROUP}"
+          : "${V4_CANDIDATE_APP:?Set repository variable V4_CANDIDATE_APP}"
+          : "${V4_CANDIDATE_URL:?Set repository variable V4_CANDIDATE_URL}"
+          [[ "${V4_RELEASE_ID}" != *r4* ]] || { echo "Refusing an r4 release id: ${V4_RELEASE_ID}" >&2; exit 1; }
+          [[ "${V4_CANDIDATE_APP}" != "capps-v4-candidate-20260715" ]] || { echo "Refusing the blocked r4 candidate app" >&2; exit 1; }
+          [[ "${V4_CANDIDATE_URL}" == https://* ]] || { echo "V4_CANDIDATE_URL must use HTTPS" >&2; exit 1; }
+          : "${AZURE_SEARCH_SERVICE:?Set secret AZURE_SEARCH_SERVICE}"
+          search_endpoint="${AZURE_SEARCH_SERVICE%/}"
+          [[ "${search_endpoint}" == https://* ]] || search_endpoint="https://${search_endpoint}.search.windows.net"
+          search_token=$(az account get-access-token --resource https://search.azure.com --query accessToken -o tsv)
+          search_status=$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' \
+            --header "Authorization: Bearer ${search_token}" \
+            "${search_endpoint}/indexes?api-version=2024-07-01")
+          [[ "${search_status}" == "200" ]] || {
+            echo "OIDC identity cannot read the Azure AI Search data plane (HTTP ${search_status}); grant Search Index Data Reader/Contributor before running the release" >&2
+            exit 1
+          }
+          candidate_json=$(az containerapp show \
+            --resource-group "${AZURE_RESOURCE_GROUP}" \
+            --name "${V4_CANDIDATE_APP}" \
+            --only-show-errors -o json)
+          CANDIDATE_JSON="${candidate_json}" python - <<'PY'
+          import json
+          import os
+          import urllib.parse
+
+          candidate = json.loads(os.environ["CANDIDATE_JSON"])
+          fqdn = candidate.get("properties", {}).get("configuration", {}).get("ingress", {}).get("fqdn", "")
+          if candidate.get("properties", {}).get("provisioningState") != "Succeeded":
+              raise SystemExit("candidate Container App is not provisioned successfully")
+          if not fqdn:
+              raise SystemExit("candidate Container App has no ingress FQDN")
+          configured = urllib.parse.urlparse(os.environ["V4_CANDIDATE_URL"])
+          if configured.hostname != fqdn:
+              raise SystemExit(f"V4_CANDIDATE_URL host {configured.hostname!r} does not match candidate FQDN {fqdn!r}")
+          if configured.path not in ("", "/"):
+              raise SystemExit("V4_CANDIDATE_URL must be an origin URL without a path")
+          print(f"Validated dedicated candidate {candidate['name']} at https://{fqdn}")
+          PY
+
+  build-candidate:
+    needs: preflight
+    runs-on: ubuntu-latest
+    outputs:
+      artifact_sha256: ${{ steps.hash.outputs.artifact_sha256 }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+      - name: Recapture canonical HTML oracle
+        run: |
+          rm -rf reports/html_oracle_snapshots
+          python scripts/capture_html_oracle.py \
+            --output-dir reports/html_oracle_snapshots --refresh
+      - name: Recapture canonical PDF oracle
+        run: |
+          python scripts/capture_pdf_oracle.py \
+            --output-dir reports/html_oracle_snapshots
+      - name: Audit HTML oracle transition
+        run: |
+          python scripts/audit_html_transition.py \
+            --snapshot-dir reports/html_oracle_snapshots \
+            --output reports/html_transition_audit.json
+      - name: Generate and validate highlight oracle
+        run: |
+          python scripts/generate_highlight_oracle.py \
+            --snapshot-dir reports/html_oracle_snapshots \
+            --output reports/highlight_oracle.json
+      - name: Capture and extract canonical court guides
+        run: |
+          rm -rf "reports/court_guides_${V4_RELEASE_ID}"
+          python scripts/court_guides_processing_pipeline/scripts/extract_court_guides_azure_di.py \
+            --capture-canonical \
+            --sources-dir "reports/court_guides_${V4_RELEASE_ID}/sources" \
+            --output-dir "reports/court_guides_${V4_RELEASE_ID}/outputs"
+      - name: Generate release-bound source artifact
+        run: |
+          python scripts/generate_v4_artifacts.py \
+            --snapshot-dir reports/html_oracle_snapshots \
+            --court-guides-dir "reports/court_guides_${V4_RELEASE_ID}/outputs" \
+            --release-id "${V4_RELEASE_ID}" \
+            --output-dir "reports/index_v4_artifacts_${V4_RELEASE_ID}"
+      - name: Generate embeddings with managed identity
+        run: |
+          python scripts/generate_v4_embeddings.py \
+            --input "reports/index_v4_artifacts_${V4_RELEASE_ID}/documents.jsonl" \
+            --output "reports/index_v4_artifacts_${V4_RELEASE_ID}/documents_with_embeddings.jsonl"
+        env:
+          AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
+          AZURE_OPENAI_EMB_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_EMB_DEPLOYMENT }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      - name: Validate candidate documents
+        run: |
+          python scripts/upload_v4_staging.py \
+            --index "${SEARCH_INDEX}" \
+            --artifact "reports/index_v4_artifacts_${V4_RELEASE_ID}/documents_with_embeddings.jsonl"
+      - id: hash
+        name: Hash immutable artifact
+        run: echo "artifact_sha256=$(sha256sum reports/index_v4_artifacts_${V4_RELEASE_ID}/documents_with_embeddings.jsonl | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v4-candidate-${{ inputs.release_id || github.run_number }}
+          path: |
+            reports/index_v4_artifacts_${{ inputs.release_id || github.run_number }}/
+            reports/html_oracle_snapshots/
+            reports/html_transition_audit.json
+            reports/highlight_oracle.json
+          retention-days: 30
+
+  provision-and-upload:
+    needs: [preflight, build-candidate]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: v4-candidate-${{ inputs.release_id || github.run_number }}
+          path: reports
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Provision immutable staging index
+        run: python scripts/create_v4_staging_index.py --index "${SEARCH_INDEX}" --execute
+        env:
+          AZURE_SEARCH_SERVICE: ${{ secrets.AZURE_SEARCH_SERVICE }}
+
+  deploy-candidate-app:
+    needs: [preflight, build-candidate, provision-and-upload]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: v4-candidate-${{ inputs.release_id || github.run_number }}
+          path: reports
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Configure dedicated candidate app revision
+        run: |
+          : "${AZURE_RESOURCE_GROUP:?Set V4 candidate resource group}"
+          : "${V4_CANDIDATE_APP:?Set repository variable V4_CANDIDATE_APP}"
+          : "${V4_CANDIDATE_URL:?Set repository variable V4_CANDIDATE_URL}"
+          az containerapp update \
+            --resource-group "${AZURE_RESOURCE_GROUP}" \
+            --name "${V4_CANDIDATE_APP}" \
+            --revision-suffix "v4-${V4_RELEASE_ID}" \
+            --set-env-vars \
+              AZURE_SEARCH_INDEX="${SEARCH_INDEX}" \
+              AZURE_SEARCH_KNOWLEDGEBASE_NAME="${SEARCH_KNOWLEDGEBASE}" \
+              V4_RELEASE_ID="${V4_RELEASE_ID}" \
+              GIT_SHA="${GITHUB_SHA}" \
+              DEPLOYMENT_ID="${GITHUB_RUN_ID}" \
+              V4_ARTIFACT_SHA256="${ARTIFACT_SHA256}" \
+              V4_SEARCH_SNAPSHOT_SHA256="pending" \
+              RUNNING_IN_PRODUCTION=false >/dev/null
+        env:
+          AZURE_RESOURCE_GROUP: ${{ vars.V4_CANDIDATE_RESOURCE_GROUP }}
+          ARTIFACT_SHA256: ${{ needs.build-candidate.outputs.artifact_sha256 }}
+      - name: Provision paired staging knowledge base
+        run: |
+          python scripts/create_v4_staging_knowledgebase.py \
+            --index "${SEARCH_INDEX}" \
+            --knowledgebase "${SEARCH_KNOWLEDGEBASE}" \
+            --service "${AZURE_SEARCH_SERVICE}" \
+            --openai-service "${AZURE_OPENAI_SERVICE}" \
+            --deployment "${AZURE_OPENAI_KNOWLEDGEBASE_DEPLOYMENT}" \
+            --model "${AZURE_OPENAI_KNOWLEDGEBASE_MODEL}" \
+            --execute
+        env:
+          AZURE_SEARCH_SERVICE: ${{ secrets.AZURE_SEARCH_SERVICE }}
+          AZURE_OPENAI_SERVICE: ${{ secrets.AZURE_OPENAI_SERVICE }}
+          AZURE_OPENAI_KNOWLEDGEBASE_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_KNOWLEDGEBASE_DEPLOYMENT }}
+          AZURE_OPENAI_KNOWLEDGEBASE_MODEL: ${{ secrets.AZURE_OPENAI_KNOWLEDGEBASE_MODEL }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      - name: Upload candidate documents
+        run: |
+          python scripts/upload_v4_staging.py \
+            --index "${SEARCH_INDEX}" \
+            --artifact reports/index_v4_artifacts_${{ inputs.release_id || github.run_number }}/documents_with_embeddings.jsonl \
+            --service "${AZURE_SEARCH_SERVICE}" --execute
+        env:
+          AZURE_SEARCH_SERVICE: ${{ secrets.AZURE_SEARCH_SERVICE }}
+
+  audit-candidate:
+    needs: [preflight, build-candidate, provision-and-upload, deploy-candidate-app]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: v4-candidate-${{ inputs.release_id || github.run_number }}
+          path: reports
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - run: pip install -r requirements-dev.txt
+      - name: Install Playwright Chromium
+        run: python -m playwright install --with-deps chromium
+      - name: Capture candidate Search snapshot
+        run: |
+          python scripts/capture_v4_search_snapshot.py \
+            --service "${AZURE_SEARCH_SERVICE}" --index "${SEARCH_INDEX}" \
+            --output reports/v4_search_snapshot.json
+        env:
+          AZURE_SEARCH_SERVICE: ${{ secrets.AZURE_SEARCH_SERVICE }}
+      - name: Bind candidate revision to Search snapshot
+        run: |
+          : "${AZURE_RESOURCE_GROUP:?Set V4 candidate resource group}"
+          : "${V4_CANDIDATE_APP:?Set repository variable V4_CANDIDATE_APP}"
+          snapshot_sha256=$(sha256sum reports/v4_search_snapshot.json | cut -d' ' -f1)
+          az containerapp update \
+            --resource-group "${AZURE_RESOURCE_GROUP}" \
+            --name "${V4_CANDIDATE_APP}" \
+            --revision-suffix "v4-${V4_RELEASE_ID}-gates" \
+            --set-env-vars V4_SEARCH_SNAPSHOT_SHA256="${snapshot_sha256}" >/dev/null
+          echo "snapshot_sha256=${snapshot_sha256}" >> "$GITHUB_ENV"
+        env:
+          AZURE_RESOURCE_GROUP: ${{ vars.V4_CANDIDATE_RESOURCE_GROUP }}
+      - name: Wait for candidate provenance readiness
+        run: |
+          : "${V4_CANDIDATE_URL:?Set repository variable V4_CANDIDATE_URL}"
+          for attempt in $(seq 1 60); do
+            response=$(curl --silent --show-error --location --write-out '\n%{http_code}' "${V4_CANDIDATE_URL%/}/api/provenance" || true)
+            http_code=$(printf '%s\n' "$response" | tail -n 1)
+            body=$(printf '%s\n' "$response" | sed '$d')
+            if [[ "$http_code" == "200" ]] && printf '%s' "$body" | python -c 'import json, sys; payload = json.load(sys.stdin); required = ("release_id", "git_sha", "deployment_id", "artifact_sha256", "search_snapshot_sha256", "search_service", "search_index", "knowledge_base"); raise SystemExit(0 if payload.get("schema_version") == 1 and all(str(payload.get(field) or "").strip() for field in required) else 1)'; then
+              exit 0
+            fi
+            echo "Candidate provenance is not ready (attempt ${attempt}/60, HTTP ${http_code})"
+            sleep 10
+          done
+          echo "Candidate provenance did not become ready: ${V4_CANDIDATE_URL%/}/api/provenance" >&2
+          exit 1
+        env:
+          V4_CANDIDATE_URL: ${{ vars.V4_CANDIDATE_URL }}
+      - name: Generate provenance-bound browser highlight gate
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          provenance = {
+              "schema_version": 1,
+              "release_id": os.environ["V4_RELEASE_ID"],
+              "git_sha": os.environ["GITHUB_SHA"],
+              "deployment_id": os.environ["GITHUB_RUN_ID"],
+              "artifact_sha256": os.environ["ARTIFACT_SHA256"],
+              "search_snapshot_sha256": os.environ["snapshot_sha256"],
+              "search_service": os.environ["AZURE_SEARCH_SERVICE"],
+              "search_index": os.environ["SEARCH_INDEX"],
+              "knowledge_base": os.environ["SEARCH_KNOWLEDGEBASE"],
+          }
+          Path("reports/candidate_provenance.json").write_text(json.dumps(provenance, indent=2) + "\n")
+          PY
+          python scripts/gate_highlight_browser.py \
+            --candidate-url "${V4_CANDIDATE_URL}" \
+            --snapshot-dir reports/html_oracle_snapshots \
+            --oracle reports/highlight_oracle.json \
+            --provenance reports/candidate_provenance.json \
+            --output reports/highlight_gate.json
+        env:
+          ARTIFACT_SHA256: ${{ needs.build-candidate.outputs.artifact_sha256 }}
+          AZURE_SEARCH_SERVICE: ${{ secrets.AZURE_SEARCH_SERVICE }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          SEARCH_INDEX: ${{ env.SEARCH_INDEX }}
+          SEARCH_KNOWLEDGEBASE: ${{ env.SEARCH_KNOWLEDGEBASE }}
+          V4_RELEASE_ID: ${{ inputs.release_id || github.run_number }}
+      - name: Generate provenance-bound ACL gate
+        run: |
+          python scripts/gate_acl.py \
+            --candidate-url "${V4_CANDIDATE_URL}" \
+            --provenance reports/candidate_provenance.json \
+            --output reports/acl_gate.json
+        env:
+          AZURE_SEARCH_SERVICE: ${{ secrets.AZURE_SEARCH_SERVICE }}
+          AZURE_SEARCH_INDEX: ${{ env.SEARCH_INDEX }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      - name: Generate provenance-bound behavioral gates
+        run: |
+          python scripts/gate_retrieval.py \
+            --candidate-url "${V4_CANDIDATE_URL}" \
+            --provenance reports/candidate_provenance.json \
+            --output reports/retrieval_gate.json
+          python scripts/gate_category.py \
+            --candidate-url "${V4_CANDIDATE_URL}" \
+            --provenance reports/candidate_provenance.json \
+            --output reports/category_gate.json
+          python scripts/gate_source_hierarchy.py \
+            --candidate-url "${V4_CANDIDATE_URL}" \
+            --provenance reports/candidate_provenance.json \
+            --output reports/source_hierarchy_gate.json
+          python scripts/gate_citation.py \
+            --candidate-url "${V4_CANDIDATE_URL}" \
+            --provenance reports/candidate_provenance.json \
+            --output reports/citation_gate.json
+      - name: Run strict application gates
+        run: |
+          : "${V4_CANDIDATE_URL:?Set repository variable V4_CANDIDATE_URL}"
+          python scripts/run_v4_application_gates.py \
+            --candidate-url "${V4_CANDIDATE_URL}" \
+            --release-id "${V4_RELEASE_ID}" \
+            --git-sha "${GITHUB_SHA}" \
+            --deployment-id "${GITHUB_RUN_ID}" \
+            --artifact-sha256 "${ARTIFACT_SHA256}" \
+            --search-snapshot-sha256 "${snapshot_sha256}" \
+            --search-service "${AZURE_SEARCH_SERVICE}" \
+            --search-index "${SEARCH_INDEX}" \
+            --knowledge-base "${SEARCH_KNOWLEDGEBASE}" \
+            --gate-report "retrieval=reports/retrieval_gate.json" \
+            --gate-report "category=reports/category_gate.json" \
+            --gate-report "source_hierarchy=reports/source_hierarchy_gate.json" \
+            --gate-report "citation=reports/citation_gate.json" \
+            --gate-report "acl=reports/acl_gate.json" \
+            --gate-report "highlight=reports/highlight_gate.json" \
+            --output reports/v4_application_gates.json
+        env:
+          APP_URL: ${{ vars.V4_CANDIDATE_URL }}
+          V4_RELEASE_ID: ${{ inputs.release_id || github.run_number }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          ARTIFACT_SHA256: ${{ needs.build-candidate.outputs.artifact_sha256 }}
+          SEARCH_INDEX: ${{ env.SEARCH_INDEX }}
+          SEARCH_KNOWLEDGEBASE: ${{ env.SEARCH_KNOWLEDGEBASE }}
+          AZURE_SEARCH_SERVICE: ${{ secrets.AZURE_SEARCH_SERVICE }}
+      - name: Run complete fidelity audit
+        run: |
+          python scripts/audit_source_documents.py \
+            --index-snapshot reports/v4_search_snapshot.json \
+            --html-fidelity \
+            --json-output reports/v4_fidelity.json \
+            --markdown-output reports/v4_fidelity.md
+      - name: Validate candidate Search structure
+        run: |
+          python scripts/validate_v4_candidate.py \
+            --snapshot reports/v4_search_snapshot.json \
+            --output reports/v4_candidate_validation.json
+      - name: Build unapproved evidence bundle
+        run: |
+          python scripts/build_v4_evidence_bundle.py \
+            --artifact-manifest reports/index_v4_artifacts_${{ inputs.release_id || github.run_number }}/manifest.json \
+            --search-snapshot reports/v4_search_snapshot.json \
+            --fidelity-report reports/v4_fidelity.json \
+            --transition-report reports/html_transition_audit.json \
+            --candidate-validation reports/v4_candidate_validation.json \
+            --application-gates reports/v4_application_gates.json \
+            --highlight-oracle reports/highlight_oracle.json \
+            --candidate-index "${SEARCH_INDEX}" \
+            --candidate-knowledgebase "${SEARCH_KNOWLEDGEBASE}" \
+            --rollback-index "${ROLLBACK_INDEX}" \
+            --rollback-knowledgebase "${ROLLBACK_KNOWLEDGEBASE}" \
+            --output reports/v4_evidence.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v4-evidence-${{ inputs.release_id || github.run_number }}
+          path: |
+            reports/v4_*
+            reports/index_v4_artifacts_${{ inputs.release_id || github.run_number }}/manifest.json
+            reports/index_v4_artifacts_${{ inputs.release_id || github.run_number }}/documents_with_embeddings.jsonl
+            reports/index_v4_artifacts_${{ inputs.release_id || github.run_number }}/court_guides_extraction_manifest.json
+            reports/highlight_oracle.json
+            reports/highlight_gate.json
+            reports/acl_gate.json
+            reports/candidate_provenance.json
+          retention-days: 90
+
+  promote:
+    needs: audit-candidate
+    if: inputs.promote == true
+    runs-on: ubuntu-latest
+    environment: Production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: v4-evidence-${{ inputs.release_id || github.run_number }}
+          path: reports
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Rebuild evidence with Production approval
+        run: |
+          python scripts/build_v4_evidence_bundle.py \
+            --artifact-manifest reports/index_v4_artifacts_${{ inputs.release_id || github.run_number }}/manifest.json \
+            --search-snapshot reports/v4_search_snapshot.json \
+            --fidelity-report reports/v4_fidelity.json \
+            --transition-report reports/html_transition_audit.json \
+            --candidate-validation reports/v4_candidate_validation.json \
+            --application-gates reports/v4_application_gates.json \
+            --highlight-oracle reports/highlight_oracle.json \
+            --candidate-index "${SEARCH_INDEX}" \
+            --candidate-knowledgebase "${SEARCH_KNOWLEDGEBASE}" \
+            --rollback-index "${ROLLBACK_INDEX}" \
+            --rollback-knowledgebase "${ROLLBACK_KNOWLEDGEBASE}" \
+            --approved --approval-environment Production \
+            --output reports/v4_evidence.json
+          python scripts/promote_v4_candidate.py --evidence reports/v4_evidence.json
+      - name: Apply paired application configuration atomically
+        run: |
+          : "${AZURE_RESOURCE_GROUP:?Set the Production environment secret AZURE_RESOURCE_GROUP}"
+          : "${AZURE_BACKEND_SERVICE:?Set the Production environment secret AZURE_BACKEND_SERVICE}"
+          case "${AZURE_DEPLOYMENT_TARGET}" in
+            appservice)
+              az webapp config appsettings set \
+                --resource-group "${AZURE_RESOURCE_GROUP}" \
+                --name "${AZURE_BACKEND_SERVICE}" \
+                --settings \
+                  AZURE_SEARCH_INDEX="${SEARCH_INDEX}" \
+                  AZURE_SEARCH_KNOWLEDGEBASE_NAME="${SEARCH_KNOWLEDGEBASE}" >/dev/null
+              ;;
+            containerapps)
+              az containerapp update \
+                --resource-group "${AZURE_RESOURCE_GROUP}" \
+                --name "${AZURE_BACKEND_SERVICE}" \
+                --set-env-vars \
+                  AZURE_SEARCH_INDEX="${SEARCH_INDEX}" \
+                  AZURE_SEARCH_KNOWLEDGEBASE_NAME="${SEARCH_KNOWLEDGEBASE}" >/dev/null
+              ;;
+            *)
+              echo "AZURE_DEPLOYMENT_TARGET must be appservice or containerapps" >&2
+              exit 1
+              ;;
+          esac
+        env:
+          AZURE_DEPLOYMENT_TARGET: ${{ vars.AZURE_DEPLOYMENT_TARGET }}
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          AZURE_BACKEND_SERVICE: ${{ secrets.AZURE_BACKEND_SERVICE }}

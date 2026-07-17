@@ -5,9 +5,9 @@ import logging
 import mimetypes
 import os
 import time
-from collections.abc import AsyncGenerator
+from collections.abc import AsyncGenerator, Awaitable, Callable
 from pathlib import Path
-from typing import Any, Union, cast
+from typing import Any, cast
 
 from azure.cognitiveservices.speech import (
     ResultReason,
@@ -16,21 +16,17 @@ from azure.cognitiveservices.speech import (
     SpeechSynthesisResult,
     SpeechSynthesizer,
 )
-from azure.core.exceptions import ResourceNotFoundError
 from azure.identity.aio import (
+    AzureCliCredential,
     AzureDeveloperCliCredential,
+    ChainedTokenCredential,
     ManagedIdentityCredential,
     get_bearer_token_provider,
 )
 from azure.monitor.opentelemetry import configure_azure_monitor
-from azure.search.documents.knowledgebases.aio import KnowledgeBaseRetrievalClient
 from azure.search.documents.aio import SearchClient
 from azure.search.documents.indexes.aio import SearchIndexClient
-from azure.storage.blob.aio import ContainerClient
-from azure.storage.blob.aio import StorageStreamDownloader as BlobDownloader
-from azure.storage.filedatalake.aio import FileSystemClient
-from azure.storage.filedatalake.aio import StorageStreamDownloader as DatalakeDownloader
-from openai import AsyncAzureOpenAI, AsyncOpenAI
+from azure.search.documents.knowledgebases.aio import KnowledgeBaseRetrievalClient
 from opentelemetry.instrumentation.aiohttp_client import AioHttpClientInstrumentor
 from opentelemetry.instrumentation.asgi import OpenTelemetryMiddleware
 from opentelemetry.instrumentation.httpx import (
@@ -50,39 +46,40 @@ from quart import (
 )
 from quart_cors import cors
 
-from approaches.approach import Approach
+from approaches.approach import Approach, DataPoints
 from approaches.chatreadretrieveread import ChatReadRetrieveReadApproach
-from approaches.chatreadretrievereadvision import ChatReadRetrieveReadVisionApproach
-from approaches.promptmanager import PromptyManager
-from approaches.retrievethenread import RetrieveThenReadApproach
-from approaches.retrievethenreadvision import RetrieveThenReadVisionApproach
+from approaches.promptmanager import PromptManager
 from chat_history.cosmosdb import chat_history_cosmosdb_bp
-
-# CUSTOM: Import categories blueprint for dynamic category filtering
-from customizations.routes import categories_bp
-from customizations.routes.feedback import feedback_bp
-
+from customizations.config import fetch_available_sources, is_deployed_ui_compat_enabled, is_feature_enabled
+from customizations.routes import categories_bp, feedback_bp, proxy_source_bp
 from config import (
-    CONFIG_AGENT_CLIENT,
-    CONFIG_AGENTIC_RETRIEVAL_ENABLED,
-    CONFIG_ASK_APPROACH,
-    CONFIG_ASK_VISION_APPROACH,
+    CONFIG_AGENTIC_KNOWLEDGEBASE_ENABLED,
     CONFIG_AUTH_CLIENT,
-    CONFIG_BLOB_CONTAINER_CLIENT,
     CONFIG_CHAT_APPROACH,
     CONFIG_CHAT_HISTORY_BROWSER_ENABLED,
     CONFIG_CHAT_HISTORY_COSMOS_ENABLED,
-    CONFIG_CHAT_VISION_APPROACH,
     CONFIG_CREDENTIAL,
     CONFIG_DEFAULT_REASONING_EFFORT,
-    CONFIG_GPT4V_DEPLOYED,
+    CONFIG_DEFAULT_RETRIEVAL_REASONING_EFFORT,
+    CONFIG_GLOBAL_BLOB_MANAGER,
     CONFIG_INGESTER,
+    CONFIG_KNOWLEDGEBASE_CLIENT,
+    CONFIG_KNOWLEDGEBASE_CLIENT_WITH_SHAREPOINT,
+    CONFIG_KNOWLEDGEBASE_CLIENT_WITH_WEB,
+    CONFIG_KNOWLEDGEBASE_CLIENT_WITH_WEB_AND_SHAREPOINT,
     CONFIG_LANGUAGE_PICKER_ENABLED,
+    CONFIG_MULTIMODAL_ENABLED,
     CONFIG_OPENAI_CLIENT,
     CONFIG_QUERY_REWRITING_ENABLED,
+    CONFIG_RAG_SEARCH_IMAGE_EMBEDDINGS,
+    CONFIG_RAG_SEARCH_TEXT_EMBEDDINGS,
+    CONFIG_RAG_SEND_IMAGE_SOURCES,
+    CONFIG_RAG_SEND_TEXT_SOURCES,
     CONFIG_REASONING_EFFORT_ENABLED,
+    CONFIG_REASONING_EFFORT_OPTIONS,
     CONFIG_SEARCH_CLIENT,
     CONFIG_SEMANTIC_RANKER_DEPLOYED,
+    CONFIG_SHAREPOINT_SOURCE_ENABLED,
     CONFIG_SPEECH_INPUT_ENABLED,
     CONFIG_SPEECH_OUTPUT_AZURE_ENABLED,
     CONFIG_SPEECH_OUTPUT_BROWSER_ENABLED,
@@ -91,20 +88,25 @@ from config import (
     CONFIG_SPEECH_SERVICE_TOKEN,
     CONFIG_SPEECH_SERVICE_VOICE,
     CONFIG_STREAMING_ENABLED,
-    CONFIG_USER_BLOB_CONTAINER_CLIENT,
+    CONFIG_USER_BLOB_MANAGER,
     CONFIG_USER_UPLOAD_ENABLED,
     CONFIG_VECTOR_SEARCH_ENABLED,
+    CONFIG_WEB_SOURCE_ENABLED,
 )
 from core.authentication import AuthenticationHelper
 from core.sessionhelper import create_session_id
 from decorators import authenticated, authenticated_path
 from error import error_dict, error_response
 from prepdocs import (
-    clean_key_if_exists,
+    OpenAIHost,
     setup_embeddings_service,
     setup_file_processors,
+    setup_image_embeddings_service,
+    setup_openai_client,
     setup_search_info,
 )
+from prepdocslib.blobmanager import AdlsBlobManager, BlobManager
+from prepdocslib.embeddings import ImageEmbeddings
 from prepdocslib.filestrategy import UploadUserFileStrategy
 from prepdocslib.listfilestrategy import File
 
@@ -116,7 +118,16 @@ mimetypes.add_type("text/css", ".css")
 
 @bp.route("/")
 async def index():
-    return await bp.send_static_file("index.html")
+    response = await bp.send_static_file("index.html")
+    # CUSTOM: Prevent browsers from caching the SPA shell so auth config
+    # changes (e.g. toggling platform-level auth) take effect immediately.
+    response.cache_control.public = False
+    response.cache_control.max_age = None
+    response.headers["Expires"] = "0"
+    response.cache_control.no_cache = True
+    response.cache_control.no_store = True
+    response.cache_control.must_revalidate = True
+    return response
 
 
 # Empty page is recommended for login redirect to work.
@@ -140,155 +151,60 @@ async def assets(path):
 @authenticated_path
 async def content_file(path: str, auth_claims: dict[str, Any]):
     """
-    Redirect to storageUrl for content files instead of serving from blob container.
-    This ensures all file access goes through the proper storageUrl mechanism.
-    Now supports highlighting via query parameter.
+    Serve content files from blob storage from within the app to keep the example self-contained.
+    *** NOTE *** if you are using app services authentication, this route will return unauthorized to all users that are not logged in
+    if AZURE_ENFORCE_ACCESS_CONTROL is not set or false, logged in users can access all files regardless of access control
+    if AZURE_ENFORCE_ACCESS_CONTROL is set to true, logged in users can only access files they have access to
+    This is also slow and memory hungry.
     """
-    from quart import redirect, request as quart_request
-    
-    # Get highlight search terms from query parameter
-    highlight_terms = quart_request.args.get('highlight', '')
-    
-    # Remove page number from path if present
+    # Remove page number from path, filename-1.txt -> filename.txt
+    # This shouldn't typically be necessary as browsers don't send hash fragments to servers
     if path.find("#page=") > 0:
         path_parts = path.rsplit("#page=", 1)
         path = path_parts[0]
-    
-    # Handle citation format "sourcepage, sourcefile" by extracting sourcepage
-    if ", " in path:
-        path = path.split(", ")[0]
+    current_app.logger.info("Opening file %s", path)
+    blob_manager: BlobManager = current_app.config[CONFIG_GLOBAL_BLOB_MANAGER]
 
-    # If the path is already a URL, redirect to it with highlight parameter
-    if path.startswith("http://") or path.startswith("https://"):
-        if highlight_terms:
-            # Add highlight parameter to external URL
-            separator = "&" if "?" in path else "?"
-            return redirect(f"{path}{separator}search={highlight_terms}")
-        return redirect(path)
+    # Get bytes and properties from the blob manager
+    result = await blob_manager.download_blob(path)
 
-    # Search for the document in the index to get its storageUrl
-    search_client: SearchClient = current_app.config[CONFIG_SEARCH_CLIENT]
-    try:
-        # Search for document by sourcepage or sourcefile with proper escaping
-        escaped_path = path.replace("'", "''")
-        filter_query = f"sourcepage eq '{escaped_path}' or sourcefile eq '{escaped_path}'"
-        
-        results = await search_client.search(
-            search_text="", 
-            filter=filter_query, 
-            select=["storageUrl"], 
-            top=1
-        )
-        
-        async for document in results:
-            storage_url = document.get("storageUrl")
-            if storage_url and str(storage_url).strip():
-                current_app.logger.info("Found storageUrl for path %s: %s", path, storage_url)
-                
-                # Add highlight parameter to storage URL if provided
-                if highlight_terms:
-                    separator = "&" if "?" in str(storage_url) else "?"
-                    storage_url_with_highlight = f"{storage_url}{separator}search={highlight_terms}"
-                    return redirect(storage_url_with_highlight)
-                
-                return redirect(str(storage_url))
-            break
-            
-        # If no results found, try a broader text search
-        current_app.logger.info("No exact match found for %s, trying text search", path)
-        results = await search_client.search(
-            search_text=path,
-            select=["storageUrl", "sourcepage", "sourcefile"],
-            top=5
-        )
-        
-        async for document in results:
-            storage_url = document.get("storageUrl")
-            if storage_url and str(storage_url).strip():
-                current_app.logger.info("Found storageUrl via text search for path %s: %s", path, storage_url)
-                
-                # Add highlight parameter to storage URL if provided
-                if highlight_terms:
-                    separator = "&" if "?" in str(storage_url) else "?"
-                    storage_url_with_highlight = f"{storage_url}{separator}search={highlight_terms}"
-                    return redirect(storage_url_with_highlight)
-                
-                return redirect(str(storage_url))
-            break
-            
-    except Exception as e:
-        current_app.logger.exception("Error searching for document storageUrl: %s", e)
-    
-    # If no storageUrl found, return 404
-    current_app.logger.warning("No storageUrl found for path: %s", path)
-    abort(404)
+    if result is None:
+        current_app.logger.info("Path not found in general Blob container: %s", path)
+        if current_app.config[CONFIG_USER_UPLOAD_ENABLED]:
+            user_oid = auth_claims["oid"]
+            user_blob_manager: AdlsBlobManager = current_app.config[CONFIG_USER_BLOB_MANAGER]
+            result = await user_blob_manager.download_blob(path, user_oid=user_oid)
+            if result is None:
+                current_app.logger.exception("Path not found in DataLake: %s", path)
 
+    if not result:
+        abort(404)
 
-@bp.route("/ask", methods=["POST"])
-@authenticated
-async def ask(auth_claims: dict[str, Any]):
-    if not request.is_json:
-        return jsonify({"error": "request must be json"}), 415
-    request_json = await request.get_json()
-    
-    # Enhanced logging to trace the data flow
-    current_app.logger.info("Ask endpoint received request")
-    current_app.logger.info(f"Question: {request_json.get('messages', [{}])[-1].get('content', 'No question')}")
-    
-    context = request_json.get("context", {})
-    context["auth_claims"] = auth_claims
-    
-    # Log overrides to understand what's being requested
-    overrides = context.get("overrides", {})
-    current_app.logger.info(f"Overrides: top={overrides.get('top')}, semantic_captions={overrides.get('semantic_captions')}")
-    
-    try:
-        use_gpt4v = context.get("overrides", {}).get("use_gpt4v", False)
-        approach: Approach
-        if use_gpt4v and CONFIG_ASK_VISION_APPROACH in current_app.config:
-            approach = cast(Approach, current_app.config[CONFIG_ASK_VISION_APPROACH])
-        else:
-            approach = cast(Approach, current_app.config[CONFIG_ASK_APPROACH])
-        
-        current_app.logger.info("Using approach: %s", type(approach).__name__)
-        
-        r = await approach.run(
-            request_json["messages"], context=context, session_state=request_json.get("session_state")
-        )
-        
-        # Enhanced logging to trace response structure
-        if isinstance(r, dict) and "context" in r:
-            context_data = r["context"]
-            if hasattr(context_data, "data_points") and context_data.data_points:
-                data_points = context_data.data_points
-                if hasattr(data_points, "text") and data_points.text:
-                    current_app.logger.info(f"Response has {len(data_points.text)} text data points")
-                    for i, dp in enumerate(data_points.text[:2]):  # Log first 2
-                        if isinstance(dp, dict):
-                            content_length = len(dp.get("content", ""))
-                            current_app.logger.info(f"Data point {i}: content_length={content_length}")
-                            if content_length < 100:
-                                current_app.logger.warning(f"Data point {i} has short content: {dp.get('content', '')}")
-        
-        return jsonify(r)
-    except Exception as error:
-        current_app.logger.exception("Error in ask endpoint: %s", error)
-        return error_response(error, "/ask")
+    content, properties = result
+
+    if not properties or "content_settings" not in properties:
+        abort(404)
+
+    mime_type = properties["content_settings"]["content_type"]
+    if mime_type == "application/octet-stream":
+        mime_type = mimetypes.guess_type(path)[0] or "application/octet-stream"
+
+    # Create a BytesIO object from the bytes
+    blob_file = io.BytesIO(content)
+    return await send_file(blob_file, mimetype=mime_type, as_attachment=False, attachment_filename=path)
 
 
 class JSONEncoder(json.JSONEncoder):
     def default(self, o):
         if dataclasses.is_dataclass(o) and not isinstance(o, type):
-            # Convert dataclass to dict
-            result = dataclasses.asdict(o)
-            
-            # Special handling for ExtraInfo to ensure all fields are included
-            if hasattr(o, 'enhanced_citations'):
-                result['enhanced_citations'] = getattr(o, 'enhanced_citations', [])
-            if hasattr(o, 'citation_map'):
-                result['citation_map'] = getattr(o, 'citation_map', {})
-                
-            return result
+            as_dict = dataclasses.asdict(o)
+            if isinstance(o, DataPoints):
+                # Drop optional data point collections that are not populated to keep API surface stable
+                return {k: v for k, v in as_dict.items() if v is not None}
+            data_points_payload = as_dict.get("data_points") if isinstance(as_dict, dict) else None
+            if isinstance(data_points_payload, dict) and data_points_payload.get("citation_activity_details") is None:
+                data_points_payload.pop("citation_activity_details")
+            return as_dict
         return super().default(o)
 
 
@@ -307,21 +223,10 @@ async def chat(auth_claims: dict[str, Any]):
     if not request.is_json:
         return jsonify({"error": "request must be json"}), 415
     request_json = await request.get_json()
-    current_app.logger.info("Chat endpoint received request: %s", request_json)
-    
     context = request_json.get("context", {})
     context["auth_claims"] = auth_claims
-    current_app.logger.info("Chat endpoint context: %s", context)
-    
     try:
-        use_gpt4v = context.get("overrides", {}).get("use_gpt4v", False)
-        approach: Approach
-        if use_gpt4v and CONFIG_CHAT_VISION_APPROACH in current_app.config:
-            approach = cast(Approach, current_app.config[CONFIG_CHAT_VISION_APPROACH])
-        else:
-            approach = cast(Approach, current_app.config[CONFIG_CHAT_APPROACH])
-
-        current_app.logger.info("Chat endpoint using approach: %s", type(approach).__name__)
+        approach: Approach = cast(Approach, current_app.config[CONFIG_CHAT_APPROACH])
 
         # If session state is provided, persists the session state,
         # else creates a new session_id depending on the chat history options enabled.
@@ -336,39 +241,8 @@ async def chat(auth_claims: dict[str, Any]):
             context=context,
             session_state=session_state,
         )
-        
-        current_app.logger.info("Chat endpoint response structure:")
-        current_app.logger.info("- Response type: %s", type(result))
-        current_app.logger.info("- Response keys: %s", list(result.keys()) if hasattr(result, 'keys') else 'No keys')
-        
-        if hasattr(result, 'get') and result.get('context'):
-            context_data = result.get('context')
-            current_app.logger.info("- Context structure: %s", type(context_data))
-            current_app.logger.info("- Context keys: %s", list(context_data.keys()) if hasattr(context_data, 'keys') else 'No keys')
-            
-            if hasattr(context_data, 'get') and context_data.get('data_points'):
-                data_points = context_data.get('data_points')
-                current_app.logger.info("- Data points type: %s", type(data_points))
-                current_app.logger.info("- Data points is array: %s", isinstance(data_points, list))
-                if isinstance(data_points, list):
-                    current_app.logger.info("- Data points length: %s", len(data_points))
-                    for i, dp in enumerate(data_points[:3]):  # Log first 3 items
-                        current_app.logger.info("- Data point %d: %s", i, dp)
-                        if hasattr(dp, 'get'):
-                            current_app.logger.info("  - Has sourcepage: %s", dp.get('sourcepage'))
-                            current_app.logger.info("  - Has sourcefile: %s", dp.get('sourcefile'))
-                            current_app.logger.info("  - Has storageUrl: %s", dp.get('storageUrl'))
-                else:
-                    current_app.logger.warning("- Data points is not a list: %s", data_points)
-            else:
-                current_app.logger.warning("- No data_points found in context")
-        else:
-            current_app.logger.warning("- No context found in response")
-        
-        current_app.logger.info("Chat endpoint returning response")
         return jsonify(result)
     except Exception as error:
-        current_app.logger.exception("Error in chat endpoint: %s", error)
         return error_response(error, "/chat")
 
 
@@ -378,21 +252,10 @@ async def chat_stream(auth_claims: dict[str, Any]):
     if not request.is_json:
         return jsonify({"error": "request must be json"}), 415
     request_json = await request.get_json()
-    current_app.logger.info("Chat stream endpoint received request: %s", request_json)
-    
     context = request_json.get("context", {})
     context["auth_claims"] = auth_claims
-    current_app.logger.info("Chat stream endpoint context: %s", context)
-    
     try:
-        use_gpt4v = context.get("overrides", {}).get("use_gpt4v", False)
-        approach: Approach
-        if use_gpt4v and CONFIG_CHAT_VISION_APPROACH in current_app.config:
-            approach = cast(Approach, current_app.config[CONFIG_CHAT_VISION_APPROACH])
-        else:
-            approach = cast(Approach, current_app.config[CONFIG_CHAT_APPROACH])
-
-        current_app.logger.info("Chat stream endpoint using approach: %s", type(approach).__name__)
+        approach: Approach = cast(Approach, current_app.config[CONFIG_CHAT_APPROACH])
 
         # If session state is provided, persists the session state,
         # else creates a new session_id depending on the chat history options enabled.
@@ -407,15 +270,11 @@ async def chat_stream(auth_claims: dict[str, Any]):
             context=context,
             session_state=session_state,
         )
-        
-        current_app.logger.info("Chat stream endpoint created result generator")
-        
         response = await make_response(format_as_ndjson(result))
         response.timeout = None  # type: ignore
         response.mimetype = "application/json-lines"
         return response
     except Exception as error:
-        current_app.logger.exception("Error in chat stream endpoint: %s", error)
         return error_response(error, "/chat")
 
 
@@ -428,14 +287,20 @@ def auth_setup():
 
 @bp.route("/config", methods=["GET"])
 def config():
+    deployed_ui_compat = is_deployed_ui_compat_enabled()
     return jsonify(
         {
-            "showGPT4VOptions": current_app.config[CONFIG_GPT4V_DEPLOYED],
+            # CUSTOM: Category filter flag from customizations feature config
+            "showCategoryFilter": is_feature_enabled("category_filter"),
+            "showGPT4VOptions": False,
+            "showMultimodalOptions": current_app.config[CONFIG_MULTIMODAL_ENABLED],
             "showSemanticRankerOption": current_app.config[CONFIG_SEMANTIC_RANKER_DEPLOYED],
             "showQueryRewritingOption": current_app.config[CONFIG_QUERY_REWRITING_ENABLED],
             "showReasoningEffortOption": current_app.config[CONFIG_REASONING_EFFORT_ENABLED],
             "streamingEnabled": current_app.config[CONFIG_STREAMING_ENABLED],
             "defaultReasoningEffort": current_app.config[CONFIG_DEFAULT_REASONING_EFFORT],
+            "reasoningEffortOptions": current_app.config[CONFIG_REASONING_EFFORT_OPTIONS],
+            "defaultRetrievalReasoningEffort": current_app.config[CONFIG_DEFAULT_RETRIEVAL_REASONING_EFFORT],
             "showVectorOption": current_app.config[CONFIG_VECTOR_SEARCH_ENABLED],
             "showUserUpload": current_app.config[CONFIG_USER_UPLOAD_ENABLED],
             "showLanguagePicker": current_app.config[CONFIG_LANGUAGE_PICKER_ENABLED],
@@ -444,9 +309,14 @@ def config():
             "showSpeechOutputAzure": current_app.config[CONFIG_SPEECH_OUTPUT_AZURE_ENABLED],
             "showChatHistoryBrowser": current_app.config[CONFIG_CHAT_HISTORY_BROWSER_ENABLED],
             "showChatHistoryCosmos": current_app.config[CONFIG_CHAT_HISTORY_COSMOS_ENABLED],
-            "showAgenticRetrievalOption": current_app.config[CONFIG_AGENTIC_RETRIEVAL_ENABLED],
-            "useStorageUrlForCitations": True,  # Enable storageUrl usage for citations
-            "showCategoryFilter": True,  # Enable category filtering feature
+            "showAgenticRetrievalOption": current_app.config[CONFIG_AGENTIC_KNOWLEDGEBASE_ENABLED],
+            "ragSearchTextEmbeddings": current_app.config[CONFIG_RAG_SEARCH_TEXT_EMBEDDINGS],
+            "ragSearchImageEmbeddings": current_app.config[CONFIG_RAG_SEARCH_IMAGE_EMBEDDINGS],
+            "ragSendTextSources": current_app.config[CONFIG_RAG_SEND_TEXT_SOURCES],
+            "ragSendImageSources": current_app.config[CONFIG_RAG_SEND_IMAGE_SOURCES],
+            "webSourceEnabled": current_app.config[CONFIG_WEB_SOURCE_ENABLED],
+            "sharepointSourceEnabled": current_app.config[CONFIG_SHAREPOINT_SOURCE_ENABLED],
+            "deployedUiCompat": deployed_ui_compat,
         }
     )
 
@@ -476,7 +346,7 @@ async def speech():
         )
         speech_config = SpeechConfig(auth_token=auth_token, region=current_app.config[CONFIG_SPEECH_SERVICE_LOCATION])
         speech_config.speech_synthesis_voice_name = current_app.config[CONFIG_SPEECH_SERVICE_VOICE]
-        speech_config.speech_synthesis_output_format = SpeechSynthesisOutputFormat.Audio16Khz32KBitRateMonoMp3
+        speech_config.set_speech_synthesis_output_format(SpeechSynthesisOutputFormat.Audio16Khz32KBitRateMonoMp3)
         synthesizer = SpeechSynthesizer(speech_config=speech_config, audio_config=None)
         result: SpeechSynthesisResult = synthesizer.speak_text_async(text).get()
         if result.reason == ResultReason.SynthesizingAudioCompleted:
@@ -500,28 +370,19 @@ async def speech():
 async def upload(auth_claims: dict[str, Any]):
     request_files = await request.files
     if "file" not in request_files:
-        # If no files were included in the request, return an error response
         return jsonify({"message": "No file part in the request", "status": "failed"}), 400
 
-    user_oid = auth_claims["oid"]
-    file = request_files.getlist("file")[0]
-    user_blob_container_client: FileSystemClient = current_app.config[CONFIG_USER_BLOB_CONTAINER_CLIENT]
-    user_directory_client = user_blob_container_client.get_directory_client(user_oid)
     try:
-        await user_directory_client.get_directory_properties()
-    except ResourceNotFoundError:
-        current_app.logger.info("Creating directory for user %s", user_oid)
-        await user_directory_client.create_directory()
-    await user_directory_client.set_access_control(owner=user_oid)
-    file_client = user_directory_client.get_file_client(file.filename)
-    file_io = file
-    file_io.name = file.filename
-    file_io = io.BufferedReader(file_io)
-    await file_client.upload_data(file_io, overwrite=True, metadata={"UploadedBy": user_oid})
-    file_io.seek(0)
-    ingester: UploadUserFileStrategy = current_app.config[CONFIG_INGESTER]
-    await ingester.add_file(File(content=file_io, acls={"oids": [user_oid]}, url=file_client.url))
-    return jsonify({"message": "File uploaded successfully"}), 200
+        user_oid = auth_claims["oid"]
+        file = request_files.getlist("file")[0]
+        adls_manager: AdlsBlobManager = current_app.config[CONFIG_USER_BLOB_MANAGER]
+        file_url = await adls_manager.upload_blob(file, file.filename, user_oid)
+        ingester: UploadUserFileStrategy = current_app.config[CONFIG_INGESTER]
+        await ingester.add_file(File(content=file, url=file_url, acls={"oids": [user_oid]}), user_oid=user_oid)
+        return jsonify({"message": "File uploaded successfully"}), 200
+    except Exception as error:
+        current_app.logger.error("Error uploading file: %s", error)
+        return jsonify({"message": "Error uploading file, check server logs for details.", "status": "failed"}), 500
 
 
 @bp.post("/delete_uploaded")
@@ -530,11 +391,9 @@ async def delete_uploaded(auth_claims: dict[str, Any]):
     request_json = await request.get_json()
     filename = request_json.get("filename")
     user_oid = auth_claims["oid"]
-    user_blob_container_client: FileSystemClient = current_app.config[CONFIG_USER_BLOB_CONTAINER_CLIENT]
-    user_directory_client = user_blob_container_client.get_directory_client(user_oid)
-    file_client = user_directory_client.get_file_client(filename)
-    await file_client.delete_file()
-    ingester = current_app.config[CONFIG_INGESTER]
+    adls_manager: AdlsBlobManager = current_app.config[CONFIG_USER_BLOB_MANAGER]
+    await adls_manager.remove_blob(filename, user_oid)
+    ingester: UploadUserFileStrategy = current_app.config[CONFIG_INGESTER]
     await ingester.remove_file(filename, user_oid)
     return jsonify({"message": f"File {filename} deleted successfully"}), 200
 
@@ -542,63 +401,13 @@ async def delete_uploaded(auth_claims: dict[str, Any]):
 @bp.get("/list_uploaded")
 @authenticated
 async def list_uploaded(auth_claims: dict[str, Any]):
+    """Lists the uploaded documents for the current user.
+    Only returns files directly in the user's directory, not in subdirectories.
+    Excludes image files and the images directory."""
     user_oid = auth_claims["oid"]
-    user_blob_container_client: FileSystemClient = current_app.config[CONFIG_USER_BLOB_CONTAINER_CLIENT]
-    files = []
-    try:
-        all_paths = user_blob_container_client.get_paths(path=user_oid)
-        async for path in all_paths:
-            files.append(path.name.split("/", 1)[1])
-    except ResourceNotFoundError as error:
-        if error.status_code != 404:
-            current_app.logger.exception("Error listing uploaded files", error)
+    adls_manager: AdlsBlobManager = current_app.config[CONFIG_USER_BLOB_MANAGER]
+    files = await adls_manager.list_blobs(user_oid)
     return jsonify(files), 200
-
-
-@bp.route("/api/categories", methods=["GET"])
-async def get_categories():
-    """
-    Fetch available categories from Azure Search index using faceted search.
-    Leverages existing search_client from config.
-    """
-    try:
-        search_client = current_app.config[CONFIG_SEARCH_CLIENT]
-
-        # Use faceted search to get unique categories efficiently
-        results = await search_client.search(
-            search_text="*",
-            facets=["category,count:1000"],
-            top=0,  # Don't return documents, only facets
-            select=["id"]  # Minimal field selection
-        )
-
-        # Extract categories from facets - await the coroutine
-        categories = []
-        facets = await results.get_facets()
-        if facets and "category" in facets:
-            for facet in facets["category"]:
-                if facet.get("value"):
-                    categories.append({
-                        "key": facet["value"],
-                        "text": facet["value"],
-                        "count": facet.get("count")
-                    })
-
-        # Sort alphabetically by category name
-        categories.sort(key=lambda x: x["text"])
-
-        # Add "All Categories" option at the beginning
-        categories.insert(0, {
-            "key": "",
-            "text": "All Categories",
-            "count": None
-        })
-
-        return jsonify({"categories": categories}), 200
-
-    except Exception as e:
-        current_app.logger.exception("Error fetching categories")
-        return jsonify({"error": str(e)}), 500
 
 
 @bp.before_app_serving
@@ -606,34 +415,41 @@ async def setup_clients():
     # Replace these with your own values, either in environment variables or directly here
     AZURE_STORAGE_ACCOUNT = os.environ["AZURE_STORAGE_ACCOUNT"]
     AZURE_STORAGE_CONTAINER = os.environ["AZURE_STORAGE_CONTAINER"]
+    AZURE_IMAGESTORAGE_CONTAINER = os.environ.get("AZURE_IMAGESTORAGE_CONTAINER")
     AZURE_USERSTORAGE_ACCOUNT = os.environ.get("AZURE_USERSTORAGE_ACCOUNT")
     AZURE_USERSTORAGE_CONTAINER = os.environ.get("AZURE_USERSTORAGE_CONTAINER")
     AZURE_SEARCH_SERVICE = os.environ["AZURE_SEARCH_SERVICE"]
     AZURE_SEARCH_ENDPOINT = f"https://{AZURE_SEARCH_SERVICE}.search.windows.net"
     AZURE_SEARCH_INDEX = os.environ["AZURE_SEARCH_INDEX"]
-    # CUSTOM: Support both legacy and Bicep-provisioned env var names for the AI Search knowledge base.
-    # Bicep sets AZURE_SEARCH_KNOWLEDGEBASE_NAME; older code used AZURE_SEARCH_AGENT.
-    AZURE_SEARCH_AGENT = os.getenv("AZURE_SEARCH_AGENT") or os.getenv("AZURE_SEARCH_KNOWLEDGEBASE_NAME", "")
+    AZURE_SEARCH_KNOWLEDGEBASE_NAME = os.getenv("AZURE_SEARCH_KNOWLEDGEBASE_NAME", "")
     # Shared by all OpenAI deployments
-    OPENAI_HOST = os.getenv("OPENAI_HOST", "azure")
+    OPENAI_HOST = OpenAIHost(os.getenv("OPENAI_HOST", "azure"))
     OPENAI_CHATGPT_MODEL = os.environ["AZURE_OPENAI_CHATGPT_MODEL"]
-    AZURE_OPENAI_SEARCHAGENT_MODEL = os.getenv("AZURE_OPENAI_SEARCHAGENT_MODEL")
-    AZURE_OPENAI_SEARCHAGENT_DEPLOYMENT = os.getenv("AZURE_OPENAI_SEARCHAGENT_DEPLOYMENT")
-    OPENAI_EMB_MODEL = os.getenv("AZURE_OPENAI_EMB_MODEL_NAME", "text-embedding-3-large")  # Updated default model
-    OPENAI_EMB_DIMENSIONS = int(os.getenv("AZURE_OPENAI_EMB_DIMENSIONS") or 3072)  # Updated default dimensions
-    OPENAI_REASONING_EFFORT = os.getenv("AZURE_OPENAI_REASONING_EFFORT", "low")  # Default to "low" for local development
+    AZURE_OPENAI_KNOWLEDGEBASE_MODEL = os.getenv("AZURE_OPENAI_KNOWLEDGEBASE_MODEL")
+    AZURE_OPENAI_KNOWLEDGEBASE_DEPLOYMENT = os.getenv("AZURE_OPENAI_KNOWLEDGEBASE_DEPLOYMENT")
+    OPENAI_EMB_MODEL = os.getenv("AZURE_OPENAI_EMB_MODEL_NAME", "text-embedding-ada-002")
+    OPENAI_EMB_DIMENSIONS = int(os.getenv("AZURE_OPENAI_EMB_DIMENSIONS") or 1536)
+    OPENAI_REASONING_EFFORT = os.getenv("AZURE_OPENAI_REASONING_EFFORT")
+    # CUSTOM: Separate model for query rewrite step (faster/cheaper)
+    OPENAI_REWRITE_MODEL = os.getenv("AZURE_OPENAI_REWRITE_MODEL")
+    AZURE_OPENAI_REWRITE_DEPLOYMENT = (
+        os.getenv("AZURE_OPENAI_REWRITE_DEPLOYMENT")
+        if OPENAI_HOST in [OpenAIHost.AZURE, OpenAIHost.AZURE_CUSTOM]
+        else None
+    )
     # Used with Azure OpenAI deployments
     AZURE_OPENAI_SERVICE = os.getenv("AZURE_OPENAI_SERVICE")
-    AZURE_OPENAI_GPT4V_DEPLOYMENT = os.environ.get("AZURE_OPENAI_GPT4V_DEPLOYMENT")
-    AZURE_OPENAI_GPT4V_MODEL = os.environ.get("AZURE_OPENAI_GPT4V_MODEL")
     AZURE_OPENAI_CHATGPT_DEPLOYMENT = (
-        os.getenv("AZURE_OPENAI_CHATGPT_DEPLOYMENT") if OPENAI_HOST.startswith("azure") else None
+        os.getenv("AZURE_OPENAI_CHATGPT_DEPLOYMENT")
+        if OPENAI_HOST in [OpenAIHost.AZURE, OpenAIHost.AZURE_CUSTOM]
+        else None
     )
-    AZURE_OPENAI_EMB_DEPLOYMENT = os.getenv("AZURE_OPENAI_EMB_DEPLOYMENT") if OPENAI_HOST.startswith("azure") else None
+    AZURE_OPENAI_EMB_DEPLOYMENT = (
+        os.getenv("AZURE_OPENAI_EMB_DEPLOYMENT") if OPENAI_HOST in [OpenAIHost.AZURE, OpenAIHost.AZURE_CUSTOM] else None
+    )
     AZURE_OPENAI_CUSTOM_URL = os.getenv("AZURE_OPENAI_CUSTOM_URL")
-    # https://learn.microsoft.com/azure/ai-services/openai/api-version-deprecation#latest-ga-api-release
-    AZURE_OPENAI_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION") or "2024-10-21"
     AZURE_VISION_ENDPOINT = os.getenv("AZURE_VISION_ENDPOINT", "")
+    AZURE_OPENAI_API_KEY_OVERRIDE = os.getenv("AZURE_OPENAI_API_KEY_OVERRIDE")
     # Used only with non-Azure OpenAI deployments
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
     OPENAI_ORGANIZATION = os.getenv("OPENAI_ORGANIZATION")
@@ -641,8 +457,11 @@ async def setup_clients():
     AZURE_TENANT_ID = os.getenv("AZURE_TENANT_ID")
     AZURE_USE_AUTHENTICATION = os.getenv("AZURE_USE_AUTHENTICATION", "").lower() == "true"
     AZURE_ENFORCE_ACCESS_CONTROL = os.getenv("AZURE_ENFORCE_ACCESS_CONTROL", "").lower() == "true"
-    AZURE_ENABLE_GLOBAL_DOCUMENT_ACCESS = os.getenv("AZURE_ENABLE_GLOBAL_DOCUMENT_ACCESS", "").lower() == "true"
     AZURE_ENABLE_UNAUTHENTICATED_ACCESS = os.getenv("AZURE_ENABLE_UNAUTHENTICATED_ACCESS", "").lower() == "true"
+    AZURE_ENABLE_HOST_UNAUTHENTICATED_ACCESS = (
+        os.getenv("AZURE_ENABLE_HOST_UNAUTHENTICATED_ACCESS", str(AZURE_ENABLE_UNAUTHENTICATED_ACCESS)).lower()
+        == "true"
+    )
     AZURE_SERVER_APP_ID = os.getenv("AZURE_SERVER_APP_ID")
     AZURE_SERVER_APP_SECRET = os.getenv("AZURE_SERVER_APP_SECRET")
     AZURE_CLIENT_APP_ID = os.getenv("AZURE_CLIENT_APP_ID")
@@ -662,7 +481,11 @@ async def setup_clients():
     AZURE_SPEECH_SERVICE_LOCATION = os.getenv("AZURE_SPEECH_SERVICE_LOCATION")
     AZURE_SPEECH_SERVICE_VOICE = os.getenv("AZURE_SPEECH_SERVICE_VOICE") or "en-US-AndrewMultilingualNeural"
 
-    USE_GPT4V = os.getenv("USE_GPT4V", "").lower() == "true"
+    USE_MULTIMODAL = os.getenv("USE_MULTIMODAL", "").lower() == "true"
+    RAG_SEARCH_TEXT_EMBEDDINGS = os.getenv("RAG_SEARCH_TEXT_EMBEDDINGS", "true").lower() == "true"
+    RAG_SEARCH_IMAGE_EMBEDDINGS = os.getenv("RAG_SEARCH_IMAGE_EMBEDDINGS", "true").lower() == "true"
+    RAG_SEND_TEXT_SOURCES = os.getenv("RAG_SEND_TEXT_SOURCES", "true").lower() == "true"
+    RAG_SEND_IMAGE_SOURCES = os.getenv("RAG_SEND_IMAGE_SOURCES", "true").lower() == "true"
     USE_USER_UPLOAD = os.getenv("USE_USER_UPLOAD", "").lower() == "true"
     ENABLE_LANGUAGE_PICKER = os.getenv("ENABLE_LANGUAGE_PICKER", "").lower() == "true"
     USE_SPEECH_INPUT_BROWSER = os.getenv("USE_SPEECH_INPUT_BROWSER", "").lower() == "true"
@@ -670,12 +493,19 @@ async def setup_clients():
     USE_SPEECH_OUTPUT_AZURE = os.getenv("USE_SPEECH_OUTPUT_AZURE", "").lower() == "true"
     USE_CHAT_HISTORY_BROWSER = os.getenv("USE_CHAT_HISTORY_BROWSER", "").lower() == "true"
     USE_CHAT_HISTORY_COSMOS = os.getenv("USE_CHAT_HISTORY_COSMOS", "").lower() == "true"
-    requested_agentic_retrieval = os.getenv("USE_AGENTIC_RETRIEVAL", "").lower() == "true"
-    USE_AGENTIC_RETRIEVAL = requested_agentic_retrieval and bool(AZURE_SEARCH_AGENT)
-    if requested_agentic_retrieval and not AZURE_SEARCH_AGENT:
-        current_app.logger.warning(
-            "USE_AGENTIC_RETRIEVAL is true but no knowledge base name is configured (AZURE_SEARCH_AGENT/AZURE_SEARCH_KNOWLEDGEBASE_NAME); disabling agentic retrieval."
-        )
+    # CUSTOM: Check both upstream (USE_AGENTIC_KNOWLEDGEBASE) and deployed (USE_AGENTIC_RETRIEVAL) env var names
+    USE_AGENTIC_KNOWLEDGEBASE = (
+        os.getenv("USE_AGENTIC_KNOWLEDGEBASE", "").lower() == "true"
+        or os.getenv("USE_AGENTIC_RETRIEVAL", "").lower() == "true"
+    )
+    USE_WEB_SOURCE = os.getenv("USE_WEB_SOURCE", "").lower() == "true"
+    USE_SHAREPOINT_SOURCE = os.getenv("USE_SHAREPOINT_SOURCE", "").lower() == "true"
+    AGENTIC_KNOWLEDGEBASE_REASONING_EFFORT = os.getenv(
+        "AGENTIC_KNOWLEDGEBASE_REASONING_EFFORT",
+        os.getenv("AGENTIC_RETRIEVAL_REASONING_EFFORT",
+                   os.getenv("AZURE_SEARCH_KNOWLEDGEBASE_RETRIEVAL_REASONING_EFFORT", "low"))
+    )
+    USE_VECTORS = os.getenv("USE_VECTORS", "").lower() != "false"
 
     # WEBSITE_HOSTNAME is always set by App Service, RUNNING_IN_PRODUCTION is set in main.bicep
     RUNNING_ON_AZURE = os.getenv("WEBSITE_HOSTNAME") is not None or os.getenv("RUNNING_IN_PRODUCTION") is not None
@@ -683,7 +513,8 @@ async def setup_clients():
     # Use the current user identity for keyless authentication to Azure services.
     # This assumes you use 'azd auth login' locally, and managed identity when deployed on Azure.
     # The managed identity is setup in the infra/ folder.
-    azure_credential: Union[AzureDeveloperCliCredential, ManagedIdentityCredential]
+    azure_credential: ChainedTokenCredential | AzureDeveloperCliCredential | ManagedIdentityCredential
+    azure_ai_token_provider: Callable[[], Awaitable[str]]
     if RUNNING_ON_AZURE:
         current_app.logger.info("Setting up Azure credential using ManagedIdentityCredential")
         if AZURE_CLIENT_ID := os.getenv("AZURE_CLIENT_ID"):
@@ -698,12 +529,19 @@ async def setup_clients():
             azure_credential = ManagedIdentityCredential()
     elif AZURE_TENANT_ID:
         current_app.logger.info(
-            "Setting up Azure credential using AzureDeveloperCliCredential with tenant_id %s", AZURE_TENANT_ID
+            "Setting up Azure credential using AzureDeveloperCliCredential with tenant_id %s (with AzureCliCredential fallback)", AZURE_TENANT_ID
         )
-        azure_credential = AzureDeveloperCliCredential(tenant_id=AZURE_TENANT_ID, process_timeout=60)
+        # CUSTOM: Fall back to AzureCliCredential if azd token is expired (e.g. >90 day inactivity)
+        azure_credential = ChainedTokenCredential(
+            AzureCliCredential(tenant_id=AZURE_TENANT_ID, process_timeout=60),
+            AzureDeveloperCliCredential(tenant_id=AZURE_TENANT_ID, process_timeout=60),
+        )
     else:
         current_app.logger.info("Setting up Azure credential using AzureDeveloperCliCredential for home tenant")
         azure_credential = AzureDeveloperCliCredential(process_timeout=60)
+    azure_ai_token_provider = get_bearer_token_provider(
+        azure_credential, "https://cognitiveservices.azure.com/.default"
+    )
 
     # Set the Azure credential in the app config for use in other parts of the app
     current_app.config[CONFIG_CREDENTIAL] = azure_credential
@@ -714,13 +552,42 @@ async def setup_clients():
         index_name=AZURE_SEARCH_INDEX,
         credential=azure_credential,
     )
-    agent_client = KnowledgeBaseRetrievalClient(
-        endpoint=AZURE_SEARCH_ENDPOINT, knowledge_base_name=AZURE_SEARCH_AGENT, credential=azure_credential
-    )
 
-    blob_container_client = ContainerClient(
-        f"https://{AZURE_STORAGE_ACCOUNT}.blob.core.windows.net", AZURE_STORAGE_CONTAINER, credential=azure_credential
+    knowledgebase_client = KnowledgeBaseRetrievalClient(
+        endpoint=AZURE_SEARCH_ENDPOINT, knowledge_base_name=AZURE_SEARCH_KNOWLEDGEBASE_NAME, credential=azure_credential
     )
+    knowledgebase_client_with_web = None
+    knowledgebase_client_with_sharepoint = None
+    knowledgebase_client_with_web_and_sharepoint = None
+
+    if AZURE_SEARCH_KNOWLEDGEBASE_NAME:
+        if USE_WEB_SOURCE:
+            knowledgebase_client_with_web = KnowledgeBaseRetrievalClient(
+                endpoint=AZURE_SEARCH_ENDPOINT,
+                knowledge_base_name=f"{AZURE_SEARCH_KNOWLEDGEBASE_NAME}-with-web",
+                credential=azure_credential,
+            )
+        if USE_SHAREPOINT_SOURCE:
+            knowledgebase_client_with_sharepoint = KnowledgeBaseRetrievalClient(
+                endpoint=AZURE_SEARCH_ENDPOINT,
+                knowledge_base_name=f"{AZURE_SEARCH_KNOWLEDGEBASE_NAME}-with-sp",
+                credential=azure_credential,
+            )
+        if USE_WEB_SOURCE and USE_SHAREPOINT_SOURCE:
+            knowledgebase_client_with_web_and_sharepoint = KnowledgeBaseRetrievalClient(
+                endpoint=AZURE_SEARCH_ENDPOINT,
+                knowledge_base_name=f"{AZURE_SEARCH_KNOWLEDGEBASE_NAME}-with-web-and-sp",
+                credential=azure_credential,
+            )
+
+    # Set up the global blob storage manager (used for global content/images, but not user uploads)
+    global_blob_manager = BlobManager(
+        endpoint=f"https://{AZURE_STORAGE_ACCOUNT}.blob.core.windows.net",
+        credential=azure_credential,
+        container=AZURE_STORAGE_CONTAINER,
+        image_container=AZURE_IMAGESTORAGE_CONTAINER,
+    )
+    current_app.config[CONFIG_GLOBAL_BLOB_MANAGER] = global_blob_manager
 
     # Set up authentication helper
     search_index = None
@@ -739,58 +606,10 @@ async def setup_clients():
         server_app_secret=AZURE_SERVER_APP_SECRET,
         client_app_id=AZURE_CLIENT_APP_ID,
         tenant_id=AZURE_AUTH_TENANT_ID,
-        require_access_control=AZURE_ENFORCE_ACCESS_CONTROL,
-        enable_global_documents=AZURE_ENABLE_GLOBAL_DOCUMENT_ACCESS,
+        enforce_access_control=AZURE_ENFORCE_ACCESS_CONTROL,
         enable_unauthenticated_access=AZURE_ENABLE_UNAUTHENTICATED_ACCESS,
+        host_enforces_authentication=AZURE_USE_AUTHENTICATION and not AZURE_ENABLE_HOST_UNAUTHENTICATED_ACCESS,
     )
-
-    if USE_USER_UPLOAD:
-        current_app.logger.info("USE_USER_UPLOAD is true, setting up user upload feature")
-        if not AZURE_USERSTORAGE_ACCOUNT or not AZURE_USERSTORAGE_CONTAINER:
-            raise ValueError(
-                "AZURE_USERSTORAGE_ACCOUNT and AZURE_USERSTORAGE_CONTAINER must be set when USE_USER_UPLOAD is true"
-            )
-        user_blob_container_client = FileSystemClient(
-            f"https://{AZURE_USERSTORAGE_ACCOUNT}.dfs.core.windows.net",
-            AZURE_USERSTORAGE_CONTAINER,
-            credential=azure_credential,
-        )
-        current_app.config[CONFIG_USER_BLOB_CONTAINER_CLIENT] = user_blob_container_client
-
-        # Set up ingester
-        file_processors = setup_file_processors(
-            azure_credential=azure_credential,
-            document_intelligence_service=os.getenv("AZURE_DOCUMENTINTELLIGENCE_SERVICE"),
-            local_pdf_parser=os.getenv("USE_LOCAL_PDF_PARSER", "").lower() == "true",
-            local_html_parser=os.getenv("USE_LOCAL_HTML_PARSER", "").lower() == "true",
-            search_images=USE_GPT4V,
-        )
-        search_info = await setup_search_info(
-            search_service=AZURE_SEARCH_SERVICE, index_name=AZURE_SEARCH_INDEX, azure_credential=azure_credential
-        )
-        text_embeddings_service = setup_embeddings_service(
-            azure_credential=azure_credential,
-            openai_host=OPENAI_HOST,
-            openai_model_name=OPENAI_EMB_MODEL,
-            openai_service=AZURE_OPENAI_SERVICE,
-            openai_custom_url=AZURE_OPENAI_CUSTOM_URL,
-            openai_deployment=AZURE_OPENAI_EMB_DEPLOYMENT,
-            openai_dimensions=OPENAI_EMB_DIMENSIONS,
-            openai_api_version=AZURE_OPENAI_API_VERSION,
-            openai_key=clean_key_if_exists(OPENAI_API_KEY),
-            openai_org=OPENAI_ORGANIZATION,
-            disable_vectors=os.getenv("USE_VECTORS", "").lower() == "false",
-        )
-        ingester = UploadUserFileStrategy(
-            search_info=search_info,
-            embeddings=text_embeddings_service,
-            file_processors=file_processors,
-            search_field_name_embedding=AZURE_SEARCH_FIELD_NAME_EMBEDDING,
-        )
-        current_app.config[CONFIG_INGESTER] = ingester
-
-    # Used by the OpenAI SDK
-    openai_client: AsyncOpenAI
 
     if USE_SPEECH_OUTPUT_AZURE:
         current_app.logger.info("USE_SPEECH_OUTPUT_AZURE is true, setting up Azure speech service")
@@ -804,64 +623,107 @@ async def setup_clients():
         # Wait until token is needed to fetch for the first time
         current_app.config[CONFIG_SPEECH_SERVICE_TOKEN] = None
 
-    if OPENAI_HOST.startswith("azure"):
-        if OPENAI_HOST == "azure_custom":
-            current_app.logger.info("OPENAI_HOST is azure_custom, setting up Azure OpenAI custom client")
-            if not AZURE_OPENAI_CUSTOM_URL:
-                raise ValueError("AZURE_OPENAI_CUSTOM_URL must be set when OPENAI_HOST is azure_custom")
-            endpoint = AZURE_OPENAI_CUSTOM_URL
-        else:
-            current_app.logger.info("OPENAI_HOST is azure, setting up Azure OpenAI client")
-            if not AZURE_OPENAI_SERVICE:
-                raise ValueError("AZURE_OPENAI_SERVICE must be set when OPENAI_HOST is azure")
-            endpoint = f"https://{AZURE_OPENAI_SERVICE}.openai.azure.com"
-        if api_key := os.getenv("AZURE_OPENAI_API_KEY_OVERRIDE"):
-            current_app.logger.info("AZURE_OPENAI_API_KEY_OVERRIDE found, using as api_key for Azure OpenAI client")
-            openai_client = AsyncAzureOpenAI(
-                api_version=AZURE_OPENAI_API_VERSION, azure_endpoint=endpoint, api_key=api_key
+    openai_client, azure_openai_endpoint = setup_openai_client(
+        openai_host=OPENAI_HOST,
+        azure_credential=azure_credential,
+        azure_openai_service=AZURE_OPENAI_SERVICE,
+        azure_openai_custom_url=AZURE_OPENAI_CUSTOM_URL,
+        azure_openai_api_key=AZURE_OPENAI_API_KEY_OVERRIDE,
+        openai_api_key=OPENAI_API_KEY,
+        openai_organization=OPENAI_ORGANIZATION,
+    )
+
+    user_blob_manager = None
+    if USE_USER_UPLOAD:
+        current_app.logger.info("USE_USER_UPLOAD is true, setting up user upload feature")
+        if not AZURE_USERSTORAGE_ACCOUNT or not AZURE_USERSTORAGE_CONTAINER:
+            raise ValueError(
+                "AZURE_USERSTORAGE_ACCOUNT and AZURE_USERSTORAGE_CONTAINER must be set when USE_USER_UPLOAD is true"
             )
-        else:
-            current_app.logger.info("Using Azure credential (passwordless authentication) for Azure OpenAI client")
-            token_provider = get_bearer_token_provider(azure_credential, "https://cognitiveservices.azure.com/.default")
-            openai_client = AsyncAzureOpenAI(
-                api_version=AZURE_OPENAI_API_VERSION,
-                azure_endpoint=endpoint,
-                azure_ad_token_provider=token_provider,
+        if not AZURE_ENFORCE_ACCESS_CONTROL:
+            raise ValueError("AZURE_ENFORCE_ACCESS_CONTROL must be true when USE_USER_UPLOAD is true")
+        user_blob_manager = AdlsBlobManager(
+            endpoint=f"https://{AZURE_USERSTORAGE_ACCOUNT}.dfs.core.windows.net",
+            container=AZURE_USERSTORAGE_CONTAINER,
+            credential=azure_credential,
+        )
+        current_app.config[CONFIG_USER_BLOB_MANAGER] = user_blob_manager
+
+        # Set up ingester
+        file_processors, figure_processor = setup_file_processors(
+            azure_credential=azure_credential,
+            document_intelligence_service=os.getenv("AZURE_DOCUMENTINTELLIGENCE_SERVICE"),
+            local_pdf_parser=os.getenv("USE_LOCAL_PDF_PARSER", "").lower() == "true",
+            local_html_parser=os.getenv("USE_LOCAL_HTML_PARSER", "").lower() == "true",
+            use_content_understanding=os.getenv("USE_CONTENT_UNDERSTANDING", "").lower() == "true",
+            content_understanding_endpoint=os.getenv("AZURE_CONTENTUNDERSTANDING_ENDPOINT"),
+            use_multimodal=USE_MULTIMODAL,
+            openai_client=openai_client,
+            openai_model=OPENAI_CHATGPT_MODEL,
+            openai_deployment=AZURE_OPENAI_CHATGPT_DEPLOYMENT if OPENAI_HOST == OpenAIHost.AZURE else None,
+        )
+        search_info = setup_search_info(
+            search_service=AZURE_SEARCH_SERVICE,
+            index_name=AZURE_SEARCH_INDEX,
+            azure_credential=azure_credential,
+            use_agentic_knowledgebase=USE_AGENTIC_KNOWLEDGEBASE,
+            azure_openai_endpoint=azure_openai_endpoint,
+            knowledgebase_name=AZURE_SEARCH_KNOWLEDGEBASE_NAME,
+            azure_openai_knowledgebase_deployment=AZURE_OPENAI_KNOWLEDGEBASE_DEPLOYMENT,
+            azure_openai_knowledgebase_model=AZURE_OPENAI_KNOWLEDGEBASE_MODEL,
+        )
+
+        text_embeddings_service = None
+        if USE_VECTORS:
+            text_embeddings_service = setup_embeddings_service(
+                open_ai_client=openai_client,
+                openai_host=OPENAI_HOST,
+                emb_model_name=OPENAI_EMB_MODEL,
+                emb_model_dimensions=OPENAI_EMB_DIMENSIONS,
+                azure_openai_deployment=AZURE_OPENAI_EMB_DEPLOYMENT,
+                azure_openai_endpoint=azure_openai_endpoint,
             )
-    elif OPENAI_HOST == "local":
-        current_app.logger.info("OPENAI_HOST is local, setting up local OpenAI client for OPENAI_BASE_URL with no key")
-        openai_client = AsyncOpenAI(
-            base_url=os.environ["OPENAI_BASE_URL"],
-            api_key="no-key-required",
+
+        image_embeddings_service = setup_image_embeddings_service(
+            azure_credential=azure_credential,
+            vision_endpoint=AZURE_VISION_ENDPOINT,
+            use_multimodal=USE_MULTIMODAL,
         )
-    else:
-        current_app.logger.info(
-            "OPENAI_HOST is not azure, setting up OpenAI client using OPENAI_API_KEY and OPENAI_ORGANIZATION environment variables"
+        ingester = UploadUserFileStrategy(
+            search_info=search_info,
+            file_processors=file_processors,
+            embeddings=text_embeddings_service,
+            image_embeddings=image_embeddings_service,
+            search_field_name_embedding=AZURE_SEARCH_FIELD_NAME_EMBEDDING,
+            blob_manager=user_blob_manager,
+            figure_processor=figure_processor,
         )
-        openai_client = AsyncOpenAI(
-            api_key=OPENAI_API_KEY,
-            organization=OPENAI_ORGANIZATION,
-        )
+        current_app.config[CONFIG_INGESTER] = ingester
+
+    image_embeddings_client = None
+    if USE_MULTIMODAL:
+        image_embeddings_client = ImageEmbeddings(AZURE_VISION_ENDPOINT, azure_ai_token_provider)
 
     current_app.config[CONFIG_OPENAI_CLIENT] = openai_client
     current_app.config[CONFIG_SEARCH_CLIENT] = search_client
-    current_app.config[CONFIG_AGENT_CLIENT] = agent_client
-    current_app.config[CONFIG_BLOB_CONTAINER_CLIENT] = blob_container_client
+    current_app.config[CONFIG_KNOWLEDGEBASE_CLIENT] = knowledgebase_client
+    current_app.config[CONFIG_KNOWLEDGEBASE_CLIENT_WITH_WEB] = knowledgebase_client_with_web
+    current_app.config[CONFIG_KNOWLEDGEBASE_CLIENT_WITH_SHAREPOINT] = knowledgebase_client_with_sharepoint
+    current_app.config[CONFIG_KNOWLEDGEBASE_CLIENT_WITH_WEB_AND_SHAREPOINT] = (
+        knowledgebase_client_with_web_and_sharepoint
+    )
     current_app.config[CONFIG_AUTH_CLIENT] = auth_helper
 
-    current_app.config[CONFIG_GPT4V_DEPLOYED] = bool(USE_GPT4V)
     current_app.config[CONFIG_SEMANTIC_RANKER_DEPLOYED] = AZURE_SEARCH_SEMANTIC_RANKER != "disabled"
     current_app.config[CONFIG_QUERY_REWRITING_ENABLED] = (
         AZURE_SEARCH_QUERY_REWRITING == "true" and AZURE_SEARCH_SEMANTIC_RANKER != "disabled"
     )
     current_app.config[CONFIG_DEFAULT_REASONING_EFFORT] = OPENAI_REASONING_EFFORT
-    current_app.config[CONFIG_REASONING_EFFORT_ENABLED] = OPENAI_CHATGPT_MODEL in Approach.GPT_REASONING_MODELS
-    current_app.config[CONFIG_STREAMING_ENABLED] = (
-        bool(USE_GPT4V)
-        or OPENAI_CHATGPT_MODEL not in Approach.GPT_REASONING_MODELS
-        or Approach.GPT_REASONING_MODELS[OPENAI_CHATGPT_MODEL].streaming
-    )
-    current_app.config[CONFIG_VECTOR_SEARCH_ENABLED] = os.getenv("USE_VECTORS", "").lower() != "false"
+    current_app.config[CONFIG_DEFAULT_RETRIEVAL_REASONING_EFFORT] = AGENTIC_KNOWLEDGEBASE_REASONING_EFFORT
+    current_app.config[CONFIG_REASONING_EFFORT_ENABLED] = Approach.is_reasoning_model(OPENAI_CHATGPT_MODEL)
+    current_app.config[CONFIG_REASONING_EFFORT_OPTIONS] = Approach.get_reasoning_effort_options(OPENAI_CHATGPT_MODEL)
+    current_app.config[CONFIG_STREAMING_ENABLED] = True
+    current_app.config[CONFIG_VECTOR_SEARCH_ENABLED] = bool(USE_VECTORS)
     current_app.config[CONFIG_USER_UPLOAD_ENABLED] = bool(USE_USER_UPLOAD)
     current_app.config[CONFIG_LANGUAGE_PICKER_ENABLED] = ENABLE_LANGUAGE_PICKER
     current_app.config[CONFIG_SPEECH_INPUT_ENABLED] = USE_SPEECH_INPUT_BROWSER
@@ -869,43 +731,37 @@ async def setup_clients():
     current_app.config[CONFIG_SPEECH_OUTPUT_AZURE_ENABLED] = USE_SPEECH_OUTPUT_AZURE
     current_app.config[CONFIG_CHAT_HISTORY_BROWSER_ENABLED] = USE_CHAT_HISTORY_BROWSER
     current_app.config[CONFIG_CHAT_HISTORY_COSMOS_ENABLED] = USE_CHAT_HISTORY_COSMOS
-    current_app.config[CONFIG_AGENTIC_RETRIEVAL_ENABLED] = USE_AGENTIC_RETRIEVAL
+    current_app.config[CONFIG_AGENTIC_KNOWLEDGEBASE_ENABLED] = USE_AGENTIC_KNOWLEDGEBASE
+    current_app.config[CONFIG_MULTIMODAL_ENABLED] = USE_MULTIMODAL
+    current_app.config[CONFIG_RAG_SEARCH_TEXT_EMBEDDINGS] = RAG_SEARCH_TEXT_EMBEDDINGS
+    current_app.config[CONFIG_RAG_SEARCH_IMAGE_EMBEDDINGS] = RAG_SEARCH_IMAGE_EMBEDDINGS
+    current_app.config[CONFIG_RAG_SEND_TEXT_SOURCES] = RAG_SEND_TEXT_SOURCES
+    current_app.config[CONFIG_RAG_SEND_IMAGE_SOURCES] = RAG_SEND_IMAGE_SOURCES
+    current_app.config[CONFIG_WEB_SOURCE_ENABLED] = USE_WEB_SOURCE
+    if AGENTIC_KNOWLEDGEBASE_REASONING_EFFORT == "minimal" and current_app.config[CONFIG_WEB_SOURCE_ENABLED]:
+        raise ValueError("Web source cannot be used with minimal retrieval reasoning effort")
+    current_app.config[CONFIG_SHAREPOINT_SOURCE_ENABLED] = USE_SHAREPOINT_SOURCE
 
-    prompt_manager = PromptyManager()
+    prompt_manager = PromptManager()
 
-    # Set up the two default RAG approaches for /ask and /chat
-    # RetrieveThenReadApproach is used by /ask for single-turn Q&A
-    current_app.config[CONFIG_ASK_APPROACH] = RetrieveThenReadApproach(
-        search_client=search_client,
-        search_index_name=AZURE_SEARCH_INDEX,
-        agent_model=AZURE_OPENAI_SEARCHAGENT_MODEL,
-        agent_deployment=AZURE_OPENAI_SEARCHAGENT_DEPLOYMENT,
-        agent_client=agent_client,
-        openai_client=openai_client,
-        auth_helper=auth_helper,
-        chatgpt_model=OPENAI_CHATGPT_MODEL,
-        chatgpt_deployment=AZURE_OPENAI_CHATGPT_DEPLOYMENT,
-        embedding_model=OPENAI_EMB_MODEL,
-        embedding_deployment=AZURE_OPENAI_EMB_DEPLOYMENT,
-        embedding_dimensions=OPENAI_EMB_DIMENSIONS,
-        embedding_field=AZURE_SEARCH_FIELD_NAME_EMBEDDING,
-        sourcepage_field=KB_FIELDS_SOURCEPAGE,
-        content_field=KB_FIELDS_CONTENT,
-        query_language=AZURE_SEARCH_QUERY_LANGUAGE,
-        query_speller=AZURE_SEARCH_QUERY_SPELLER,
-        prompt_manager=prompt_manager,
-        reasoning_effort=OPENAI_REASONING_EFFORT,
-    )
+    # CUSTOM: Fetch available document sources from search index for dynamic prompt awareness
+    available_sources = await fetch_available_sources(search_client)
+    if available_sources:
+        current_app.logger.info(f"Loaded {len(available_sources)} document sources for prompt: {available_sources}")
+    else:
+        current_app.logger.warning("Could not fetch document sources from search index; prompts will use fallback text")
 
     # ChatReadRetrieveReadApproach is used by /chat for multi-turn conversation
     current_app.config[CONFIG_CHAT_APPROACH] = ChatReadRetrieveReadApproach(
         search_client=search_client,
         search_index_name=AZURE_SEARCH_INDEX,
-        agent_model=AZURE_OPENAI_SEARCHAGENT_MODEL,
-        agent_deployment=AZURE_OPENAI_SEARCHAGENT_DEPLOYMENT,
-        agent_client=agent_client,
+        knowledgebase_model=AZURE_OPENAI_KNOWLEDGEBASE_MODEL,
+        knowledgebase_deployment=AZURE_OPENAI_KNOWLEDGEBASE_DEPLOYMENT,
+        knowledgebase_client=knowledgebase_client,
+        knowledgebase_client_with_web=knowledgebase_client_with_web,
+        knowledgebase_client_with_sharepoint=knowledgebase_client_with_sharepoint,
+        knowledgebase_client_with_web_and_sharepoint=knowledgebase_client_with_web_and_sharepoint,
         openai_client=openai_client,
-        auth_helper=auth_helper,
         chatgpt_model=OPENAI_CHATGPT_MODEL,
         chatgpt_deployment=AZURE_OPENAI_CHATGPT_DEPLOYMENT,
         embedding_model=OPENAI_EMB_MODEL,
@@ -918,90 +774,45 @@ async def setup_clients():
         query_speller=AZURE_SEARCH_QUERY_SPELLER,
         prompt_manager=prompt_manager,
         reasoning_effort=OPENAI_REASONING_EFFORT,
+        multimodal_enabled=USE_MULTIMODAL,
+        image_embeddings_client=image_embeddings_client,
+        global_blob_manager=global_blob_manager,
+        user_blob_manager=user_blob_manager,
+        use_web_source=current_app.config[CONFIG_WEB_SOURCE_ENABLED],
+        use_sharepoint_source=current_app.config[CONFIG_SHAREPOINT_SOURCE_ENABLED],
+        retrieval_reasoning_effort=AGENTIC_KNOWLEDGEBASE_REASONING_EFFORT,
+        available_sources=available_sources,
+        rewrite_model=OPENAI_REWRITE_MODEL,
+        rewrite_deployment=AZURE_OPENAI_REWRITE_DEPLOYMENT,
     )
-
-    if USE_GPT4V:
-        current_app.logger.info("USE_GPT4V is true, setting up GPT4V approach")
-        if not AZURE_OPENAI_GPT4V_MODEL:
-            raise ValueError("AZURE_OPENAI_GPT4V_MODEL must be set when USE_GPT4V is true")
-        if any(
-            model in Approach.GPT_REASONING_MODELS
-            for model in [
-                OPENAI_CHATGPT_MODEL,
-                AZURE_OPENAI_GPT4V_MODEL,
-                AZURE_OPENAI_CHATGPT_DEPLOYMENT,
-                AZURE_OPENAI_GPT4V_DEPLOYMENT,
-            ]
-        ):
-            raise ValueError(
-                "AZURE_OPENAI_CHATGPT_MODEL and AZURE_OPENAI_GPT4V_MODEL must not be a reasoning model when USE_GPT4V is true"
-            )
-
-        token_provider = get_bearer_token_provider(azure_credential, "https://cognitiveservices.azure.com/.default")
-
-        current_app.config[CONFIG_ASK_VISION_APPROACH] = RetrieveThenReadVisionApproach(
-            search_client=search_client,
-            openai_client=openai_client,
-            blob_container_client=blob_container_client,
-            auth_helper=auth_helper,
-            vision_endpoint=AZURE_VISION_ENDPOINT,
-            vision_token_provider=token_provider,
-            gpt4v_deployment=AZURE_OPENAI_GPT4V_DEPLOYMENT,
-            gpt4v_model=AZURE_OPENAI_GPT4V_MODEL,
-            embedding_model=OPENAI_EMB_MODEL,
-            embedding_deployment=AZURE_OPENAI_EMB_DEPLOYMENT,
-            embedding_dimensions=OPENAI_EMB_DIMENSIONS,
-            embedding_field=AZURE_SEARCH_FIELD_NAME_EMBEDDING,
-            sourcepage_field=KB_FIELDS_SOURCEPAGE,
-            content_field=KB_FIELDS_CONTENT,
-            query_language=AZURE_SEARCH_QUERY_LANGUAGE,
-            query_speller=AZURE_SEARCH_QUERY_SPELLER,
-            prompt_manager=prompt_manager,
-        )
-
-        current_app.config[CONFIG_CHAT_VISION_APPROACH] = ChatReadRetrieveReadVisionApproach(
-            search_client=search_client,
-            openai_client=openai_client,
-            blob_container_client=blob_container_client,
-            auth_helper=auth_helper,
-            vision_endpoint=AZURE_VISION_ENDPOINT,
-            vision_token_provider=token_provider,
-            chatgpt_model=OPENAI_CHATGPT_MODEL,
-            chatgpt_deployment=AZURE_OPENAI_CHATGPT_DEPLOYMENT,
-            gpt4v_deployment=AZURE_OPENAI_GPT4V_DEPLOYMENT,
-            gpt4v_model=AZURE_OPENAI_GPT4V_MODEL,
-            embedding_model=OPENAI_EMB_MODEL,
-            embedding_deployment=AZURE_OPENAI_EMB_DEPLOYMENT,
-            embedding_dimensions=OPENAI_EMB_DIMENSIONS,
-            embedding_field=AZURE_SEARCH_FIELD_NAME_EMBEDDING,
-            sourcepage_field=KB_FIELDS_SOURCEPAGE,
-            content_field=KB_FIELDS_CONTENT,
-            query_language=AZURE_SEARCH_QUERY_LANGUAGE,
-            query_speller=AZURE_SEARCH_QUERY_SPELLER,
-            prompt_manager=prompt_manager,
-        )
 
 
 @bp.after_app_serving
 async def close_clients():
     await current_app.config[CONFIG_SEARCH_CLIENT].close()
-    await current_app.config[CONFIG_BLOB_CONTAINER_CLIENT].close()
-    if current_app.config.get(CONFIG_USER_BLOB_CONTAINER_CLIENT):
-        await current_app.config[CONFIG_USER_BLOB_CONTAINER_CLIENT].close()
+    await current_app.config[CONFIG_GLOBAL_BLOB_MANAGER].close_clients()
+    if user_blob_manager := current_app.config.get(CONFIG_USER_BLOB_MANAGER):
+        await user_blob_manager.close_clients()
+    await current_app.config[CONFIG_CREDENTIAL].close()
 
 
 def create_app():
     app = Quart(__name__)
     app.register_blueprint(bp)
     app.register_blueprint(chat_history_cosmosdb_bp)
-    # CUSTOM: Register categories blueprint for /api/categories endpoint
     app.register_blueprint(categories_bp)
-    # CUSTOM: Register feedback blueprint
     app.register_blueprint(feedback_bp)
+    app.register_blueprint(proxy_source_bp)
 
     if os.getenv("APPLICATIONINSIGHTS_CONNECTION_STRING"):
         app.logger.info("APPLICATIONINSIGHTS_CONNECTION_STRING is set, enabling Azure Monitor")
-        configure_azure_monitor()
+        configure_azure_monitor(
+            instrumentation_options={
+                "django": {"enabled": False},
+                "psycopg2": {"enabled": False},
+                "fastapi": {"enabled": False},
+            }
+        )
         # This tracks HTTP requests made by aiohttp:
         AioHttpClientInstrumentor().instrument()
         # This tracks HTTP requests made by httpx:
@@ -1016,7 +827,7 @@ def create_app():
     logging.basicConfig(level=logging.WARNING)
     # Set our own logger levels to INFO by default
     app_level = os.getenv("APP_LOG_LEVEL", "INFO")
-    app.logger.setLevel(app_level)
+    app.logger.setLevel(os.getenv("APP_LOG_LEVEL", app_level))
     logging.getLogger("scripts").setLevel(app_level)
 
     if allowed_origin := os.getenv("ALLOWED_ORIGIN"):

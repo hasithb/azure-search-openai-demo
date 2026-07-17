@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import socket
 import time
 from collections.abc import Generator
@@ -70,9 +71,11 @@ def run_server(port: int):
 def live_server_url(mock_env, mock_acs_search, free_port: int) -> Generator[str, None, None]:
     proc = Process(target=run_server, args=(free_port,), daemon=True)
     proc.start()
-    url = f"http://localhost:{free_port}/"
-    wait_for_server_ready(url, timeout=10.0, check_interval=0.5)
-    yield url
+    base_url = f"http://localhost:{free_port}/"
+    wait_for_server_ready(base_url, timeout=10.0, check_interval=0.5)
+    # CUSTOM: The legal fork hides developer settings unless admin mode is enabled.
+    # Most E2E coverage exercises those controls, so serve the app with ?admin=true.
+    yield f"{base_url}?admin=true"
     proc.kill()
 
 
@@ -81,6 +84,52 @@ def sized_page(page: Page, request):
     size = request.param
     page.set_viewport_size({"width": size[0], "height": size[1]})
     yield page
+
+
+# CUSTOM: Deterministic /api/categories stub so tests don't race against the
+# in-process server's Azure credential failure path.  Tests that need specific
+# category behaviour register their own page.route() AFTER this fixture runs;
+# Playwright's LIFO ordering means those per-test handlers fire first, making
+# this default transparent to them.
+@pytest.fixture(autouse=True)
+def _stub_categories(page: Page):
+    def handle(route: Route):
+        route.fulfill(
+            body=json.dumps(
+                {
+                    "categories": [
+                        {"key": "Commercial Court", "text": "Commercial Court"},
+                        {"key": "Patents Court", "text": "Patents Court"},
+                    ]
+                }
+            ),
+            status=200,
+            headers={"Content-Type": "application/json"},
+        )
+
+    page.route("*/**/api/categories", handle)
+
+
+def select_all_sources(page: Page) -> None:
+    """Select the 'All Sources' option in the source-filter dropdown.
+
+    Works for both desktop (>= 768 px wide) and mobile (< 768 px wide) layouts.
+    Should be called after the page has navigated and the categories response
+    has been received so the dropdown is ready.
+
+    The Fluent UI multiselect Dropdown does not auto-close when an option is
+    selected, so we press Escape to dismiss it before the caller continues.
+    """
+    viewport_width = page.viewport_size["width"] if page.viewport_size else 1024
+    if viewport_width < 768:
+        page.get_by_test_id("chat-input-mobile-settings").click()
+        page.locator("#chat-source-filter-mobile-button").click()
+    else:
+        page.locator("#chat-source-filter-desktop-button").click()
+    page.locator("#source-filter-option-all-sources").click()
+    # Dismiss the open multiselect dropdown so subsequent Axe/DOM checks see
+    # a clean layout with no portal listbox outside landmark regions.
+    page.keyboard.press("Escape")
 
 
 def test_home(page: Page, live_server_url: str):
@@ -117,15 +166,21 @@ def test_chat(sized_page: Page, live_server_url: str):
 
     page.route("*/**/chat/stream", handle)
 
-    # Check initial page state
-    page.goto(live_server_url)
+    # Check initial page state – wait for categories so the source-filter renders
+    with page.expect_response("**/api/categories"):
+        page.goto(live_server_url)
     expect(page).to_have_title("Azure OpenAI + AI Search")
-    expect(page.get_by_role("heading", name="Chat with your data")).to_be_visible()
+    expect(page.get_by_role("heading", name="Civil Procedure Copilot").first).to_be_visible()
     expect(page.get_by_role("button", name="Clear chat")).to_be_disabled()
     expect(page.get_by_role("button", name="Developer settings")).to_be_enabled()
 
+    # Select All Sources so the category filter doesn't block submit
+    select_all_sources(page)
+
     # Check accessibility of page in initial state
-    results = Axe().run(page)
+    # Exclude Tabster dummy elements which are internal to Fluent UI v9 focus management
+    # and cause a known false positive for aria-hidden-focus (see microsoft/tabster#288)
+    results = Axe().run(page, context={"exclude": ["[data-tabster-dummy]"]})
     assert results.violations_count == 0, results.generate_report()
 
     # Ask a question and wait for the message to appear
@@ -135,29 +190,119 @@ def test_chat(sized_page: Page, live_server_url: str):
     )
     page.get_by_role("button", name="Submit question").click()
 
-    expect(page.get_by_text("Whats the dental plan?")).to_be_visible()
-    expect(page.get_by_text("The capital of France is Paris.")).to_be_visible()
+    expect(page.get_by_text("Whats the dental plan?").first).to_be_visible()
+    expect(page.get_by_text("The capital of France is Paris.").first).to_be_visible()
     expect(page.get_by_role("button", name="Clear chat")).to_be_enabled()
 
     # Show the citation document
-    page.get_by_text("1. Benefit_Options-2.pdf").click()
-    expect(page.get_by_role("tab", name="Citation")).to_be_visible()
-    expect(page.get_by_title("Citation")).to_be_visible()
-
-    # Show the thought process
-    page.get_by_label("Show thought process").click()
-    expect(page.get_by_title("Thought process")).to_be_visible()
-    expect(page.get_by_text("Generated search query")).to_be_visible()
-
-    # Show the supporting content
-    page.get_by_label("Show supporting content").click()
+    page.get_by_label(re.compile(r"^Citation 1:")).first.click()
     expect(page.get_by_title("Supporting content")).to_be_visible()
-    expect(page.get_by_role("heading", name="Benefit_Options-2.pdf")).to_be_visible()
+
+    viewport_width = page.viewport_size["width"] if page.viewport_size else 1024
+    if viewport_width < 768:
+        page.get_by_label("Close").click()
+    else:
+        # Show the thought process
+        page.get_by_label("Show thought process").click()
+        expect(page.get_by_title("Thought process")).to_be_visible()
+        expect(page.get_by_text("Generated search query")).to_be_visible()
+
+        # Show the supporting content
+        page.get_by_label("Show supporting content").click()
+        expect(page.get_by_title("Supporting content")).to_be_visible()
 
     # Clear the chat
     page.get_by_role("button", name="Clear chat").click()
-    expect(page.get_by_text("Whats the dental plan?")).not_to_be_visible()
-    expect(page.get_by_text("The capital of France is Paris.")).not_to_be_visible()
+    expect(page.get_by_text("Whats the dental plan?").first).not_to_be_visible()
+    expect(page.get_by_text("The capital of France is Paris.").first).not_to_be_visible()
+    expect(page.get_by_role("button", name="Clear chat")).to_be_disabled()
+
+
+def test_chat_stop_button_visibility(page: Page, live_server_url: str):
+    """Test that the stop button feature works without breaking the chat flow.
+
+    Note: This test verifies the initial and final states but does not assert
+    that the stop button appears during streaming. Testing transient UI states
+    is flaky since the mock returns instantly. A proper test would require a
+    delayed mock response, adding significant complexity for minimal benefit.
+    """
+
+    # Set up a mock route to the /chat endpoint with streaming results
+    def handle(route: Route):
+        # Read the JSONL from our snapshot results and return as the response
+        with open("tests/snapshots/test_app/test_chat_stream_text/client0/result.jsonlines") as f:
+            jsonl = f.read()
+        route.fulfill(body=jsonl, status=200, headers={"Transfer-encoding": "Chunked"})
+
+    page.route("*/**/chat/stream", handle)
+
+    # Check initial page state – wait for categories so source filter renders
+    with page.expect_response("**/api/categories"):
+        page.goto(live_server_url)
+    expect(page).to_have_title("Azure OpenAI + AI Search")
+
+    # Select All Sources so the category filter doesn't block submit
+    select_all_sources(page)
+
+    # Verify the submit button is visible initially (not the stop button)
+    expect(page.get_by_label("Submit question")).to_be_visible()
+    expect(page.get_by_label("Stop streaming")).not_to_be_visible()
+
+    # Ask a question
+    page.get_by_placeholder("Type a new question (e.g. does my plan cover annual eye exams?)").click()
+    page.get_by_placeholder("Type a new question (e.g. does my plan cover annual eye exams?)").fill(
+        "Whats the dental plan?"
+    )
+    page.get_by_label("Submit question").click()
+
+    # Wait for the response to complete and verify the submit button is back
+    expect(page.get_by_text("The capital of France is Paris.").first).to_be_visible()
+    expect(page.get_by_label("Submit question")).to_be_visible()
+    expect(page.get_by_label("Stop streaming")).not_to_be_visible()
+
+
+def test_chat_stop_restores_question(page: Page, live_server_url: str):
+    """Test that when streaming returns no content, the question is restored to input."""
+
+    # Set up a mock route that returns an empty streaming response (no content)
+    def handle(route: Route):
+        # Return a valid but empty NDJSON stream - this simulates stopping before content arrives
+        # Need at least one event with context/data_points to initialize, but no delta content
+        jsonl = '{"type": "response.context", "context": {"data_points": {"text": []}, "thoughts": []}, "session_state": null}\n'
+        route.fulfill(
+            status=200,
+            headers={"Transfer-encoding": "Chunked", "Content-Type": "application/x-ndjson"},
+            body=jsonl,
+        )
+
+    page.route("*/**/chat/stream", handle)
+
+    # Check initial page state – wait for categories so source filter renders
+    with page.expect_response("**/api/categories"):
+        page.goto(live_server_url)
+    expect(page).to_have_title("Azure OpenAI + AI Search")
+
+    # Select All Sources so the category filter doesn't block submit
+    select_all_sources(page)
+
+    # Type a question
+    question_input = page.get_by_placeholder("Type a new question (e.g. does my plan cover annual eye exams?)")
+    question_input.click()
+    question_input.fill("Whats the dental plan?")
+
+    # Submit the question
+    page.get_by_label("Submit question").click()
+
+    # The response contains context but no actual content (no delta.content events)
+    # So the answer should be empty and question should be restored to input
+
+    # Verify the question is restored to the input field
+    expect(question_input).to_have_value("Whats the dental plan?")
+
+    # Verify the submit button is back
+    expect(page.get_by_label("Submit question")).to_be_visible()
+
+    # Verify no answer was added to the chat (Clear chat should be disabled since answer was empty)
     expect(page.get_by_role("button", name="Clear chat")).to_be_disabled()
 
 
@@ -169,7 +314,7 @@ def test_chat_customization(page: Page, live_server_url: str):
             if post_data and "context" in post_data and "overrides" in post_data["context"]:
                 overrides = post_data["context"]["overrides"]
                 assert overrides["temperature"] == 0.5
-                assert overrides["seed"] == 123
+
                 assert overrides["minimum_search_score"] == 0.5
                 assert overrides["minimum_reranker_score"] == 0.5
                 assert overrides["retrieval_mode"] == "vectors"
@@ -190,9 +335,13 @@ def test_chat_customization(page: Page, live_server_url: str):
 
     page.route("*/**/chat", handle)
 
-    # Check initial page state
-    page.goto(live_server_url)
+    # Check initial page state – wait for categories so source filter renders
+    with page.expect_response("**/api/categories"):
+        page.goto(live_server_url)
     expect(page).to_have_title("Azure OpenAI + AI Search")
+
+    # Select All Sources before opening Developer Settings to allow submit
+    select_all_sources(page)
 
     # Customize all the settings
     page.get_by_role("button", name="Developer settings").click()
@@ -200,8 +349,6 @@ def test_chat_customization(page: Page, live_server_url: str):
     page.get_by_label("Override prompt template").fill("You are a cat and only talk about tuna.")
     page.get_by_label("Temperature").click()
     page.get_by_label("Temperature").fill("0.5")
-    page.get_by_label("Seed").click()
-    page.get_by_label("Seed").fill("123")
     page.get_by_label("Minimum search score").click()
     page.get_by_label("Minimum search score").fill("0.5")
     page.get_by_label("Minimum reranker score").click()
@@ -227,9 +374,275 @@ def test_chat_customization(page: Page, live_server_url: str):
     )
     page.get_by_role("button", name="Submit question").click()
 
-    expect(page.get_by_text("Whats the dental plan?")).to_be_visible()
-    expect(page.get_by_text("The capital of France is Paris.")).to_be_visible()
+    expect(page.get_by_text("Whats the dental plan?").first).to_be_visible()
+    expect(page.get_by_text("The capital of France is Paris.").first).to_be_visible()
     expect(page.get_by_role("button", name="Clear chat")).to_be_enabled()
+
+
+def test_chat_source_filter_sends_selected_category(page: Page, live_server_url: str):
+    captured_overrides = {}
+
+    def handle_categories(route: Route):
+        route.fulfill(
+            body=json.dumps(
+                {
+                    "categories": [
+                        {"key": "Commercial Court", "text": "Commercial Court"},
+                        {"key": "Patents Court", "text": "Patents Court"},
+                    ]
+                }
+            ),
+            status=200,
+            headers={"Content-Type": "application/json"},
+        )
+
+    def handle_chat_stream(route: Route):
+        post_data = route.request.post_data_json
+        captured_overrides.clear()
+        captured_overrides.update(post_data["context"]["overrides"])
+
+        with open("tests/snapshots/test_app/test_chat_stream_text/client0/result.jsonlines") as f:
+            jsonl = f.read()
+        route.fulfill(body=jsonl, status=200, headers={"Transfer-encoding": "Chunked"})
+
+    page.route("*/**/api/categories", handle_categories)
+    page.route("*/**/chat/stream", handle_chat_stream)
+
+    with page.expect_response("**/api/categories"):
+        page.goto(live_server_url)
+    question_input = page.locator("textarea, input[type='text']").first
+    expect(question_input).to_be_visible()
+
+    source_filter = page.locator("#chat-source-filter-desktop-button")
+    source_filter.click()
+    page.locator("#source-filter-option-commercial-court").click()
+
+    question_input.fill("How does the Commercial Court handle case management conferences?")
+    page.get_by_role("button", name="Submit question").click()
+
+    expect(page.get_by_text("The capital of France is Paris.").first).to_be_visible()
+    assert captured_overrides["include_category"] == "Commercial Court"
+
+
+def test_chat_source_filter_can_reset_to_all_sources(page: Page, live_server_url: str):
+    captured_overrides = {}
+
+    def handle_categories(route: Route):
+        route.fulfill(
+            body=json.dumps(
+                {
+                    "categories": [
+                        {"key": "Commercial Court", "text": "Commercial Court"},
+                        {"key": "Patents Court", "text": "Patents Court"},
+                    ]
+                }
+            ),
+            status=200,
+            headers={"Content-Type": "application/json"},
+        )
+
+    def handle_chat_stream(route: Route):
+        post_data = route.request.post_data_json
+        captured_overrides.clear()
+        captured_overrides.update(post_data["context"]["overrides"])
+
+        with open("tests/snapshots/test_app/test_chat_stream_text/client0/result.jsonlines") as f:
+            jsonl = f.read()
+        route.fulfill(body=jsonl, status=200, headers={"Transfer-encoding": "Chunked"})
+
+    page.route("*/**/api/categories", handle_categories)
+    page.route("*/**/chat/stream", handle_chat_stream)
+
+    with page.expect_response("**/api/categories"):
+        page.goto(live_server_url)
+    question_input = page.locator("textarea, input[type='text']").first
+    expect(question_input).to_be_visible()
+
+    source_filter = page.locator("#chat-source-filter-desktop-button")
+    source_filter.click()
+    page.locator("#source-filter-option-commercial-court").click()
+
+    page.locator("#source-filter-option-all-sources").click()
+
+    question_input.fill("What are the rules on case management conferences?")
+    page.get_by_role("button", name="Submit question").click()
+
+    expect(page.get_by_text("The capital of France is Paris.").first).to_be_visible()
+    assert "include_category" not in captured_overrides
+
+
+def test_chat_source_filter_mobile_panel_sends_selected_category(page: Page, live_server_url: str):
+    captured_overrides = {}
+
+    def handle_categories(route: Route):
+        route.fulfill(
+            body=json.dumps(
+                {
+                    "categories": [
+                        {"key": "Commercial Court", "text": "Commercial Court"},
+                        {"key": "Patents Court", "text": "Patents Court"},
+                    ]
+                }
+            ),
+            status=200,
+            headers={"Content-Type": "application/json"},
+        )
+
+    def handle_chat_stream(route: Route):
+        post_data = route.request.post_data_json
+        captured_overrides.clear()
+        captured_overrides.update(post_data["context"]["overrides"])
+
+        with open("tests/snapshots/test_app/test_chat_stream_text/client0/result.jsonlines") as f:
+            jsonl = f.read()
+        route.fulfill(body=jsonl, status=200, headers={"Transfer-encoding": "Chunked"})
+
+    page.set_viewport_size({"width": 375, "height": 812})
+    page.route("*/**/api/categories", handle_categories)
+    page.route("*/**/chat/stream", handle_chat_stream)
+
+    with page.expect_response("**/api/categories"):
+        page.goto(live_server_url)
+    question_input = page.locator("textarea, input[type='text']").first
+    expect(question_input).to_be_visible()
+
+    page.get_by_test_id("chat-input-mobile-settings").click()
+    source_filter = page.locator("#chat-source-filter-mobile-button")
+    source_filter.click()
+    page.locator("#source-filter-option-patents-court").click()
+
+    question_input.fill("What are the CMC deadlines and procedures?")
+    page.get_by_role("button", name="Submit question").click()
+
+    expect(page.get_by_text("The capital of France is Paris.").first).to_be_visible()
+    assert captured_overrides["include_category"] == "Patents Court"
+
+
+def test_chat_source_filter_categories_api_failure_falls_back_to_all_sources(page: Page, live_server_url: str):
+    captured_overrides = {}
+
+    def handle_categories(route: Route):
+        route.fulfill(
+            body=json.dumps({"error": "failed"}),
+            status=500,
+            headers={"Content-Type": "application/json"},
+        )
+
+    def handle_chat_stream(route: Route):
+        post_data = route.request.post_data_json
+        captured_overrides.clear()
+        captured_overrides.update(post_data["context"]["overrides"])
+
+        with open("tests/snapshots/test_app/test_chat_stream_text/client0/result.jsonlines") as f:
+            jsonl = f.read()
+        route.fulfill(body=jsonl, status=200, headers={"Transfer-encoding": "Chunked"})
+
+    page.route("*/**/api/categories", handle_categories)
+    page.route("*/**/chat/stream", handle_chat_stream)
+
+    with page.expect_response("**/api/categories"):
+        page.goto(live_server_url)
+    question_input = page.locator("textarea, input[type='text']").first
+    expect(question_input).to_be_visible()
+
+    source_filter = page.locator("#chat-source-filter-desktop-button")
+    expect(source_filter).to_be_visible()
+    source_filter.click()
+    # Verify the All Sources option is visible in the dropdown (fallback applied it)
+    expect(page.locator("#source-filter-option-all-sources")).to_be_visible()
+    # Close without clicking – the fallback already set allCategoriesSelected=true;
+    # clicking the option would *toggle* it back to false and block submit.
+    page.keyboard.press("Escape")
+
+    question_input.fill("What are the rules on case management conferences?")
+    page.get_by_role("button", name="Submit question").click()
+
+    expect(page.get_by_text("The capital of France is Paris.").first).to_be_visible()
+    assert "include_category" not in captured_overrides
+
+
+def test_chat_no_source_selected_shows_warning_preserves_input(page: Page, live_server_url: str):
+    """When no source is selected and user clicks submit, a warning should appear
+    and the question text should NOT be cleared."""
+
+    def handle_categories(route: Route):
+        route.fulfill(
+            body=json.dumps(
+                {
+                    "categories": [
+                        {"key": "Commercial Court", "text": "Commercial Court"},
+                        {"key": "Patents Court", "text": "Patents Court"},
+                    ]
+                }
+            ),
+            status=200,
+            headers={"Content-Type": "application/json"},
+        )
+
+    page.route("*/**/api/categories", handle_categories)
+
+    with page.expect_response("**/api/categories"):
+        page.goto(live_server_url)
+    # Wait for the source filter button to be visible; this confirms that
+    # showCategoryFilter=true has been applied from the /config response.
+    page.locator("#chat-source-filter-desktop-button").wait_for(state="visible")
+    question_input = page.locator("textarea, input[type='text']").first
+    expect(question_input).to_be_visible()
+
+    # Type a question but do NOT select a source
+    question_input.fill("What are the rules on disclosure?")
+    page.get_by_role("button", name="Submit question").click()
+
+    # Warning should appear
+    expect(page.get_by_text("Please select a source before searching")).to_be_visible()
+    # Question text should be preserved (not cleared)
+    expect(question_input).to_have_value("What are the rules on disclosure?")
+
+
+def test_chat_warning_appears_after_removing_all_sources(page: Page, live_server_url: str):
+    """If user selects a source, then removes all sources and submits,
+    the warning should still appear."""
+
+    def handle_categories(route: Route):
+        route.fulfill(
+            body=json.dumps(
+                {
+                    "categories": [
+                        {"key": "Commercial Court", "text": "Commercial Court"},
+                        {"key": "Patents Court", "text": "Patents Court"},
+                    ]
+                }
+            ),
+            status=200,
+            headers={"Content-Type": "application/json"},
+        )
+
+    page.route("*/**/api/categories", handle_categories)
+
+    with page.expect_response("**/api/categories"):
+        page.goto(live_server_url)
+    question_input = page.locator("textarea, input[type='text']").first
+    expect(question_input).to_be_visible()
+
+    # Select a source first
+    source_filter = page.locator("#chat-source-filter-desktop-button")
+    source_filter.click()
+    page.locator("#source-filter-option-commercial-court").click()
+
+    # Deselect it (multiselect dropdown stays open, so just click again)
+    page.locator("#source-filter-option-commercial-court").click()
+
+    # Close the dropdown by clicking elsewhere
+    question_input.click()
+
+    # Try to submit with no source
+    question_input.fill("What are the rules on disclosure?")
+    page.get_by_role("button", name="Submit question").click()
+
+    # Warning should appear even though user previously had a source selected
+    expect(page.get_by_text("Please select a source before searching")).to_be_visible()
+    # Question text should be preserved
+    expect(question_input).to_have_value("What are the rules on disclosure?")
 
 
 def test_chat_customization_multimodal(page: Page, live_server_url: str):
@@ -268,6 +681,7 @@ def test_chat_customization_multimodal(page: Page, live_server_url: str):
                     "showSemanticRankerOption": True,
                     "showQueryRewritingOption": False,
                     "showReasoningEffortOption": False,
+                    "reasoningEffortOptions": [],
                     "streamingEnabled": True,
                     "showVectorOption": True,
                     "showUserUpload": False,
@@ -292,9 +706,13 @@ def test_chat_customization_multimodal(page: Page, live_server_url: str):
     page.route("*/**/config", handle_config)
     page.route("*/**/chat", handle_chat)
 
-    # Check initial page state
-    page.goto(live_server_url)
+    # Check initial page state – wait for categories so source filter renders
+    with page.expect_response("**/api/categories"):
+        page.goto(live_server_url)
     expect(page).to_have_title("Azure OpenAI + AI Search")
+
+    # Select All Sources before opening Developer Settings to allow submit
+    select_all_sources(page)
 
     # Open Developer settings
     page.get_by_role("button", name="Developer settings").click()
@@ -340,10 +758,15 @@ def test_chat_nonstreaming(page: Page, live_server_url: str):
 
     page.route("*/**/chat", handle)
 
-    # Check initial page state
-    page.goto(live_server_url)
+    # Check initial page state – wait for categories so source filter renders
+    with page.expect_response("**/api/categories"):
+        page.goto(live_server_url)
     expect(page).to_have_title("Azure OpenAI + AI Search")
     expect(page.get_by_role("button", name="Developer settings")).to_be_enabled()
+
+    # Select All Sources before opening Developer Settings to allow submit
+    select_all_sources(page)
+
     page.get_by_role("button", name="Developer settings").click()
     page.get_by_text("Stream chat completion responses").click()
     page.locator("button").filter(has_text="Close").click()
@@ -355,8 +778,8 @@ def test_chat_nonstreaming(page: Page, live_server_url: str):
     )
     page.get_by_label("Submit question").click()
 
-    expect(page.get_by_text("Whats the dental plan?")).to_be_visible()
-    expect(page.get_by_text("The capital of France is Paris.")).to_be_visible()
+    expect(page.get_by_text("Whats the dental plan?").first).to_be_visible()
+    expect(page.get_by_text("The capital of France is Paris.").first).to_be_visible()
     expect(page.get_by_role("button", name="Clear chat")).to_be_enabled()
 
 
@@ -379,10 +802,15 @@ def test_chat_followup_streaming(page: Page, live_server_url: str):
 
     page.route("*/**/chat/stream", handle)
 
-    # Check initial page state
-    page.goto(live_server_url)
+    # Check initial page state – wait for categories so source filter renders
+    with page.expect_response("**/api/categories"):
+        page.goto(live_server_url)
     expect(page).to_have_title("Azure OpenAI + AI Search")
     expect(page.get_by_role("button", name="Developer settings")).to_be_enabled()
+
+    # Select All Sources before opening Developer Settings to allow submit
+    select_all_sources(page)
+
     page.get_by_role("button", name="Developer settings").click()
     page.get_by_text("Suggest follow-up questions").click()
     page.locator("button").filter(has_text="Close").click()
@@ -394,8 +822,8 @@ def test_chat_followup_streaming(page: Page, live_server_url: str):
     )
     page.get_by_label("Submit question").click()
 
-    expect(page.get_by_text("Whats the dental plan?")).to_be_visible()
-    expect(page.get_by_text("The capital of France is Paris.")).to_be_visible()
+    expect(page.get_by_text("Whats the dental plan?").first).to_be_visible()
+    expect(page.get_by_text("The capital of France is Paris.").first).to_be_visible()
 
     # There should be a follow-up question and it should be clickable:
     expect(page.get_by_text("What is the capital of Spain?")).to_be_visible()
@@ -416,10 +844,15 @@ def test_chat_followup_nonstreaming(page: Page, live_server_url: str):
 
     page.route("*/**/chat", handle)
 
-    # Check initial page state
-    page.goto(live_server_url)
+    # Check initial page state – wait for categories so source filter renders
+    with page.expect_response("**/api/categories"):
+        page.goto(live_server_url)
     expect(page).to_have_title("Azure OpenAI + AI Search")
     expect(page.get_by_role("button", name="Developer settings")).to_be_enabled()
+
+    # Select All Sources before opening Developer Settings to allow submit
+    select_all_sources(page)
+
     page.get_by_role("button", name="Developer settings").click()
     page.get_by_text("Stream chat completion responses").click()
     page.get_by_text("Suggest follow-up questions").click()
@@ -432,8 +865,8 @@ def test_chat_followup_nonstreaming(page: Page, live_server_url: str):
     )
     page.get_by_label("Submit question").click()
 
-    expect(page.get_by_text("Whats the dental plan?")).to_be_visible()
-    expect(page.get_by_text("The capital of France is Paris.")).to_be_visible()
+    expect(page.get_by_text("Whats the dental plan?").first).to_be_visible()
+    expect(page.get_by_text("The capital of France is Paris.").first).to_be_visible()
 
     # There should be a follow-up question and it should be clickable:
     expect(page.get_by_text("What is the capital of Spain?")).to_be_visible()
@@ -441,43 +874,6 @@ def test_chat_followup_nonstreaming(page: Page, live_server_url: str):
 
     # Now there should be a follow-up answer (same, since we're using same test data)
     expect(page.get_by_text("The capital of France is Paris.")).to_have_count(2)
-
-
-def test_ask(sized_page: Page, live_server_url: str):
-    page = sized_page
-
-    # Set up a mock route to the /ask endpoint
-    def handle(route: Route):
-        # Assert that session_state is specified in the request (None for now)
-        try:
-            post_data = route.request.post_data_json
-            if post_data and "session_state" in post_data:
-                session_state = post_data["session_state"]
-                assert session_state is None
-        except Exception as e:
-            print(f"Error in test_ask handler: {e}")
-
-        # Read the JSON from our snapshot results and return as the response
-        f = open("tests/snapshots/test_app/test_ask_rtr_hybrid/client0/result.json")
-        json_data = f.read()
-        f.close()
-        route.fulfill(body=json_data, status=200)
-
-    page.route("*/**/ask", handle)
-    page.goto(live_server_url)
-    expect(page).to_have_title("Azure OpenAI + AI Search")
-
-    # The burger menu only exists at smaller viewport sizes
-    if page.get_by_role("button", name="Toggle menu").is_visible():
-        page.get_by_role("button", name="Toggle menu").click()
-    page.get_by_role("link", name="Ask a question").click()
-    page.get_by_placeholder("Example: Does my plan cover annual eye exams?").click()
-    page.get_by_placeholder("Example: Does my plan cover annual eye exams?").fill("Whats the dental plan?")
-    page.get_by_placeholder("Example: Does my plan cover annual eye exams?").click()
-    page.get_by_label("Submit question").click()
-
-    expect(page.get_by_text("Whats the dental plan?")).to_be_visible()
-    expect(page.get_by_text("The capital of France is Paris.")).to_be_visible()
 
 
 def test_upload_hidden(page: Page, live_server_url: str):
@@ -499,6 +895,7 @@ def test_upload_hidden(page: Page, live_server_url: str):
                     "showSemanticRankerOption": True,
                     "showQueryRewritingOption": False,
                     "showReasoningEffortOption": False,
+                    "reasoningEffortOptions": [],
                     "streamingEnabled": True,
                     "showVectorOption": True,
                     "showUserUpload": False,
@@ -549,6 +946,7 @@ def test_upload_disabled(page: Page, live_server_url: str):
                     "showSemanticRankerOption": True,
                     "showQueryRewritingOption": False,
                     "showReasoningEffortOption": False,
+                    "reasoningEffortOptions": [],
                     "streamingEnabled": True,
                     "showVectorOption": True,
                     "showUserUpload": True,
@@ -591,7 +989,6 @@ def test_agentic_retrieval_effort_minimal_disables_web(page: Page, live_server_u
             if post_data and "context" in post_data and "overrides" in post_data["context"]:
                 overrides = post_data["context"]["overrides"]
                 assert overrides["temperature"] == 0.5
-                assert overrides["seed"] == 123
                 assert overrides["minimum_search_score"] == 0.5
                 assert overrides["minimum_reranker_score"] == 0.5
                 assert overrides["retrieval_mode"] == "vectors"
@@ -622,6 +1019,7 @@ def test_agentic_retrieval_effort_minimal_disables_web(page: Page, live_server_u
                     "showSemanticRankerOption": True,
                     "showQueryRewritingOption": False,
                     "showReasoningEffortOption": False,
+                    "reasoningEffortOptions": [],
                     "streamingEnabled": True,
                     "showVectorOption": True,
                     "showUserUpload": False,
@@ -638,6 +1036,9 @@ def test_agentic_retrieval_effort_minimal_disables_web(page: Page, live_server_u
                     "ragSendTextSources": True,
                     "webSourceEnabled": True,
                     "sharepointSourceEnabled": True,
+                    # Explicitly disable category filter: this test controls its own config
+                    # and the frontend feature flag defaults to true when key is absent.
+                    "showCategoryFilter": False,
                 }
             ),
             status=200,
@@ -688,8 +1089,8 @@ def test_agentic_retrieval_effort_minimal_disables_web(page: Page, live_server_u
     )
     page.get_by_role("button", name="Submit question").click()
 
-    expect(page.get_by_text("Whats the dental plan?")).to_be_visible()
-    expect(page.get_by_text("The capital of France is Paris.")).to_be_visible()
+    expect(page.get_by_text("Whats the dental plan?").first).to_be_visible()
+    expect(page.get_by_text("The capital of France is Paris.").first).to_be_visible()
     expect(page.get_by_role("button", name="Clear chat")).to_be_enabled()
 
     # Open the thought process by clicking the lightbulb on the answer

@@ -1,0 +1,18 @@
+{
+  "event_type": "legal_feedback",
+  "context_shared": false,
+  "payload": {
+    "message_id": "msg-0-what-is-the-overriding-o",
+    "rating": "helpful",
+    "issues": [],
+    "comment": ""
+  },
+  "metadata": {
+    "deployment_id": "1772294377",
+    "app_version": "0.0.0",
+    "git_sha": "unknown",
+    "model_name": "gpt-5-nano",
+    "environment": "development",
+    "timestamp": "2026-03-02t08-03-58"
+  }
+}

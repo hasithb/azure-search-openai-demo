@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Primary Source Tab — UI Mockup</title>
+<style>
+  :root {
+    --blue: #3b82f6;
+    --blue-dark: #2563eb;
+    --highlight: #fff3a3;
+    --highlight-border: #f5c518;
+    --ink: #1f2733;
+    --muted: #5b6470;
+    --line: #e3e7ec;
+    --panel-bg: #ffffff;
+    --chat-bg: #f5f7fa;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--ink);
+    background: var(--chat-bg);
+  }
+  .mock-banner {
+    background: #111827;
+    color: #fff;
+    padding: 8px 16px;
+    font-size: 12.5px;
+    letter-spacing: .2px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  .mock-banner strong { color: #fbbf24; }
+  .mock-banner .pill {
+    background: #1f2937; border:1px solid #374151; border-radius: 999px;
+    padding: 2px 10px; font-size: 11px;
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(360px, 1fr) minmax(520px, 1.25fr);
+    gap: 0;
+    height: calc(100vh - 37px);
+  }
+  /* ---------- Chat (left) ---------- */
+  .chat {
+    padding: 28px 32px;
+    overflow-y: auto;
+    border-right: 1px solid var(--line);
+    background: var(--chat-bg);
+  }
+  .chat h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin: 0 0 14px; }
+  .bubble {
+    background: #fff; border: 1px solid var(--line); border-radius: 14px;
+    padding: 18px 20px; box-shadow: 0 1px 3px rgba(16,24,40,.06);
+    line-height: 1.6; font-size: 14.5px;
+  }
+  .bubble p { margin: 0 0 12px; }
+  .cite {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 20px; height: 20px; padding: 0 6px;
+    background: #eef2ff; color: var(--blue-dark);
+    border: 1px solid #c7d2fe; border-radius: 6px;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    vertical-align: text-top; margin: 0 1px; transition: all .12s;
+  }
+  .cite:hover { background: var(--blue); color:#fff; border-color: var(--blue); }
+  .cite.active { background: var(--blue-dark); color:#fff; border-color: var(--blue-dark); }
+  .src-list { margin-top: 16px; font-size: 12.5px; color: var(--muted); }
+  .src-list div { margin: 4px 0; }
+
+  /* ---------- Analysis panel (right) ---------- */
+  .panel { background: var(--panel-bg); display: flex; flex-direction: column; overflow: hidden; }
+  .tabs {
+    display: flex; gap: 2px; padding: 0 16px; border-bottom: 1px solid var(--line);
+    background: #fafbfc;
+  }
+  .tab {
+    appearance: none; border: none; background: none; cursor: pointer;
+    padding: 14px 16px; font-size: 13.5px; color: var(--muted);
+    border-bottom: 2px solid transparent; font-weight: 500; position: relative;
+  }
+  .tab:hover { color: var(--ink); }
+  .tab.active { color: var(--blue-dark); border-bottom-color: var(--blue-dark); font-weight: 600; }
+  .tab .new-badge {
+    margin-left: 7px; font-size: 9.5px; font-weight: 700; letter-spacing: .4px;
+    background: #dcfce7; color: #15803d; border-radius: 999px; padding: 1px 6px;
+    text-transform: uppercase; vertical-align: middle;
+  }
+  .tab-body { flex: 1; overflow-y: auto; padding: 20px; }
+
+  /* ---- Supporting content card ---- */
+  .sc-card {
+    border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px;
+    background: #fff; box-shadow: 0 1px 2px rgba(16,24,40,.04);
+  }
+  .sc-card.active { border-color: #bfdbfe; box-shadow: 0 0 0 3px rgba(59,130,246,.12); }
+  .sc-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+  .sc-meta { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+  .sc-content { font-size: 13.5px; line-height: 1.55; color: #28313d; }
+  .sc-content p { margin: 0 0 10px; }
+  mark.hl {
+    background: var(--blue); color:#fff; padding: 1px 4px; border-radius: 4px;
+    box-decoration-break: clone; -webkit-box-decoration-break: clone;
+  }
+  .sc-actions { margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn {
+    appearance: none; cursor: pointer; font-size: 12.5px; font-weight: 600;
+    border-radius: 8px; padding: 9px 14px; border: 1px solid var(--line);
+    background: #fff; color: var(--ink); display: inline-flex; align-items: center; gap: 7px;
+    transition: all .12s;
+  }
+  .btn:hover { background: #f3f4f6; }
+  .btn.primary { background: var(--blue); border-color: var(--blue); color:#fff; }
+  .btn.primary:hover { background: var(--blue-dark); border-color: var(--blue-dark); }
+  .btn.verified { background: #15803d; border-color: #15803d; color:#fff; }
+  .btn.verified:hover { background: #126c34; border-color: #126c34; }
+  .btn.approx-match { background: #b45309; border-color: #b45309; color:#fff; }
+  .btn.approx-match:hover { background: #97440a; border-color: #97440a; }
+  .btn svg { width: 15px; height: 15px; }
+
+  /* ---- Primary source tab ---- */
+  .ps-toolbar {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px;
+    background: #f8fafc; margin-bottom: 14px; font-size: 12.5px;
+  }
+  .ps-toolbar .doc { font-weight: 700; color: var(--ink); }
+  .ps-toolbar .where { color: var(--muted); }
+  .ps-toolbar .spacer { flex: 1; }
+  .ps-toolbar .status {
+    font-size: 11px; padding: 3px 9px; border-radius: 999px; font-weight: 600;
+  }
+  .status.found { background: #dcfce7; color: #15803d; }
+  .status.approx { background: #fef9c3; color: #a16207; }
+  .status.blocked { background: #fee2e2; color: #b91c1c; }
+  .status.neutral { background: #eef2ff; color: #4338ca; }
+  .status.loading { background: #e0e7ff; color: #4338ca; }
+  @keyframes popIn {
+    0%   { transform: scale(.7); opacity: 0; }
+    70%  { transform: scale(1.08); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .status.pop { animation: popIn .35s cubic-bezier(.22,1,.36,1) both; }
+
+  .doc-frame {
+    border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
+    background: #fff;
+  }
+  /* PDF look */
+  .pdf-chrome {
+    background: #525659; color: #cbd5e1; padding: 7px 12px; font-size: 11.5px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .pdf-chrome .pgbtn { background:#3f4346; border:1px solid #5b6063; color:#e5e7eb; border-radius:5px; padding:2px 8px; cursor:pointer; font-size:11px; }
+  .pdf-page {
+    background: #fff; margin: 18px auto; width: 92%; padding: 40px 46px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.18); font-size: 13px; line-height: 1.7; color:#2b2b2b;
+    position: relative;
+  }
+  .pdf-page h3 { font-size: 15px; margin: 0 0 6px; }
+  .pdf-page .num { color:#6b7280; }
+  .pdf-page .target {
+    background: linear-gradient(transparent 0, var(--highlight) 0);
+    outline: 2px solid var(--highlight-border); outline-offset: 2px;
+    border-radius: 2px; padding: 2px 0;
+    animation: pulse 1.6s ease 1;
+  }
+  @keyframes pulse {
+    0% { outline-color: transparent; background-color: #fff7c2; }
+    40% { outline-color: var(--highlight-border); }
+    100% { outline-color: var(--highlight-border); }
+  }
+  .pdf-scroll { max-height: 460px; overflow-y: auto; background: #6b7074; }
+
+  /* HTML source look */
+  .html-chrome {
+    background: #f1f5f9; border-bottom: 1px solid var(--line); padding: 7px 12px;
+    font-size: 11.5px; color: var(--muted); display:flex; align-items:center; gap:8px;
+  }
+  .html-chrome .url { background:#fff; border:1px solid var(--line); border-radius:6px; padding:3px 10px; flex:1; color:#334155; }
+  .html-doc { max-height: 460px; overflow-y: auto; padding: 26px 30px; font-size: 13.5px; line-height: 1.7; }
+  .html-doc h2 { font-size: 17px; }
+  .html-doc .target {
+    background: var(--highlight); outline: 2px solid var(--highlight-border);
+    outline-offset: 3px; border-radius: 3px; padding: 2px 4px;
+  }
+
+  .blocked-box {
+    text-align: center; padding: 40px 24px; color: var(--muted);
+    border: 1px dashed var(--line); border-radius: 10px; background:#fafbfc;
+  }
+  .blocked-box .big { font-size: 32px; }
+  .hidden { display: none !important; }
+  .hint {
+    margin-top: 14px; font-size: 11.5px; color: var(--muted);
+    background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 9px 12px;
+  }
+  .legend { font-size: 11.5px; color: var(--muted); margin-top: 10px; display:flex; gap:18px; flex-wrap:wrap; }
+  .legend span { display:inline-flex; align-items:center; gap:6px; }
+  .swatch { width:13px; height:13px; border-radius:3px; display:inline-block; }
+
+  /* ---- Edge-case state gallery ---- */
+  .gallery { padding: 28px 32px 40px; border-top: 1px solid var(--line); background: #fbfcfe; }
+  .gallery-title { font-size: 15px; margin: 0 0 4px; color: var(--ink); }
+  .gallery-sub { font-size: 12.5px; color: var(--muted); margin: 0 0 20px; max-width: 760px; line-height: 1.6; }
+  .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 16px; }
+  .case {
+    border: 1px solid var(--line); border-radius: 12px; background: #fff; padding: 16px 16px 18px;
+    box-shadow: 0 1px 2px rgba(16,24,40,.04); display: flex; flex-direction: column; gap: 10px;
+  }
+  .case-head { font-size: 13.5px; font-weight: 700; color: var(--ink); display: flex; align-items: center; gap: 8px; }
+  .case-num {
+    width: 20px; height: 20px; border-radius: 6px; background: #eef2ff; color: var(--blue-dark);
+    font-size: 11.5px; display: inline-flex; align-items: center; justify-content: center; font-weight: 800;
+  }
+  .case-desc { font-size: 12px; color: var(--muted); line-height: 1.55; margin: 0; flex: 1; }
+  .case-btn { align-self: flex-start; }
+  .case-btn svg { width: 15px; height: 15px; }
+  .case-status { margin-top: 2px; }
+  .case-btn[disabled] { opacity: .85; cursor: default; }
+  .spin {
+    width: 13px; height: 13px; border-radius: 50%; border: 2px solid rgba(255,255,255,.5);
+    border-top-color: #fff; display: inline-block; animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+  <div class="mock-banner">
+    <strong>UI MOCKUP</strong>
+    <span>Primary Source tab — validate AI findings against the live document</span>
+    <span class="pill">Not wired to backend</span>
+    <span class="pill">Click a citation, then "Show in primary source"</span>
+  </div>
+
+  <div class="layout">
+    <!-- ============ LEFT: CHAT ============ -->
+    <section class="chat">
+      <h2>Assistant answer</h2>
+      <div class="bubble">
+        <p>
+          The court may make an order for a single joint expert where the cost of separate experts is
+          disproportionate to the value of the claim. The duty of the expert is to help the court on matters
+          within their expertise, and this duty overrides any obligation to the instructing party
+          <span class="cite" data-cite="c1" onclick="selectCitation('c1', this)">1</span>.
+        </p>
+        <p>
+          Expert evidence must be restricted to that which is reasonably required to resolve the proceedings, and
+          the Commercial Court expects experts' reports to be concise and focused
+          <span class="cite" data-cite="c2" onclick="selectCitation('c2', this)">2</span>.
+          A blocked external source is also shown for comparison
+          <span class="cite" data-cite="c3" onclick="selectCitation('c3', this)">3</span>.
+        </p>
+        <div class="src-list">
+          <div><strong>Sources</strong></div>
+          <div>1. 35.4, Part 35, Part_35.pdf <em>(HTML on legislation/justice.gov.uk)</em></div>
+          <div>2. H1.7, Commercial Court Guide, Commercial_Court_Guide.pdf <em>(PDF)</em></div>
+          <div>3. External provider page <em>(iframe-blocked)</em></div>
+        </div>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-top:18px;">
+        Tip: the goal is that a lawyer never has to manually hunt for "35.4" in a 60-page PDF — clicking the
+        citation jumps straight to it in the real document.
+      </p>
+    </section>
+
+    <!-- ============ RIGHT: ANALYSIS PANEL ============ -->
+    <section class="panel">
+      <div class="tabs">
+        <button class="tab active" data-tab="supporting" onclick="selectTab('supporting')">Supporting content</button>
+        <button class="tab hidden" id="primary-tab-btn" data-tab="primary" onclick="selectTab('primary')">
+          Primary source <span class="new-badge">New</span>
+        </button>
+      </div>
+
+      <div class="tab-body">
+        <!-- ---- TAB 1: Supporting content (existing) ---- -->
+        <div id="tab-supporting">
+          <div class="sc-card active" id="sc-card">
+            <div class="sc-title" id="sc-title">35.4, Part 35, Part_35.pdf</div>
+            <div class="sc-meta" id="sc-meta">Civil Procedure Rules · extracted index text · Updated 06/04/2026</div>
+            <div class="sc-content" id="sc-content">
+              <p><strong>35.3 Experts — overriding duty to the court</strong></p>
+              <p>(1) It is the duty of experts to help the court on matters within their expertise.</p>
+              <p>(2) This duty overrides any obligation to the person from whom experts have received instructions or by whom they are paid.</p>
+              <p>
+                <mark class="hl" id="sc-highlight">35.4 Court's power to restrict expert evidence. (1) No party may call an expert or put in evidence an
+                expert's report without the court's permission. (2) When parties apply for permission they must
+                provide an estimate of the costs of the proposed expert evidence and identify the field in which
+                expert evidence is required.</mark>
+              </p>
+              <p>35.5 General requirement for expert evidence to be given in a written report.</p>
+            </div>
+            <div class="sc-actions">
+              <button id="show-primary-btn" class="btn primary" onclick="showInPrimary()" title="Open the live document and highlight this section">
+                <svg id="show-primary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3h7v7M21 3l-9 9M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>
+                <span id="show-primary-label">Show in primary source</span>
+              </button>
+              <button class="btn" onclick="openNewTab()" title="Open the published document in a separate browser tab, deep-linked to the cited passage">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+                Open primary source in new tab
+              </button>
+            </div>
+            <div class="hint">
+              The highlighted block above is the <strong>extracted index text</strong> for citation 35.4. The new
+              "Show in primary source" button takes the same subsection and locates it in the actual published
+              document (next tab).
+            </div>
+          </div>
+        </div>
+
+        <!-- ---- TAB 2: Primary source (new) ---- -->
+        <div id="tab-primary" class="hidden">
+          <div class="ps-toolbar">
+            <span class="doc" id="ps-doc">Part_35.pdf</span>
+            <span class="where" id="ps-where">→ rule 35.4</span>
+            <span class="spacer"></span>
+            <span class="status found" id="ps-status">✓ Verified in primary source</span>
+          </div>
+
+          <!-- HTML rendition (citation 1) -->
+          <div class="doc-frame" id="ps-html">
+            <div class="html-chrome">
+              <span>🔒</span>
+              <span class="url">https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part35#35.4</span>
+            </div>
+            <div class="html-doc" id="ps-html-doc">
+              <h2>Part 35 — Experts and Assessors</h2>
+              <p><strong>Duty to restrict expert evidence</strong></p>
+              <p>35.1 Expert evidence shall be restricted to that which is reasonably required to resolve the proceedings.</p>
+              <p><strong>Interpretation and definitions</strong></p>
+              <p>35.2 (1) A reference to an "expert" in this Part is a reference to a person who has been instructed to give or prepare expert evidence for the purpose of proceedings.</p>
+              <p><strong>Experts — overriding duty to the court</strong></p>
+              <p>35.3 (1) It is the duty of experts to help the court on matters within their expertise. (2) This duty overrides any obligation to the person from whom experts have received instructions or by whom they are paid.</p>
+              <p class="target">
+                <strong>35.4 Court's power to restrict expert evidence.</strong> (1) No party may call an expert or
+                put in evidence an expert's report without the court's permission. (2) When parties apply for
+                permission they must provide an estimate of the costs of the proposed expert evidence and identify
+                the field in which expert evidence is required and the issues which the expert evidence will address.
+              </p>
+              <p><strong>General requirement for expert evidence to be given in a written report</strong></p>
+              <p>35.5 (1) Expert evidence is to be given in a written report unless the court directs otherwise.</p>
+            </div>
+          </div>
+
+          <!-- PDF rendition (citation 2) -->
+          <div class="doc-frame hidden" id="ps-pdf">
+            <div class="pdf-chrome">
+              <span>📄 Commercial_Court_Guide.pdf</span>
+              <button class="pgbtn">‹</button>
+              <span id="ps-pdf-page">Page 42 / 188</span>
+              <button class="pgbtn">›</button>
+              <span style="flex:1"></span>
+              <span>Section H1 — Expert Evidence</span>
+            </div>
+            <div class="pdf-scroll">
+              <div class="pdf-page">
+                <h3>H1 &nbsp;<span class="num">Expert evidence</span></h3>
+                <p>H1.5 &nbsp; The court will normally give directions about expert evidence at the first case management conference.</p>
+                <p>H1.6 &nbsp; The parties should seek to agree the issues which the expert evidence is to address and, where possible, instruct a single joint expert.</p>
+                <p class="target">
+                  H1.7 &nbsp; Expert evidence must be restricted to that which is reasonably required to resolve the
+                  proceedings. The Commercial Court expects experts' reports to be concise and focused on the issues,
+                  and the court may decline to admit evidence that is disproportionate to the matters in dispute.
+                </p>
+                <p>H1.8 &nbsp; Where a single joint expert is instructed, the parties should agree a single set of instructions.</p>
+                <p>H1.9 &nbsp; The court may give directions for the experts to meet and to prepare a joint statement.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Blocked / approximate fallback (citation 3) -->
+          <div class="doc-frame hidden" id="ps-blocked">
+            <div class="blocked-box">
+              <div class="big">🚫</div>
+              <p><strong>This source can't be embedded</strong></p>
+              <p style="font-size:12.5px;max-width:380px;margin:8px auto 16px;">
+                The provider blocks display inside other sites. We can still take you straight to the cited passage
+                in a new browser tab, and the extracted text remains available on the Supporting content tab.
+              </p>
+              <button class="btn primary" onclick="openNewTab()" style="margin:auto;">Open primary source in new tab</button>
+            </div>
+          </div>
+
+          <div class="legend">
+            <span><span class="swatch" style="background:var(--highlight);border:1px solid var(--highlight-border)"></span> Located passage in live document</span>
+            <span><span class="swatch" style="background:var(--blue)"></span> Extracted-text highlight (other tab)</span>
+          </div>
+          <div class="hint" id="ps-approx-hint" style="display:none;">
+            <strong>Approximate location:</strong> the exact subsection anchor wasn't found in the live file, so we
+            scrolled to the nearest matching heading. Lawyers should confirm the precise paragraph.
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============ EDGE-CASE STATE GALLERY ============ -->
+  <section class="gallery">
+    <h2 class="gallery-title">Every state the feature can land in</h2>
+    <p class="gallery-sub">
+      Supporting content can list several different sources, so the <strong>Primary source</strong> tab never appears on its own —
+      it is revealed only when the lawyer clicks the button on a specific citation. Below is each state that button and the
+      Primary source tab can show.
+    </p>
+
+    <div class="gallery-grid">
+      <!-- 1. Verified exact -->
+      <div class="case">
+        <div class="case-head"><span class="case-num">1</span> Exact match — verified</div>
+        <p class="case-desc">The cited subsection text was located in the live document. This is the happy path.</p>
+        <button class="btn verified case-btn"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" stroke="currentColor" stroke-width="2.5" fill="none"/></svg>Verified in primary source — open</button>
+        <div class="case-status"><span class="status found">✓ Verified in primary source</span></div>
+      </div>
+
+      <!-- 2. Approximate -->
+      <div class="case">
+        <div class="case-head"><span class="case-num">2</span> Approximate match</div>
+        <p class="case-desc">The exact anchor wasn't found, so we scrolled to the nearest matching heading. The lawyer should confirm the precise paragraph.</p>
+        <button class="btn approx-match case-btn"><svg viewBox="0 0 24 24"><text x="2" y="18" font-size="19" fill="currentColor">≈</text></svg>Likely match — open in primary source</button>
+        <div class="case-status"><span class="status approx">≈ Approximate location</span></div>
+      </div>
+
+      <!-- 3. Not located -->
+      <div class="case">
+        <div class="case-head"><span class="case-num">3</span> Passage not auto-located</div>
+        <p class="case-desc">The document opened, but the exact text couldn't be matched (e.g. scanned PDF, reworded source). The full document is still shown for manual review.</p>
+        <button class="btn primary case-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3h7v7M21 3l-9 9M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>Show in primary source</button>
+        <div class="case-status"><span class="status neutral">Showing source — confirm passage manually</span></div>
+      </div>
+
+      <!-- 4. Blocked / cannot embed -->
+      <div class="case">
+        <div class="case-head"><span class="case-num">4</span> Source can't be embedded</div>
+        <p class="case-desc">An external provider blocks display inside other sites. We skip the in-app viewer and offer a deep-linked new tab instead.</p>
+        <button class="btn case-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>Open primary source in new tab</button>
+        <div class="case-status"><span class="status blocked">Cannot embed source</span></div>
+      </div>
+
+      <!-- 5. Loading -->
+      <div class="case">
+        <div class="case-head"><span class="case-num">5</span> Locating…</div>
+        <p class="case-desc">Transient state while the live PDF/HTML downloads and PDF.js searches for the cited passage.</p>
+        <button class="btn primary case-btn" disabled><span class="spin"></span>Show in primary source</button>
+        <div class="case-status"><span class="status loading">Locating…</span></div>
+      </div>
+
+      <!-- 6. Render error -->
+      <div class="case">
+        <div class="case-head"><span class="case-num">6</span> Couldn't render</div>
+        <p class="case-desc">The file failed to load (network error, removed document). We fall back to the extracted text and a new-tab link.</p>
+        <button class="btn case-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>Open primary source in new tab</button>
+        <div class="case-status"><span class="status blocked">Couldn't render</span></div>
+      </div>
+    </div>
+  </section>
+
+<script>
+  // Citation -> which primary-source rendition + metadata to show
+  const CITES = {
+    c1: { tab: 'html',    doc: 'Part_35.pdf',                 where: '→ rule 35.4', status: 'found',
+          title: '35.4, Part 35, Part_35.pdf',
+          meta: 'Civil Procedure Rules · extracted index text · Updated 06/04/2026' },
+    c2: { tab: 'pdf',     doc: 'Commercial_Court_Guide.pdf',  where: '→ §H1.7 (page 42)', status: 'found',
+          title: 'H1.7, Commercial Court Guide, Commercial_Court_Guide.pdf',
+          meta: 'Commercial Court Guide · extracted index text · page 42' },
+    c3: { tab: 'blocked', doc: 'External provider',           where: '→ cited passage', status: 'blocked',
+          title: 'External provider page',
+          meta: 'External source · iframe-blocked' }
+  };
+
+  let current = 'c1';
+
+  function selectCitation(id, el) {
+    current = id;
+    document.querySelectorAll('.cite').forEach(c => c.classList.remove('active'));
+    if (el) el.classList.add('active');
+    // Update supporting-content card to reflect citation (simplified for mockup)
+    const c = CITES[id];
+    document.getElementById('sc-title').textContent = c.title;
+    document.getElementById('sc-meta').textContent = c.meta;
+    // Default behaviour: clicking a citation shows the existing Supporting content tab.
+    // The Primary Source tab is hidden again until the user explicitly opens it for THIS source
+    // (Supporting content can list several different sources).
+    document.getElementById('primary-tab-btn').classList.add('hidden');
+    selectTab('supporting');
+    syncPrimary(id);
+    updateShowButton(id);
+  }
+
+  function selectTab(name) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+    document.getElementById('tab-supporting').classList.toggle('hidden', name !== 'supporting');
+    document.getElementById('tab-primary').classList.toggle('hidden', name !== 'primary');
+  }
+
+  function syncPrimary(id) {
+    const c = CITES[id];
+    document.getElementById('ps-doc').textContent = c.doc;
+    document.getElementById('ps-where').textContent = c.where;
+    const status = document.getElementById('ps-status');
+    status.className = 'status ' + (c.status === 'blocked' ? 'blocked' : c.status === 'approx' ? 'approx' : 'found');
+    status.textContent = c.status === 'blocked' ? 'Cannot embed source'
+                       : c.status === 'approx' ? '≈ Approximate location'
+                       : '✓ Verified in primary source';
+    document.getElementById('ps-html').classList.toggle('hidden', c.tab !== 'html');
+    document.getElementById('ps-pdf').classList.toggle('hidden', c.tab !== 'pdf');
+    document.getElementById('ps-blocked').classList.toggle('hidden', c.tab !== 'blocked');
+    document.getElementById('ps-approx-hint').style.display = c.status === 'approx' ? 'block' : 'none';
+  }
+
+  // Track verification state per citation.
+  // Pre-seed from each citation's known status so the verified tick is visible immediately
+  // (in the real app this is filled in after the live document is checked). Users can still
+  // click the button to open the primary source and see the highlighted passage.
+  const verifiedState = {}; // 'exact' | 'approx' | 'blocked' | undefined
+  Object.keys(CITES).forEach(id => {
+    const s = CITES[id].status;
+    verifiedState[id] = s === 'found' ? 'exact' : s === 'approx' ? 'approx' : undefined;
+  });
+
+  function updateShowButton(id) {
+    const btn = document.getElementById('show-primary-btn');
+    const label = document.getElementById('show-primary-label');
+    const icon = document.getElementById('show-primary-icon');
+    const v = verifiedState[id];
+    btn.className = 'btn ' + (v === 'exact' ? 'verified' : v === 'approx' ? 'approx-match' : 'primary');
+    if (v === 'exact') {
+      icon.innerHTML = '<polyline points="20 6 9 17 4 12" stroke="currentColor" stroke-width="2.5" fill="none"/>';
+      label.textContent = 'Verified in primary source — open';
+      btn.title = 'Verified: the cited text was located in the live primary source. Click to open the Primary Source tab and view it highlighted.';
+    } else if (v === 'approx') {
+      icon.innerHTML = '<text x="2" y="17" font-size="18" fill="currentColor">≈</text>';
+      label.textContent = 'Likely match — open in primary source';
+      btn.title = 'A close match was located in the live primary source. Click to open the Primary Source tab and review it.';
+    } else {
+      icon.innerHTML = '<path d="M14 3h7v7M21 3l-9 9M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5" stroke="currentColor" stroke-width="2" fill="none"/>';
+      label.textContent = 'Show in primary source';
+      btn.title = 'Open the Primary Source tab to load the live document and highlight this section';
+    }
+  }
+
+  function showInPrimary() {
+    // Reveal the Primary Source tab in the tab bar (only available once the user asks for it)
+    document.getElementById('primary-tab-btn').classList.remove('hidden');
+    selectTab('primary');
+    syncPrimary(current);
+    // scroll the located passage into view + re-trigger pulse
+    setTimeout(() => {
+      const container = document.querySelector('#tab-primary .doc-frame:not(.hidden)');
+      const target = container && container.querySelector('.target');
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        target.style.animation = 'none';
+        void target.offsetWidth;
+        target.style.animation = '';
+      }
+      // Simulate verification result arriving ~600ms after opening
+      const c = CITES[current];
+      if (!verifiedState[current] && c.status !== 'blocked') {
+        setTimeout(() => {
+          verifiedState[current] = c.status === 'approx' ? 'approx' : 'exact';
+          updateShowButton(current);
+          // pop animation on the toolbar status badge too
+          const st = document.getElementById('ps-status');
+          st.classList.remove('pop');
+          void st.offsetWidth;
+          st.classList.add('pop');
+        }, 600);
+      }
+    }, 60);
+  }
+
+  function openNewTab() {
+    alert('Mockup: would open the primary source in a new browser tab, deep-linked to the cited passage.');
+  }
+
+  // init
+  selectCitation('c1', document.querySelector('.cite[data-cite="c1"]'));
+</script>
+</body>
+</html>

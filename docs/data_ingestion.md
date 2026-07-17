@@ -151,8 +151,6 @@ This project includes an optional feature to perform data ingestion in the cloud
     azd env set USE_CLOUD_INGESTION true
     ```
 
-1. Open `azure.yaml` and un-comment the document-extractor, figure-processor, and text-processor sections. Those are the Azure Functions apps that will be deployed and serve as Azure AI Search skills.
-
 1. (Recommended) Increase the capacity for the embedding model to the maximum quota allowed for your region/subscription, so that the Azure Functions can generate embeddings without hitting rate limits:
 
 ```shell

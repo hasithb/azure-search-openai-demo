@@ -1,0 +1,285 @@
+{
+  "unfiltered": {
+    "passed_checks": 12,
+    "total_checks": 12,
+    "pass_rate": 1.0
+  },
+  "filtered": {
+    "passed_checks": 12,
+    "total_checks": 12,
+    "pass_rate": 1.0
+  },
+  "results": [
+    {
+      "name": "Commercial Court CMC",
+      "question": "How does the Commercial Court handle case management conferences?",
+      "expected_category": "Commercial Court",
+      "unfiltered": {
+        "answer": "In the Commercial Court, a mandatory Case Management Conference (CMC) should be fixed as promptly as possible, allowing time for preparatory steps, especially disclosure directions. [7]\n\nIf proceedings started by a Part 7 claim form, the claimant must take steps to fix the CMC within 14 days of all defendants who intend to defend having filed and served their defences. [7]\n\nIf proceedings started by a Part 8 claim form, the claimant must take steps to fix the CMC within 14 days of all defendants who wish to serve evidence having done so. [7]\n\nIf proceedings were transferred to the Commercial Court, the claimant must apply for a CMC within 14 days of the transfer order, unless the Judge already held or directed a CMC when making the transfer order. [7]\n\nIf the claimant fails to apply as required, any other party may apply for a CMC. [8]\n\nThe CMC is a very significant stage, and parties are encouraged to agree directions in advance, but attendance may still be required even where all proposed directions are agreed. [11]\n\nIf all proposed directions are agreed, a proposed consent order should be filed as soon as possible with a covering letter explaining any reason why attendance should not be required. [11]\n\nWhere directions are not agreed, the general rule in the Commercial Court is that the CMC will be an oral hearing. [11]\n\nAn oral hearing may exceptionally be dispensed with if the issues are straightforward and the cost of an oral hearing cannot be justified. [11]\n\nIf the parties want the CMC dealt with on documents, they must provide the required documents by 12 noon on the Tuesday of the week when the CMC is fixed for Friday, and that timing will be strictly enforced. [11]\n\nThose documents include the case management bundle with completed information sheets, a draft order, a draft list of common ground and issues, and a signed statement from each advocate addressing the issues considered, any NDR steps or plans, and an estimate for trial time including reading time. [11]\n\nCases involving expert evidence or preliminary issues are ordinarily unlikely to be suitable for a CMC on documents. [11]\n\nThe Civil Procedure Rules also say that, in multi-track cases, the court may fix a CMC after allocation, and a representative familiar with the case and with sufficient authority must attend if the party has legal representation. [4][5]\n\nIf you want, I can also give you the Commercial Court’s rules on what directions are usually dealt with at the CMC.",
+        "categories": {
+          "Civil Procedure Rules and Practice Directions": 4,
+          "Circuit Commercial Court": 2,
+          "Commercial Court": 5
+        },
+        "source_count": 11,
+        "checks": [
+          {
+            "description": "Cites Commercial Court Guide",
+            "passed": true
+          },
+          {
+            "description": "At least 2 sources from Commercial Court (found 5)",
+            "passed": true
+          }
+        ]
+      },
+      "filtered": {
+        "answer": "In the Commercial Court, a mandatory Case Management Conference is normally fixed promptly, and the timing depends on how the proceedings began or whether they were transferred in. [3]  \n\nIf the claimant does not make the required application, another party may apply for a Case Management Conference. [4]  \n\nThe general rule is that the Case Management Conference will be an oral hearing, although it may exceptionally be dealt with on documents if the issues are straightforward and an oral hearing cannot be justified. [5]  \n\nIf the parties want the conference to be dealt with on documents, they must file the required documents by 12 noon on the Tuesday of the week in which the Friday hearing is fixed. [5]  \n\nAt the conference, the judge will discuss the issues and the requirements of the case, approve the List of Common Ground and Issues, fix the pre-trial timetable, and give directions for trial and other matters such as disclosure and IT. [7]",
+        "categories": {
+          "Commercial Court": 9
+        },
+        "source_count": 9,
+        "checks": [
+          {
+            "description": "Cites Commercial Court Guide",
+            "passed": true
+          },
+          {
+            "description": "At least 2 sources from Commercial Court (found 9)",
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "Chancery Trial Bundles",
+      "question": "What is the Chancery Guide's approach to trial bundles?",
+      "expected_category": "Chancery Division",
+      "unfiltered": {
+        "answer": "The Chancery Guide says trial documents must be filed in one or more bundles, including bundles of authorities, prepared in accordance with Appendix X. [1]\n\nIt says parties should minimise paper and, unless the court specifically requests otherwise, only electronic trial bundles should be lodged for the court’s use. [3]\n\nAppendix X says no hard copy bundles should be filed with the court unless requested by the judge, and the parties should minimise use of hard copy bundles and documents. [8]\n\nThe claimant’s legal representative is responsible for preparing and providing the agreed trial bundles, unless the claimant is unrepresented and the court directs another party to do it. [2]\n\nThe Guide says preparing bundles requires a high level of co-operation between all legal representatives, and litigants in person must also co-operate. [2]\n\nWhere the volume and nature of the case make it sensible, a separate core bundle may be prepared for trial, containing the documents likely to be referred to most frequently. [5]\n\nThe core bundle should be separately paginated, and unless the court directs otherwise, it should be filed both electronically and in hard copy, with the two versions identical. [5]\n\nIf you want, I can also summarise the Chancery Guide’s Appendix X bundle requirements in a shorter checklist.",
+        "categories": {
+          "Chancery Division": 8
+        },
+        "source_count": 8,
+        "checks": [
+          {
+            "description": "Cites Chancery Guide",
+            "passed": true
+          },
+          {
+            "description": "At least 2 sources from Chancery Guide (found 8)",
+            "passed": true
+          }
+        ]
+      },
+      "filtered": {
+        "answer": "The Chancery Guide says documents to be referred to at trial must be filed in one or more bundles, and trial bundles, including bundles of authorities, must comply with Appendix X. [1]\n\nIt says the claimant’s legal representative is responsible for preparing and providing the agreed trial bundles, although the court may direct another party to do so if the claimant is unrepresented. [2]\n\nThe Guide stresses cooperation between all legal representatives, and also between a litigant in person and the other parties’ lawyers, in preparing bundles. [2]\n\nIt strongly encourages minimising paper and says no hard copy trial bundle, only electronic trial bundles, should be lodged for use by the court unless the court specifically requests otherwise. [3]\n\nWhere the case justifies it, a separate core bundle may be prepared for trial, containing the documents most likely to be referred to most frequently, and it may include a bundle of key documents and a narrative chronology if the court has directed that. [5]\n\nUnless the court directs otherwise, the core bundle should be filed both electronically and in hard copy, and the two versions must be identical. [5]\n\nIf you want, I can also give you the Chancery Guide’s rules on the PTR bundle, which overlaps with trial bundle preparation. [6][7]",
+        "categories": {
+          "Chancery Division": 9
+        },
+        "source_count": 9,
+        "checks": [
+          {
+            "description": "Cites Chancery Guide",
+            "passed": true
+          },
+          {
+            "description": "At least 2 sources from Chancery Guide (found 9)",
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "Patents Court Disclosure",
+      "question": "What do the Patents Court rules say about disclosure?",
+      "expected_category": "Patents Court",
+      "unfiltered": {
+        "answer": "In the Patents Court, parties are obliged to provide disclosure in accordance with CPR Part 31, as modified by Rule 63.9, PD 63.6.1–6.3, and Practice Direction 51U. [2]\n\nThe Patents Court Guide also says the claimants and defendants must make and serve a list in Form N265 of the documents in their possession, custody or control that they are required to disclose under standard disclosure, as modified by paragraph 5 of the Practice Direction for patents cases supplementing Part 63. [1]\n\nIt also says disclosure on identified issues may be limited to the documents or categories of documents listed in the relevant schedule. [1]\n\nUnder CPR Part 31, disclosure means stating that a document exists or has existed. [5]\n\nCPR Part 31 also provides that a party to whom a document has been disclosed has a right to inspect it, subject to the stated exceptions. [6]\n\nPractice Direction 31A says standard disclosure requires a reasonable search, a list of the documents the party is aware of that fall within the rule 31.6 categories and are or have been in the party’s control, and that the list should be in Form N265. [8][9][11]\n\nThe available sources do not give the full text of the Patents Court-specific disclosure modifications, so for more detail you may want to search the Patents Court Guide and PD 63. [2][3]",
+        "categories": {
+          "Patents Court": 3,
+          "Civil Procedure Rules and Practice Directions": 8
+        },
+        "source_count": 11,
+        "checks": [
+          {
+            "description": "Cites Patents Court Guide",
+            "passed": true
+          },
+          {
+            "description": "At least 2 sources from Patents Court (found 3)",
+            "passed": true
+          }
+        ]
+      },
+      "filtered": {
+        "answer": "In the Patents Court, parties are obliged to provide disclosure in accordance with Part 31, as modified by Rule 63.9 and PD63.6.1–6.3. [2]\n\nThe Patents Court Guide also says disclosure is modified by Practice Direction 51U, the Disclosure Pilot for the Business and Property Courts. [3]\n\nFor lists of documents, the claimants and defendants must serve a list in Form N265 of the documents they are required to disclose under standard disclosure, as modified by paragraph 5 of the Practice Direction supplementing Part 63. [1]\n\nThe guide also allows disclosure on identified issues to be limited to the documents or categories listed in the relevant schedule. [1]\n\nIf you want, I can also pull out the Patents Court guidance on the actual disclosure list and any issue-based limitation in one short summary.",
+        "categories": {
+          "Patents Court": 3,
+          "Civil Procedure Rules and Practice Directions": 8
+        },
+        "source_count": 11,
+        "checks": [
+          {
+            "description": "Cites Patents Court Guide",
+            "passed": true
+          },
+          {
+            "description": "At least 2 sources from Patents Court (found 3)",
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "TCC Experts",
+      "question": "How does the Technology and Construction Court handle expert evidence?",
+      "expected_category": "Technology and Construction Court",
+      "unfiltered": {
+        "answer": "In the TCC, expert evidence is often needed and used, but the parties and the court are expected to make effective and proportionate use of experts from the earliest pre-action stage to trial, and the scope of expert evidence must be limited to what is necessary for the case. [6]\n\nThe TCC Guide says expert evidence is evidence on technical or scientific matters, will generally include the expert’s opinions, and its quality depends on the expert’s experience, qualifications, and the factual material used. [1]\n\nExpert evidence is governed in detail by CPR Part 35, which says it must be restricted to what is reasonably required to resolve the proceedings, experts have an overriding duty to help the court, and no party may call an expert or rely on an expert’s report without the court’s permission. [2]\n\nThe TCC considers the way expert evidence is given at the PTR, and where there are multiple experts the court may direct different methods, including sequential evidence or concurrent evidence (“hot-tubbing”). [7]\n\nThe TCC Guide also warns parties to avoid incurring the costs of expert evidence on uncontroversial matters before the first CMC, because the court may later direct joint appointments or limit expert evidence. [8]",
+        "categories": {
+          "Civil Procedure Rules and Practice Directions": 4,
+          "Technology and Construction Court": 4
+        },
+        "source_count": 8,
+        "checks": [
+          {
+            "description": "Cites TCC Guide",
+            "passed": true
+          },
+          {
+            "description": "At least 1 source from TCC (found 4)",
+            "passed": true
+          }
+        ]
+      },
+      "filtered": {
+        "answer": "In the TCC, expert evidence is treated as technical or scientific evidence and usually includes the expert’s opinions, with its quality depending on the expert’s qualifications and the factual material used. [1]\n\nThe TCC says expert evidence is often needed, but its scope should be limited to what is necessary for the particular case, and the parties and the court should seek to use experts effectively and proportionately from the earliest pre-action stage to trial. [6]\n\nThe TCC also says parties should, if possible, avoid spending money on expert evidence on uncontroversial matters before the first CMC. [8]\n\nThe way expert evidence is given is considered at the PTR, and the court may decide between sequential expert evidence or concurrent evidence, including “hot-tubbing,” especially where there are multiple experts in different disciplines. [7]\n\nUnder CPR Part 35, expert evidence is restricted to what is reasonably required to resolve the proceedings, experts owe an overriding duty to help the court, and no party may call an expert or rely on an expert report without the court’s permission. [2][4][5]\n\nThe sources available do not specifically address every TCC practice on expert evidence, so if you want a more detailed procedural answer you may wish to search more narrowly for “TCC expert evidence” or use Thorough search depth.",
+        "categories": {
+          "Civil Procedure Rules and Practice Directions": 4,
+          "Technology and Construction Court": 4
+        },
+        "source_count": 8,
+        "checks": [
+          {
+            "description": "Cites TCC Guide",
+            "passed": true
+          },
+          {
+            "description": "At least 1 source from TCC (found 4)",
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "KB Division Listing",
+      "question": "What are the King's Bench Division Guide's provisions on listing?",
+      "expected_category": "King's Bench Division",
+      "unfiltered": {
+        "answer": "The King's Bench Division Guide says the KB Civil List covers all matters not in the Media and Communications List, including trials, preliminary questions or issues ordered to be tried, and proceedings to commit for contempt of court. [1]\n\nIt also says the majority of trials fall within the KB Civil List, and if a jury trial is ordered outside the Media and Communications List, the normal Civil List procedure is followed, but a fixed trial date will be given. [1]\n\nThe Guide explains that the Royal Courts of Justice creates particular difficulties for fixing trial dates, so the Chancery and King's Bench Divisions use a different approach to listing trials there. [2]\n\nOnce a listing appointment has been given, all listing matters are under the control and supervision of the Judge in Charge of the King's Bench Civil List or, where relevant, the Judge in charge of the Media and Communications List. [3]\n\nAny request to change the trial window, whether by consent or otherwise, must be dealt with by the Judge in charge of the relevant list or a judge nominated by them, not by a Master. [3]\n\nIf an application to extend or change a trial window is made to a Master, it will be transferred to the Judge in charge of the List, and such applications should be made to that Judge and notified to the KB Listing office to avoid delay. [4]\n\nFor urgent and short applications, the USAL is listed before all Masters on a rota basis every day from 10.30am to 1.00pm and from 2.00pm to 4.30pm unless otherwise indicated. [5]\n\nShort applications of no more than 30 minutes may be listed in the USAL, but applications estimated to take more than 30 minutes should be listed as a MA instead. [6]\n\nAsbestos List cases are listed in accordance with the Mesothelioma Practice Direction (PD49B), and the only permitted supplemental headings are the heading required by PD49B and the marking “limited life expectancy” where applicable. [7]\n\nFor trial listing, the Master gives directions for the trial window, venue, mode of trial, listing category, estimated length, and service of the order on the King's Bench Judges Listing Office, which then notifies the parties of a listing appointment. [9]\n\nThe Guide says the listing appointment will usually be within 6 weeks of the order being sealed, or 3 weeks for mesothelioma liability trials. [9]\n\nIf you want, I can also pull out just the rules on trial windows, the USAL, or the Asbestos List.",
+        "categories": {
+          "King's Bench Division": 10
+        },
+        "source_count": 10,
+        "checks": [
+          {
+            "description": "Cites KB Division Guide",
+            "passed": true
+          },
+          {
+            "description": "At least 2 sources from KB Division (found 10)",
+            "passed": true
+          }
+        ]
+      },
+      "filtered": {
+        "answer": "The Guide says the KB Civil List covers matters not in the Media and Communications List, including trials, preliminary questions or issues ordered to be tried, and proceedings to commit for contempt of court. [1]\n\nIt says most trials fall within the KB Civil List, and if a jury trial is ordered outside the Media and Communications List, the normal Civil List procedure applies, but a fixed trial date will be given. [1]\n\nIt says the Royal Courts of Justice creates unique problems for fixing trial dates, so trials in the Chancery and King's Bench Divisions are fixed differently there for the time being. [2]\n\nOnce a listing appointment has been given, all listing matters are under the control and supervision of the Judge in Charge of the King's Bench Civil List or, where relevant, the Judge in charge of the Media and Communications List. [3]\n\nAny request to change the trial window, whether by consent or otherwise, is not dealt with by a Master and must be considered by the Judge in charge of the relevant list or a judge nominated by them. [3]\n\nAny application to extend or change a trial window after a listing appointment must be made to the Judge in charge of the relevant list and notified to the KB Listing office to be considered by the relevant judge. [4]\n\nThe Urgent and Short Applications List is listed before all Masters on a rota basis every day from 10.30am to 1.00pm and from 2.00pm to 4.30pm, unless otherwise indicated. [5]\n\nShort applications of no more than 30 minutes may be listed in that list, but applications estimated at more than 30 minutes should be listed as a MA instead. [6]\n\nFor trial directions, the Master will usually give the trial window, venue, trial judge or jury arrangement, listing category, estimated length, and a direction that the order be sent to the King's Bench Judges Listing Office for a listing appointment. [9]\n\nThe trial date or period within the trial window is usually notified about 6 weeks after the order is sealed, or 3 weeks for mesothelioma liability trials. [9]\n\nThe Guide also says the up to date trial periods are available on GOV.UK. [10]\n\nIf you want, I can also summarise the Guide’s provisions by topic, such as trials, applications, or urgent hearings.",
+        "categories": {
+          "King's Bench Division": 10
+        },
+        "source_count": 10,
+        "checks": [
+          {
+            "description": "Cites KB Division Guide",
+            "passed": true
+          },
+          {
+            "description": "At least 2 sources from KB Division (found 10)",
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "CPR Appeal Time Limits (should NOT filter)",
+      "question": "What are the time limits for filing an appeal under the CPR?",
+      "expected_category": "Civil Procedure Rules and Practice Directions",
+      "unfiltered": {
+        "answer": "Under CPR Part 52, an appellant’s notice must usually be filed within 21 days, and the time runs from the date the lower court made the decision, not from the date the formal order was issued. [2]\n\nThere are sometimes different time limits for statutory appeals, so the relevant prescribed time limit should be checked. [2]\n\nFor certain contempt proceedings, the application for permission to appeal must be made within 28 days of the date the court provides reasons for its decision, and for appeals from the Court of Appeal to the Supreme Court in those proceedings, within 28 days after the Court of Appeal’s decision. [7]\n\nIf you want, I can also give the separate CPR time limits for a respondent’s notice or for a specific type of appeal.",
+        "categories": {
+          "Senior Courts Costs Office": 2,
+          "Chancery Division": 2,
+          "Civil Procedure Rules and Practice Directions": 8
+        },
+        "source_count": 12,
+        "checks": [
+          {
+            "description": "Identifies CPR Part 52 appeal rules",
+            "passed": true
+          }
+        ]
+      },
+      "filtered": {
+        "answer": "The sources available do not directly give the general time limit for filing an appellant’s notice under CPR Part 52. [3]\n\nWhat they do say is that rule 52.12 sets the time limits for filing an appellant’s notice at the appeal court, and rule 52.13 sets the time limits for filing a respondent’s notice at the appeal court. [3]\n\nFor appeals by way of case stated, the appellant must file the appellant’s notice at the appeal court within 10 days of the date of the case stated by the court. [16]\n\nFor certain contempt appeals, an application for permission to appeal must be made within 28 days of the date on which the court provides reasons for its decision, or within 28 days after the Court of Appeal’s decision, depending on the route. [3]\n\nIf you want, I can help narrow this down to the exact time limit for a specific type of appeal under CPR Part 52.",
+        "categories": {
+          "Civil Procedure Rules and Practice Directions": 16
+        },
+        "source_count": 16,
+        "checks": [
+          {
+            "description": "Identifies CPR Part 52 appeal rules",
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "Cross-Court Disclosure (should NOT filter)",
+      "question": "How do the different court guides approach disclosure differently?",
+      "expected_category": null,
+      "unfiltered": {
+        "answer": "The CPR/Practice Direction position in the sources is that standard disclosure under PD 31A requires a reasonable search, a list of documents, and the search should be proportionate to the circumstances. [5]  \n\nThe Chancery Guide says that disclosure in proceedings issued in the B&PCs is dealt with further in Chapter 7, and it reminds parties that ChD B&PCs London and the listed District Registries are subject to PD 57AD. [1]  \n\nThe Commercial Court Guide says PD 57AD applies to most Commercial Court proceedings, with deadlines for disclosure before the CMC, but not to the Admiralty Court or to cases in the Shorter Trials Scheme or Flexible Trials Scheme unless ordered. [3]  \n\nThe Commercial Court Guide also says the Disclosure Review Document should be simple and concise, with Issues for Disclosure kept within the PD 57AD definition and unnecessary proliferation of Models for Extended Disclosure avoided. [4]  \n\nThe TCC Guide says disclosure in the TCC generally is subject to PD 57AD, but there are exceptions for Public Procurement claims, Shorter and Flexible Trials Scheme proceedings, and fixed costs regime proceedings. [11]  \n\nThe TCC Guide also says CPR Part 31 and PD 31B continue to apply to Public Procurement claims, and it specifically points parties to separate e-disclosure protocol guidance for those cases. [11]  \n\nSo the main difference shown by these sources is that the court guides mainly diverge on when PD 57AD applies and on court-specific procedural guidance, while the CPR source in the materials describes the general standard disclosure framework. [1]  \n\nIf you want, I can compare just two courts side by side, such as Commercial Court vs TCC, or Chancery vs Commercial Court.",
+        "categories": {
+          "Chancery Division": 2,
+          "Technology and Construction Court": 1,
+          "Civil Procedure Rules and Practice Directions": 8,
+          "Commercial Court": 4
+        },
+        "source_count": 15,
+        "checks": [
+          {
+            "description": "References disclosure across sources",
+            "passed": true
+          }
+        ]
+      },
+      "filtered": {
+        "answer": "The CPR/Practice Direction position in the sources is that standard disclosure under PD 31A requires a reasonable search, a list of documents, and the search should be proportionate to the circumstances. [5]  \n\nThe Chancery Guide says that disclosure in proceedings issued in the B&PCs is dealt with further in Chapter 7, and it reminds parties that ChD B&PCs London and the listed District Registries are subject to PD 57AD. [1]  \n\nThe Commercial Court Guide says PD 57AD applies to most Commercial Court proceedings, with deadlines for disclosure before the CMC, but not to the Admiralty Court or to cases in the Shorter Trials Scheme or Flexible Trials Scheme unless ordered. [3]  \n\nThe Commercial Court Guide also says the Disclosure Review Document should be simple and concise, with Issues for Disclosure kept within the PD 57AD definition and unnecessary proliferation of Models for Extended Disclosure avoided. [4]  \n\nThe TCC Guide says disclosure in the TCC generally is subject to PD 57AD, but there are exceptions for Public Procurement claims, Shorter and Flexible Trials Scheme proceedings, and fixed costs regime proceedings. [11]  \n\nThe TCC Guide also says CPR Part 31 and PD 31B continue to apply to Public Procurement claims, and it specifically points parties to separate e-disclosure protocol guidance for those cases. [11]  \n\nSo the main difference shown by these sources is that the court guides mainly diverge on when PD 57AD applies and on court-specific procedural guidance, while the CPR source in the materials describes the general standard disclosure framework. [1]  \n\nIf you want, I can compare just two courts side by side, such as Commercial Court vs TCC, or Chancery vs Commercial Court.",
+        "categories": {
+          "Chancery Division": 2,
+          "Technology and Construction Court": 1,
+          "Civil Procedure Rules and Practice Directions": 8,
+          "Commercial Court": 4
+        },
+        "source_count": 15,
+        "checks": [
+          {
+            "description": "References disclosure across sources",
+            "passed": true
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -3,6 +3,7 @@ from opentelemetry import trace
 import logging
 import json
 import os
+import re
 from datetime import datetime, timezone
 from azure.storage.blob.aio import ContainerClient, BlobServiceClient
 from config import CONFIG_USER_BLOB_CONTAINER_CLIENT, CONFIG_CREDENTIAL
@@ -20,6 +21,9 @@ async def submit_feedback():
     message_id = data.get("message_id")
     if not message_id:
         return jsonify({"error": "message_id is required"}), 400
+
+    # Sanitize message_id to prevent path traversal attacks
+    message_id = re.sub(r'[^a-zA-Z0-9_\-]', '_', str(message_id))[:128]
 
     # Check if user consented to share context
     context_shared = data.get("context_shared", False)

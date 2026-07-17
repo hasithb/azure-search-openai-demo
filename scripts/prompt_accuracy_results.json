@@ -1,0 +1,83 @@
+{
+  "summary": {
+    "total_tests": 10,
+    "total_checks": 17,
+    "passed_checks": 16,
+    "pass_rate": 0.941,
+    "failed_tests": [
+      "PAD should reference CPR 31.16, not Pre-Action Protocols"
+    ]
+  },
+  "results": [
+    {
+      "name": "Disambiguation: 'standard disclosure' should cite CPR 31",
+      "question": "What is standard disclosure?",
+      "answer_length": 1662,
+      "num_sources": 4,
+      "checks_passed": true
+    },
+    {
+      "name": "Disambiguation: 'thorough disclosure' should reference PD 57AD or extended disclosure",
+      "question": "Tell me about thorough disclosure requirements",
+      "answer_length": 3077,
+      "num_sources": 3,
+      "checks_passed": true
+    },
+    {
+      "name": "Source recommendation: Commercial Court query with CPR-only filter",
+      "question": "What are the procedures for case management in the Commercial Court?",
+      "answer_length": 3862,
+      "num_sources": 10,
+      "checks_passed": true
+    },
+    {
+      "name": "Ambiguous term: 'costs' should address the topic substantively",
+      "question": "What are the rules about costs?",
+      "answer_length": 4386,
+      "num_sources": 18,
+      "checks_passed": true
+    },
+    {
+      "name": "Broad query: 'time limits' should still provide useful info",
+      "question": "What are the time limits?",
+      "answer_length": 2440,
+      "num_sources": 6,
+      "checks_passed": true
+    },
+    {
+      "name": "PAD should reference CPR 31.16, not Pre-Action Protocols",
+      "question": "What is PAD?",
+      "answer_length": 814,
+      "num_sources": 12,
+      "checks_passed": false
+    },
+    {
+      "name": "Summary judgment should cite Part 24",
+      "question": "How do I apply for summary judgment?",
+      "answer_length": 2482,
+      "num_sources": 8,
+      "checks_passed": true
+    },
+    {
+      "name": "Appeal query should reference Part 52",
+      "question": "How do I appeal a court decision?",
+      "answer_length": 2604,
+      "num_sources": 12,
+      "checks_passed": true
+    },
+    {
+      "name": "Service of claim form should reference Part 6",
+      "question": "How do I serve a claim form?",
+      "answer_length": 2176,
+      "num_sources": 10,
+      "checks_passed": true
+    },
+    {
+      "name": "Out-of-scope: non-legal question should note unavailability",
+      "question": "What is the weather forecast for London?",
+      "answer_length": 381,
+      "num_sources": 8,
+      "checks_passed": true
+    }
+  ]
+}

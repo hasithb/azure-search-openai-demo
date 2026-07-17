@@ -259,8 +259,6 @@
     padding: 0 2rem;
     display: flex;
     flex-direction: column;
-    resize: horizontal;
-    min-width: 50vw;
 }
 
 .chatMessageGpt {
@@ -277,7 +275,7 @@
 .chatInput {
     position: sticky;
     bottom: 0;
-    flex: 0 0 6.25rem;
+    flex: 0 0 auto;
     padding: 1rem;
     width: 100%;
     max-width: 64.25rem;
@@ -290,6 +288,10 @@
     max-height: 85vh;
     margin-left: 1.25rem;
     margin-right: 1.25rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border: 1px solid #e1e5eb;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 /* CUSTOM: Mobile analysis panel - shown as modal overlay */
@@ -394,6 +396,7 @@
     padding-left: 1rem;
     padding-right: 1rem;
     align-self: flex-end;
+    gap: 0.25rem;
 }
 
 .commandButton {
@@ -486,7 +489,7 @@
     }
 
     .chatEmptyStateTitle {
-        font-size: 4rem;
+        font-size: 2.75rem;
     }
 
     .chatInput {
@@ -503,7 +506,6 @@
     }
 
     .commandButton {
-        margin-right: 1.25rem;
         margin-bottom: 1.25rem;
     }
 

@@ -1,115 +1,22 @@
 # Instructions for Coding Agents
 
-This file contains instructions for developers working on the Azure Search and OpenAI demo application. It covers the overall code layout, how to add new data, how to add new azd environment variables, how to add new developer settings, and how to add tests for new features.
+This file contains instructions for developers working on the Azure Search and OpenAI demo application. It covers the overall code layout, how to add new data, how to add new azd environment variables, how to add new developer settings, how to add tests for new features, and how to run computer use testing with GPT-5.4.
 
 Always keep this file up to date with any changes to the codebase or development process.
 If necessary, edit this file to ensure it accurately reflects the current state of the project.
-
-## Custom Features (This Fork)
-
-This fork includes customizations for legal document RAG. See [CUSTOMIZATIONS_README.md](docs/customizations/README.md) for details.
-See [MAINTENANCE_GUIDE.md](docs/MAINTENANCE_GUIDE.md) for operations and update workflows.
-
-Key custom folders:
-
-* app/backend/customizations/: Backend feature flags and custom API routes
-* app/frontend/src/customizations/: Frontend utilities and components
-* evals/: Legal RAG evaluation framework (see below)
-
-These folders are designed to be merge-safe when updating from upstream.
-
-## Legal RAG Evaluation
-
-This fork includes a comprehensive evaluation framework for measuring legal RAG quality. The evaluation achieves **96% precedent matching** across 62 ground truth questions.
-
-### Running Evaluations
-
-```bash
-cd evals
-../.venv/bin/python run_direct_evaluation.py
-```
-
-### Key Metrics
-
-| Metric | Score | Description |
-|--------|-------|-------------|
-| precedent_matching | 96% | Correct source document cited |
-| legal_terminology | 100% | UK legal terms used correctly |
-| statute_citation | 65% | CPR Part/Rule numbers cited |
-
-### Evaluation Files
-
-* evals/run_direct_evaluation.py: Main evaluation script (Azure Search + OpenAI)
-* evals/ground_truth_cpr.jsonl: 62 legal Q&A pairs with source references
-* evals/test_legal_metrics.py: 41 unit tests for legal metrics
-* docs/legal_evaluation.md: Comprehensive evaluation documentation
-
-## Enhanced Feedback System (v1.0)
-
-This fork includes an enhanced feedback system that captures comprehensive diagnostic data while protecting sensitive system prompts from end users.
-
-### Feedback Capabilities
-
-**Deployment Tracking**: Automatically captures:
-
-- Deployment ID and version information
-- Git commit hash for version tracking
-- Model name (gpt-4, gpt-4-turbo, etc.)
-- Environment (production/development)
-
-**Thought Filtering**: Protects system prompts by:
-
-- Automatically filtering admin-only thoughts from API responses
-- Removing `raw_messages` containing system instructions
-- Preserving user-safe thoughts (search queries, retrieved documents)
-- Storing admin-only information separately for debugging
-
-**Data Storage**: Saves feedback with:
-
-- User-visible context (no system prompts)
-- Separate admin files containing full diagnostic data
-- Consent-based storage (respects user privacy choices)
-- Local and Azure Blob Storage support
-
-### Key Files
-
-* app/backend/customizations/thought_filter.py: Filters system prompts from thoughts
-* app/backend/customizations/routes/feedback.py: Enhanced feedback API endpoint with metadata
-* app/backend/customizations/config.py: Deployment metadata functions
-* tests/test_feedback.py: Comprehensive feedback endpoint tests
-* tests/test_thought_filter.py: Unit tests for thought filtering logic
-
-### Running Feedback Tests
-
-```bash
-# Run all feedback tests
-pytest tests/test_feedback.py tests/test_thought_filter.py -v
-
-# Run specific test
-pytest tests/test_feedback.py::test_feedback_filters_admin_only_thoughts -v
-
-# Run with coverage
-pytest tests/test_feedback.py tests/test_thought_filter.py --cov=customizations --cov=app/backend/customizations
-```
 
 ## Overall code layout
 
 * app: Contains the main application code, including frontend and backend.
   * app/backend: Contains the Python backend code, written with Quart framework.
-
     * app/backend/approaches: Contains the different approaches
       * app/backend/approaches/approach.py: Base class for all approaches
-      * app/backend/approaches/retrievethenread.py: Ask approach, just searches and answers
       * app/backend/approaches/chatreadretrieveread.py: Chat approach, includes query rewriting step first
-      * app/backend/approaches/prompts/ask_answer_question.prompty: Prompt used by the Ask approach to answer the question based off sources (CUSTOMIZED for legal domain)
-      * app/backend/approaches/prompts/chat_query_rewrite.prompty: Prompt used to rewrite the query based off search history into a better search query (CUSTOMIZED for legal domain)
+      * app/backend/approaches/promptmanager.py: Manages loading and rendering of Jinja2 prompt templates
+      * app/backend/approaches/prompts/query_rewrite.system.jinja2: Jinja2 template used to rewrite the query based off search history into a better search query
       * app/backend/approaches/prompts/chat_query_rewrite_tools.json: Tools used by the query rewriting prompt
-      * app/backend/approaches/prompts/chat_answer_question.prompty: Prompt used by the Chat approach to actually answer the question based off sources (CUSTOMIZED for legal domain)
-    * app/backend/customizations/: Custom features isolated for merge-safety
-      * app/backend/customizations/config.py: Feature flags and deployment metadata functions
-      * app/backend/customizations/thought_filter.py: Utility for filtering system prompts from thoughts
-      * app/backend/customizations/routes/categories.py: Dynamic categories API endpoint
-      * app/backend/customizations/routes/feedback.py: Enhanced feedback endpoint with deployment tracking (CUSTOM)
+      * app/backend/approaches/prompts/chat_answer.system.jinja2: Jinja2 template for the system message used by the Chat approach to answer questions
+      * app/backend/approaches/prompts/chat_answer.user.jinja2: Jinja2 template for the user message used by the Chat approach, including sources
     * app/backend/prepdocslib: Contains the document ingestion library used by both local and cloud ingestion
       * app/backend/prepdocslib/blobmanager.py: Manages uploads to Azure Blob Storage
       * app/backend/prepdocslib/cloudingestionstrategy.py: Builds the Azure AI Search indexer and skillset for the cloud ingestion pipeline
@@ -133,10 +40,8 @@ pytest tests/test_feedback.py tests/test_thought_filter.py --cov=customizations 
       * app/backend/prepdocslib/textprocessor.py: Processes text chunks for cloud ingestion (merges figures, generates embeddings)
       * app/backend/prepdocslib/textsplitter.py: Splits text into chunks using different strategies
     * app/backend/app.py: The main entry point for the backend application.
-
   * app/functions: Azure Functions used for cloud ingestion custom skills (document extraction, figure processing, text processing). Each function bundles a synchronized copy of `prepdocslib`; run `python scripts/copy_prepdocslib.py` to refresh the local copies if you modify the library.
   * app/frontend: Contains the React frontend code, built with TypeScript, built with vite.
-
     * app/frontend/src/api: Contains the API client code for communicating with the backend.
     * app/frontend/src/components: Contains the React components for the frontend.
     * app/frontend/src/locales: Contains the translation files for internationalization.
@@ -150,17 +55,14 @@ pytest tests/test_feedback.py tests/test_thought_filter.py --cov=customizations 
       * app/frontend/src/locales/ptBR/translation.json: Portuguese translations
       * app/frontend/src/locales/tr/translation.json: Turkish translations
     * app/frontend/src/pages: Contains the main pages of the application
-    * app/frontend/src/customizations/: Custom features isolated for merge-safety
-      * app/frontend/src/customizations/citationSanitizer.ts: Fixes malformed citation formats
-      * app/frontend/src/customizations/useCategories.ts: Hook for dynamic category fetching
-      * app/frontend/src/customizations/config.ts: Frontend feature flags
-
 * infra: Contains the Bicep templates for provisioning Azure resources.
 * tests: Contains the test code, including e2e tests, app integration tests, and unit tests.
 
 ## Adding new data
 
 New files should be added to the `data` folder, and then either run scripts/prepdocs.sh or scripts/prepdocs.ps1 to ingest the data.
+
+**IMPORTANT:** When adding or removing documents from the search index, also update the "Available Documents" list in `app/frontend/src/customizations/HelpAboutPanel.tsx` (look for the `INDEX-SOURCES` comment). This keeps the user-facing help panel in sync with the actual index contents.
 
 ## Adding a new azd environment variable
 
@@ -186,11 +88,9 @@ When adding a new developer setting, update:
   * app/frontend/src/components/Settings.tsx : Add a UI element for the setting
   * app/frontend/src/locales/*/translations.json: Add a translation for the setting label/tooltip for all languages
   * app/frontend/src/pages/chat/Chat.tsx: Add the setting to the component, pass it to Settings
-  * app/frontend/src/pages/ask/Ask.tsx: Add the setting to the component, pass it to Settings
 
 * backend:
   * app/backend/approaches/chatreadretrieveread.py :  Retrieve from overrides parameter
-  * app/backend/approaches/retrievethenread.py : Retrieve from overrides parameter
   * app/backend/app.py: Some settings may need to be sent down in the /config route.
 
 ## When adding tests for a new feature
@@ -198,7 +98,7 @@ When adding a new developer setting, update:
 All tests are in the `tests` folder and use the pytest framework.
 There are three styles of tests:
 
-* e2e tests: These use playwright to run the app in a browser and test the UI end-to-end. They are in e2e.py and they mock the backend using the snapshots from the app tests.
+* e2e tests: These use playwright to run the app in a browser and test the UI end-to-end. They are in e2e.py and they mock the backend using the snapshots from the app tests. (Before running e2e tests, make sure to run `npm run build` in app/frontend first to build the frontend code.)
 * app integration tests: Mostly in test_app.py, these test the app's API endpoints and use mocks for services like Azure OpenAI and Azure Search.
 * unit tests: The rest of the tests are unit tests that test individual functions and methods. They are in test_*.py files.
 
@@ -207,6 +107,18 @@ If the feature is a UI element, add an e2e test for it.
 If it is an API endpoint, add an app integration test for it.
 If it is a function or method, add a unit test for it.
 Use mocks from tests/conftest.py to mock external services. Prefer mocking at the HTTP/requests level when possible.
+
+For source-filter UI changes, prefer Playwright tests in `tests/e2e.py` that intercept `/api/categories` and the outgoing chat request, then assert the `include_category` override sent by the browser rather than relying on live retrieval behaviour.
+
+For the built localhost app, use `scripts/test_live_citation_click.py` as a smoke test for the citation badge click flow. It verifies that clicking a rendered citation opens Supporting Content and creates a highlighted subsection anchor against the real built frontend served at `http://localhost:50505`.
+
+For A/B evaluation of the current chat flow against the experimental planner-validator-repair retrieval prototype, use `scripts/test_planner_ab_compare.py`. It bootstraps the same backend clients locally, runs the current solution and the experimental path side by side, and writes a JSON summary to `scripts/planner_ab_results.json`.
+
+For prompt-only evaluation of low-risk answer-prompt guardrails against the current chat flow, use `scripts/test_prompt_injection_compare.py`. It compares the current prompt behavior against a small injected prompt override and writes a JSON summary to `scripts/prompt_injection_results.json`.
+
+For testing whether giving the query rewrite tool more knowledge about the search index structure improves retrieval, use `scripts/test_rewrite_index_awareness.py`. It injects index-awareness instructions (field names, category values, sourcepage patterns, search strategy guidance) into the rewrite prompt and compares answer quality across 12 test cases. Results are written to `scripts/rewrite_index_awareness_results.json`.
+
+For testing whether pre-filtering by category improves court-specific queries, use `scripts/test_category_filter_impact.py`. It compares unfiltered search against category-filtered search for court-specific and CPR queries across 7 test cases. Results are written to `scripts/category_filter_results.json`. Key finding: category filtering can hurt broad CPR queries by over-narrowing the result set.
 
 When you're running tests, make sure you activate the .venv virtual environment first:
 
@@ -226,28 +138,105 @@ For each file that has less than 100% test coverage, find the matching file in c
 
 If a line starts with a ! (exclamation mark), it means that the line is not covered by tests. Add tests to cover the missing lines.
 
+## Source hierarchy regression workflow
+
+The live source-hierarchy regression script is `scripts/test_source_hierarchy.py`.
+
+Run it locally against a running app with:
+
+```shell
+APP_URL=http://localhost:50505 python scripts/test_source_hierarchy.py
+```
+
+There is also an opt-in GitHub Actions workflow at `.github/workflows/source-hierarchy-regression.yml`.
+Use `workflow_dispatch` or `workflow_call` and pass the deployed app URL as `app_url`.
+
+## CPR index update workflow
+
+The GitHub Actions workflow `.github/workflows/update-index-v3.yml` now uses an Azure-side uploader path for production writes.
+
+Because GitHub-hosted runners were receiving persistent Azure Search data-plane `403 Forbidden` responses even after RBAC fixes and network-rule tests, the upload job builds `scripts/legal-scraper/Dockerfile.aci-uploader` into the existing ACR and runs the actual `upload_with_embeddings.py` command inside Azure Container Instances using the existing user-assigned identity `cpr-rag-aca-identity`.
+
+If you modify that workflow, preserve these assumptions unless the underlying Search access issue is fully resolved:
+
+* Diff/scrape can still run on GitHub-hosted runners.
+* Each job must clear `data/legal-scraper/processed/Upload` and `data/legal-scraper/reports` before scraping or downloading artifacts so checked-in sample/output files do not contaminate the CPR artifact.
+* The scrape artifact should contain only `Civil Procedure Rules and Practice Directions` documents; treat any court-guide or other category in that artifact as a workflow bug.
+* Production Search writes should run from Azure, not directly from the GitHub runner.
+* The uploader container relies on the downloaded CPR artifact already being present in the repo workspace before the ACR build step.
+
 ## Sending pull requests
 
 When sending pull requests, make sure to follow the PULL_REQUEST_TEMPLATE.md format.
 
 ## Upgrading dependencies
 
+### Python backend dependencies
+
 To upgrade a particular package in the backend, use the following command, replacing `<package-name>` with the name of the package you want to upgrade:
 
 ```shell
-cd app/backend && uv pip compile requirements.in -o requirements.txt --python-version 3.10 --upgrade-package package-name
+cd app/backend && uv pip compile requirements.in -o requirements.txt --python-version 3.10 --upgrade-package <package-name>
 ```
+
+After upgrading, run tests to verify compatibility:
+
+```shell
+source .venv/bin/activate
+pytest tests/
+```
+
+### npm frontend dependencies
+
+To upgrade a particular package in the frontend:
+
+1. **Navigate to the frontend directory**:
+
+   ```shell
+   cd app/frontend
+   ```
+
+2. **Upgrade the package** (replace `<package-name>` with the package you want to upgrade):
+
+   ```shell
+   npm install <package-name>@latest
+   ```
+
+3. **Build the frontend** to verify the upgrade works:
+
+   ```shell
+   npm run build
+   ```
+
+4. **Run all tests** to ensure nothing broke:
+
+   ```shell
+   # Run e2e tests from the root directory
+   cd ../..
+   source .venv/bin/activate
+   pytest tests/e2e.py
+   ```
+
+5. **Commit changes** if the upgrade is successful:
+
+   ```shell
+   git add package.json package-lock.json
+   git commit -m "chore: upgrade <package-name> to <version>"
+   ```
+
+**Important notes for frontend upgrades**:
+
+* When upgrading React or related core packages, you may need to upgrade multiple packages together (e.g., `react`, `react-dom`, `@types/react`, `@types/react-dom`)
+* Some upgrades may require code changes for API compatibility - check the package's changelog
+* For major version upgrades of UI libraries like Fluent UI or MSAL, review breaking changes carefully. Manual tests are required for any MSAL changes since the E2E tests do not cover authentication flows.
+* If npm reports peer dependency conflicts, the `.npmrc` file has `legacy-peer-deps=true` which allows the install to proceed. This is currently needed because `react-helmet-async` declares peer dependencies on React 17/18, but works fine with React 19.
 
 ## Checking Python type hints
 
 To check Python type hints, use the following command:
 
 ```shell
-cd app/backend && mypy . --config-file=../../pyproject.toml
-```
-
-```shell
-cd scripts && mypy . --config-file=../pyproject.toml
+ty check
 ```
 
 Note that we do not currently enforce type hints in the tests folder, as it would require adding a lot of `# type: ignore` comments to the existing tests.
@@ -256,6 +245,105 @@ We only enforce type hints in the main application code and scripts.
 ## Python code style
 
 Do not use single underscores in front of "private" methods or variables in Python code. We do not follow that convention in this codebase, since this is an application and not a library.
+
+## Computer Use Testing with GPT-5.4
+
+The script `scripts/computer_use_test.py` uses Azure OpenAI GPT-5.4 computer use to drive a Playwright browser against the locally-running app. The model sees screenshots, decides on actions (clicks, typing, scrolling), and the script executes them in a real Chromium window.
+
+### Prerequisites
+
+1. App running locally: `./app/start.sh` (serves at `http://localhost:50505`)
+2. Azure OpenAI deployment of `gpt-5.4` (or `computer-use-preview`). Register at <https://aka.ms/OAI/gpt54access>
+3. Azure CLI logged in: `az login`
+4. Playwright browsers installed: `playwright install chromium`
+
+### Environment variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `COMPUTER_USE_AZURE_OPENAI_ENDPOINT` | *(required)* | Azure OpenAI resource endpoint, e.g. `https://myresource.openai.azure.com` |
+| `COMPUTER_USE_MODEL` | `gpt-5.4` | Deployment name |
+| `COMPUTER_USE_TARGET_URL` | `http://localhost:50505` | URL the browser navigates to |
+| `COMPUTER_USE_MAX_ITERATIONS` | `16` | Hard cap on action-screenshot loops |
+| `COMPUTER_USE_SCENARIO_PARSE_RETRIES` | `2` | Additional retries for suite scenarios that fail to return the required JSON block |
+| `COMPUTER_USE_DISPLAY_WIDTH` | `1440` | Browser viewport width |
+| `COMPUTER_USE_DISPLAY_HEIGHT` | `900` | Browser viewport height |
+
+If `COMPUTER_USE_AZURE_OPENAI_ENDPOINT` is not set explicitly, the harness falls back to the repo's standard `.env` value for `AZURE_OPENAI_ENDPOINT`.
+
+If `COMPUTER_USE_MODEL` is not set explicitly, the harness prefers a compatible deployment from the repo's standard `.env` values and otherwise falls back to `gpt-5.4`. It intentionally avoids reusing `mini` or `nano` deployments for computer use when a full-size compatible deployment is available.
+
+### Running
+
+```shell
+source .venv/bin/activate
+
+# Interactive mode (type tasks at the prompt):
+python scripts/computer_use_test.py
+
+# Single-task mode:
+python scripts/computer_use_test.py --task "Ask 'What is the dental plan?' and report the answer"
+
+# Headless mode (no visible browser window):
+python scripts/computer_use_test.py --headless --task "Search for eye exam coverage"
+
+# Detailed citation regression suite:
+python scripts/computer_use_test.py --suite detailed-citations
+
+# Cross-source highlight regression suite:
+python scripts/computer_use_test.py --suite highlight-regression
+```
+
+### Detailed citation suite
+
+The built-in `detailed-citations` suite runs multiple source-filtered scenarios across:
+
+* All Sources
+* Civil Procedure Rules and Practice Directions
+* Commercial Court Guide
+* Chancery Guide
+* King's Bench Division Guide
+* Technology and Construction Court Guide
+* Patents Court Guide
+
+Each scenario asks a grounded legal question, checks in-text and bottom citation rendering, clicks citations to verify the supporting-content panel, and records issues in the saved JSON log.
+
+For built-in suites, the harness now pre-selects the required source filter with direct Playwright actions before handing control to the model. This keeps the computer-use steps focused on answer validation, citation clicks, and supporting-content inspection instead of repeatedly spending turns on dropdown setup.
+
+The scenario catalog is grounded in the v3 index patterns already used by the repo's citation tests, including:
+
+* CPR parts such as Part 1, Part 3, Part 24 and Part 52
+* Practice Directions such as PD44 and PD19A
+* Pre-Action Protocol sources that may collapse to short labels like `Pre`
+* Court Guide citations with hierarchical sourcepages, annexes, and PDF-style sourcefile names
+
+### Highlight regression suite
+
+The built-in `highlight-regression` suite focuses specifically on supporting-content highlighting across source families. It uses screenshot-driven computer use checks to verify that the supporting-content panel keeps the full section visible while the highlighted block starts at the cited subsection itself, excludes the adjacent heading immediately above it, and does not spill into the next subsection.
+
+The suite currently covers:
+
+* All Sources mixed retrieval
+* Civil Procedure Rules and Practice Directions
+* Commercial Court Guide
+* Chancery Guide
+* King's Bench Division Guide
+* Technology and Construction Court Guide
+* Patents Court Guide
+* Circuit Commercial Court Guide
+
+### Example tasks
+
+These are good first tasks to verify the harness works:
+
+* `"Ask 'What is the dental plan?' and report the answer"`
+* `"Open the first citation and describe what you see"`
+* `"Open Developer Settings and change the retrieval mode to Vectors"`
+* `"Search for annual eye exam coverage and list the sources"`
+
+### Session logs
+
+Each run writes a JSON log to `scripts/computer_use_logs/` containing all screenshots (base64), model responses, and actions. The directory has a `.gitignore` to exclude generated logs.
 
 ## Deploying the application
 

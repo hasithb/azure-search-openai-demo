@@ -6,10 +6,14 @@ from azure.search.documents.knowledgebases.aio import KnowledgeBaseRetrievalClie
 from azure.search.documents.knowledgebases.models import (
     KnowledgeBaseMessage,
     KnowledgeBaseRetrievalResponse,
+    KnowledgeBaseSearchIndexActivityArguments,
+    KnowledgeBaseSearchIndexActivityRecord,
+    KnowledgeBaseSearchIndexReference,
+    KnowledgeBaseModelQueryPlanningActivityRecord,
 )
 from openai.types.chat import ChatCompletion
 
-from approaches.approach import RewriteQueryResult
+from approaches.approach import Document, RewriteQueryResult
 
 from .conftest import create_mock_retrieve
 
@@ -171,6 +175,104 @@ async def test_agentic_retrieval_minimal_uses_query_rewrite(chat_approach, monke
 
 
 @pytest.mark.asyncio
+async def test_agentic_retrieval_low_uses_query_rewrite_for_query_hint_and_part_recovery(chat_approach, monkeypatch):
+    completion_payload = {
+        "id": "rewrite-low-1",
+        "object": "chat.completion",
+        "created": 0,
+        "model": "gpt-4.1-mini",
+        "choices": [
+            {
+                "index": 0,
+                "finish_reason": "stop",
+                "message": {"role": "assistant", "content": "Rewritten"},
+            }
+        ],
+        "usage": {"completion_tokens": 1, "prompt_tokens": 1, "total_tokens": 2},
+    }
+    rewrite_completion = ChatCompletion.model_validate(completion_payload, strict=False)
+
+    rewrite_result = RewriteQueryResult(
+        query="CPR 31.16 pre-action disclosure requirements before proceedings have started",
+        messages=[{"role": "user", "content": "Original"}],
+        completion=rewrite_completion,
+        reasoning_effort="none",
+    )
+
+    async def fake_rewrite_query(**_kwargs):
+        return rewrite_result
+
+    async def weak_retrieve(*args, **kwargs):
+        return KnowledgeBaseRetrievalResponse(
+            activity=[
+                KnowledgeBaseModelQueryPlanningActivityRecord(id=0, input_tokens=10, output_tokens=20, elapsed_ms=100),
+                KnowledgeBaseSearchIndexActivityRecord(
+                    id=1,
+                    knowledge_source_name="index",
+                    search_index_arguments=KnowledgeBaseSearchIndexActivityArguments(search="pre action disclosure"),
+                    count=1,
+                    elapsed_ms=50,
+                ),
+            ],
+            references=[
+                KnowledgeBaseSearchIndexReference(
+                    id=0,
+                    activity_source=1,
+                    doc_key="pre-doc",
+                    reranker_score=1.0,
+                    source_data={
+                        "id": "pre-doc",
+                        "content": "Pre-action protocols encourage exchange of information before proceedings.",
+                        "sourcepage": "Pre-Action Protocol for Disease and Illness Claims",
+                        "sourcefile": "Pre",
+                        "category": "Civil Procedure Rules and Practice Directions",
+                        "subsection_id": "1.2",
+                    },
+                )
+            ],
+        )
+
+    search_calls: list[str] = []
+
+    async def fake_search(*args, **kwargs):
+        query_text = kwargs["query_text"]
+        search_calls.append(query_text)
+        if query_text == rewrite_result.query:
+            return [
+                Document(
+                    id="part31",
+                    content="31.16 The application must be supported by evidence.",
+                    sourcepage="Part 31",
+                    sourcefile="Part 31 - Disclosure and Inspection of Documents",
+                    category="Civil Procedure Rules and Practice Directions",
+                    subsection_id="31.16",
+                )
+            ]
+        return []
+
+    monkeypatch.setattr(chat_approach, "rewrite_query", fake_rewrite_query)
+    monkeypatch.setattr(chat_approach, "search", fake_search)
+    monkeypatch.setattr(chat_approach, "_should_retry_for_query_intent", lambda *_args, **_kwargs: False)
+    monkeypatch.setattr(KnowledgeBaseRetrievalClient, "retrieve", weak_retrieve)
+
+    knowledgebase_client = KnowledgeBaseRetrievalClient(
+        endpoint="", knowledge_base_name="", credential=AzureKeyCredential("")
+    )
+
+    agentic_results = await chat_approach.run_agentic_retrieval(
+        messages=[{"role": "user", "content": "What are the requirements for pre action disclosure?"}],
+        knowledgebase_client=knowledgebase_client,
+        search_index_name="test-index",
+        retrieval_reasoning_effort="low",
+    )
+
+    assert agentic_results.rewrite_result is not None
+    assert agentic_results.query_hint == rewrite_result.query
+    assert rewrite_result.query in search_calls
+    assert any(document.subsection_id == "31.16" for document in agentic_results.documents)
+
+
+@pytest.mark.asyncio
 async def test_agentic_retrieval_minimal_requires_string(chat_approach):
     """When minimal reasoning is requested the latest message must be a string."""
 
@@ -185,3 +287,184 @@ async def test_agentic_retrieval_minimal_requires_string(chat_approach):
             search_index_name="test-index",
             retrieval_reasoning_effort="minimal",
         )
+
+
+@pytest.mark.asyncio
+async def test_agentic_retrieval_retries_when_matches_are_weak(chat_approach, monkeypatch):
+    async def weak_retrieve(*args, **kwargs):
+        return KnowledgeBaseRetrievalResponse(
+            activity=[
+                KnowledgeBaseModelQueryPlanningActivityRecord(id=0, input_tokens=10, output_tokens=20, elapsed_ms=100),
+                KnowledgeBaseSearchIndexActivityRecord(
+                    id=1,
+                    knowledge_source_name="index",
+                    search_index_arguments=KnowledgeBaseSearchIndexActivityArguments(search="patents guide"),
+                    count=1,
+                    elapsed_ms=50,
+                ),
+            ],
+            references=[
+                KnowledgeBaseSearchIndexReference(
+                    id=0,
+                    activity_source=1,
+                    doc_key="weak-doc",
+                    reranker_score=1.0,
+                    source_data={
+                        "id": "weak-doc",
+                        "content": "General introduction to the Patents Court Guide.",
+                        "sourcepage": "The Patents Court Guide",
+                        "sourcefile": "The Patents Court Guide",
+                        "category": "Patents Court",
+                    },
+                )
+            ],
+        )
+
+    search_calls: list[str] = []
+
+    async def fake_search(*args, **kwargs):
+        search_calls.append(kwargs["query_text"])
+        return [
+            Document(
+                id="strong-doc",
+                content="Urgent applications are handled by the applications judge.",
+                sourcepage="Urgent applications",
+                sourcefile="The Patents Court Guide",
+                category="Patents Court",
+                subsection_id="3.4",
+            )
+        ]
+
+    monkeypatch.setattr(KnowledgeBaseRetrievalClient, "retrieve", weak_retrieve)
+    monkeypatch.setattr(chat_approach, "search", fake_search)
+
+    knowledgebase_client = KnowledgeBaseRetrievalClient(
+        endpoint="", knowledge_base_name="", credential=AzureKeyCredential("")
+    )
+
+    agentic_results = await chat_approach.run_agentic_retrieval(
+        messages=[{"role": "user", "content": "What does the Patents Court Guide say about urgent applications?"}],
+        knowledgebase_client=knowledgebase_client,
+        search_index_name="test-index",
+    )
+
+    assert search_calls == [
+        "patents guide",
+        "What does the Patents Court Guide say about urgent applications?",
+    ]
+    assert agentic_results.documents[0].id == "strong-doc"
+
+
+@pytest.mark.asyncio
+async def test_agentic_retrieval_targets_missing_legal_references(chat_approach, monkeypatch):
+    completion_payload = {
+        "id": "rewrite-targeted-1",
+        "object": "chat.completion",
+        "created": 0,
+        "model": "gpt-4.1-mini",
+        "choices": [
+            {
+                "index": 0,
+                "finish_reason": "stop",
+                "message": {"role": "assistant", "content": "Rewritten"},
+            }
+        ],
+        "usage": {"completion_tokens": 1, "prompt_tokens": 1, "total_tokens": 2},
+    }
+    rewrite_completion = ChatCompletion.model_validate(completion_payload, strict=False)
+
+    rewrite_result = RewriteQueryResult(
+        query="construction pre action summary judgment",
+        messages=[{"role": "user", "content": "Original"}],
+        completion=rewrite_completion,
+        reasoning_effort="none",
+    )
+
+    async def fake_rewrite_query(**_kwargs):
+        return rewrite_result
+
+    async def weak_retrieve(*args, **kwargs):
+        return KnowledgeBaseRetrievalResponse(
+            activity=[
+                KnowledgeBaseModelQueryPlanningActivityRecord(id=0, input_tokens=10, output_tokens=20, elapsed_ms=100),
+                KnowledgeBaseSearchIndexActivityRecord(
+                    id=1,
+                    knowledge_source_name="index",
+                    search_index_arguments=KnowledgeBaseSearchIndexActivityArguments(
+                        search="construction pre action summary judgment"
+                    ),
+                    count=1,
+                    elapsed_ms=50,
+                ),
+            ],
+            references=[
+                KnowledgeBaseSearchIndexReference(
+                    id=0,
+                    activity_source=1,
+                    doc_key="pre-doc",
+                    reranker_score=1.0,
+                    source_data={
+                        "id": "pre-doc",
+                        "content": "Construction disputes are subject to the pre-action protocol.",
+                        "sourcepage": "Pre-Action Protocol for the Construction and Engineering Disputes",
+                        "sourcefile": "Pre",
+                        "category": "Civil Procedure Rules and Practice Directions",
+                    },
+                )
+            ],
+        )
+
+    search_calls: list[str] = []
+
+    async def fake_search(*args, **kwargs):
+        query_text = kwargs["query_text"]
+        search_calls.append(query_text)
+        if query_text == "Practice Direction 27B":
+            return [
+                Document(
+                    id="pd27b",
+                    content="Claims under the personal injury pre-action protocol must be started under Part 7 or Part 8.",
+                    sourcepage="Practice Direction 27B",
+                    sourcefile="Practice Direction 27B",
+                    category="Civil Procedure Rules and Practice Directions",
+                )
+            ]
+        if query_text == "24.3 summary judgment no real prospect of succeeding no other compelling reason":
+            return [
+                Document(
+                    id="part24",
+                    content="The court may give summary judgment where a party has no real prospect of succeeding.",
+                    sourcepage="Part 24",
+                    sourcefile="Part 24 - Summary judgment",
+                    category="Civil Procedure Rules and Practice Directions",
+                    subsection_id="24.3",
+                )
+            ]
+        return []
+
+    monkeypatch.setattr(KnowledgeBaseRetrievalClient, "retrieve", weak_retrieve)
+    monkeypatch.setattr(chat_approach, "rewrite_query", fake_rewrite_query)
+    monkeypatch.setattr(chat_approach, "search", fake_search)
+
+    knowledgebase_client = KnowledgeBaseRetrievalClient(
+        endpoint="", knowledge_base_name="", credential=AzureKeyCredential("")
+    )
+
+    agentic_results = await chat_approach.run_agentic_retrieval(
+        messages=[
+            {
+                "role": "user",
+                "content": "Before commencing construction proceedings, what pre-action steps apply, when can summary judgment be granted, and what Practice Direction 27B point is relevant?",
+            }
+        ],
+        knowledgebase_client=knowledgebase_client,
+        search_index_name="test-index",
+    )
+
+    assert search_calls == [
+        "Practice Direction 27B",
+        "24.3 summary judgment no real prospect of succeeding no other compelling reason",
+    ]
+    sourcefiles = [document.sourcefile for document in agentic_results.documents]
+    assert "Practice Direction 27B" in sourcefiles
+    assert "Part 24 - Summary judgment" in sourcefiles

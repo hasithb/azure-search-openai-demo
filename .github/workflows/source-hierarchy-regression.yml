@@ -1,0 +1,51 @@
+name: Source Hierarchy Regression
+
+on:
+  workflow_dispatch:
+    inputs:
+      app_url:
+        description: Deployed app URL to validate
+        required: true
+        type: string
+      python_version:
+        description: Python version for the regression job
+        required: false
+        default: "3.11"
+        type: string
+  workflow_call:
+    inputs:
+      app_url:
+        required: true
+        type: string
+      python_version:
+        required: false
+        default: "3.11"
+        type: string
+
+jobs:
+  source_hierarchy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ inputs.python_version || '3.11' }}
+
+      - name: Install regression dependencies
+        run: python -m pip install --upgrade pip httpx
+
+      - name: Run source hierarchy regression
+        env:
+          APP_URL: ${{ inputs.app_url }}
+        run: python scripts/test_source_hierarchy.py
+
+      - name: Upload regression results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-hierarchy-results
+          path: scripts/source_hierarchy_results.json
+          if-no-files-found: ignore

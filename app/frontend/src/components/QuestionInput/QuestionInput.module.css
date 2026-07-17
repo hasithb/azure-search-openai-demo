@@ -1,59 +1,45 @@
 .questionInputContainer {
     border-radius: 0.5rem;
     box-shadow:
-        0px 0.5rem 1rem rgba(0, 0, 0, 0.14),
-        0px 0px 0.125rem rgba(0, 0, 0, 0.12);
+        0 0.5rem 1rem rgba(0, 0, 0, 0.14),
+        0 0 0.125rem rgba(0, 0, 0, 0.12);
     width: 100%;
     padding: 0.8rem;
     background: white;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 8px;
     transition: box-shadow 0.2s ease;
 }
 
 .questionInputContainer:focus-within {
     box-shadow:
-        0px 0.5rem 1rem rgba(0, 0, 0, 0.14),
-        0px 0px 0.125rem rgba(0, 0, 0, 0.12),
-        0px 0px 0px 3px rgba(115, 118, 225, 0.1);
+        0 0.5rem 1rem rgba(0, 0, 0, 0.14),
+        0 0 0.125rem rgba(0, 0, 0, 0.12),
+        0 0 0 3px rgba(115, 118, 225, 0.1);
 }
 
 .questionInputTextArea {
-    flex: 1;
-    line-height: 2.5rem;
-    display: flex !important;
-    align-items: flex-start !important;
-    min-width: 0; /* Allow shrinking when needed */
+    width: 100%;
+    max-height: 12rem;
 }
 
-.questionInputTextArea :global(.ms-TextField-wrapper) {
-    display: flex !important;
-    align-items: flex-start !important;
-    width: 100% !important;
-    min-width: 0 !important;
+/* Remove v9 Textarea border/background for borderless appearance */
+.questionInputTextArea {
+    border: none !important;
+    overflow: hidden;
 }
 
-.questionInputTextArea :global(.ms-TextField-fieldGroup) {
-    display: flex !important;
-    align-items: flex-start !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    min-height: 44px !important;
+.questionInputTextArea textarea {
+    border: none !important;
+    background: transparent !important;
+    outline: none !important;
+    overflow-y: hidden;
+    line-height: 1.5;
 }
 
-.questionInputTextArea :global(.ms-TextField-field) {
-    width: 100% !important;
-    min-width: 0 !important;
-    min-height: 44px !important;
-    max-height: 120px !important;
-    padding: 8px 12px !important;
-    line-height: 1.5 !important;
-    resize: none !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    word-wrap: break-word !important;
-    white-space: pre-wrap !important;
+.questionInputTextArea::after {
+    border: none !important;
 }
 
 .questionInputButtonsContainer {
@@ -64,71 +50,9 @@
     flex-shrink: 0;
 }
 
-/* Ensure dropdown aligns with textarea */
-.questionInputButtonsContainer :global(.ms-Dropdown) {
-    min-height: 48px !important;
-    max-height: 48px !important;
-}
-
-.questionInputButtonsContainer :global(.ms-Dropdown .ms-Dropdown-title) {
-    min-height: 48px !important;
-    max-height: 48px !important;
-    height: 48px !important;
-    display: flex !important;
-    align-items: center !important;
-    line-height: 1.5 !important;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-}
-
-/* Compact display for multi-select: show count instead of all items */
-.questionInputButtonsContainer :global(.ms-Dropdown .ms-Dropdown-title span) {
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-    max-width: 180px !important;
-}
-
-.questionInputButtonsContainer :global(.ms-Dropdown .ms-Dropdown-caretDownWrapper) {
-    height: 48px !important;
-    display: flex !important;
-    align-items: center !important;
-}
-
-/* Prevent category truncation in dropdown */
-.questionInputButtonsContainer :global(.ms-Dropdown .ms-Dropdown-callout) {
-    min-width: 350px !important;
-    max-width: 500px !important;
-    width: auto !important;
-}
-
-.questionInputButtonsContainer :global(.ms-Dropdown .ms-Dropdown-item) {
-    white-space: normal !important;
-    overflow: visible !important;
-    text-overflow: initial !important;
-    padding: 8px 12px !important;
-    word-wrap: break-word !important;
-    min-height: 36px !important;
-}
-
-.questionInputButtonsContainer :global(.ms-Dropdown .ms-Dropdown-optionText) {
-    white-space: normal !important;
-    overflow: visible !important;
-    text-overflow: initial !important;
-    word-wrap: break-word !important;
-    line-height: 1.4 !important;
-}
-
 @media (min-width: 992px) {
     .questionInputContainer {
         min-height: 5.625rem;
-        align-items: flex-end;
-    }
-
-    .questionInputTextArea :global(.ms-TextField-field) {
-        max-height: 80px !important;
+        align-items: center;
     }
 }

@@ -20,7 +20,7 @@ describe("LegalFeedback", () => {
             <LegalFeedback messageId="m1" userPrompt="What is CPR?" aiResponse="Answer" conversationHistory={[{ role: "user", content: "Hi" }]} thoughts={[]} />
         );
 
-        fireEvent.click(screen.getByTitle("Accurate & Helpful"));
+        fireEvent.click(screen.getByRole("button", { name: "Accurate & Helpful" }));
 
         await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
         const [, init] = fetchMock.mock.calls[0];
@@ -46,7 +46,7 @@ describe("LegalFeedback", () => {
             />
         );
 
-        fireEvent.click(screen.getByTitle("Report Issue"));
+        fireEvent.click(screen.getByRole("button", { name: "Report Issue" }));
 
         const submit = await screen.findByRole("button", { name: /Submit Report/i });
         expect(submit).toBeDisabled();

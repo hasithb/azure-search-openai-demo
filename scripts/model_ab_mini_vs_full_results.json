@@ -1,0 +1,404 @@
+{
+  "summary": {
+    "mini_avg": 81.3,
+    "full_avg": 90.0,
+    "delta": 8.7,
+    "improved": 5,
+    "same": 8,
+    "degraded": 2
+  },
+  "results": [
+    {
+      "id": "CPR-01",
+      "question": "How do I get a court to decide my case quickly without a full trial?",
+      "mini_score": 100,
+      "full_score": 100,
+      "delta": 0,
+      "expected_topics": [
+        "summary judgment",
+        "no real prospect",
+        "Part 24"
+      ],
+      "mini_found": [
+        "summary judgment",
+        "no real prospect",
+        "Part 24"
+      ],
+      "full_found": [
+        "summary judgment",
+        "no real prospect",
+        "Part 24"
+      ],
+      "num_sources": 5,
+      "mini_answer_len": 1181,
+      "full_answer_len": 1971
+    },
+    {
+      "id": "CPR-03",
+      "question": "What documents do I have to share with the other side in a lawsuit?",
+      "mini_score": 66,
+      "full_score": 100,
+      "delta": 34,
+      "expected_topics": [
+        "disclosure",
+        "inspection",
+        "documents"
+      ],
+      "mini_found": [
+        "disclosure",
+        "documents"
+      ],
+      "full_found": [
+        "disclosure",
+        "inspection",
+        "documents"
+      ],
+      "num_sources": 10,
+      "mini_answer_len": 1269,
+      "full_answer_len": 2046
+    },
+    {
+      "id": "CPR-06",
+      "question": "Can I use an expert witness in my case and what rules apply to them?",
+      "mini_score": 75,
+      "full_score": 75,
+      "delta": 0,
+      "expected_topics": [
+        "expert",
+        "duty to the court",
+        "report",
+        "single joint expert"
+      ],
+      "mini_found": [
+        "expert",
+        "report",
+        "single joint expert"
+      ],
+      "full_found": [
+        "expert",
+        "report",
+        "single joint expert"
+      ],
+      "num_sources": 14,
+      "mini_answer_len": 923,
+      "full_answer_len": 2378
+    },
+    {
+      "id": "CPR-10",
+      "question": "How do I apply for an injunction to stop someone doing something urgently?",
+      "mini_score": 75,
+      "full_score": 100,
+      "delta": 25,
+      "expected_topics": [
+        "injunction",
+        "without notice",
+        "interim",
+        "undertaking"
+      ],
+      "mini_found": [
+        "injunction",
+        "without notice",
+        "interim"
+      ],
+      "full_found": [
+        "injunction",
+        "without notice",
+        "interim",
+        "undertaking"
+      ],
+      "num_sources": 9,
+      "mini_answer_len": 1000,
+      "full_answer_len": 2527
+    },
+    {
+      "id": "CPR-15",
+      "question": "How do I appeal a court decision I disagree with?",
+      "mini_score": 75,
+      "full_score": 50,
+      "delta": -25,
+      "expected_topics": [
+        "appeal",
+        "permission",
+        "Part 52",
+        "grounds"
+      ],
+      "mini_found": [
+        "appeal",
+        "permission",
+        "Part 52"
+      ],
+      "full_found": [
+        "appeal",
+        "permission"
+      ],
+      "num_sources": 19,
+      "mini_answer_len": 1555,
+      "full_answer_len": 2686
+    },
+    {
+      "id": "CPR-16",
+      "question": "How is a civil case allocated to the right court track?",
+      "mini_score": 100,
+      "full_score": 100,
+      "delta": 0,
+      "expected_topics": [
+        "small claims",
+        "fast track",
+        "multi-track",
+        "allocation"
+      ],
+      "mini_found": [
+        "small claims",
+        "fast track",
+        "multi-track",
+        "allocation"
+      ],
+      "full_found": [
+        "small claims",
+        "fast track",
+        "multi-track",
+        "allocation"
+      ],
+      "num_sources": 19,
+      "mini_answer_len": 1407,
+      "full_answer_len": 3169
+    },
+    {
+      "id": "CPR-18",
+      "question": "How do I serve court documents on the other party?",
+      "mini_score": 33,
+      "full_score": 100,
+      "delta": 67,
+      "expected_topics": [
+        "service",
+        "claim form",
+        "methods"
+      ],
+      "mini_found": [
+        "service"
+      ],
+      "full_found": [
+        "service",
+        "claim form",
+        "methods"
+      ],
+      "num_sources": 8,
+      "mini_answer_len": 1643,
+      "full_answer_len": 2183
+    },
+    {
+      "id": "CCG-01",
+      "question": "How do I challenge an arbitration award in the Commercial Court?",
+      "mini_score": 80,
+      "full_score": 100,
+      "delta": 20,
+      "expected_topics": [
+        "arbitration",
+        "challenge",
+        "award",
+        "28 days",
+        "section 67"
+      ],
+      "mini_found": [
+        "arbitration",
+        "challenge",
+        "award",
+        "section 67"
+      ],
+      "full_found": [
+        "arbitration",
+        "challenge",
+        "award",
+        "28 days",
+        "section 67"
+      ],
+      "num_sources": 15,
+      "mini_answer_len": 1347,
+      "full_answer_len": 4349
+    },
+    {
+      "id": "CCG-04",
+      "question": "How is a case managed in the Commercial Court from start to trial?",
+      "mini_score": 100,
+      "full_score": 100,
+      "delta": 0,
+      "expected_topics": [
+        "case management",
+        "conference",
+        "list",
+        "timetable"
+      ],
+      "mini_found": [
+        "case management",
+        "conference",
+        "list",
+        "timetable"
+      ],
+      "full_found": [
+        "case management",
+        "conference",
+        "list",
+        "timetable"
+      ],
+      "num_sources": 16,
+      "mini_answer_len": 1800,
+      "full_answer_len": 3451
+    },
+    {
+      "id": "TCC-01",
+      "question": "Do I have to try mediation before going to trial in a construction dispute?",
+      "mini_score": 75,
+      "full_score": 75,
+      "delta": 0,
+      "expected_topics": [
+        "ADR",
+        "mediation",
+        "encouragement",
+        "costs"
+      ],
+      "mini_found": [
+        "ADR",
+        "mediation",
+        "costs"
+      ],
+      "full_found": [
+        "ADR",
+        "mediation",
+        "costs"
+      ],
+      "num_sources": 10,
+      "mini_answer_len": 1153,
+      "full_answer_len": 1560
+    },
+    {
+      "id": "KBD-01",
+      "question": "How do I get someone released from unlawful detention?",
+      "mini_score": 100,
+      "full_score": 100,
+      "delta": 0,
+      "expected_topics": [
+        "habeas corpus",
+        "writ",
+        "detention",
+        "Administrative Court"
+      ],
+      "mini_found": [
+        "habeas corpus",
+        "writ",
+        "detention",
+        "Administrative Court"
+      ],
+      "full_found": [
+        "habeas corpus",
+        "writ",
+        "detention",
+        "Administrative Court"
+      ],
+      "num_sources": 19,
+      "mini_answer_len": 1441,
+      "full_answer_len": 2368
+    },
+    {
+      "id": "CROSS-06",
+      "question": "What is the overriding objective and how does it affect court cases?",
+      "mini_score": 100,
+      "full_score": 75,
+      "delta": -25,
+      "expected_topics": [
+        "overriding objective",
+        "proportionate",
+        "fair",
+        "CPR"
+      ],
+      "mini_found": [
+        "overriding objective",
+        "proportionate",
+        "fair",
+        "CPR"
+      ],
+      "full_found": [
+        "overriding objective",
+        "proportionate",
+        "fair"
+      ],
+      "num_sources": 7,
+      "mini_answer_len": 1306,
+      "full_answer_len": 1440
+    },
+    {
+      "id": "CROSS-07",
+      "question": "When can a freezing order be obtained to prevent someone moving assets?",
+      "mini_score": 75,
+      "full_score": 75,
+      "delta": 0,
+      "expected_topics": [
+        "freezing",
+        "order",
+        "assets",
+        "risk"
+      ],
+      "mini_found": [
+        "freezing",
+        "order",
+        "assets"
+      ],
+      "full_found": [
+        "freezing",
+        "order",
+        "assets"
+      ],
+      "num_sources": 11,
+      "mini_answer_len": 1137,
+      "full_answer_len": 1402
+    },
+    {
+      "id": "PAT-01",
+      "question": "How do I start a patent infringement case in court?",
+      "mini_score": 100,
+      "full_score": 100,
+      "delta": 0,
+      "expected_topics": [
+        "patent",
+        "infringement",
+        "Patents Court"
+      ],
+      "mini_found": [
+        "patent",
+        "infringement",
+        "Patents Court"
+      ],
+      "full_found": [
+        "patent",
+        "infringement",
+        "Patents Court"
+      ],
+      "num_sources": 21,
+      "mini_answer_len": 872,
+      "full_answer_len": 1441
+    },
+    {
+      "id": "CHAN-01",
+      "question": "How do I bring a trust dispute to the Chancery Division?",
+      "mini_score": 66,
+      "full_score": 100,
+      "delta": 34,
+      "expected_topics": [
+        "Chancery",
+        "trust",
+        "claim form"
+      ],
+      "mini_found": [
+        "Chancery",
+        "trust"
+      ],
+      "full_found": [
+        "Chancery",
+        "trust",
+        "claim form"
+      ],
+      "num_sources": 11,
+      "mini_answer_len": 1050,
+      "full_answer_len": 2479
+    }
+  ]
+}

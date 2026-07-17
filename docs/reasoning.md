@@ -6,6 +6,10 @@ This repository includes an optional feature that uses reasoning models to gener
 
 ### Supported Models
 
+* gpt-5.4
+* gpt-5.4-pro
+* gpt-5.4-mini
+* gpt-5.4-nano
 * gpt-5
 * gpt-5-mini
 * gpt-5-nano
@@ -23,6 +27,33 @@ This repository includes an optional feature that uses reasoning models to gener
 1. **Enable reasoning:**
 
    Set the environment variables for your Azure OpenAI GPT deployments to your reasoning model
+
+   For gpt-5.4-nano (recommended for cost-effective reasoning):
+
+```shell
+   azd env set AZURE_OPENAI_CHATGPT_MODEL gpt-5.4-nano
+   azd env set AZURE_OPENAI_CHATGPT_DEPLOYMENT gpt-5.4-nano
+   azd env set AZURE_OPENAI_CHATGPT_DEPLOYMENT_VERSION 2026-03-17
+   azd env set AZURE_OPENAI_CHATGPT_DEPLOYMENT_SKU GlobalStandard
+   ```
+
+   For gpt-5.4-mini:
+
+```shell
+   azd env set AZURE_OPENAI_CHATGPT_MODEL gpt-5.4-mini
+   azd env set AZURE_OPENAI_CHATGPT_DEPLOYMENT gpt-5.4-mini
+   azd env set AZURE_OPENAI_CHATGPT_DEPLOYMENT_VERSION 2026-03-17
+   azd env set AZURE_OPENAI_CHATGPT_DEPLOYMENT_SKU GlobalStandard
+   ```
+
+   For gpt-5.4:
+
+```shell
+   azd env set AZURE_OPENAI_CHATGPT_MODEL gpt-5.4
+   azd env set AZURE_OPENAI_CHATGPT_DEPLOYMENT gpt-5.4
+   azd env set AZURE_OPENAI_CHATGPT_DEPLOYMENT_VERSION 2026-03-05
+   azd env set AZURE_OPENAI_CHATGPT_DEPLOYMENT_SKU GlobalStandard
+   ```
 
    For gpt-5:
 
@@ -103,7 +134,7 @@ This repository includes an optional feature that uses reasoning models to gener
 
 1. **Try out the feature:**
 
-   Open the web app and start a new chat. The reasoning model will be used for all chat completion requests, including the query rewriting step.
+   Open the web app and start a new chat. The reasoning model will be used for all Responses API requests, including the query rewriting step.
 
 1. **Experiment with reasoning effort:**
 
@@ -114,6 +145,6 @@ This repository includes an optional feature that uses reasoning models to gener
 1. **Understand token usage:**
 
    The reasoning models use additional billed tokens behind the scenes for the thinking process.
-   To see the token usage, select the lightbulb icon on a chat answer. This will open the "Thought process" tab, which shows the reasoning model's thought process and the token usage for each chat completion.
+   To see the token usage, select the lightbulb icon on a chat answer. This will open the "Thought process" tab, which shows the reasoning model's thought process and the token usage for each response.
 
    ![Thought process token usage](./images/token-usage.png)

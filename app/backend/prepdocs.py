@@ -2,48 +2,36 @@ import argparse
 import asyncio
 import logging
 import os
-from typing import Optional, Union
+from typing import Optional
 
 import aiohttp
-from azure.core.credentials import AzureKeyCredential
 from azure.core.credentials_async import AsyncTokenCredential
-from azure.identity.aio import AzureDeveloperCliCredential, get_bearer_token_provider
+from azure.identity.aio import AzureDeveloperCliCredential
+from openai import AsyncOpenAI
 from rich.logging import RichHandler
 
 from load_azd_env import load_azd_env
-from prepdocslib.blobmanager import BlobManager
-from prepdocslib.csvparser import CsvParser
-from prepdocslib.embeddings import (
-    AzureOpenAIEmbeddingService,
-    ImageEmbeddings,
-    OpenAIEmbeddingService,
-)
-from prepdocslib.fileprocessor import FileProcessor
 from prepdocslib.filestrategy import FileStrategy
-from prepdocslib.htmlparser import LocalHTMLParser
 from prepdocslib.integratedvectorizerstrategy import (
     IntegratedVectorizerStrategy,
 )
-from prepdocslib.jsonparser import JsonParser
 from prepdocslib.listfilestrategy import (
-    ADLSGen2ListFileStrategy,
-    ListFileStrategy,
     LocalListFileStrategy,
 )
-from prepdocslib.parser import Parser
-from prepdocslib.pdfparser import DocumentAnalysisParser, LocalPdfParser
-from prepdocslib.strategy import DocumentAction, SearchInfo, Strategy
-from prepdocslib.textparser import TextParser
-from prepdocslib.textsplitter import SentenceTextSplitter, SimpleTextSplitter
+from prepdocslib.servicesetup import (
+    OpenAIHost,
+    build_file_processors,
+    clean_key_if_exists,
+    setup_blob_manager,
+    setup_embeddings_service,
+    setup_figure_processor,
+    setup_image_embeddings_service,
+    setup_openai_client,
+    setup_search_info,
+)
+from prepdocslib.strategy import DocumentAction, Strategy
 
 logger = logging.getLogger("scripts")
-
-
-def clean_key_if_exists(key: Union[str, None]) -> Union[str, None]:
-    """Remove leading and trailing whitespace from a key if it exists. If the key is empty, return None."""
-    if key is not None and key.strip() != "":
-        return key.strip()
-    return None
 
 
 async def check_search_service_connectivity(search_service: str) -> bool:
@@ -59,212 +47,56 @@ async def check_search_service_connectivity(search_service: str) -> bool:
         return False
 
 
-async def setup_search_info(
-    search_service: str,
-    index_name: str,
-    azure_credential: AsyncTokenCredential,
-    use_agentic_retrieval: Union[bool, None] = None,
-    azure_openai_endpoint: Union[str, None] = None,
-    agent_name: Union[str, None] = None,
-    agent_max_output_tokens: Union[int, None] = None,
-    azure_openai_searchagent_deployment: Union[str, None] = None,
-    azure_openai_searchagent_model: Union[str, None] = None,
-    search_key: Union[str, None] = None,
-) -> SearchInfo:
-    search_creds: Union[AsyncTokenCredential, AzureKeyCredential] = (
-        azure_credential if search_key is None else AzureKeyCredential(search_key)
-    )
-    if use_agentic_retrieval and azure_openai_searchagent_model is None:
-        raise ValueError("Azure OpenAI SearchAgent model must be specified when using agentic retrieval.")
-
-    return SearchInfo(
-        endpoint=f"https://{search_service}.search.windows.net/",
-        credential=search_creds,
-        index_name=index_name,
-        agent_name=agent_name,
-        agent_max_output_tokens=agent_max_output_tokens,
-        use_agentic_retrieval=use_agentic_retrieval,
-        azure_openai_endpoint=azure_openai_endpoint,
-        azure_openai_searchagent_model=azure_openai_searchagent_model,
-        azure_openai_searchagent_deployment=azure_openai_searchagent_deployment,
-    )
-
-
-def setup_blob_manager(
-    azure_credential: AsyncTokenCredential,
-    storage_account: str,
-    storage_container: str,
-    storage_resource_group: str,
-    subscription_id: str,
-    search_images: bool,
-    storage_key: Union[str, None] = None,
-):
-    storage_creds: Union[AsyncTokenCredential, str] = azure_credential if storage_key is None else storage_key
-    return BlobManager(
-        endpoint=f"https://{storage_account}.blob.core.windows.net",
-        container=storage_container,
-        account=storage_account,
-        credential=storage_creds,
-        resource_group=storage_resource_group,
-        subscription_id=subscription_id,
-    )
-
-
 def setup_list_file_strategy(
     azure_credential: AsyncTokenCredential,
-    local_files: Union[str, None],
-    datalake_storage_account: Union[str, None],
-    datalake_filesystem: Union[str, None],
-    datalake_path: Union[str, None],
-    datalake_key: Union[str, None],
+    local_files: str,
+    enable_global_documents: bool = False,
 ):
-    list_file_strategy: ListFileStrategy
-    if datalake_storage_account:
-        if datalake_filesystem is None or datalake_path is None:
-            raise ValueError("DataLake file system and path are required when using Azure Data Lake Gen2")
-        adls_gen2_creds: Union[AsyncTokenCredential, str] = azure_credential if datalake_key is None else datalake_key
-        logger.info("Using Data Lake Gen2 Storage Account: %s", datalake_storage_account)
-        list_file_strategy = ADLSGen2ListFileStrategy(
-            data_lake_storage_account=datalake_storage_account,
-            data_lake_filesystem=datalake_filesystem,
-            data_lake_path=datalake_path,
-            credential=adls_gen2_creeds,
-        )
-    elif local_files:
-        logger.info("Using local files: %s", local_files)
-        list_file_strategy = LocalListFileStrategy(path_pattern=local_files)
-    else:
-        raise ValueError("Either local_files or datalake_storage_account must be provided.")
+    logger.info("Using local files: %s", local_files)
+    list_file_strategy = LocalListFileStrategy(
+        path_pattern=local_files, enable_global_documents=enable_global_documents
+    )
     return list_file_strategy
-
-
-def setup_embeddings_service(
-    azure_credential: AsyncTokenCredential,
-    openai_host: str,
-    openai_model_name: str,
-    openai_service: Union[str, None],
-    openai_custom_url: Union[str, None],
-    openai_deployment: Union[str, None],
-    openai_dimensions: int,
-    openai_api_version: str,
-    openai_key: Union[str, None],
-    openai_org: Union[str, None],
-    disable_vectors: bool = False,
-    disable_batch_vectors: bool = False,
-):
-    if disable_vectors:
-        logger.info("Not setting up embeddings service")
-        return None
-
-    if openai_host != "openai":
-        azure_open_ai_credential: Union[AsyncTokenCredential, AzureKeyCredential] = (
-            azure_credential if openai_key is None else AzureKeyCredential(openai_key)
-        )
-        return AzureOpenAIEmbeddingService(
-            open_ai_service=openai_service,
-            open_ai_custom_url=openai_custom_url,
-            open_ai_deployment=openai_deployment,
-            open_ai_model_name=openai_model_name,
-            open_ai_dimensions=openai_dimensions,
-            open_ai_api_version=openai_api_version,
-            credential=azure_open_ai_credential,
-            disable_batch=disable_batch_vectors,
-        )
-    else:
-        if openai_key is None:
-            raise ValueError("OpenAI key is required when using the non-Azure OpenAI API")
-        return OpenAIEmbeddingService(
-            open_ai_model_name=openai_model_name,
-            open_ai_dimensions=openai_dimensions,
-            credential=openai_key,
-            organization=openai_org,
-            disable_batch=disable_batch_vectors,
-        )
 
 
 def setup_file_processors(
     azure_credential: AsyncTokenCredential,
-    document_intelligence_service: Union[str, None],
-    document_intelligence_key: Union[str, None] = None,
+    document_intelligence_service: Optional[str],
+    document_intelligence_key: Optional[str] = None,
     local_pdf_parser: bool = False,
     local_html_parser: bool = False,
-    search_images: bool = False,
     use_content_understanding: bool = False,
-    content_understanding_endpoint: Union[str, None] = None,
+    use_multimodal: bool = False,
+    openai_client: Optional[AsyncOpenAI] = None,
+    openai_model: Optional[str] = None,
+    openai_deployment: Optional[str] = None,
+    content_understanding_endpoint: Optional[str] = None,
 ):
-    sentence_text_splitter = SentenceTextSplitter()
+    """Setup file processors and figure processor for document ingestion.
 
-    doc_int_parser: Optional[DocumentAnalysisParser] = None
-    # check if Azure Document Intelligence credentials are provided
-    if document_intelligence_service is not None:
-        documentintelligence_creds: Union[AsyncTokenCredential, AzureKeyCredential] = (
-            azure_credential if document_intelligence_key is None else AzureKeyCredential(document_intelligence_key)
-        )
-        doc_int_parser = DocumentAnalysisParser(
-            endpoint=f"https://{document_intelligence_service}.cognitiveservices.azure.com/",
-            credential=documentintelligence_creds,
-            use_content_understanding=use_content_understanding,
-            content_understanding_endpoint=content_understanding_endpoint,
-        )
+    Uses build_file_processors from servicesetup to ensure consistent parser/splitter
+    selection logic with the Azure Functions cloud ingestion pipeline.
+    """
+    file_processors = build_file_processors(
+        azure_credential=azure_credential,
+        document_intelligence_service=document_intelligence_service,
+        document_intelligence_key=document_intelligence_key,
+        use_local_pdf_parser=local_pdf_parser,
+        use_local_html_parser=local_html_parser,
+        process_figures=use_multimodal,
+    )
 
-    pdf_parser: Optional[Parser] = None
-    if local_pdf_parser or document_intelligence_service is None:
-        pdf_parser = LocalPdfParser()
-    elif document_intelligence_service is not None:
-        pdf_parser = doc_int_parser
-    else:
-        logger.warning("No PDF parser available")
+    figure_processor = setup_figure_processor(
+        credential=azure_credential,
+        use_multimodal=use_multimodal,
+        use_content_understanding=use_content_understanding,
+        content_understanding_endpoint=content_understanding_endpoint,
+        openai_client=openai_client,
+        openai_model=openai_model,
+        openai_deployment=openai_deployment,
+    )
 
-    html_parser: Optional[Parser] = None
-    if local_html_parser or document_intelligence_service is None:
-        html_parser = LocalHTMLParser()
-    elif document_intelligence_service is not None:
-        html_parser = doc_int_parser
-    else:
-        logger.warning("No HTML parser available")
-
-    # These file formats can always be parsed:
-    file_processors = {
-        ".json": FileProcessor(JsonParser(), SimpleTextSplitter()),
-        ".md": FileProcessor(TextParser(), sentence_text_splitter),
-        ".txt": FileProcessor(TextParser(), sentence_text_splitter),
-        ".csv": FileProcessor(CsvParser(), sentence_text_splitter),
-    }
-    # These require either a Python package or Document Intelligence
-    if pdf_parser is not None:
-        file_processors.update({".pdf": FileProcessor(pdf_parser, sentence_text_splitter)})
-    if html_parser is not None:
-        file_processors.update({".html": FileProcessor(html_parser, sentence_text_splitter)})
-    # These file formats require Document Intelligence
-    if doc_int_parser is not None:
-        file_processors.update(
-            {
-                ".docx": FileProcessor(doc_int_parser, sentence_text_splitter),
-                ".pptx": FileProcessor(doc_int_parser, sentence_text_splitter),
-                ".xlsx": FileProcessor(doc_int_parser, sentence_text_splitter),
-                ".png": FileProcessor(doc_int_parser, sentence_text_splitter),
-                ".jpg": FileProcessor(doc_int_parser, sentence_text_splitter),
-                ".jpeg": FileProcessor(doc_int_parser, sentence_text_splitter),
-                ".tiff": FileProcessor(doc_int_parser, sentence_text_splitter),
-                ".bmp": FileProcessor(doc_int_parser, sentence_text_splitter),
-                ".heic": FileProcessor(doc_int_parser, sentence_text_splitter),
-            }
-        )
-    return file_processors
-
-
-def setup_image_embeddings_service(
-    azure_credential: AsyncTokenCredential, vision_endpoint: Union[str, None], search_images: bool
-) -> Union[ImageEmbeddings, None]:
-    image_embeddings_service: Optional[ImageEmbeddings] = None
-    if search_images:
-        if vision_endpoint is None:
-            raise ValueError("A computer vision endpoint is required when GPT-4-vision is enabled.")
-        image_embeddings_service = ImageEmbeddings(
-            endpoint=vision_endpoint,
-            token_provider=get_bearer_token_provider(azure_credential, "https://cognitiveservices.azure.com/.default"),
-        )
-    return image_embeddings_service
+    return file_processors, figure_processor
 
 
 async def main(strategy: Strategy, setup_index: bool = True):
@@ -274,7 +106,7 @@ async def main(strategy: Strategy, setup_index: bool = True):
     await strategy.run()
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     parser = argparse.ArgumentParser(
         description="Prepare documents by extracting content from PDFs, splitting content into sections, uploading to blob storage, and indexing in a search index."
     )
@@ -282,9 +114,6 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "--category", help="Value for the category field in the search index for all sections indexed in this run"
-    )
-    parser.add_argument(
-        "--skipblobs", action="store_true", help="Skip uploading individual pages to Azure Blob Storage"
     )
     parser.add_argument(
         "--disablebatchvectors", action="store_true", help="Don't compute embeddings in batch for the sections"
@@ -312,17 +141,9 @@ if __name__ == "__main__":
         help="Optional. Use this Azure Blob Storage account key instead of the current user identity to login (use az login to set current user for Azure)",
     )
     parser.add_argument(
-        "--datalakekey", required=False, help="Optional. Use this key when authenticating to Azure Data Lake Gen2"
-    )
-    parser.add_argument(
         "--documentintelligencekey",
         required=False,
         help="Optional. Use this Azure Document Intelligence account key instead of the current user identity to login (use az login to set current user for Azure)",
-    )
-    parser.add_argument(
-        "--searchserviceassignedid",
-        required=False,
-        help="Search service system assigned Identity (Managed identity) (used for integrated vectorization)",
     )
 
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
@@ -336,6 +157,12 @@ if __name__ == "__main__":
 
     load_azd_env()
 
+    if os.getenv("USE_CLOUD_INGESTION", "").lower() == "true":
+        logger.warning(
+            "Cloud ingestion is enabled. Please use setup_cloud_ingestion.py instead of prepdocs.py. Exiting."
+        )
+        exit(0)
+
     if (
         os.getenv("AZURE_PUBLIC_NETWORK_ACCESS") == "Disabled"
         and os.getenv("AZURE_USE_VPN_GATEWAY", "").lower() != "true"
@@ -344,11 +171,15 @@ if __name__ == "__main__":
         exit(0)
 
     use_int_vectorization = os.getenv("USE_FEATURE_INT_VECTORIZATION", "").lower() == "true"
-    use_gptvision = os.getenv("USE_GPT4V", "").lower() == "true"
-    use_acls = os.getenv("AZURE_ENFORCE_ACCESS_CONTROL") is not None
+    use_multimodal = os.getenv("USE_MULTIMODAL", "").lower() == "true"
+    use_acls = os.getenv("AZURE_USE_AUTHENTICATION", "").lower() == "true"
+    enforce_access_control = os.getenv("AZURE_ENFORCE_ACCESS_CONTROL", "").lower() == "true"
+    enable_global_documents = os.getenv("AZURE_ENABLE_GLOBAL_DOCUMENT_ACCESS", "").lower() == "true"
     dont_use_vectors = os.getenv("USE_VECTORS", "").lower() == "false"
-    use_agentic_retrieval = os.getenv("USE_AGENTIC_RETRIEVAL", "").lower() == "true"
+    use_agentic_knowledgebase = os.getenv("USE_AGENTIC_KNOWLEDGEBASE", "").lower() == "true"
     use_content_understanding = os.getenv("USE_MEDIA_DESCRIBER_AZURE_CU", "").lower() == "true"
+    use_web_source = os.getenv("USE_WEB_SOURCE", "").lower() == "true"
+    use_sharepoint_source = os.getenv("USE_SHAREPOINT_SOURCE", "").lower() == "true"
 
     # Use the current user identity to connect to Azure services. See infra/main.bicep for role assignments.
     if tenant_id := os.getenv("AZURE_TENANT_ID"):
@@ -368,25 +199,23 @@ if __name__ == "__main__":
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
 
-    openai_host = os.environ["OPENAI_HOST"]
+    OPENAI_HOST = OpenAIHost(os.environ["OPENAI_HOST"])
     # Check for incompatibility
     # if openai host is not azure
-    if openai_host != "azure" and use_agentic_retrieval:
+    if use_agentic_knowledgebase and OPENAI_HOST not in [OpenAIHost.AZURE, OpenAIHost.AZURE_CUSTOM]:
         raise Exception("Agentic retrieval requires an Azure OpenAI chat completion service")
 
-    search_info = loop.run_until_complete(
-        setup_search_info(
-            search_service=os.environ["AZURE_SEARCH_SERVICE"],
-            index_name=os.environ["AZURE_SEARCH_INDEX"],
-            use_agentic_retrieval=use_agentic_retrieval,
-            agent_name=os.getenv("AZURE_SEARCH_AGENT"),
-            agent_max_output_tokens=int(os.getenv("AZURE_SEARCH_AGENT_MAX_OUTPUT_TOKENS", 10000)),
-            azure_openai_endpoint=os.environ["AZURE_OPENAI_ENDPOINT"],
-            azure_openai_searchagent_deployment=os.getenv("AZURE_OPENAI_SEARCHAGENT_DEPLOYMENT"),
-            azure_openai_searchagent_model=os.getenv("AZURE_OPENAI_SEARCHAGENT_MODEL"),
-            azure_credential=azd_credential,
-            search_key=clean_key_if_exists(args.searchkey),
-        )
+    search_info = setup_search_info(
+        search_service=os.environ["AZURE_SEARCH_SERVICE"],
+        index_name=os.environ["AZURE_SEARCH_INDEX"],
+        use_agentic_knowledgebase=use_agentic_knowledgebase,
+        knowledgebase_name=os.getenv("AZURE_SEARCH_KNOWLEDGEBASE_NAME"),
+        azure_openai_endpoint=os.environ["AZURE_OPENAI_ENDPOINT"],
+        azure_openai_knowledgebase_deployment=os.getenv("AZURE_OPENAI_KNOWLEDGEBASE_DEPLOYMENT"),
+        azure_openai_knowledgebase_model=os.getenv("AZURE_OPENAI_KNOWLEDGEBASE_MODEL"),
+        azure_credential=azd_credential,
+        search_key=clean_key_if_exists(args.searchkey),
+        azure_vision_endpoint=os.getenv("AZURE_VISION_ENDPOINT"),
     )
 
     # Check search service connectivity
@@ -411,48 +240,44 @@ if __name__ == "__main__":
         storage_container=os.environ["AZURE_STORAGE_CONTAINER"],
         storage_resource_group=os.environ["AZURE_STORAGE_RESOURCE_GROUP"],
         subscription_id=os.environ["AZURE_SUBSCRIPTION_ID"],
-        search_images=use_gptvision,
         storage_key=clean_key_if_exists(args.storagekey),
+        image_storage_container=os.environ.get("AZURE_IMAGESTORAGE_CONTAINER"),  # Pass the image container
     )
     list_file_strategy = setup_list_file_strategy(
         azure_credential=azd_credential,
         local_files=args.files,
-        datalake_storage_account=os.getenv("AZURE_ADLS_GEN2_STORAGE_ACCOUNT"),
-        datalake_filesystem=os.getenv("AZURE_ADLS_GEN2_FILESYSTEM"),
-        datalake_path=os.getenv("AZURE_ADLS_GEN2_FILESYSTEM_PATH"),
-        datalake_key=clean_key_if_exists(args.datalakekey),
+        enable_global_documents=enable_global_documents,
     )
 
-    openai_host = os.environ["OPENAI_HOST"]
-    openai_key = None
-    if os.getenv("AZURE_OPENAI_API_KEY_OVERRIDE"):
-        openai_key = os.getenv("AZURE_OPENAI_API_KEY_OVERRIDE")
-    elif not openai_host.startswith("azure") and os.getenv("OPENAI_API_KEY"):
-        openai_key = os.getenv("OPENAI_API_KEY")
-
-    openai_dimensions = 3072  # Updated default to match text-embedding-3-large
+    emb_model_dimensions = 1536
     if os.getenv("AZURE_OPENAI_EMB_DIMENSIONS"):
-        openai_dimensions = int(os.environ["AZURE_OPENAI_EMB_DIMENSIONS"])
-    openai_embeddings_service = setup_embeddings_service(
+        emb_model_dimensions = int(os.environ["AZURE_OPENAI_EMB_DIMENSIONS"])
+
+    openai_client, azure_openai_endpoint = setup_openai_client(
+        openai_host=OPENAI_HOST,
         azure_credential=azd_credential,
-        openai_host=openai_host,
-        openai_model_name=os.environ["AZURE_OPENAI_EMB_MODEL_NAME"],
-        openai_service=os.getenv("AZURE_OPENAI_SERVICE"),
-        openai_custom_url=os.getenv("AZURE_OPENAI_CUSTOM_URL"),
-        openai_deployment=os.getenv("AZURE_OPENAI_EMB_DEPLOYMENT"),
-        # https://learn.microsoft.com/azure/ai-services/openai/api-version-deprecation#latest-ga-api-release
-        openai_api_version=os.getenv("AZURE_OPENAI_API_VERSION") or "2024-06-01",
-        openai_dimensions=openai_dimensions,
-        openai_key=clean_key_if_exists(openai_key),
-        openai_org=os.getenv("OPENAI_ORGANIZATION"),
-        disable_vectors=dont_use_vectors,
-        disable_batch_vectors=args.disablebatchvectors,
+        azure_openai_service=os.getenv("AZURE_OPENAI_SERVICE"),
+        azure_openai_custom_url=os.getenv("AZURE_OPENAI_CUSTOM_URL"),
+        azure_openai_api_key=os.getenv("AZURE_OPENAI_API_KEY_OVERRIDE"),
+        openai_api_key=clean_key_if_exists(os.getenv("OPENAI_API_KEY")),
+        openai_organization=os.getenv("OPENAI_ORGANIZATION"),
     )
+    openai_embeddings_service = None
+    if not dont_use_vectors:
+        openai_embeddings_service = setup_embeddings_service(
+            OPENAI_HOST,
+            openai_client,
+            emb_model_name=os.environ["AZURE_OPENAI_EMB_MODEL_NAME"],
+            emb_model_dimensions=emb_model_dimensions,
+            azure_openai_deployment=os.getenv("AZURE_OPENAI_EMB_DEPLOYMENT"),
+            azure_openai_endpoint=azure_openai_endpoint,
+            disable_batch=args.disablebatchvectors,
+        )
 
     ingestion_strategy: Strategy
     if use_int_vectorization:
 
-        if not openai_embeddings_service or not isinstance(openai_embeddings_service, AzureOpenAIEmbeddingService):
+        if not openai_embeddings_service or OPENAI_HOST not in [OpenAIHost.AZURE, OpenAIHost.AZURE_CUSTOM]:
             raise Exception("Integrated vectorization strategy requires an Azure OpenAI embeddings service")
 
         ingestion_strategy = IntegratedVectorizerStrategy(
@@ -463,26 +288,30 @@ if __name__ == "__main__":
             embeddings=openai_embeddings_service,
             search_field_name_embedding=os.environ["AZURE_SEARCH_FIELD_NAME_EMBEDDING"],
             subscription_id=os.environ["AZURE_SUBSCRIPTION_ID"],
-            search_service_user_assigned_id=args.searchserviceassignedid,
             search_analyzer_name=os.getenv("AZURE_SEARCH_ANALYZER_NAME"),
             use_acls=use_acls,
             category=args.category,
+            enforce_access_control=enforce_access_control,
         )
     else:
-        file_processors = setup_file_processors(
+        file_processors, figure_processor = setup_file_processors(
             azure_credential=azd_credential,
             document_intelligence_service=os.getenv("AZURE_DOCUMENTINTELLIGENCE_SERVICE"),
             document_intelligence_key=clean_key_if_exists(args.documentintelligencekey),
             local_pdf_parser=os.getenv("USE_LOCAL_PDF_PARSER") == "true",
             local_html_parser=os.getenv("USE_LOCAL_HTML_PARSER") == "true",
-            search_images=use_gptvision,
             use_content_understanding=use_content_understanding,
+            use_multimodal=use_multimodal,
             content_understanding_endpoint=os.getenv("AZURE_CONTENTUNDERSTANDING_ENDPOINT"),
+            openai_client=openai_client,
+            openai_model=os.getenv("AZURE_OPENAI_CHATGPT_MODEL"),
+            openai_deployment=os.getenv("AZURE_OPENAI_CHATGPT_DEPLOYMENT") if OPENAI_HOST == OpenAIHost.AZURE else None,
         )
+
         image_embeddings_service = setup_image_embeddings_service(
             azure_credential=azd_credential,
             vision_endpoint=os.getenv("AZURE_VISION_ENDPOINT"),
-            search_images=use_gptvision,
+            use_multimodal=use_multimodal,
         )
 
         ingestion_strategy = FileStrategy(
@@ -498,9 +327,20 @@ if __name__ == "__main__":
             search_field_name_embedding=os.getenv("AZURE_SEARCH_FIELD_NAME_EMBEDDING", "embedding"),
             use_acls=use_acls,
             category=args.category,
-            use_content_understanding=use_content_understanding,
-            content_understanding_endpoint=os.getenv("AZURE_CONTENTUNDERSTANDING_ENDPOINT"),
+            figure_processor=figure_processor,
+            enforce_access_control=enforce_access_control,
+            use_web_source=use_web_source,
+            use_sharepoint_source=use_sharepoint_source,
         )
 
-    loop.run_until_complete(main(ingestion_strategy, setup_index=not args.remove and not args.removeall))
-    loop.close()
+    try:
+        loop.run_until_complete(main(ingestion_strategy, setup_index=not args.remove and not args.removeall))
+    finally:
+        # Gracefully close any async clients/credentials to avoid noisy destructor warnings
+        try:
+            loop.run_until_complete(blob_manager.close_clients())
+            loop.run_until_complete(openai_client.close())
+            loop.run_until_complete(azd_credential.close())
+        except Exception as e:
+            logger.debug(f"Failed to close async clients cleanly: {e}")
+        loop.close()

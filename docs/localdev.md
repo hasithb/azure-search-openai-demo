@@ -80,12 +80,17 @@ What it does:
 
 * Starts two background tasks in dedicated panels:
   * "Frontend: npm run dev" from `app/frontend` (Vite HMR for instant frontend updates)
-  * "Backend: quart run" from `app/backend` (Quart with `--reload` for backend auto-restarts)
+  * "Backend: quart run" from `app/backend` (runs `npm run build` first to refresh backend static assets, then starts Quart with `--reload`)
 
 Readiness indicators:
 
 * Frontend is ready when Vite prints a Local URL, for example: `Local: http://localhost:5173/`.
 * Backend is ready when Hypercorn reports: `Running on http://127.0.0.1:50505` (port may vary).
+
+Important:
+
+* Use `http://localhost:5173` for frontend hot reloading during development.
+* `http://localhost:50505` serves the built frontend from `app/backend/static`.
 
 Tips:
 

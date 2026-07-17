@@ -1,10 +1,11 @@
 .answerContainer {
     padding: 1.25em;
     background: rgb(249, 249, 249);
-    border-radius: 0.5em;
+    border-radius: 0.75em;
     box-shadow:
-        0em 0.125em 0.25em rgba(0, 0, 0, 0.14),
-        0em 0em 0.125em rgba(0, 0, 0, 0.12);
+        0 2px 8px rgba(0, 0, 0, 0.06),
+        0 0 1px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e8e8e8;
     outline: transparent solid 0.0625em;
     animation: answerFadeIn 0.6s ease-out;
 }
@@ -55,7 +56,14 @@ h2 {
     line-height: 1.5em;
 }
 
+.citationEntry {
+    display: block;
+}
+
 .citation {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
     font-weight: 500;
     line-height: 1.5em;
     text-align: center;
@@ -71,6 +79,16 @@ h2 {
     text-decoration: underline;
 }
 
+.citationIndexBadge {
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+}
+
+.citationLabel {
+    text-align: left;
+}
+
 /* Inline clickable citation superscripts */
 :global(.citation-sup) {
     cursor: pointer;
@@ -82,6 +100,63 @@ h2 {
 :global(.citation-sup:hover) {
     color: #004499;
     text-decoration: underline;
+}
+
+/* CUSTOM: Citation badge container wraps each inline sup citation.
+   Uses :global because renderToStaticMarkup outputs raw class names. */
+:global(.citationBadgeContainer) {
+    position: relative;
+    display: inline-flex;
+    vertical-align: baseline;
+    margin-inline: 0.08em;
+}
+
+/* CUSTOM: CSS-based styled tooltip on hover — replaces plain browser title tooltip */
+:global(.supContainer[title]:hover::after) {
+    content: attr(title);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1b1b1b;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 400;
+    line-height: 1.4;
+    padding: 6px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    max-width: 320px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 100;
+    pointer-events: none;
+    animation: tooltipFadeIn 0.15s ease-out;
+}
+
+/* Tooltip arrow */
+:global(.supContainer[title]:hover::before) {
+    content: "";
+    position: absolute;
+    bottom: calc(100% + 2px);
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: #1b1b1b;
+    z-index: 100;
+    pointer-events: none;
+}
+
+@keyframes tooltipFadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(2px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
 }
 
 .followupQuestionsList {
@@ -107,12 +182,17 @@ h2 {
     cursor: pointer;
 }
 
-.supContainer {
+/* CUSTOM: Use :global() because renderToStaticMarkup outputs raw class="supContainer",
+   not the CSS module hashed name. This ensures inline superscript citations get proper styling. */
+:global(.supContainer) {
+    position: relative;
+    display: inline-flex;
+    align-items: flex-start;
     text-decoration: none;
     cursor: pointer;
 }
 
-.supContainer:hover {
+:global(.supContainer:hover) {
     text-decoration: underline;
 }
 
@@ -121,19 +201,28 @@ sup {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.625em;
+    font-size: 0.56em;
     font-weight: 600;
     vertical-align: top;
-    top: -1;
-    margin: 0em 0.125em;
-    min-width: 0.875em;
-    height: 0.875em;
-    border-radius: 0.1875em;
+    top: -1px;
+    margin: 0;
+    min-width: 2.25em;
+    height: 1em;
+    padding: 0 0.25em;
+    border-radius: 0.25em;
     background: #d1dbfa;
     color: #123bb6;
     text-decoration-color: transparent;
     outline: transparent solid 0.0625em;
     cursor: pointer;
+    transition:
+        background-color 0.15s ease,
+        transform 0.1s ease;
+}
+
+sup:hover {
+    background: #b4c4f5;
+    transform: scale(1.1);
 }
 
 .retryButton {

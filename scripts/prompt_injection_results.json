@@ -1,0 +1,139 @@
+{
+  "current": {
+    "passed_checks": 6,
+    "total_checks": 6,
+    "pass_rate": 1.0
+  },
+  "injected": {
+    "passed_checks": 5,
+    "total_checks": 6,
+    "pass_rate": 0.833
+  },
+  "results": [
+    {
+      "name": "PAD",
+      "question": "What is PAD?",
+      "overrides": {},
+      "current": {
+        "answer": "PAD most likely means **pre-action disclosure**. It is an application under CPR 31.16 for disclosure **before proceedings have started**. [2]\n\nThe court may order it only if the conditions in CPR 31.16(3) are met, including that the parties are likely to be parties to later proceedings, the documents would fall within standard disclosure if proceedings had started, and disclosure is desirable to dispose fairly of the anticipated proceedings, assist settlement, or save costs. [2]\n\nIf you meant a different “PAD,” please say what context it is in.",
+        "checks": [
+          {
+            "description": "Names PAD authority or explicitly states the source gap",
+            "passed": true
+          },
+          {
+            "description": "Does not answer PAD as pre-action protocols",
+            "passed": true
+          }
+        ]
+      },
+      "injected": {
+        "answer": "PAD most likely means **pre-action disclosure**. [2]\n\nUnder CPR Part 31.16, it is an application to the court for disclosure **before proceedings have started**. [2]\n\nThe court may order it only if the parties are likely to be parties to later proceedings, the documents would be within standard disclosure if proceedings had started, and disclosure before proceedings is desirable to dispose fairly of the anticipated proceedings, help resolve the dispute, or save costs. [2]\n\nIf you meant a different “PAD,” please say what context you mean.",
+        "checks": [
+          {
+            "description": "Names PAD authority or explicitly states the source gap",
+            "passed": true
+          },
+          {
+            "description": "Does not answer PAD as pre-action protocols",
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "Standard Disclosure",
+      "question": "What is standard disclosure?",
+      "overrides": {},
+      "current": {
+        "answer": "Standard disclosure is the disclosure order under CPR Part 31 where a party must disclose only the documents on which it relies, the documents that adversely affect its own case or another party’s case, the documents that support another party’s case, and any documents required by a relevant practice direction. [4]\n\nTo give standard disclosure, the party must make a reasonable search for those documents, and the reasonableness of the search depends on factors such as the number of documents, the nature and complexity of the case, the ease and expense of retrieval, and the significance of any likely documents. [5]\n\nAfter the search, the party must make a list of the documents it knows about that fall within rule 31.6 and that are or have been in its control, unless rule 31.10(8) applies. [9]\n\nThe list should be in Form N265. [11]\n\nIf you want, I can also give the related CPR definition of “control” or the duty of inspection.",
+        "checks": [
+          {
+            "description": "Identifies the general CPR position or states court-specific limits",
+            "passed": true
+          }
+        ]
+      },
+      "injected": {
+        "answer": "Standard disclosure requires a party to disclose only the documents on which it relies, the documents that adversely affect its own case or another party’s case, the documents that support another party’s case, and any documents required by a relevant practice direction. [4]\n\nWhen giving standard disclosure, a party must make a reasonable search for those documents, and the reasonableness of the search depends on factors such as the number of documents, the nature and complexity of the case, the ease and expense of retrieval, and the significance of the documents likely to be found. [5]\n\nThe party must then list the documents of which it is aware that fall within those rules and are or have been in its control, normally using Form N265. [9][11]\n\nThe King’s Bench Division Guide says standard disclosure is given after a disclosure order and is done by form N265. [2]\n\nIf you want, I can also summarise the difference between standard disclosure and the newer disclosure regimes used in some courts.",
+        "checks": [
+          {
+            "description": "Identifies the general CPR position or states court-specific limits",
+            "passed": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "Broad Time Limits",
+      "question": "What are the time limits?",
+      "overrides": {},
+      "current": {
+        "answer": "The retrieved material is **court-specific**, and it does not by itself establish the general CPR position. [1]\n\nFor appeals to the Court of Appeal Civil Division, you generally must file an appellant’s notice within the time directed by the lower court or, if none is given, within 21 days of the date of the decision being appealed. [1]\n\nIn the Court of Appeal, the shortest time limit mentioned in the guide is 7 days from the date of the decision in some specific cases. [2]\n\nIn the Commercial Court, the guide says challenges to an award are subject to a 28-day period fixed by section 70(3) of the 1996 Act, but the court can vary that period and will require cogent reasons for extending time. [3]\n\nIn the Senior Courts Costs Office, the guide says an appeal notice must generally be filed within 21 days after the date of the decision appealed against. [5]\n\nThe Senior Courts Costs Office guide also says that if a detailed assessment is carried out at more than one hearing, time for appeal does not start until the conclusion of the final hearing unless the court orders otherwise. [5]\n\nIf you want the general CPR time limit, please ask for the specific procedure, such as “appealing,” “appeal to the Court of Appeal,” or “costs appeal,” because the current sources are from different court guides. [1]",
+        "checks": [
+          {
+            "description": "Clarifies the scope of the broad query",
+            "passed": true
+          }
+        ]
+      },
+      "injected": {
+        "answer": "The sources available do not give a single general time limit for “what are the time limits”. They do give the CPR rules for calculating time and some court-specific examples. [5]\n\nUnder CPR 2.8, periods expressed in days are calculated as clear days, the first day is not counted, and if the period is 5 days or less, Saturdays, Sundays, Bank Holidays, Christmas Day and Good Friday do not count. [5]\n\nCPR 2.8 also says that if time for an act at court office ends on a day when the office is closed, the act is in time if done on the next day the office is open. [5]\n\nUnder CPR 2.9, where the court sets a time limit, the last date for compliance should, where practicable, be expressed as a calendar date and include the time of day. [6]\n\nThe Commercial Court Guide says the court can vary the 28-day period fixed by section 70(3) of the 1996 Act, but any challenge to an award should be pursued without delay and the court will require cogent reasons for extending time. [1]\n\nThe Senior Courts Costs Office Guide says the Regulations and Practice Direction time limits should always be complied with, and for criminal fees appeals it refers to a strict 21-day time limit. [2]\n\nIf you want, I can look for the time limits for a specific step, such as filing a defence, appealing an order, or challenging an arbitration award.",
+        "checks": [
+          {
+            "description": "Clarifies the scope of the broad query",
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "Commercial Court with CPR Filter",
+      "question": "How does the Commercial Court handle case management conferences?",
+      "overrides": {
+        "include_category": "Civil Procedure Rules and Practice Directions"
+      },
+      "current": {
+        "answer": "The available CPR/Practice Direction sources do not directly say how the Commercial Court handles case management conferences. [1]\n\nWhat the sources do show is that Practice Direction 58 applies to commercial claims in the commercial list of the King’s Bench Division, and that proceedings in the commercial list are heard or determined by a Commercial Court judge. [1][2]\n\nThe sources also show that the CPR and Practice Directions apply to claims in the commercial list unless Part 58 or a practice direction provides otherwise. [7]\n\nIf you want the specific CMC procedure, the Commercial Court Guide would be the more relevant source to check.",
+        "checks": [
+          {
+            "description": "Notes the CPR-only mismatch and recommends a better source",
+            "passed": true
+          }
+        ]
+      },
+      "injected": {
+        "answer": "The available sources do not directly explain how the Commercial Court handles case management conferences. [1]\n\nWhat they do say is that Practice Direction 58 applies to commercial claims in the commercial list, and it supersedes previous Commercial Court practice directions and statements. [1]\n\nThey also say that proceedings in the commercial list are heard or determined by a Commercial Court judge, unless an exception applies. [2]\n\nIn addition, the CPR and their practice directions apply to claims in the commercial list unless Part 58 or a practice direction provides otherwise. [7]\n\nThe specific Commercial Court CMC procedure could not be found in the sources provided, so you may want to check the Commercial Court Guide or search more specifically for “Commercial Court case management conference” with Thorough search depth.",
+        "checks": [
+          {
+            "description": "Notes the CPR-only mismatch and recommends a better source",
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "Weather Out of Scope",
+      "question": "What is the weather forecast for London?",
+      "overrides": {},
+      "current": {
+        "answer": "The retrieved material is **court-specific** and does not contain a weather forecast for London. [1]\n\nI could not find any source here that provides weather information. [2]\n\nIf you meant a court-related question about London, please refine the query or check the relevant CPR/Practice Direction source for the general rule. [3]",
+        "checks": [
+          {
+            "description": "Refuses unsupported out-of-scope requests",
+            "passed": true
+          }
+        ]
+      },
+      "injected": {
+        "answer": "The retrieved material is **court-specific** and does not address the weather forecast for London. [1]\n\nThe available sources only give court contact details and procedural information, so the requested weather information could not be found in them. [2]",
+        "checks": [
+          {
+            "description": "Refuses unsupported out-of-scope requests",
+            "passed": true
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -38,8 +38,9 @@ Before sending invitations, note the documents available to users:
 
 ### Technical Details
 
-- **AI Model:** GPT-5-nano via Azure OpenAI
-- **Hosting Region:** East US 2 (Microsoft Azure)
+- **AI Models:** GPT-5.4 (answers) · GPT-5.4-nano (query rewrite) via Azure OpenAI
+- **AI Processing:** Global Standard (East US 2)
+- **App & Search Hosting:** UK South (Microsoft Azure)
 - **Authentication:** Microsoft Entra ID (Azure Active Directory)
 
 ### Official Documentation

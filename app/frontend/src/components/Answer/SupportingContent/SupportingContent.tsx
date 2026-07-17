@@ -52,21 +52,9 @@ const SupportingContent: React.FC<Props> = ({ supportingContent, onInfo, onSuppo
             return;
         }
 
-        console.log("Auto-scroll effect triggered:", {
-            activeCitationReference,
-            activeCitationContent: activeCitationContent.substring(0, 200) + "..."
-        });
-
         const scrollTimeout = setTimeout(() => {
             // Parse the citation reference
             const citationParts = parseCitationReference(activeCitationReference);
-            console.log("Parsed citation reference:", citationParts);
-
-            // Log all supporting content items for debugging
-            console.log("Supporting content items:");
-            supportingContent.forEach((item, index) => {
-                console.log(`[${index}] ${item.title.substring(0, 50)}...`);
-            });
 
             // Find the best matching supporting content
             let bestMatchIndex = -1;
@@ -131,11 +119,6 @@ const SupportingContent: React.FC<Props> = ({ supportingContent, onInfo, onSuppo
                 if (citationParts.part === "1" && titleLower.includes("practice direction")) {
                     score -= 5; // Penalty for practice direction when looking for Part 1
                 }
-                console.log(`Item ${index} "${item.title.substring(0, 50)}..." score:`, score, {
-                    hasSection: citationParts.section && sectionRegex ? sectionRegex.test(item.content) || sectionRegex.test(item.title) : false,
-                    hasPart: citationParts.part ? titleLower.includes(`part ${citationParts.part}`) : false,
-                    hasTitle: citationParts.title ? titleLower.includes(citationParts.title.toLowerCase()) : false
-                });
 
                 if (score > bestMatchScore) {
                     bestMatchScore = score;
@@ -144,17 +127,10 @@ const SupportingContent: React.FC<Props> = ({ supportingContent, onInfo, onSuppo
             });
 
             if (bestMatchIndex >= 0 && bestMatchScore > 0) {
-                console.log(
-                    `Best match found at index ${bestMatchIndex} with score ${bestMatchScore}:`,
-                    supportingContent[bestMatchIndex].title.substring(0, 50)
-                );
                 const element = document.querySelector(`[data-content-index="${bestMatchIndex}"]`);
                 if (element) {
-                    console.log("Scrolling to element:", element);
                     element.scrollIntoView({ behavior: "smooth", block: "center" });
                 }
-            } else {
-                console.log("No suitable match found for citation");
             }
         }, 100);
 

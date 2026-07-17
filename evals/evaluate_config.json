@@ -1,20 +1,8 @@
 {
     "testdata_path": "ground_truth.jsonl",
-    "results_dir": "results/baseline-ask",
-    "requested_metrics": [
-        "gpt_groundedness",
-        "gpt_relevance",
-        "answer_length",
-        "latency",
-        "citations_matched",
-        "any_citation",
-        "statute_citation_accuracy",
-        "case_law_citation_accuracy",
-        "legal_terminology_accuracy",
-        "citation_format_compliance",
-        "precedent_matching"
-    ],
-    "target_url": "http://localhost:50505/ask",
+    "results_dir": "results/baseline-chat",
+    "requested_metrics": ["gpt_groundedness", "gpt_relevance", "answer_length", "latency", "citations_matched", "any_citation"],
+    "target_url": "http://localhost:50505/chat",
     "target_parameters": {
         "overrides": {
             "top": 3,

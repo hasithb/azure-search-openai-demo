@@ -4,19 +4,170 @@ import { parseSupportingContentItem, extractSubsectionContent, parseSubsectionFr
 import styles from "./SupportingContent.module.css";
 
 // CUSTOM: Import external source handler and admin mode check
-import { isIframeBlocked, isAdminMode } from "../../customizations";
+import {
+    isIframeBlocked,
+    isAdminMode,
+    isFeatureEnabled,
+    findBestMatch,
+    deduplicatePreservingSubsections,
+    CitationMetadataDisplay,
+    extractMetadataFromDataPoint
+} from "../../customizations";
+import type { StructuredCitationMetadata } from "../../customizations";
 
 // CUSTOM: Check if admin mode is enabled
 const adminMode = isAdminMode();
 
 interface SupportingContentProps {
-    supportingContent: any[];
+    supportingContent: any;
     activeCitationReference?: string;
     activeCitationContent?: string;
     onViewSourceDocument?: (citation: string) => void;
+    // CUSTOM: Structured metadata for precise subsection matching
+    activeCitationMetadata?: StructuredCitationMetadata;
+    // CUSTOM: Switch the analysis panel to the Primary Source tab (live PDF/HTML highlight)
+    onShowInPrimarySource?: () => void;
+    // CUSTOM: Primary-source verification result for the active citation
+    verifiedStatus?: "exact" | "approximate" | "none";
 }
 
-export const SupportingContent = ({ supportingContent, activeCitationReference, activeCitationContent, onViewSourceDocument }: SupportingContentProps) => {
+export function resolveTargetSubsection(activeCitationReference?: string, activeCitationMetadata?: StructuredCitationMetadata): string | null {
+    const metadataSubsection = activeCitationMetadata?.subsectionId?.trim();
+    if (metadataSubsection) {
+        return metadataSubsection;
+    }
+
+    const parsedFromReference = activeCitationReference ? parseSubsectionFromCitation(activeCitationReference) : null;
+    return parsedFromReference || null;
+}
+
+export function buildDisplayedSupportingItems(
+    supportingContent: any[],
+    normalizeUrl: (u?: string) => string,
+    chooseRepresentative?: (current: any, candidate: any) => any
+): any[] {
+    type Segment = { idx?: number | null; text: string };
+    type DocRecord = {
+        bestItem: any;
+        hasAnyFull: boolean;
+        bestFullText: string;
+        segments: Segment[];
+        seenTexts: Set<string>;
+        bestUpdated: string;
+    };
+    const byDoc = new Map<string, DocRecord>();
+
+    for (const it of supportingContent || []) {
+        const parsed = parseSupportingContentItem(it);
+        const docUrl = normalizeUrl(it.storageurl || it.url || parsed.storageurl || parsed.url || "");
+        // CUSTOM: Group by logical section within a source document.
+        // Merging by sourcefile alone collapses unrelated sections from the same guide into
+        // one card, which produces the wrong title/content/highlight when a citation targets
+        // a different section from the same source document.
+        const sourcefile = (it.sourcefile || parsed.sourcefile || "").trim().toLowerCase();
+        const sourcepage = (it.sourcepage || parsed.sourcepage || "").trim().toLowerCase();
+        const citation = (it.citation || "").trim().toLowerCase();
+        const subsectionId = (it.subsection_id || "").trim().toLowerCase();
+        const baseDocKey =
+            docUrl ||
+            sourcefile ||
+            String(it.original_doc_id || "")
+                .trim()
+                .toLowerCase();
+        const sectionKey =
+            sourcepage ||
+            citation ||
+            subsectionId ||
+            String(it.original_doc_id || "")
+                .trim()
+                .toLowerCase();
+        const docKey = sectionKey ? `${baseDocKey}::${sectionKey}` : baseDocKey;
+
+        let rec = byDoc.get(docKey);
+        const itemUpdated = (it.updated || it.last_updated || it.date_updated || "") as string;
+
+        if (!rec) {
+            rec = {
+                bestItem: it,
+                hasAnyFull: Boolean(it.full_content && it.full_content.length > 0),
+                bestFullText: (it.full_content || "") as string,
+                segments: [],
+                seenTexts: new Set<string>(),
+                bestUpdated: itemUpdated
+            };
+            byDoc.set(docKey, rec);
+        } else {
+            if (itemUpdated && !rec.bestUpdated) {
+                rec.bestUpdated = itemUpdated;
+            }
+            if (chooseRepresentative) {
+                rec.bestItem = chooseRepresentative(rec.bestItem, it);
+            } else {
+                const existingParsed = parseSupportingContentItem(rec.bestItem);
+                const currentScore = (existingParsed.storageurl ? 1 : 0) + (existingParsed.sourcefile ? 1 : 0) + (existingParsed.sourcepage ? 1 : 0);
+                const candidateScore = (parsed.storageurl ? 1 : 0) + (parsed.sourcefile ? 1 : 0) + (parsed.sourcepage ? 1 : 0);
+                if (candidateScore > currentScore) {
+                    rec.bestItem = it;
+                }
+            }
+        }
+
+        if (it.full_content && it.full_content.length > 0) {
+            rec.hasAnyFull = true;
+            if (it.full_content.length > (rec.bestFullText?.length || 0)) {
+                rec.bestFullText = it.full_content;
+            }
+        }
+
+        const candidateText = (it.content || parsed.content || "").trim();
+        if (candidateText && !rec.seenTexts.has(candidateText)) {
+            rec.seenTexts.add(candidateText);
+            const idx: number | null = typeof it.subsection_index === "number" ? it.subsection_index : typeof it.index === "number" ? it.index : null;
+            rec.segments.push({ idx, text: candidateText });
+        }
+    }
+
+    return Array.from(byDoc.values()).map(rec => {
+        const merged = { ...rec.bestItem };
+        if (rec.bestUpdated && !merged.updated && !merged.last_updated && !merged.date_updated) {
+            merged.updated = rec.bestUpdated;
+        }
+        if (rec.hasAnyFull && rec.bestFullText && rec.bestFullText.length > 0) {
+            merged.full_content = rec.bestFullText;
+        } else {
+            const sorted = [...rec.segments].sort((a, b) => {
+                if (a.idx == null && b.idx == null) return 0;
+                if (a.idx == null) return 1;
+                if (b.idx == null) return -1;
+                return a.idx - b.idx;
+            });
+            merged.full_content = sorted.map(s => s.text).join("\n\n");
+        }
+        return merged;
+    });
+}
+
+// CUSTOM: Helper to normalize DataPoints object or legacy array into a flat array
+const toContentArray = (input: any): any[] => {
+    if (!input) return [];
+    if (Array.isArray(input)) return input;
+    // New DataPoints object: merge text + external results
+    const items: any[] = [];
+    if (Array.isArray(input.text)) items.push(...input.text);
+    if (Array.isArray(input.external_results_metadata)) items.push(...input.external_results_metadata);
+    return items;
+};
+
+export const SupportingContent = ({
+    supportingContent: rawSupportingContent,
+    activeCitationReference,
+    activeCitationContent,
+    onViewSourceDocument,
+    activeCitationMetadata,
+    onShowInPrimarySource,
+    verifiedStatus
+}: SupportingContentProps) => {
+    const supportingContent = toContentArray(rawSupportingContent);
     const { t } = useTranslation();
     const containerRef = useRef<HTMLDivElement>(null);
     const [activeCitation, setActiveCitation] = useState<string>();
@@ -38,78 +189,9 @@ export const SupportingContent = ({ supportingContent, activeCitationReference, 
         }
     };
 
-    // Build a stable, deduplicated list by document and MERGE all subsection chunks into a single full_content
+    // Build a stable, deduplicated list by document and merge subsection chunks back into one display item.
     const displayedItems = useMemo(() => {
-        type Segment = { idx?: number | null; text: string };
-        type DocRecord = {
-            bestItem: any;
-            hasAnyFull: boolean;
-            bestFullText: string;
-            segments: Segment[];
-            seenTexts: Set<string>;
-        };
-        const byDoc = new Map<string, DocRecord>();
-
-        for (const it of supportingContent || []) {
-            const parsed = parseSupportingContentItem(it);
-            const docUrl = normalizeUrl(it.storageurl || it.url || parsed.storageurl || parsed.url || "");
-            const docKey = it.original_doc_id || docUrl || (parsed.sourcefile || "").toLowerCase();
-
-            let rec = byDoc.get(docKey);
-            if (!rec) {
-                rec = {
-                    bestItem: it,
-                    hasAnyFull: Boolean(it.full_content && it.full_content.length > 0),
-                    bestFullText: (it.full_content || "") as string,
-                    segments: [],
-                    seenTexts: new Set<string>()
-                };
-                byDoc.set(docKey, rec);
-            } else {
-                // Prefer the item that has storageurl/sourcefile/sourcepage populated; otherwise keep first
-                const existingParsed = parseSupportingContentItem(rec.bestItem);
-                const currentScore = (existingParsed.storageurl ? 1 : 0) + (existingParsed.sourcefile ? 1 : 0) + (existingParsed.sourcepage ? 1 : 0);
-                const candidateScore = (parsed.storageurl ? 1 : 0) + (parsed.sourcefile ? 1 : 0) + (parsed.sourcepage ? 1 : 0);
-                if (candidateScore > currentScore) {
-                    rec.bestItem = it;
-                }
-            }
-
-            // Track full_content if any item provides it; prefer the longest
-            if (it.full_content && it.full_content.length > 0) {
-                rec.hasAnyFull = true;
-                if (it.full_content.length > (rec.bestFullText?.length || 0)) {
-                    rec.bestFullText = it.full_content;
-                }
-            }
-
-            // Accumulate subsection content segments to reconstruct full content if backend didn't send it
-            const candidateText = (it.content || parsed.content || "").trim();
-            if (candidateText && !rec.seenTexts.has(candidateText)) {
-                rec.seenTexts.add(candidateText);
-                const idx: number | null = typeof it.subsection_index === "number" ? it.subsection_index : typeof it.index === "number" ? it.index : null;
-                rec.segments.push({ idx, text: candidateText });
-            }
-        }
-
-        // Finalize merged entries with injected full_content
-        return Array.from(byDoc.values()).map(rec => {
-            const merged = { ...rec.bestItem };
-            if (rec.hasAnyFull && rec.bestFullText && rec.bestFullText.length > 0) {
-                merged.full_content = rec.bestFullText;
-            } else {
-                // Sort by subsection_index when available, otherwise preserve insertion order
-                const sorted = [...rec.segments].sort((a, b) => {
-                    if (a.idx == null && b.idx == null) return 0;
-                    if (a.idx == null) return 1;
-                    if (b.idx == null) return -1;
-                    return a.idx - b.idx;
-                });
-                // Join unique segments with double newline to preserve paragraph breaks
-                merged.full_content = sorted.map(s => s.text).join("\n\n");
-            }
-            return merged;
-        });
+        return buildDisplayedSupportingItems(supportingContent, normalizeUrl);
     }, [supportingContent]);
 
     const formatDate = (dateString: string) => {
@@ -135,15 +217,28 @@ export const SupportingContent = ({ supportingContent, activeCitationReference, 
         const cleaned = lines.map(line => {
             let updated = line;
             // Remove markdown heading markers like "## 1.1" but keep the number/text
-            updated = updated.replace(/^##\s*/g, "");
+            updated = updated.replace(/^#{1,6}\s*/g, "");
             // Remove inline bracketed metadata blocks, wherever they appear in the line
             updated = updated.replace(/\[[^\]]*(PRACTICE\s*DIRECTION|PD\s*\d+|PART\s+\d+|SECTION\s+\d+|APPENDIX|>)[^\]]*\]\s*/gi, "");
             return updated;
         });
 
         // Drop standalone bracketed metadata lines (e.g., [PRACTICE DIRECTION ... > 1.1 ...])
+        // and header cruft from non-CPR sources (Document:, Section:, Part N of M, ==== dividers)
         const filtered = cleaned.filter(line => {
             const trimmed = line.trim();
+            // Remove "Document: ..." header lines
+            if (/^Document:\s/i.test(trimmed)) return false;
+            // Remove "Section: ..." or "Section:..." header lines
+            if (/^Section:\s*/i.test(trimmed)) return false;
+            // Remove "Part N of M" pagination markers (but keep "Part 1" section headings)
+            if (/^Part\s+\d+\s+of\s+\d+$/i.test(trimmed)) return false;
+            // Remove ==== divider lines (4+ consecutive = chars)
+            if (/^={4,}$/.test(trimmed)) return false;
+            // Remove standalone "Contents" lines and "[Title] Contents" lines
+            if (/^Contents$/i.test(trimmed)) return false;
+            if (/\]\s*Contents$/i.test(trimmed) && trimmed.startsWith("[")) return false;
+            // Handle bracketed metadata
             if (!trimmed.startsWith("[") || !trimmed.endsWith("]")) {
                 return true;
             }
@@ -155,6 +250,20 @@ export const SupportingContent = ({ supportingContent, activeCitationReference, 
             const isMetadata = /\b(PRACTICE\s*DIRECTION|PD\s*\d+|PART\s+\d+|SECTION\s+\d+|APPENDIX|>)/i.test(trimmed);
             return !isMetadata;
         });
+
+        // Deduplicate identical non-empty lines (even across blanks, e.g., repeated document titles)
+        const deduped: string[] = [];
+        for (const line of filtered) {
+            const trimmed = line.trim();
+            if (trimmed) {
+                // Compare against last non-blank line to catch dupes separated by blank lines
+                const lastNonBlank = [...deduped].reverse().find(l => l.trim() !== "");
+                if (lastNonBlank !== undefined && lastNonBlank.trim() === trimmed) {
+                    continue;
+                }
+            }
+            deduped.push(line);
+        }
 
         const insertSubsectionBreaks = (line: string) => {
             let updated = line;
@@ -176,8 +285,8 @@ export const SupportingContent = ({ supportingContent, activeCitationReference, 
 
         // Add a blank line between numbered subsections for readability
         const withSpacing: string[] = [];
-        for (let i = 0; i < filtered.length; i++) {
-            const line = insertSubsectionBreaks(filtered[i]);
+        for (let i = 0; i < deduped.length; i++) {
+            const line = insertSubsectionBreaks(deduped[i]);
             const splitLines = line.split(/\n/);
             for (const part of splitLines) {
                 const trimmed = part.trim();
@@ -204,20 +313,28 @@ export const SupportingContent = ({ supportingContent, activeCitationReference, 
 
     const normalizeMatchText = (s?: string) => (s || "").toLowerCase().replace(/\s+/g, " ").trim();
 
-    // CUSTOM: Convert cleaned supporting content into paragraph HTML using \n\n or markdown-style spacing
-    const formatSupportingContentHtml = (text: string) => {
+    const formatSupportingContentHtml = (text: string, options?: { highlight?: boolean; sourceInfo?: string }) => {
         const normalized = text.replace(/\r\n/g, "\n").trim();
         if (!normalized) return "";
 
+        const escapedSourceInfo = (options?.sourceInfo || "").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+
         const paragraphs = normalized.split(/\n\s*\n+/g);
         return paragraphs
-            .map(paragraph => {
+            .map((paragraph, index) => {
                 const lines = paragraph
                     .split(/\n/g)
                     .map(line => line.trimEnd())
                     .filter(Boolean);
                 if (lines.length === 0) return "";
-                return `<p>${lines.join("<br/>")}</p>`;
+                const paragraphBody = lines.join("<br/>");
+                if (!options?.highlight) {
+                    return `<p>${paragraphBody}</p>`;
+                }
+
+                const markId = index === 0 ? ' id="highlighted-subsection"' : "";
+                const markTitle = index === 0 && escapedSourceInfo ? ` title="${escapedSourceInfo}"` : "";
+                return `<p><mark${markId}${markTitle} style="background-color:#3b82f6;color:#fff;padding:0 4px;border-radius:4px;display:inline;line-height:inherit;scroll-margin-top:20px;">${paragraphBody}</mark></p>`;
             })
             .filter(Boolean)
             .join("");
@@ -233,8 +350,6 @@ export const SupportingContent = ({ supportingContent, activeCitationReference, 
 
         // If we have a target subsection and this item is highlighted, highlight that section within the full content
         if (isHighlighted && targetSubsection) {
-            console.log(`Attempting to highlight subsection: ${targetSubsection} in content length: ${originalContent.length}`);
-
             // Use the robust extractor to find the subsection block
             const section = extractSubsectionContent(originalContent, targetSubsection);
 
@@ -243,33 +358,49 @@ export const SupportingContent = ({ supportingContent, activeCitationReference, 
                 const subsectionContent = section.content;
                 const afterSubsection = originalContent.substring(section.endIndex);
 
-                // Reduce vertical padding to avoid overlapping the previous line
-                // Add id for scrolling and title for hover tooltip with full source information
-                // Escape quotes and HTML entities for the title attribute
-                const escapedSourceInfo = (sourceInfo || "").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-                console.log("Setting highlight tooltip - sourceInfo:", sourceInfo, "escaped:", escapedSourceInfo);
-                const highlightedSubsection =
-                    `<mark id="highlighted-subsection" title="${escapedSourceInfo}" style="background-color:#3b82f6;color:#fff;padding:0 4px;border-radius:4px;display:inline;line-height:inherit;scroll-margin-top:20px;">` +
-                    subsectionContent +
-                    `</mark>`;
-                const highlightedContent = cleanSupportingContentForDisplay(beforeSubsection + highlightedSubsection + afterSubsection);
-                const formattedHighlightedContent = formatSupportingContentHtml(highlightedContent);
+                const formattedBeforeContent = formatSupportingContentHtml(cleanSupportingContentForDisplay(beforeSubsection));
+                const formattedHighlightedContent = formatSupportingContentHtml(cleanSupportingContentForDisplay(subsectionContent), {
+                    highlight: true,
+                    sourceInfo
+                });
+                const formattedAfterContent = formatSupportingContentHtml(cleanSupportingContentForDisplay(afterSubsection));
+                const fullSectionWithHighlight = `${formattedBeforeContent}${formattedHighlightedContent}${formattedAfterContent}`;
 
                 return (
                     <div className={styles.itemContent}>
-                        <div
-                            style={{ fontFamily: "inherit", margin: 0, lineHeight: "1.4" }}
-                            dangerouslySetInnerHTML={{ __html: formattedHighlightedContent }}
-                        />
+                        <div style={{ fontFamily: "inherit", margin: 0, lineHeight: "1.4" }}>
+                            <div dangerouslySetInnerHTML={{ __html: fullSectionWithHighlight }} />
+                        </div>
                     </div>
                 );
             } else {
-                console.warn(`Could not find subsection ${targetSubsection} in content`);
-                console.log(`Content starts with: ${originalContent.substring(0, 200)}...`);
+                // CUSTOM: Fallback – the merged card's full_content may come from a different
+                // chunk than the one that contains the cited subsection (e.g. PD 51R 2.1 is in
+                // chunk_000 but the bestFullText may be chunk_006 covering section 7+).
+                // Use activeCitationMetadata.content directly when it carries the subsection text.
+                const fallbackRaw = activeCitationMetadata?.content;
+                if (fallbackRaw && fallbackRaw.trim()) {
+                    const fallbackOriginal = stripLeadingIndexPrefix(fallbackRaw);
+                    const formattedHighlightedContent = formatSupportingContentHtml(cleanSupportingContentForDisplay(fallbackOriginal), {
+                        highlight: true,
+                        sourceInfo
+                    });
+                    return (
+                        <div className={styles.itemContent}>
+                            <div style={{ fontFamily: "inherit", margin: 0, lineHeight: "1.4" }}>
+                                <div dangerouslySetInnerHTML={{ __html: formattedHighlightedContent }} />
+                            </div>
+                        </div>
+                    );
+                }
                 const formattedDisplayContent = formatSupportingContentHtml(displayContent);
                 return (
                     <div className={styles.itemContent}>
-                        <div style={{ fontFamily: "inherit", margin: 0, lineHeight: "1.4" }} dangerouslySetInnerHTML={{ __html: formattedDisplayContent }} />
+                        <div
+                            id="highlighted-subsection"
+                            style={{ fontFamily: "inherit", margin: 0, lineHeight: "1.4", scrollMarginTop: "20px" }}
+                            dangerouslySetInnerHTML={{ __html: formattedDisplayContent }}
+                        />
                     </div>
                 );
             }
@@ -288,7 +419,22 @@ export const SupportingContent = ({ supportingContent, activeCitationReference, 
     const findMatchingContentIndex = (citation: string): number => {
         if (!citation) return -1;
 
-        console.log("Finding match for citation:", citation);
+        // CUSTOM: Fast direct match — with the numbered citation pipeline, the citation
+        // reference is the exact enhanced citation string (e.g., "35.1, Part 35, Part_35.pdf")
+        // which matches the `citation` field on data points directly.
+        const normalizedCitationFull = normalizeMatchText(citation);
+        for (let i = 0; i < displayedItems.length; i++) {
+            const itemCitation = normalizeMatchText(displayedItems[i]?.citation);
+            if (itemCitation && itemCitation === normalizedCitationFull) {
+                return i;
+            }
+            // Also check sourcepage match for simpler citations
+            const parsedItem = parseSupportingContentItem(displayedItems[i]);
+            const itemSourcepage = normalizeMatchText(parsedItem.sourcepage);
+            if (itemSourcepage && itemSourcepage === normalizedCitationFull) {
+                return i;
+            }
+        }
 
         let bestMatchIndex = -1;
         let bestMatchScore = 0;
@@ -297,12 +443,6 @@ export const SupportingContent = ({ supportingContent, activeCitationReference, 
             const parsedItem = parseSupportingContentItem(displayedItems[i]);
             const rawItem: any = displayedItems[i];
             let score = 0;
-
-            console.log(`Checking displayed item ${i}:`, {
-                sourcepage: parsedItem.sourcepage,
-                sourcefile: parsedItem.sourcefile,
-                category: parsedItem.category
-            });
 
             const normalizedCitation = citation.replace(/^\s*\d+\.\s+/, "");
             const citationParts = normalizedCitation
@@ -317,8 +457,6 @@ export const SupportingContent = ({ supportingContent, activeCitationReference, 
                 const sourcePage = citationParts[1];
                 const document = citationParts.slice(2).join(", ");
 
-                console.log(`Citation parts:`, { subsection, sourcePage, document });
-
                 const sourcepageMatches =
                     normalizeMatchText(parsedItem.sourcepage) === normalizeMatchText(sourcePage) ||
                     (parsedItem.sourcepage && sourcePage && normalizeMatchText(parsedItem.sourcepage).includes(normalizeMatchText(sourcePage))) ||
@@ -332,7 +470,6 @@ export const SupportingContent = ({ supportingContent, activeCitationReference, 
                 if (documentMatches) {
                     score += 10;
                 } else if (!sourcepageMatches) {
-                    console.log(`Document mismatch for item ${i}: expected '${document}', got '${parsedItem.sourcefile}'`);
                     continue;
                 }
 
@@ -351,7 +488,6 @@ export const SupportingContent = ({ supportingContent, activeCitationReference, 
                     }
                 } else {
                     // If we can't compare sourcepage, skip early for strictness
-                    console.log(`Missing sourcepage for strict match on item ${i}`);
                     continue;
                 }
 
@@ -360,7 +496,6 @@ export const SupportingContent = ({ supportingContent, activeCitationReference, 
                 if (subsectionToken && subsectionToken.length > 1) {
                     const content = parsedItem.content || "";
                     if (!content) {
-                        console.log(`Item ${i} has no content to check subsection presence`);
                         continue;
                     }
                     const escaped = subsectionToken.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -375,10 +510,8 @@ export const SupportingContent = ({ supportingContent, activeCitationReference, 
                         const subsectionMetaMatch = normalizedSubsection && normalizedMetaSubsection && normalizedSubsection === normalizedMetaSubsection;
 
                         if (sourcepageMatches || subsectionMetaMatch) {
-                            console.log(`Subsection '${subsection}' not found in content for item ${i}; using metadata fallback`);
                             score += 15;
                         } else {
-                            console.log(`Subsection '${subsection}' not found in item ${i} content, skipping`);
                             continue; // do not consider this item at all
                         }
                     } else {
@@ -397,8 +530,6 @@ export const SupportingContent = ({ supportingContent, activeCitationReference, 
                 const inferredDocument = dashDocument || "";
                 const inferredSourcePage = partB;
 
-                console.log(`Two-part citation:`, { partA, partB, dashSubsection, dashDocument, inferredDocument, inferredSourcePage });
-
                 const sourcepageMatches =
                     normalizeMatchText(parsedItem.sourcepage) === normalizeMatchText(inferredSourcePage) ||
                     (parsedItem.sourcepage &&
@@ -414,12 +545,9 @@ export const SupportingContent = ({ supportingContent, activeCitationReference, 
 
                 if (documentMatches) {
                     score += 30;
-                    console.log(`Document match for two-part citation`);
                 } else if (sourcepageMatches) {
                     score += 25;
-                    console.log(`Sourcepage match for two-part citation`);
                 } else {
-                    console.log(`Document/sourcepage mismatch for two-part citation`);
                     continue;
                 }
 
@@ -429,13 +557,11 @@ export const SupportingContent = ({ supportingContent, activeCitationReference, 
                     const patterns = [new RegExp(`(^|\\n)\\s*${escaped}\\b`, "i"), new RegExp(`\\b${escaped}\\b`, "i")];
                     if (patterns.some(p => p.test(parsedItem.content || ""))) {
                         score += 25;
-                        console.log(`Subsection '${subsectionToken}' found in content`);
                     } else if (parsedSubsection) {
                         const normalizedSubsection = normalizeSubsectionToken(subsectionToken);
                         const normalizedMetaSubsection = normalizeSubsectionToken(rawItem?.subsection_id);
                         if (normalizedSubsection && normalizedMetaSubsection && normalizedSubsection === normalizedMetaSubsection) {
                             score += 15;
-                            console.log(`Subsection '${subsectionToken}' matched metadata`);
                         }
                     }
                 }
@@ -457,11 +583,9 @@ export const SupportingContent = ({ supportingContent, activeCitationReference, 
         }
 
         if (bestMatchIndex >= 0 && bestMatchScore >= 15) {
-            console.log(`Best match (displayedItems) found at index ${bestMatchIndex} with score ${bestMatchScore}`);
             return bestMatchIndex;
         }
 
-        console.log("No valid match found for citation (strict subsection check)");
         return -1;
     };
 
@@ -469,13 +593,6 @@ export const SupportingContent = ({ supportingContent, activeCitationReference, 
     useEffect(() => {
         if ((activeCitationReference || activeCitationContent) && containerRef.current) {
             const matchIndex = findMatchingContentIndex(activeCitationReference || "");
-
-            console.log("Auto-scroll effect (displayedItems):", {
-                activeCitationReference,
-                activeCitationContent,
-                matchIndex,
-                displayedItemsLength: displayedItems.length
-            });
 
             if (matchIndex >= 0) {
                 const targetElement = containerRef.current.children[matchIndex] as HTMLElement;
@@ -486,17 +603,22 @@ export const SupportingContent = ({ supportingContent, activeCitationReference, 
                         targetElement.style.backgroundColor = "";
                     }, 5000);
 
-                    // Scroll to the highlighted mark within the section if it exists
+                    // Scroll to the subsection start, or to the content start when no subsection was found.
                     setTimeout(() => {
                         const highlightedMark = targetElement.querySelector("#highlighted-subsection");
                         if (highlightedMark) {
-                            highlightedMark.scrollIntoView({ behavior: "smooth", block: "center" });
+                            const elementTop = targetElement.getBoundingClientRect().top;
+                            const markTop = highlightedMark.getBoundingClientRect().top;
+                            const relativeTop = markTop - elementTop;
+                            if (relativeTop > 180) {
+                                highlightedMark.scrollIntoView({ behavior: "smooth", block: "start" });
+                            }
                         }
                     }, 300);
                 }
             }
         }
-    }, [activeCitationReference, activeCitationContent, displayedItems]);
+    }, [activeCitationReference, activeCitationContent, activeCitationMetadata, displayedItems]);
 
     // Handle view source document
     const handleViewSourceDocument = (parsedItem: any) => {
@@ -524,34 +646,47 @@ export const SupportingContent = ({ supportingContent, activeCitationReference, 
         );
     }
 
-    const targetSubsection = activeCitationReference ? parseSubsectionFromCitation(activeCitationReference) : null;
+    const targetSubsection = resolveTargetSubsection(activeCitationReference, activeCitationMetadata);
+
+    // CUSTOM: Compute once instead of per-item to avoid O(n²) matching
+    // When structured metadata is available, use findBestMatch for precise matching
+    const structuredMatchIndex =
+        activeCitationMetadata && isFeatureEnabled("structuredCitationMatching") ? findBestMatch(activeCitationMetadata, displayedItems) : -1;
+    const textMatchIndex = activeCitationReference ? findMatchingContentIndex(activeCitationReference) : -1;
+    const activeMatchIndex = structuredMatchIndex >= 0 ? structuredMatchIndex : textMatchIndex;
 
     return (
         <div className={styles.supportingContent} ref={containerRef}>
             {displayedItems.map((item, index) => {
                 const parsedItem = parseSupportingContentItem(item);
-                const isActive = !!(activeCitationReference && findMatchingContentIndex(activeCitationReference) === index);
-
+                const isActive = activeMatchIndex === index;
+                const rawItem = item as Record<string, string | undefined> | undefined;
+                const sourcefile = parsedItem.sourcefile || rawItem?.sourcefile;
+                const sourcepage = parsedItem.sourcepage || rawItem?.sourcepage;
+                const category = parsedItem.category || rawItem?.category;
                 const getDisplayTitle = () => {
-                    const parts: string[] = [];
-                    const rawItem = item as Record<string, string | undefined> | undefined;
-                    const sourcefile = parsedItem.sourcefile || rawItem?.sourcefile;
-                    const sourcepage = parsedItem.sourcepage || rawItem?.sourcepage;
-                    const category = parsedItem.category || rawItem?.category;
-                    if (sourcefile) parts.push(sourcefile);
-                    if (sourcepage) parts.push(sourcepage);
-                    if (category) parts.push(category);
-                    const title = parts.length > 0 ? parts.join(", ") : "Document Source";
-                    console.log("getDisplayTitle:", {
-                        sourcefile: parsedItem.sourcefile,
-                        sourcepage: parsedItem.sourcepage,
-                        category: parsedItem.category,
-                        rawSourcefile: rawItem?.sourcefile,
-                        rawSourcepage: rawItem?.sourcepage,
-                        rawCategory: rawItem?.category,
-                        title
-                    });
-                    return title;
+                    const parts = [sourcefile, sourcepage, category].map(part => (part || "").trim()).filter(Boolean);
+                    const uniqueParts: string[] = [];
+                    for (const part of parts) {
+                        const partLower = part.toLowerCase();
+                        // Skip exact duplicates (case-insensitive)
+                        if (uniqueParts.some(existing => existing.toLowerCase() === partLower)) {
+                            continue;
+                        }
+                        // Skip truncated sourcefiles that are just a prefix of another part
+                        // e.g., "Pre" when "Pre-Action Protocol for Disease..." is present
+                        if (part.length <= 10) {
+                            const isPrefix = parts.some(other => {
+                                const otherLower = (other || "").toLowerCase().trim();
+                                return otherLower !== partLower && otherLower.length > partLower.length && otherLower.startsWith(partLower);
+                            });
+                            if (isPrefix) {
+                                continue;
+                            }
+                        }
+                        uniqueParts.push(part);
+                    }
+                    return uniqueParts.join(", ") || "Document Source";
                 };
 
                 const displayTitle = getDisplayTitle();
@@ -591,12 +726,40 @@ export const SupportingContent = ({ supportingContent, activeCitationReference, 
                                     </span>
                                 </div>
                             )}
+                            {/* CUSTOM: Show structured metadata badges when enabled */}
+                            {isFeatureEnabled("citationMetadataDisplay") && <CitationMetadataDisplay metadata={extractMetadataFromDataPoint(item)} />}
                         </div>
 
                         {/* Always render full content; highlight specific subsection if active */}
                         {renderContent(parsedItem.content, isActive, targetSubsection ?? undefined, displayTitle)}
 
-                        <div className={styles.supportingContentActions} style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                        <div className={styles.supportingContentActions}>
+                            {/* CUSTOM: Jump to the live primary source with the cited section highlighted */}
+                            {isActive && onShowInPrimarySource && (
+                                <button
+                                    className={`${styles.primarySourceButton} ${
+                                        verifiedStatus === "exact"
+                                            ? styles.primarySourceButtonVerified
+                                            : verifiedStatus === "approximate"
+                                              ? styles.primarySourceButtonApprox
+                                              : ""
+                                    }`}
+                                    onClick={onShowInPrimarySource}
+                                    title={
+                                        verifiedStatus === "exact"
+                                            ? "Verified: the cited text was located in the live primary source. Click to open the Primary Source tab and view it highlighted."
+                                            : verifiedStatus === "approximate"
+                                              ? "A close match was located in the live primary source. Click to open the Primary Source tab and review it."
+                                              : "Open the Primary Source tab to load the live document and highlight this section"
+                                    }
+                                >
+                                    {verifiedStatus === "exact"
+                                        ? "Verified in primary source — open"
+                                        : verifiedStatus === "approximate"
+                                          ? "Likely match — open in primary source"
+                                          : "Show in primary source"}
+                                </button>
+                            )}
                             {hasDocumentUrl && (
                                 <>
                                     {/* Only show "View Source" (in-panel) for admins; everyone else gets "View Source in New Tab" */}

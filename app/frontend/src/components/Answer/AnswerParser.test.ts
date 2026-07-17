@@ -9,10 +9,10 @@ describe("collapseAdjacentCitations", () => {
         expect(output).toBe("The rule is clear.[45]");
     });
 
-    it("keeps only the last citation when different numbers appear back to back", () => {
+    it("preserves distinct adjacent citations", () => {
         const input = "Disclosure stays proportionate.[1][2]";
         const output = collapseAdjacentCitations(input);
-        expect(output).toBe("Disclosure stays proportionate.[2]");
+        expect(output).toBe("Disclosure stays proportionate.[1][2]");
     });
 
     it("leaves non-adjacent citations untouched", () => {

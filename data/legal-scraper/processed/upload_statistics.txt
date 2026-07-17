@@ -2,29 +2,29 @@
 DIFFERENTIAL UPLOAD STATISTICS
 ================================================================================
 
-Timestamp: 2026-01-18 16:25:33
-Target Index: legal-court-rag-index-v2
+Timestamp: 2026-04-08 09:28:40
+Target Index: legal-court-rag-index-v3
 Mode: PRODUCTION UPLOAD
 
 Document Counts:
-  Total Input:           267
-  New:                     0  (  0.0%)
-  Changed:                 0  (  0.0%)
-  Unchanged:               0  (  0.0%)
-  Total to Upload:         0
+  Total Input:           920
+  New:                   548  ( 59.6%)
+  Changed:               299  ( 32.5%)
+  Unchanged:              73  (  7.9%)
+  Total to Upload:       847
 
-Status: INDEX UP TO DATE
+Status: UPLOAD REQUIRED
 
 ================================================================================
 
 UPLOAD RESULTS:
-  Attempted:             267
-  Successful:            267
+  Attempted:             847
+  Successful:            847
 
   Breakdown:
-    New:                   0
-    Changed:               0
+    New:                 548
+    Changed:             299
 
-  Completion Time: 2026-01-18 16:26:17
+  Completion Time: 2026-04-08 09:31:14
 
 ================================================================================

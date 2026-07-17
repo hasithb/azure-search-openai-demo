@@ -28,6 +28,9 @@ export type { Category } from "./useCategories";
 // Mobile detection and abbreviations (source names and responsive hooks)
 export { useIsMobile, getAbbreviatedCategory, getDepthLabel, DEPTH_OPTIONS } from "./useMobile";
 
+// Data privacy notice (fixed-position shield button + dismissible banner)
+export { DataPrivacyNotice } from "./DataPrivacyNotice";
+
 // Legal Feedback
 export { LegalFeedback } from "./LegalFeedback";
 
@@ -39,3 +42,22 @@ export { HelpAboutPanel } from "./HelpAboutPanel";
 
 // Splash Screen (animated intro with morph-to-header effect)
 export { SplashScreen } from "./SplashScreen";
+
+// Chat Input Controls (category filter + depth dropdowns, FluentUI v9)
+export { ChatInputControls, MobileDropdownPanel } from "./ChatInputControls";
+
+// Citation metadata extraction and path building
+export { extractMetadataFromDataPoint, buildCitationLabel, buildCitationPath } from "./citationMetadata";
+export type { StructuredCitationMetadata } from "./citationMetadata";
+
+// Structured subsection matching for SupportingContent
+export { findBestMatch } from "./subsectionMatcher";
+
+// Subsection-aware chunk deduplication
+export { deduplicatePreservingSubsections } from "./chunkDeduplicator";
+
+// Citation metadata display component
+export { CitationMetadataDisplay } from "./CitationMetadataDisplay";
+
+// Primary source viewer (live PDF/HTML with the cited section highlighted)
+export { PrimarySourceViewer } from "./PrimarySourceViewer";

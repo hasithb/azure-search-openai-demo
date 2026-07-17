@@ -137,6 +137,9 @@ venv.bak/
 .dmypy.json
 dmypy.json
 
+# ty
+.ty_cache/
+
 # Pyre type checker
 .pyre/
 
@@ -158,3 +161,9 @@ data/**/*.md5
 
 .DS_Store
 evals/results/
+# Test feedback artifacts
+data/feedback_data/local/
+
+# Sensitive backup files
+archive/pre-uksouth-backup/env-backup.txt
+archive/pre-uksouth-backup/containerapp-config.json

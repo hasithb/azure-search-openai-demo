@@ -25,7 +25,6 @@ graph TB
 
             subgraph "Approaches"
                 CRR[ChatReadRetrieveRead<br/>Approach]
-                RTR[RetrieveThenRead<br/>Approach]
             end
         end
     end
@@ -62,7 +61,6 @@ graph TB
 
     %% Backend Processing
     API --> CRR
-    API --> RTR
 
     %% Azure Service Connections
     API <--> OpenAI
@@ -91,7 +89,7 @@ graph TB
     classDef processing fill:#f1f8e9
 
     class User,Browser userLayer
-    class React,API,CRR,RTR appLayer
+    class React,API,CRR appLayer
     class OpenAI,Search,DocIntel,Vision2,Speech azureAI
     class Blob,Cosmos azureStorage
     class ContainerApps,AppInsights,KeyVault azurePlatform
@@ -160,7 +158,6 @@ sequenceDiagram
 - **API Layer**: RESTful endpoints for chat, search, and configuration. See [HTTP Protocol](http_protocol.md) for detailed API documentation.
 - **Approach Patterns**: Different strategies for processing queries
   - `ChatReadRetrieveRead`: Multi-turn conversation with retrieval
-  - `RetrieveThenRead`: Single-turn Q&A with retrieval
 - **Authentication**: Optional integration with Azure Active Directory
 
 ### Azure Services Integration
