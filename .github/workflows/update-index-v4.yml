@@ -116,6 +116,10 @@ jobs:
           cognitive_token=$(az account get-access-token --resource https://cognitiveservices.azure.com --query accessToken -o tsv)
           echo "Embedding endpoint: https://${AZURE_OPENAI_SERVICE}.openai.azure.com/"
           echo "Embedding deployment: ${AZURE_OPENAI_EMB_DEPLOYMENT}"
+          [[ "${AZURE_OPENAI_SERVICE}" == "cog-gz2m4s637t5me" ]] && service_match=true || service_match=false
+          [[ "${AZURE_OPENAI_EMB_DEPLOYMENT}" == "text-embedding-3-large" ]] && deployment_match=true || deployment_match=false
+          echo "Embedding service matches assigned resource: ${service_match}"
+          echo "Embedding deployment matches expected deployment: ${deployment_match}"
           COGNITIVE_TOKEN="${cognitive_token}" python - <<'PY'
           import base64
           import json
