@@ -37,7 +37,18 @@ def choose_case(oracle: dict[str, Any]) -> dict[str, Any]:
         if str(case.get("subsection_id") or "").strip() == "24.2"
         and "part 24" in str(case.get("sourcepage") or "").casefold()
     ]
-    return preferred[0] if preferred else min(cases, key=lambda case: len(str(case.get("body_text") or "")))
+    if preferred:
+        return preferred[0]
+
+    part_cases = [
+        case
+        for case in cases
+        if str(case.get("subsection_id") or "").strip().casefold() == "part 24"
+    ]
+    if part_cases:
+        return part_cases[0]
+
+    return max(cases, key=lambda case: len(str(case.get("body_text") or "")))
 
 
 def run_browser_gate(candidate_url: str, oracle: dict[str, Any], question: str) -> dict[str, Any]:
@@ -135,6 +146,7 @@ def main() -> int:
         report = build_report(args.candidate_url, args.oracle, args.snapshot_dir, provenance, args.question)
     except (OSError, json.JSONDecodeError, BrowserGateError, PlaywrightTimeoutError, ValueError) as error:
         report = {"schema_version": 1, "gate": "highlight", "status": "FAIL", "error": str(error)}
+        print(f"Browser highlight gate failed: {error}")
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         return 1
