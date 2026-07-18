@@ -150,33 +150,20 @@ jobs:
             --output-dir "reports/index_v4_artifacts_${V4_RELEASE_ID}"
       - name: Generate embeddings with managed identity
         run: |
-          openai_service=$(az containerapp show \
-            --resource-group "${V4_CANDIDATE_RESOURCE_GROUP}" \
-            --name "${V4_CANDIDATE_APP}" \
-            --query "properties.template.containers[0].env[?name=='AZURE_OPENAI_SERVICE'].value | [0]" \
-            -o tsv)
-          : "${openai_service:?Candidate app must define AZURE_OPENAI_SERVICE}"
-          openai_endpoint=$(az cognitiveservices account show \
-            --resource-group "${V4_CANDIDATE_RESOURCE_GROUP}" \
-            --name "${openai_service}" \
-            --query "properties.endpoint" \
-            -o tsv)
-          : "${openai_endpoint:?Azure OpenAI resource must expose an endpoint}"
-          openai_deployment=$(az containerapp show \
-            --resource-group "${V4_CANDIDATE_RESOURCE_GROUP}" \
-            --name "${V4_CANDIDATE_APP}" \
-            --query "properties.template.containers[0].env[?name=='AZURE_OPENAI_EMB_DEPLOYMENT'].value | [0]" \
-            -o tsv)
-          : "${openai_deployment:?Candidate app must define AZURE_OPENAI_EMB_DEPLOYMENT}"
+          openai_service="${AZURE_OPENAI_SERVICE}"
+          : "${openai_service:?AZURE_OPENAI_SERVICE is required}"
+          openai_endpoint="https://${openai_service}.openai.azure.com/"
+          openai_deployment="${AZURE_OPENAI_EMB_DEPLOYMENT}"
+          : "${openai_deployment:?AZURE_OPENAI_EMB_DEPLOYMENT is required}"
           python scripts/generate_v4_embeddings.py \
             --input "reports/index_v4_artifacts_${V4_RELEASE_ID}/documents.jsonl" \
             --output "reports/index_v4_artifacts_${V4_RELEASE_ID}/documents_with_embeddings.jsonl" \
             --endpoint "${openai_endpoint}" \
             --deployment "${openai_deployment}"
         env:
+          AZURE_OPENAI_SERVICE: ${{ secrets.AZURE_OPENAI_SERVICE }}
+          AZURE_OPENAI_EMB_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_EMB_DEPLOYMENT }}
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          V4_CANDIDATE_APP: ${{ vars.V4_CANDIDATE_APP }}
-          V4_CANDIDATE_RESOURCE_GROUP: ${{ vars.V4_CANDIDATE_RESOURCE_GROUP }}
       - name: Validate candidate documents
         run: |
           python scripts/upload_v4_staging.py \
