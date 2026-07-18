@@ -129,6 +129,11 @@ def run_browser_gate(candidate_url: str, oracle: dict[str, Any], question: str) 
 
             question_input = page.get_by_placeholder(re.compile(r"Ask a question|Type a new question"))
             question_input.wait_for(state="visible", timeout=30_000)
+            source_filter = page.get_by_role("combobox", name="Source filter")
+            source_filter.wait_for(state="visible", timeout=30_000)
+            source_filter.click()
+            page.get_by_role("menuitemcheckbox", name="All Sources", exact=True).click()
+            page.keyboard.press("Escape")
             question_input.fill(question)
             page.get_by_role("button", name="Submit question").click()
 
