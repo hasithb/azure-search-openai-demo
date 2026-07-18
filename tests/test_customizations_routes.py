@@ -146,6 +146,51 @@ class TestCategoriesEndpointDisplayNames:
 
 
 @pytest.mark.asyncio
+class TestProvenanceEndpoint:
+    """Tests for the v4 candidate provenance endpoint."""
+
+    async def test_provenance_endpoint_returns_release_identity(self, client, monkeypatch):
+        values = {
+            "V4_RELEASE_ID": "r22",
+            "GIT_SHA": "abc123",
+            "DEPLOYMENT_ID": "candidate-1",
+            "V4_ARTIFACT_SHA256": "artifact-hash",
+            "V4_SEARCH_SNAPSHOT_SHA256": "snapshot-hash",
+            "AZURE_SEARCH_SERVICE": "search-service",
+            "AZURE_SEARCH_INDEX": "index-v4-r22",
+            "AZURE_SEARCH_KNOWLEDGEBASE_NAME": "kb-v4-r22",
+        }
+        for name, value in values.items():
+            monkeypatch.setenv(name, value)
+
+        response = await client.get("/api/provenance")
+
+        assert response.status_code == 200
+        payload = await response.get_json()
+        assert payload == {
+            "schema_version": 1,
+            "release_id": "r22",
+            "git_sha": "abc123",
+            "deployment_id": "candidate-1",
+            "artifact_sha256": "artifact-hash",
+            "search_snapshot_sha256": "snapshot-hash",
+            "search_service": "search-service",
+            "search_index": "index-v4-r22",
+            "knowledge_base": "kb-v4-r22",
+        }
+
+    async def test_provenance_endpoint_rejects_incomplete_identity(self, client, monkeypatch):
+        monkeypatch.delenv("V4_RELEASE_ID", raising=False)
+
+        response = await client.get("/api/provenance")
+
+        assert response.status_code == 503
+        payload = await response.get_json()
+        assert payload["error"] == "Candidate provenance is incomplete"
+        assert "release_id" in payload["missing"]
+
+
+@pytest.mark.asyncio
 class TestFeedbackEndpoint:
     """Tests for /api/feedback endpoint (enhanced feedback feature)."""
 

@@ -236,6 +236,17 @@ def test_unique_matches_skip_document_rescans_but_duplicates_scope_documents():
     assert duplicate_call_count > unique_call_count
 
 
+def test_impossible_token_matches_skip_expensive_occurrence_scans():
+    source = "The court must act"
+    indexed = "Unrelated indexed content"
+
+    with patch("scripts.audit_source_documents.count_legal_occurrences", return_value=0) as counter:
+        result = compare_substantive_blocks(source, indexed, source_type="html")
+
+    assert result["unmatched_block_count"] == 1
+    counter.assert_not_called()
+
+
 def test_substantive_blocks_classify_overlap_in_other_canonical_sources():
     source = "The court must act"
     documents = [

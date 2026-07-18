@@ -392,6 +392,14 @@ def count_legal_occurrences(text: str, block: str) -> int:
         start = match_end
 
 
+def legal_tokens(value: str) -> frozenset[str]:
+    return frozenset(re.findall(r"\w+", value.casefold(), flags=re.UNICODE))
+
+
+def can_contain_block(text_tokens: frozenset[str], block: str) -> bool:
+    return legal_tokens(block).issubset(text_tokens)
+
+
 def _is_boilerplate_line(line: str) -> bool:
     normalized = normalize_label(line)
     return not normalized or normalized in {
@@ -464,6 +472,11 @@ def compare_substantive_blocks(
     normalized_index = normalize_legal_block(index_text).casefold()
     flattened_index = re.sub(r"\s*[|]+\s*", " ", normalized_index).strip()
     compact_index = compact_legal_block(index_text)
+    index_token_sets = {
+        "normalized": legal_tokens(normalized_index),
+        "flattened": legal_tokens(flattened_index),
+        "compact": legal_tokens(compact_index),
+    }
     document_texts = [
         {
             "id": str(document.get("id") or ""),
@@ -477,6 +490,11 @@ def compare_substantive_blocks(
         document["normalized_text"] = normalize_legal_block(document["text"]).casefold()
         document["flattened_text"] = re.sub(r"\s*[|]+\s*", " ", document["normalized_text"]).strip()
         document["compact_text"] = compact_legal_block(document["text"])
+        document["token_sets"] = {
+            "normalized": legal_tokens(document["normalized_text"]),
+            "flattened": legal_tokens(document["flattened_text"]),
+            "compact": legal_tokens(document["compact_text"]),
+        }
     matched: list[dict[str, Any]] = []
     unmatched: list[dict[str, Any]] = []
     ambiguous: list[dict[str, Any]] = []
@@ -487,7 +505,9 @@ def compare_substantive_blocks(
         source_key = normalize_legal_block(block.get("match_text", block["text"])).casefold()
         source_occurrence_counts[source_key] = source_occurrence_counts.get(source_key, 0) + 1
 
-    def cached_count(view_name: str, text: str, block: str) -> int:
+    def cached_count(view_name: str, text: str, block: str, token_set: frozenset[str] | None = None) -> int:
+        if token_set is not None and not can_contain_block(token_set, block):
+            return 0
         cache_key = (view_name, block)
         if cache_key not in count_cache:
             count_cache[cache_key] = count_legal_occurrences(text, block)
@@ -506,13 +526,15 @@ def compare_substantive_blocks(
             "occurrence_ordinal": block["occurrence_ordinal"],
             "text": block["text"],
         }
-        occurrences = cached_count("index", normalized_index, normalized_block)
+        occurrences = cached_count("index", normalized_index, normalized_block, index_token_sets["normalized"])
         match_method = "normalized_substring"
         if occurrences == 0 and flattened_block != normalized_block:
-            occurrences = cached_count("flattened_index", flattened_index, flattened_block)
+            occurrences = cached_count(
+                "flattened_index", flattened_index, flattened_block, index_token_sets["flattened"]
+            )
             match_method = "flattened_table_substring"
         if occurrences == 0 and normalized_block:
-            occurrences = cached_count("compact_index", compact_index, compact_block)
+            occurrences = cached_count("compact_index", compact_index, compact_block, index_token_sets["compact"])
             match_method = "compact_formatting_substring"
         raw_occurrences = occurrences
         source_key = normalized_block
@@ -528,15 +550,24 @@ def compare_substantive_blocks(
             for document in document_texts:
                 document_id = document["id"]
                 document_occurrences = cached_count(
-                    f"document:{document_id}:normalized", document["normalized_text"], normalized_block
+                    f"document:{document_id}:normalized",
+                    document["normalized_text"],
+                    normalized_block,
+                    document["token_sets"]["normalized"],
                 )
                 if document_occurrences == 0 and flattened_block != normalized_block:
                     document_occurrences = cached_count(
-                        f"document:{document_id}:flattened", document["flattened_text"], flattened_block
+                        f"document:{document_id}:flattened",
+                        document["flattened_text"],
+                        flattened_block,
+                        document["token_sets"]["flattened"],
                     )
                 if document_occurrences == 0 and normalized_block:
                     document_occurrences = cached_count(
-                        f"document:{document_id}:compact", document["compact_text"], compact_block
+                        f"document:{document_id}:compact",
+                        document["compact_text"],
+                        compact_block,
+                        document["token_sets"]["compact"],
                     )
                 if document_occurrences:
                     document_matches.append(document["id"])

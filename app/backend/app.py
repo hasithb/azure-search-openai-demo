@@ -51,7 +51,7 @@ from approaches.chatreadretrieveread import ChatReadRetrieveReadApproach
 from approaches.promptmanager import PromptManager
 from chat_history.cosmosdb import chat_history_cosmosdb_bp
 from customizations.config import fetch_available_sources, is_deployed_ui_compat_enabled, is_feature_enabled
-from customizations.routes import categories_bp, feedback_bp, proxy_source_bp
+from customizations.routes import categories_bp, feedback_bp, provenance_bp, proxy_source_bp
 from config import (
     CONFIG_AGENTIC_KNOWLEDGEBASE_ENABLED,
     CONFIG_AUTH_CLIENT,
@@ -803,6 +803,8 @@ def create_app():
     app.register_blueprint(categories_bp)
     app.register_blueprint(feedback_bp)
     app.register_blueprint(proxy_source_bp)
+    # CUSTOM: expose release-bound metadata for v4 application gates
+    app.register_blueprint(provenance_bp)
 
     if os.getenv("APPLICATIONINSIGHTS_CONNECTION_STRING"):
         app.logger.info("APPLICATIONINSIGHTS_CONNECTION_STRING is set, enabling Azure Monitor")

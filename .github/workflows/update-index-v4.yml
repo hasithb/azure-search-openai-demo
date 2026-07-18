@@ -171,6 +171,11 @@ jobs:
             --court-guides-dir "reports/court_guides_${V4_RELEASE_ID}/outputs" \
             --release-id "${V4_RELEASE_ID}" \
             --output-dir "reports/index_v4_artifacts_${V4_RELEASE_ID}"
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       - name: Generate embeddings with managed identity
         run: |
           openai_service="cog-gz2m4s637t5me"
