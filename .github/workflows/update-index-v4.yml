@@ -286,6 +286,26 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Build candidate application image
+        run: |
+          : "${AZURE_RESOURCE_GROUP:?Set V4 candidate resource group}"
+          : "${V4_CANDIDATE_APP:?Set repository variable V4_CANDIDATE_APP}"
+          npm --prefix app/frontend ci
+          npm --prefix app/frontend run build
+          registry_server=$(az containerapp show \
+            --resource-group "${AZURE_RESOURCE_GROUP}" \
+            --name "${V4_CANDIDATE_APP}" \
+            --query "properties.template.containers[0].image" \
+            --only-show-errors -o tsv | cut -d/ -f1)
+          : "${registry_server:?Candidate app has no container image registry}"
+          registry_name="${registry_server%%.azurecr.io}"
+          image_tag="v4-candidate:${GITHUB_SHA}"
+          az acr build \
+            --registry "${registry_name}" \
+            --image "${image_tag}" \
+            --file app/backend/Dockerfile \
+            app/backend
+          echo "candidate_image=${registry_server}/${image_tag}" >> "$GITHUB_ENV"
       - name: Configure dedicated candidate app revision
         run: |
           : "${AZURE_RESOURCE_GROUP:?Set V4 candidate resource group}"
@@ -295,6 +315,7 @@ jobs:
             --resource-group "${AZURE_RESOURCE_GROUP}" \
             --name "${V4_CANDIDATE_APP}" \
             --revision-suffix "v4-${V4_RELEASE_ID}" \
+            --image "${candidate_image}" \
             --set-env-vars \
               AZURE_SEARCH_INDEX="${SEARCH_INDEX}" \
               AZURE_SEARCH_KNOWLEDGEBASE_NAME="${SEARCH_KNOWLEDGEBASE}" \
