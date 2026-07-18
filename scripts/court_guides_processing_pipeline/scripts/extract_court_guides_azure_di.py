@@ -23,9 +23,9 @@ import os
 import re
 import time
 import unicodedata
+from urllib.request import Request, urlopen
 from dataclasses import dataclass, field
 from pathlib import Path
-from urllib.request import Request, urlopen
 
 from azure.ai.documentintelligence import DocumentIntelligenceClient
 from azure.ai.documentintelligence.models import AnalyzeDocumentRequest
@@ -152,6 +152,15 @@ GUIDE_METADATA = {
         "updated": "2025-01-01T00:00:00Z",
         "split_level": 3,
         "sourcepage_style": "section_dot",
+        "annex_as_single": False,
+    },
+    "Intellectual-Property-Enterprise-Court-IPEC-Guide-revised-November-2024.pdf": {
+        "category": "Intellectual Property Enterprise Court",
+        "sourcefile": "Intellectual Property Enterprise Court Guide",
+        "storageUrl": "https://www.judiciary.uk/wp-content/uploads/2024/12/Intellectual-Property-Enterprise-Court-IPEC-Guide-revised-November-2024.pdf",
+        "updated": "2024-11-01T00:00:00Z",
+        "split_level": 3,
+        "sourcepage_style": "numbered",
         "annex_as_single": False,
     },
 }
@@ -380,9 +389,9 @@ def parse_with_azure_di(pdf_path: str) -> str:
     t0 = time.time()
 
     poller = client.begin_analyze_document(
-        model_id="prebuilt-layout",
+        model_id=DI_MODEL_ID,
         body=AnalyzeDocumentRequest(bytes_source=pdf_bytes),
-        output_content_format="markdown",
+        output_content_format=DI_OUTPUT_CONTENT_FORMAT,
     )
     result = poller.result()
     elapsed = time.time() - t0
@@ -756,7 +765,17 @@ def process_pdf(pdf_path: str, output_dir: str, dry_run: bool = False) -> list[d
 
     # Step 1: Parse with Azure DI (reuse cached markdown if available)
     md_path = os.path.join(output_dir, Path(pdf_name).stem + "_azure_di.md")
-    if os.path.exists(md_path):
+    provenance_path = md_path + ".provenance.json"
+    cached_provenance = {}
+    if os.path.exists(provenance_path):
+        with open(provenance_path, encoding="utf-8") as f:
+            cached_provenance = json.load(f)
+    cache_matches = (
+        cached_provenance.get("pdf_sha256") == pdf_sha256
+        and cached_provenance.get("model_id") == DI_MODEL_ID
+        and cached_provenance.get("output_content_format") == DI_OUTPUT_CONTENT_FORMAT
+    )
+    if os.path.exists(md_path) and cache_matches:
         logger.info("Reusing cached markdown from %s", md_path)
         with open(md_path, encoding="utf-8") as f:
             markdown = f.read()
@@ -765,6 +784,20 @@ def process_pdf(pdf_path: str, output_dir: str, dry_run: bool = False) -> list[d
         if not dry_run:
             with open(md_path, "w", encoding="utf-8") as f:
                 f.write(markdown)
+            Path(provenance_path).write_text(
+                json.dumps(
+                    {
+                        "pdf_sha256": pdf_sha256,
+                        "markdown_sha256": hashlib.sha256(markdown.encode("utf-8")).hexdigest(),
+                        "model_id": DI_MODEL_ID,
+                        "output_content_format": DI_OUTPUT_CONTENT_FORMAT,
+                    },
+                    indent=2,
+                    sort_keys=True,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
             logger.info("Saved raw markdown to %s", md_path)
 
     # Step 2: Extract sections
@@ -804,7 +837,7 @@ def process_pdf(pdf_path: str, output_dir: str, dry_run: bool = False) -> list[d
     if not dry_run:
         output_name = Path(pdf_name).stem + "_processed.json"
         output_path = os.path.join(output_dir, output_name)
-        with open(output_path, "w") as f:
+        with open(output_path, "w", encoding="utf-8") as f:
             json.dump(doc_dicts, f, indent=2, ensure_ascii=False)
         logger.info("Saved %d documents to %s", len(doc_dicts), output_path)
         processed_sha256 = sha256_file(output_path)
@@ -838,8 +871,8 @@ def main():
     )
     parser.add_argument(
         "--output-dir",
-        default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "outputs_azure_di"),
-        help="Output directory for processed JSONs (default: ../outputs_azure_di/)",
+        default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "reports", "court_guides_v4_artifacts"),
+        help="Output directory for processed JSONs (default: ../../../reports/court_guides_v4_artifacts/)",
     )
     parser.add_argument(
         "--capture-canonical",
@@ -871,6 +904,7 @@ def main():
 
     total_docs = 0
     results = {}
+    failed = False
 
     for pdf_path in pdfs:
         pdf_name = os.path.basename(pdf_path)
@@ -881,6 +915,7 @@ def main():
         except Exception:
             logger.exception("Failed to process %s", pdf_name)
             results[pdf_name] = "ERROR"
+            failed = True
 
     # Summary
     logger.info("=" * 60)
@@ -891,6 +926,8 @@ def main():
     logger.info("  Total: %d documents", total_docs)
     if not args.dry_run:
         logger.info("  Output: %s", output_dir)
+    if failed:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":
