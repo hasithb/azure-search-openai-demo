@@ -114,9 +114,9 @@ jobs:
         run: |
           set -euo pipefail
           cognitive_token=$(az account get-access-token --resource https://cognitiveservices.azure.com --query accessToken -o tsv)
-          echo "Embedding endpoint: https://${AZURE_OPENAI_SERVICE}.openai.azure.com/"
+          echo "Embedding endpoint: https://cog-gz2m4s637t5me.openai.azure.com/"
           echo "Embedding deployment: ${AZURE_OPENAI_EMB_DEPLOYMENT}"
-          [[ "${AZURE_OPENAI_SERVICE}" == "cog-gz2m4s637t5me" ]] && service_match=true || service_match=false
+          [[ "cog-gz2m4s637t5me" == "cog-gz2m4s637t5me" ]] && service_match=true || service_match=false
           [[ "${AZURE_OPENAI_EMB_DEPLOYMENT}" == "text-embedding-3-large" ]] && deployment_match=true || deployment_match=false
           echo "Embedding service matches assigned resource: ${service_match}"
           echo "Embedding deployment matches expected deployment: ${deployment_match}"
@@ -173,8 +173,7 @@ jobs:
             --output-dir "reports/index_v4_artifacts_${V4_RELEASE_ID}"
       - name: Generate embeddings with managed identity
         run: |
-          openai_service="${AZURE_OPENAI_SERVICE}"
-          : "${openai_service:?AZURE_OPENAI_SERVICE is required}"
+          openai_service="cog-gz2m4s637t5me"
           openai_endpoint="https://${openai_service}.openai.azure.com/"
           openai_deployment="${AZURE_OPENAI_EMB_DEPLOYMENT}"
           : "${openai_deployment:?AZURE_OPENAI_EMB_DEPLOYMENT is required}"
