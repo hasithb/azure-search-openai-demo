@@ -1,11 +1,13 @@
+import asyncio
 import logging
+import random
 from abc import ABC
 from collections.abc import Awaitable, Callable
 from urllib.parse import urljoin
 
 import aiohttp
 import tiktoken
-from openai import AsyncOpenAI, RateLimitError
+from openai import APIConnectionError, APITimeoutError, AsyncOpenAI, RateLimitError
 from tenacity import (
     AsyncRetrying,
     retry_if_exception_type,
@@ -66,6 +68,46 @@ class OpenAIEmbeddings(ABC):
 
     def before_retry_sleep(self, retry_state):
         logger.info("Rate limited on the OpenAI embeddings API, sleeping before retrying...")
+
+    @staticmethod
+    def _retry_delay(exc: Exception, attempt: int) -> float:
+        response = getattr(exc, "response", None)
+        retry_after = response.headers.get("retry-after") if response is not None else None
+        if retry_after:
+            try:
+                return max(0.0, float(retry_after))
+            except (TypeError, ValueError):
+                pass
+        return min(60.0, (2**attempt) + random.uniform(0.0, 1.0))
+
+    @staticmethod
+    def _is_retryable(exc: Exception) -> bool:
+        if isinstance(exc, (RateLimitError, APIConnectionError, APITimeoutError)):
+            return True
+        status_code = getattr(exc, "status_code", None)
+        return status_code is not None and 500 <= status_code < 600
+
+    async def _create_embedding_batch_with_retry(
+        self, batch: EmbeddingBatch, dimensions_args: ExtraArgs, max_attempts: int = 15
+    ) -> list[list[float]]:
+        for attempt in range(max_attempts):
+            try:
+                emb_response = await self.open_ai_client.embeddings.create(
+                    model=self._api_model, input=batch.texts, **dimensions_args
+                )
+                logger.info(
+                    "Computed embeddings in batch. Batch size: %d, Token count: %d",
+                    len(batch.texts),
+                    batch.token_length,
+                )
+                return [data.embedding for data in emb_response.data]
+            except Exception as exc:
+                if not self._is_retryable(exc) or attempt == max_attempts - 1:
+                    raise
+                delay = self._retry_delay(exc, attempt)
+                logger.info("Retrying transient embedding failure in %.2fs", delay)
+                await asyncio.sleep(delay)
+        raise RuntimeError("Embedding retry loop exited unexpectedly")
 
     def calculate_token_length(self, text: str):
         encoding = tiktoken.encoding_for_model(self.open_ai_model_name)
@@ -133,24 +175,46 @@ class OpenAIEmbeddings(ABC):
         batches = self.split_text_into_batches(texts)
         embeddings = []
         for batch in batches:
-            async for attempt in AsyncRetrying(
-                retry=retry_if_exception_type(RateLimitError),
-                wait=wait_random_exponential(min=15, max=60),
-                stop=stop_after_attempt(15),
-                before_sleep=self.before_retry_sleep,
-            ):
-                with attempt:
-                    emb_response = await self.open_ai_client.embeddings.create(
-                        model=self._api_model, input=batch.texts, **dimensions_args
-                    )
-                    embeddings.extend([data.embedding for data in emb_response.data])
-                    logger.info(
-                        "Computed embeddings in batch. Batch size: %d, Token count: %d",
-                        len(batch.texts),
-                        batch.token_length,
-                    )
+            embeddings.extend(await self._create_embedding_batch_with_retry(batch, dimensions_args))
 
         return embeddings
+
+    def split_prepared_into_batches(self, prepared: list[tuple[str, int]]) -> list[EmbeddingBatch]:
+        batches: list[EmbeddingBatch] = []
+        batch: list[str] = []
+        batch_token_length = 0
+        for text, token_length in prepared:
+            if token_length > 8100:
+                raise ValueError("Prepared embedding input exceeds the 8100-token batch limit")
+            if batch and (batch_token_length + token_length > 8100 or len(batch) == 16):
+                batches.append(EmbeddingBatch(batch, batch_token_length))
+                batch = []
+                batch_token_length = 0
+            batch.append(text)
+            batch_token_length += token_length
+        if batch:
+            batches.append(EmbeddingBatch(batch, batch_token_length))
+        return batches
+
+    async def create_embeddings_concurrent(
+        self, prepared: list[tuple[str, int]], concurrency: int = 8
+    ) -> list[list[float]]:
+        if concurrency < 1:
+            raise ValueError("concurrency must be at least 1")
+        dimensions_args: ExtraArgs = (
+            {"dimensions": self.open_ai_dimensions}
+            if OpenAIEmbeddings.SUPPORTED_DIMENSIONS_MODEL.get(self.open_ai_model_name)
+            else {}
+        )
+        batches = self.split_prepared_into_batches(prepared)
+        semaphore = asyncio.Semaphore(concurrency)
+
+        async def create_batch(batch: EmbeddingBatch) -> list[list[float]]:
+            async with semaphore:
+                return await self._create_embedding_batch_with_retry(batch, dimensions_args)
+
+        results = await asyncio.gather(*(create_batch(batch) for batch in batches))
+        return [vector for batch_result in results for vector in batch_result]
 
     async def create_embedding_single(self, text: str, dimensions_args: ExtraArgs) -> list[float]:
         async for attempt in AsyncRetrying(

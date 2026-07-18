@@ -1,3 +1,5 @@
+import asyncio
+
 import pytest
 
 from prepdocslib.embeddings import OpenAIEmbeddings
@@ -91,3 +93,40 @@ def test_split_text_unsupported_model():
     )
     with pytest.raises(NotImplementedError):
         embeddings.split_text_into_batches(["test"])
+
+
+@pytest.mark.asyncio
+async def test_create_embeddings_concurrent_limits_concurrency_and_preserves_order(embeddings_client, monkeypatch):
+    active = 0
+    peak = 0
+
+    async def create_batch(batch, dimensions_args):
+        nonlocal active, peak
+        active += 1
+        peak = max(peak, active)
+        batch_start = int(batch.texts[0].split("-")[1])
+        await asyncio.sleep(0.001 if batch_start == 0 else 0)
+        active -= 1
+        return [[float(index)] for index in range(batch_start, batch_start + len(batch.texts))]
+
+    monkeypatch.setattr(embeddings_client, "_create_embedding_batch_with_retry", create_batch)
+    prepared = [(f"item-{index}", 600) for index in range(32)]
+
+    result = await embeddings_client.create_embeddings_concurrent(prepared, concurrency=2)
+
+    assert peak == 2
+    assert result == [[float(index)] for index in range(32)]
+
+
+def test_split_prepared_into_batches_respects_token_and_input_limits(embeddings_client):
+    prepared = [(f"text-{index}", 600) for index in range(17)]
+
+    batches = embeddings_client.split_prepared_into_batches(prepared)
+
+    assert [len(batch.texts) for batch in batches] == [13, 4]
+    assert all(batch.token_length <= 8100 for batch in batches)
+
+
+def test_split_prepared_into_batches_rejects_oversized_input(embeddings_client):
+    with pytest.raises(ValueError, match="8100-token"):
+        embeddings_client.split_prepared_into_batches([("oversized", 8101)])
