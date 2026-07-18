@@ -247,8 +247,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install \
             azure-identity==1.17.1 \
-            azure-search-documents==11.7.0b2 \
-            aiohttp==3.13.4
+            azure-search-documents==11.7.0b2
       - uses: actions/download-artifact@v4
         with:
           name: v4-candidate-${{ inputs.release_id || github.run_number }}
@@ -276,7 +275,8 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install \
             azure-identity==1.17.1 \
-            azure-search-documents==11.7.0b2
+            azure-search-documents==11.7.0b2 \
+            aiohttp==3.13.4
       - uses: actions/download-artifact@v4
         with:
           name: v4-candidate-${{ inputs.release_id || github.run_number }}
