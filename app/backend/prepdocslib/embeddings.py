@@ -179,11 +179,12 @@ class OpenAIEmbeddings(ABC):
 
         return embeddings
 
-    def split_prepared_into_batches(self, prepared: list[tuple[str, int]]) -> list[EmbeddingBatch]:
+    def split_prepared_into_batches(self, prepared: list[tuple[str, int, object]]) -> list[EmbeddingBatch]:
         batches: list[EmbeddingBatch] = []
         batch: list[str] = []
         batch_token_length = 0
-        for text, token_length in prepared:
+        for prepared_item in prepared:
+            text, token_length = prepared_item[:2]
             if token_length > 8100:
                 raise ValueError("Prepared embedding input exceeds the 8100-token batch limit")
             if batch and (batch_token_length + token_length > 8100 or len(batch) == 16):
@@ -197,7 +198,7 @@ class OpenAIEmbeddings(ABC):
         return batches
 
     async def create_embeddings_concurrent(
-        self, prepared: list[tuple[str, int]], concurrency: int = 8
+        self, prepared: list[tuple[str, int, object]], concurrency: int = 8
     ) -> list[list[float]]:
         if concurrency < 1:
             raise ValueError("concurrency must be at least 1")

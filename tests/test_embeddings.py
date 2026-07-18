@@ -127,6 +127,15 @@ def test_split_prepared_into_batches_respects_token_and_input_limits(embeddings_
     assert all(batch.token_length <= 8100 for batch in batches)
 
 
+def test_split_prepared_into_batches_preserves_embedding_input_metadata_shape(embeddings_client):
+    prepared = [("text", 600, False)]
+
+    batches = embeddings_client.split_prepared_into_batches(prepared)
+
+    assert batches[0].texts == ["text"]
+    assert batches[0].token_length == 600
+
+
 def test_split_prepared_into_batches_rejects_oversized_input(embeddings_client):
     with pytest.raises(ValueError, match="8100-token"):
         embeddings_client.split_prepared_into_batches([("oversized", 8101)])
