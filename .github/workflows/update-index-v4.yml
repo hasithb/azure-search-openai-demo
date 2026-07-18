@@ -114,6 +114,8 @@ jobs:
         run: |
           set -euo pipefail
           cognitive_token=$(az account get-access-token --resource https://cognitiveservices.azure.com --query accessToken -o tsv)
+          echo "Embedding endpoint: https://${AZURE_OPENAI_SERVICE}.openai.azure.com/"
+          echo "Embedding deployment: ${AZURE_OPENAI_EMB_DEPLOYMENT}"
           COGNITIVE_TOKEN="${cognitive_token}" python - <<'PY'
           import base64
           import json
@@ -123,6 +125,9 @@ jobs:
           payload = json.loads(base64.urlsafe_b64decode(encoded + "=" * (-len(encoded) % 4)))
           print(json.dumps({key: payload.get(key) for key in ("aud", "tid", "oid", "appid")}, sort_keys=True))
           PY
+        env:
+          AZURE_OPENAI_SERVICE: ${{ secrets.AZURE_OPENAI_SERVICE }}
+          AZURE_OPENAI_EMB_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_EMB_DEPLOYMENT }}
       - run: |
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt
