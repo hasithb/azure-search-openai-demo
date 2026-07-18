@@ -131,6 +131,12 @@ jobs:
           python scripts/generate_highlight_oracle.py \
             --snapshot-dir reports/html_oracle_snapshots \
             --output reports/highlight_oracle.json
+      - name: Verify Document Intelligence identity
+        run: |
+          di_scope="/subscriptions/${AZURE_SUBSCRIPTION_ID}/resourceGroups/rg-cpr-rag/providers/Microsoft.CognitiveServices/accounts/cog-di-gz2m4s637t5me"
+          az account show --query '{user:user.name,type:user.type,tenantId:tenantId,id:id}' -o json
+          az role assignment list --assignee "$(az account show --query user.name -o tsv)" --scope "$di_scope" \
+            --query "[].{principalId:principalId,role:roleDefinitionName,scope:scope}" -o json
       - name: Capture and extract canonical court guides
         run: |
           rm -rf "reports/court_guides_${V4_RELEASE_ID}"
