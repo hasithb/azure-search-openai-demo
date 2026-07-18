@@ -27,7 +27,7 @@ from pathlib import Path
 # Allow importing from app/backend
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "app" / "backend"))
 
-from azure.identity.aio import AzureDeveloperCliCredential
+from azure.identity.aio import AzureCliCredential, AzureDeveloperCliCredential
 from azure.search.documents.indexes.aio import SearchIndexClient
 from azure.search.documents.indexes.models import (
     AzureOpenAIVectorizerParameters,
@@ -98,7 +98,10 @@ async def create_knowledgebase():
     print(f"KB model:        {kb_model}")
     print()
 
-    credential = AzureDeveloperCliCredential(tenant_id=tenant_id, process_timeout=60) if tenant_id else AzureDeveloperCliCredential(process_timeout=60)
+    if os.getenv("GITHUB_ACTIONS") == "true":
+        credential = AzureCliCredential(tenant_id=tenant_id) if tenant_id else AzureCliCredential()
+    else:
+        credential = AzureDeveloperCliCredential(tenant_id=tenant_id, process_timeout=60) if tenant_id else AzureDeveloperCliCredential(process_timeout=60)
 
     async with SearchIndexClient(endpoint=search_endpoint, credential=credential) as client:
         # Step 1: Create the knowledge source pointing at the existing index
