@@ -27,6 +27,10 @@ def normalize(value: str) -> str:
     return re.sub(r"\s+", " ", value).strip().casefold()
 
 
+def css_attribute_value(value: str) -> str:
+    return value.replace("\\", "\\\\").replace('"', '\\"')
+
+
 def choose_case(oracle: dict[str, Any]) -> dict[str, Any]:
     cases = [case for case in oracle.get("cases", []) if isinstance(case, dict)]
     if not cases:
@@ -77,9 +81,28 @@ def run_browser_gate(candidate_url: str, oracle: dict[str, Any], question: str) 
             question_input.fill(question)
             page.get_by_role("button", name="Submit question").click()
 
-            subsection_selector = f".supContainer[data-subsection-id={json.dumps(str(target_case['subsection_id']))}]"
-            citations = page.locator(subsection_selector)
-            citations.first.wait_for(state="visible", timeout=120_000)
+            subsection_id = css_attribute_value(str(target_case["subsection_id"]))
+            sourcepage = css_attribute_value(str(target_case.get("sourcepage") or ""))
+            selectors = [f'.supContainer[data-subsection-id="{subsection_id}"]']
+            if sourcepage:
+                selectors.append(f'.supContainer[data-sourcepage*="{sourcepage}" i]')
+            citations = None
+            matched_selector = ""
+            deadline = 120_000
+            for selector in selectors:
+                candidate_citations = page.locator(selector)
+                try:
+                    candidate_citations.first.wait_for(state="visible", timeout=deadline)
+                except PlaywrightTimeoutError:
+                    continue
+                citations = candidate_citations
+                matched_selector = selector
+                break
+            if citations is None:
+                raise BrowserGateError(
+                    f'No live citation matched subsection "{target_case["subsection_id"]}" '
+                    f'or source page "{target_case.get("sourcepage", "")}"'
+                )
             citation_count = citations.count()
             citations.first.click()
             page.get_by_text("Supporting content", exact=False).first.wait_for(state="visible", timeout=30_000)
@@ -102,7 +125,7 @@ def run_browser_gate(candidate_url: str, oracle: dict[str, Any], question: str) 
                     "candidate_url": candidate_url,
                     "question": question,
                     "citation_count": citation_count,
-                    "clicked_selector": subsection_selector,
+                    "clicked_selector": matched_selector,
                     "supporting_content_visible": True,
                     "highlight_visible": True,
                     "highlighted_text_sha256": hashlib.sha256(highlighted_text.encode("utf-8")).hexdigest(),
