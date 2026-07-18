@@ -231,6 +231,19 @@ describe("extractSubsectionContent", () => {
             expect(result).not.toBeNull();
             expect(result!.content).toContain("procedural code");
         });
+
+        it("extracts inline numeric markdown headings without adjacent subsections", () => {
+            const content =
+                "## 24.1 This Part— scope. " +
+                "## Types of proceedings in which summary judgment is available " +
+                "## 24.2 The court may give summary judgment— against a claimant. " +
+                "## 24.3 The court may give summary judgment if there is no real prospect.";
+            const result = extractSubsectionContent(content, "24.2");
+            expect(result).not.toBeNull();
+            expect(result!.content).toContain("24.2");
+            expect(result!.content).not.toContain("24.1 This Part");
+            expect(result!.content).not.toContain("24.3 The court");
+        });
     });
 
     describe("edge cases", () => {

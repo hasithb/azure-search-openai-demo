@@ -168,6 +168,10 @@ export function extractSubsectionContent(fullContent: string, targetSubsection: 
         return null;
     }
 
+    // Search extraction can flatten markdown headings onto one line. Restore
+    // boundaries so subsection matching and end detection remain precise.
+    fullContent = fullContent.replace(/[ \t]+(?=##\s*\d+\.\d+(?:\.\d+)?[A-Z]?\b)/gi, "\n");
+
     // Enhanced patterns to find the target subsection with more flexibility
     // Handles markdown headings (## 35.1), breadcrumbs ([PART 35 > 35.1]), and bare text
     const escapedSubsection = escapeRegExp(targetSubsection);
