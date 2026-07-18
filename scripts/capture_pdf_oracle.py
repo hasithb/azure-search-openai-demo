@@ -15,7 +15,7 @@ import pypdf
 import requests
 
 from audit_source_documents import load_web_sources
-from html_schema_oracle import write_html_snapshot
+from html_schema_oracle import ORACLE_VERSION, write_html_snapshot
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_OUTPUT_DIR = ROOT / "reports" / "html_oracle_snapshots"
@@ -58,6 +58,7 @@ def capture_pdf_snapshot(session: requests.Session, source: object, timeout: int
         "status_code": int(response.status_code),
         "retrieved_at": datetime.now(timezone.utc).isoformat(),
         "content_type": content_type,
+        "oracle_version": ORACLE_VERSION,
         "source_sha256": hashlib.sha256(body).hexdigest(),
         "extracted_text": extracted_text,
         "page_count": len(reader.pages),
