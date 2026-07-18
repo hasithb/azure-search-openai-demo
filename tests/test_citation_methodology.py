@@ -530,6 +530,35 @@ class TestPageNumberExtraction:
 class TestMultiSubsectionSplitting:
     """Multi-subsection docs must split correctly with proper citations each."""
 
+    def test_splits_inline_markdown_subsection_headings(self):
+        @dataclass
+        class InlineHeadingDocument:
+            id: str
+            content: str
+            sourcepage: str
+            sourcefile: str
+            category: str
+            subsection_id: str
+
+        document = InlineHeadingDocument(
+            id="part-24",
+            content=(
+                "## 24.1 This Part— scope. "
+                "## Types of proceedings in which summary judgment is available "
+                "## 24.2 The court may give summary judgment— against a claimant. "
+                "## Grounds for summary judgment "
+                "## 24.3 The court may give summary judgment if there is no real prospect."
+            ),
+            sourcepage="PART 24 - SUMMARY JUDGMENT",
+            sourcefile="Part 24",
+            category="Civil Procedure Rules and Practice Directions",
+            subsection_id="24.1",
+        )
+
+        subsections = citation_builder.extract_multiple_subsections(document)
+
+        assert [subsection["subsection"] for subsection in subsections] == ["24.1", "24.2", "24.3"]
+
     def test_splits_into_correct_count(self, multi_subsection_doc):
         subs = citation_builder.extract_multiple_subsections(multi_subsection_doc)
         assert len(subs) >= 4, f"Expected ≥4 subsections, got {len(subs)}"

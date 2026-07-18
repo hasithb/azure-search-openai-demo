@@ -252,6 +252,14 @@ class CitationBuilder:
         if not content:
             return []
 
+        # Some extracted court-guide chunks flatten markdown headings onto one
+        # line. Normalize inline numeric headings before scanning line starts.
+        content = re.sub(
+            r"[ \t]+(?=##\s*(?:\d+\.\d+(?:\.\d+)?[A-Z]?))",
+            "\n",
+            content,
+            flags=re.IGNORECASE,
+        )
         lines = content.splitlines()
         headings: list[tuple[str, int]] = []
         
