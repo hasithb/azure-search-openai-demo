@@ -19,7 +19,7 @@ PROVENANCE = {
 
 def write_report(tmp_path, name, status="PASS", provenance=None):
     path = tmp_path / f"{name}.json"
-    payload = {"status": status, "checks": [name], "provenance": provenance or PROVENANCE}
+    payload = {"status": status, "checks": [{"name": name, "status": "PASS"}], "provenance": provenance or PROVENANCE}
     if name == "highlight":
         payload.update({
             "gate": "highlight",

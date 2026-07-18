@@ -1,4 +1,5 @@
 import json
+import time
 from unittest.mock import patch
 
 from scripts.audit_source_documents import (
@@ -564,6 +565,41 @@ def test_html_cache_tries_known_alias_after_primary_failure(tmp_path):
     assert result is not None
     assert requested_url.endswith("practice-direction-40f-proceedings-involving-declarations-of-incompatibility")
     assert AliasScraper.calls == [source.url, requested_url]
+
+
+def test_html_cache_retries_expired_failure(tmp_path):
+    class EventuallyAvailableScraper:
+        calls = 0
+
+        @classmethod
+        def scrape_page(cls, session, action):
+            cls.calls += 1
+            return {"content": "one two three four five six seven", "_final_url": action["url"]}
+
+    source = CanonicalSource(source_type="html", sourcefile="Part 1", category="CPR", url="https://example.test/part1")
+    cache = HtmlAuditCache(tmp_path / "cache.json")
+    cache.put(source.url, {"ok": False, "result": {}, "failed_at": time.time() - 3600})
+
+    result, requested_url = scrape_with_cache(object(), source, EventuallyAvailableScraper, cache)
+
+    assert result is not None
+    assert requested_url == source.url
+    assert EventuallyAvailableScraper.calls == 1
+
+
+def test_html_cache_retries_legacy_failure_without_timestamp(tmp_path):
+    class AvailableScraper:
+        @staticmethod
+        def scrape_page(session, action):
+            return {"content": "one two three four five six seven", "_final_url": action["url"]}
+
+    source = CanonicalSource(source_type="html", sourcefile="Part 1", category="CPR", url="https://example.test/part1")
+    cache = HtmlAuditCache(tmp_path / "cache.json")
+    cache.put(source.url, {"ok": False, "result": {}})
+
+    result, _ = scrape_with_cache(object(), source, AvailableScraper, cache)
+
+    assert result is not None
 
 
 def test_pdf_fidelity_marks_missing_local_pdf_unavailable(tmp_path):

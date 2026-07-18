@@ -27,6 +27,57 @@ def normalize(value: str) -> str:
     return re.sub(r"\s+", " ", value).strip().casefold()
 
 
+def normalize_path(value: str) -> str:
+    return normalize(value).rstrip("/")
+
+
+def normalize_sourcepage(value: str) -> str:
+    return normalize(re.sub(r"[\u2010-\u2015\u2212-]", " ", value))
+
+
+def subsection_matches(expected: str, actual: str) -> bool:
+    expected_normalized = normalize(expected)
+    actual_normalized = normalize(actual)
+    if not expected_normalized or not actual_normalized:
+        return False
+    if expected_normalized == actual_normalized:
+        return True
+    if expected_normalized == "part 24":
+        return actual_normalized.startswith("24.") or actual_normalized == "24"
+    return actual_normalized.startswith(f"{expected_normalized}(")
+
+
+def citation_matches(target_case: dict[str, Any], citation: dict[str, Any]) -> bool:
+    expected_sourcefile = normalize_path(str(target_case.get("sourcefile") or ""))
+    expected_path = normalize_path(str(target_case.get("citation_path") or ""))
+    actual_sourcefile = normalize_path(str(citation.get("sourcefile") or ""))
+    actual_path = normalize_path(str(citation.get("citation_path") or ""))
+    source_bound = bool(expected_sourcefile and actual_sourcefile == expected_sourcefile)
+    path_bound = bool(expected_path and actual_path == expected_path)
+    if not source_bound and not path_bound:
+        return False
+    if not subsection_matches(
+        str(target_case.get("subsection_id") or ""),
+        str(citation.get("subsection_id") or ""),
+    ):
+        return False
+    expected_category = normalize(str(target_case.get("category") or ""))
+    if expected_category and normalize(str(citation.get("category") or "")) != expected_category:
+        return False
+    expected_sourcepage = normalize_sourcepage(str(target_case.get("sourcepage") or ""))
+    actual_sourcepage = normalize_sourcepage(str(citation.get("sourcepage") or ""))
+    return not expected_sourcepage or not actual_sourcepage or expected_sourcepage in actual_sourcepage or actual_sourcepage in expected_sourcepage
+
+
+def select_citation(target_case: dict[str, Any], citations: list[dict[str, Any]]) -> dict[str, Any]:
+    matches = [citation for citation in citations if citation_matches(target_case, citation)]
+    if len(matches) != 1:
+        raise BrowserGateError(
+            f"Expected one canonical citation, found {len(matches)}; candidates={json.dumps(citations, sort_keys=True)}"
+        )
+    return matches[0]
+
+
 def css_attribute_value(value: str) -> str:
     return value.replace("\\", "\\\\").replace('"', '\\"')
 
@@ -81,30 +132,28 @@ def run_browser_gate(candidate_url: str, oracle: dict[str, Any], question: str) 
             question_input.fill(question)
             page.get_by_role("button", name="Submit question").click()
 
-            subsection_id = css_attribute_value(str(target_case["subsection_id"]))
-            sourcepage = css_attribute_value(str(target_case.get("sourcepage") or ""))
-            selectors = [f'.supContainer[data-subsection-id="{subsection_id}"]']
-            if sourcepage:
-                selectors.append(f'.supContainer[data-sourcepage*="{sourcepage}" i]')
-            citations = None
-            matched_selector = ""
-            deadline = 120_000
-            for selector in selectors:
-                candidate_citations = page.locator(selector)
-                try:
-                    candidate_citations.first.wait_for(state="visible", timeout=deadline)
-                except PlaywrightTimeoutError:
-                    continue
-                citations = candidate_citations
-                matched_selector = selector
-                break
-            if citations is None:
-                raise BrowserGateError(
-                    f'No live citation matched subsection "{target_case["subsection_id"]}" '
-                    f'or source page "{target_case.get("sourcepage", "")}"'
-                )
-            citation_count = citations.count()
-            citations.first.click()
+            citations_locator = page.locator(".supContainer")
+            citations_locator.first.wait_for(state="visible", timeout=120_000)
+            citations = citations_locator.evaluate_all(
+                """
+                (elements) => elements
+                    .map((element, index) => ({
+                        index,
+                        visible: !!(element.offsetWidth || element.offsetHeight || element.getClientRects().length),
+                        subsection_id: element.getAttribute('data-subsection-id') || '',
+                        sourcepage: element.getAttribute('data-sourcepage') || '',
+                        sourcefile: element.getAttribute('data-sourcefile') || '',
+                        citation_path: element.getAttribute('data-citation-path') || '',
+                        category: element.getAttribute('data-category') || '',
+                        title: element.getAttribute('title') || '',
+                        citation_text: element.innerText || ''
+                    }))
+                    .filter((citation) => citation.visible)
+                """
+            )
+            selected_citation = select_citation(target_case, citations)
+            citation_count = len(citations)
+            page.locator(".supContainer").nth(selected_citation["index"]).click()
             page.get_by_text("Supporting content", exact=False).first.wait_for(state="visible", timeout=30_000)
 
             highlight = page.locator("#highlighted-subsection")
@@ -119,17 +168,17 @@ def run_browser_gate(candidate_url: str, oracle: dict[str, Any], question: str) 
             if next_heading and next_heading in highlighted_text:
                 raise BrowserGateError("Highlighted subsection includes the next canonical subsection")
 
-            citation_path = citations.first.get_attribute("data-citation-path") or ""
             return {
                 "browser": {
                     "candidate_url": candidate_url,
                     "question": question,
                     "citation_count": citation_count,
-                    "clicked_selector": matched_selector,
+                    "clicked_index": selected_citation["index"],
+                    "selected_citation": selected_citation,
+                    "visible_citations": citations,
                     "supporting_content_visible": True,
                     "highlight_visible": True,
                     "highlighted_text_sha256": hashlib.sha256(highlighted_text.encode("utf-8")).hexdigest(),
-                    "citation_path_present": bool(citation_path),
                 },
                 "case_id": target_case["case_id"],
                 "subsection_id": target_case["subsection_id"],

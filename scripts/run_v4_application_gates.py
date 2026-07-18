@@ -82,6 +82,9 @@ def load_gate_reports(paths: list[str], expected_provenance: dict[str, str] | No
             if not isinstance(browser_evidence, dict) or browser_evidence.get("highlight_visible") is not True:
                 raise ApplicationGatesError("Application gate highlight is missing live browser evidence")
             payload = {"gate": name, **payload}
+        checks = payload.get("checks")
+        if not isinstance(checks, list) or not checks or any(not isinstance(check, dict) for check in checks):
+            raise ApplicationGatesError(f"Application gate {name} is missing substantive check evidence")
         reports[name] = payload
 
     missing = [name for name in REQUIRED_GATES if name not in reports]

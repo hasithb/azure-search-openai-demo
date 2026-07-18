@@ -17,6 +17,7 @@ import os
 import re
 import sys
 import hashlib
+import time
 import unicodedata
 from collections import defaultdict
 from collections.abc import Iterable
@@ -76,6 +77,8 @@ REMEDIATION_STATUSES = {
     "NEEDS_REVIEW",
 }
 DEFAULT_HTML_CACHE = ROOT / "reports" / "source_document_http_cache.json"
+HTML_CACHE_SCHEMA_VERSION = 2
+HTML_FAILURE_RETRY_SECONDS = 15 * 60
 
 
 @dataclass(frozen=True)
@@ -642,7 +645,7 @@ KNOWN_URL_ALIASES = {
 
 
 class HtmlAuditCache:
-    """Small JSON checkpoint store so interrupted crawls resume per URL."""
+    """Small JSON checkpoint store with bounded retries for transient failures."""
 
     def __init__(self, path: Path | None):
         self.path = path
@@ -664,10 +667,19 @@ class HtmlAuditCache:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         temporary_path = self.path.with_suffix(self.path.suffix + ".tmp")
         temporary_path.write_text(
-            json.dumps({"schema_version": 1, "entries": self.entries}, indent=2, sort_keys=True) + "\n",
+            json.dumps({"schema_version": HTML_CACHE_SCHEMA_VERSION, "entries": self.entries}, indent=2, sort_keys=True) + "\n",
             encoding="utf-8",
         )
         temporary_path.replace(self.path)
+
+    def failure_is_retryable(self, url: str, now: float | None = None) -> bool:
+        entry = self.get(url)
+        if not entry or entry.get("ok"):
+            return False
+        failed_at = entry.get("failed_at")
+        if not isinstance(failed_at, (int, float)):
+            return True
+        return (now if now is not None else time.time()) - failed_at >= HTML_FAILURE_RETRY_SECONDS
 
 
 def scrape_with_cache(
@@ -684,10 +696,19 @@ def scrape_with_cache(
         if cached is not None:
             if cached.get("ok"):
                 return dict(cached["result"]), url
-            continue
+            if not cache.failure_is_retryable(url):
+                continue
         action = {"sourcefile": source.sourcefile, "url": url}
         scraped = scraper.scrape_page(session, action)
-        cache.put(url, {"ok": scraped is not None, "result": scraped or {}, "requested_url": url})
+        cache.put(
+            url,
+            {
+                "ok": scraped is not None,
+                "result": scraped or {},
+                "requested_url": url,
+                "failed_at": None if scraped is not None else time.time(),
+            },
+        )
         if scraped is not None:
             return scraped, url
     return None, source.url

@@ -244,6 +244,10 @@ def application_gate_gate(
         raise EvidenceError("Application-gate report must contain all required gates")
     if any(not isinstance(gate, dict) or gate.get("status") != "PASS" for gate in gates.values()):
         raise EvidenceError("Application-gate report contains a non-passing gate")
+    for gate_name, gate in gates.items():
+        checks = gate.get("checks")
+        if not isinstance(checks, list) or not checks or any(not isinstance(check, dict) for check in checks):
+            raise EvidenceError(f"Application-gate {gate_name} is missing substantive check evidence")
     highlight = gates["highlight"]
     browser_evidence = highlight.get("browser_evidence")
     if not isinstance(browser_evidence, dict) or browser_evidence.get("highlight_visible") is not True:
