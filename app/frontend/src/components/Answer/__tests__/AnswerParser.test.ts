@@ -193,6 +193,36 @@ describe("sanitizeCitations", () => {
 });
 
 describe("parseAnswerToHtml - multi-citation pipeline", () => {
+    it("prefers the subsection named in the answer context over positional data point order", () => {
+        const response = createResponse({
+            output_text: "CPR rule 24.2 sets out the summary judgment test [1].",
+            context: {
+                data_points: {
+                    text: [
+                        {
+                            subsection_id: "24.1",
+                            sourcepage: "PART 24 - SUMMARY JUDGMENT",
+                            sourcefile: "Part 24",
+                            content: "24.1 This Part applies to summary judgment."
+                        },
+                        {
+                            subsection_id: "24.2",
+                            sourcepage: "PART 24 - SUMMARY JUDGMENT",
+                            sourcefile: "Part 24",
+                            content: "24.2 The court may give summary judgment against a claimant or defendant."
+                        }
+                    ],
+                    citations: []
+                }
+            } as any
+        });
+
+        const result = parseAnswerToHtml(response as any, false, () => {});
+
+        expect(result.citations[0].subsectionId).toBe("24.2");
+        expect(result.citations[0].reference).toBe("24.2, PART 24 - SUMMARY JUDGMENT, Part 24");
+    });
+
     it("resolves multiple numbered citations [1], [2], [3] to correct data_points", () => {
         const response = createResponse({
             message: {

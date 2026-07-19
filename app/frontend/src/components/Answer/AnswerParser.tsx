@@ -136,6 +136,22 @@ const getSentenceContext = (text: string): string => {
     return (sentenceParts[sentenceParts.length - 1] ?? lastParagraph).trim();
 };
 
+const findContextSubsection = (context: string): string | undefined => {
+    const match = context.match(/\b(?:rule\s+)?(\d+\.\d+(?:\.\d+)?)(?:\b|\()/i);
+    return match?.[1];
+};
+
+const resolveNumericCitationDataPoint = (textDataPoints: any[], citationIndex: number, answerContext: string): any => {
+    const positionalDataPoint = textDataPoints[citationIndex];
+    const contextSubsection = findContextSubsection(answerContext);
+    if (!contextSubsection) {
+        return positionalDataPoint;
+    }
+
+    const exactMatch = textDataPoints.find(dataPoint => String(dataPoint?.subsection_id || "").trim().toLowerCase() === contextSubsection.toLowerCase());
+    return exactMatch || positionalDataPoint;
+};
+
 const resolveNestedSubsectionLabel = (baseSubsection: string, content: string, occurrenceIndex: number, answerContext: string): string | undefined => {
     const nestedSegments = extractNestedSubsectionSegments(baseSubsection, content);
     if (nestedSegments.length === 0) {
@@ -350,15 +366,16 @@ const collectCitations = (answer: ChatAppResponse, isStreaming: boolean): { frag
         // The backend formats sources as "[1]: content" so the LLM outputs simple numbers.
         // We resolve the number to the enhanced citation string via data_points.text[n-1].citation.
         let matchedCitation: string | undefined;
+        let numericDataPoint: any;
         const numericMatch = part.match(/^\d+$/);
         if (numericMatch) {
             const citationIndex = parseInt(part) - 1;
             if (citationIndex >= 0 && citationIndex < textDataPoints.length) {
-                const dp = textDataPoints[citationIndex];
+                const answerContext = getSentenceContext(parts[index - 1] ?? "");
+                numericDataPoint = resolveNumericCitationDataPoint(textDataPoints, citationIndex, answerContext);
                 const occurrenceIndex = (numericCitationOccurrences.get(citationIndex) ?? 0) + 1;
                 numericCitationOccurrences.set(citationIndex, occurrenceIndex);
-                const answerContext = getSentenceContext(parts[index - 1] ?? "");
-                matchedCitation = buildCitationFromDataPoint(dp, citationIndex + 1, occurrenceIndex, answerContext);
+                matchedCitation = buildCitationFromDataPoint(numericDataPoint, citationIndex + 1, occurrenceIndex, answerContext);
             }
 
             if (!matchedCitation) {
@@ -395,8 +412,8 @@ const collectCitations = (answer: ChatAppResponse, isStreaming: boolean): { frag
         if (existing) {
             // Determine content of the current data point (before matchingDataPoint is computed)
             const currentDpContent = numericMatch
-                ? typeof textDataPoints[parseInt(part) - 1]?.content === "string"
-                    ? textDataPoints[parseInt(part) - 1].content
+                ? typeof numericDataPoint?.content === "string"
+                    ? numericDataPoint.content
                     : undefined
                 : undefined;
             const contentDiffers = currentDpContent && existing.content && currentDpContent !== existing.content;
@@ -415,7 +432,7 @@ const collectCitations = (answer: ChatAppResponse, isStreaming: boolean): { frag
         // Get label from backend type using our mapping, or fallback to stepMeta
         const activityLabel = backendDetail?.type ? activityTypeLabels[backendDetail.type] || backendDetail.type : undefined;
 
-        const matchingDataPoint = textDataPoints.find((dataPoint: any) => dataPointMatchesCitation(dataPoint, matchedCitation));
+        const matchingDataPoint = numericDataPoint || textDataPoints.find((dataPoint: any) => dataPointMatchesCitation(dataPoint, matchedCitation));
 
         // CUSTOM: Extract structured metadata from the matching data point
         const dpMetadata = extractMetadataFromDataPoint(matchingDataPoint);
