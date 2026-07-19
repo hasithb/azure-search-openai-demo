@@ -211,15 +211,18 @@ export const SupportingContent = ({
     const stripLeadingIndexPrefix = (s: string) => s.replace(/^\[\d+\]:\s?/, "");
 
     // Visual-only cleanup for supporting content display (preserves original for matching/highlighting)
-    const cleanSupportingContentForDisplay = (s: string) => {
+    const cleanSupportingContentForDisplay = (s: string, selectedSubsection?: string) => {
         // Visual-only cleanup: preserve line structure for readability
         const lines = s.split(/\r?\n/);
         const cleaned = lines.map(line => {
             let updated = line;
+            const preservesSelectedHeading = selectedSubsection && normalizeSubsectionToken(line).includes(normalizeSubsectionToken(selectedSubsection));
             // Remove markdown heading markers but keep the canonical heading text.
             updated = updated.replace(/^#{1,6}\s*/g, "");
             // Remove inline bracketed metadata blocks, wherever they appear in the line
-            updated = updated.replace(/\[[^\]]*(PRACTICE\s*DIRECTION|PD\s*\d+|PART\s+\d+|SECTION\s+\d+|APPENDIX|>)[^\]]*\]\s*/gi, "");
+            if (!preservesSelectedHeading) {
+                updated = updated.replace(/\[[^\]]*(PRACTICE\s*DIRECTION|PD\s*\d+|PART\s+\d+|SECTION\s+\d+|APPENDIX|>)[^\]]*\]\s*/gi, "");
+            }
             return updated;
         });
 
@@ -240,7 +243,7 @@ export const SupportingContent = ({
             if (/\]\s*Contents$/i.test(trimmed) && trimmed.startsWith("[")) return false;
             // Keep the selected subsection heading even when the index uses a breadcrumb
             // form such as "[PART 24 > 24.2 ...]"; the browser oracle needs that identity.
-            if (targetSubsection && normalizeSubsectionToken(trimmed).includes(normalizeSubsectionToken(targetSubsection))) {
+            if (selectedSubsection && normalizeSubsectionToken(trimmed).includes(normalizeSubsectionToken(selectedSubsection))) {
                 return true;
             }
 
@@ -352,7 +355,7 @@ export const SupportingContent = ({
 
         // NO CLEANING - Use the original content structure as created in the search index
         const originalContent = stripLeadingIndexPrefix(content); // Only drop a leading "[n]: " if present
-        const displayContent = cleanSupportingContentForDisplay(originalContent);
+    const displayContent = cleanSupportingContentForDisplay(originalContent, isHighlighted ? targetSubsection : undefined);
 
         // If we have a target subsection and this item is highlighted, highlight that section within the full content
         if (isHighlighted && targetSubsection) {
@@ -365,7 +368,7 @@ export const SupportingContent = ({
                 const afterSubsection = originalContent.substring(section.endIndex);
 
                 const formattedBeforeContent = formatSupportingContentHtml(cleanSupportingContentForDisplay(beforeSubsection));
-                const formattedHighlightedContent = formatSupportingContentHtml(cleanSupportingContentForDisplay(subsectionContent), {
+                const formattedHighlightedContent = formatSupportingContentHtml(cleanSupportingContentForDisplay(subsectionContent, targetSubsection), {
                     highlight: true,
                     sourceInfo
                 });
