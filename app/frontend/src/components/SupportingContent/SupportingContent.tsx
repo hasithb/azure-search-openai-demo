@@ -368,7 +368,13 @@ export const SupportingContent = ({
                 const afterSubsection = originalContent.substring(section.endIndex);
 
                 const formattedBeforeContent = formatSupportingContentHtml(cleanSupportingContentForDisplay(beforeSubsection));
-                const formattedHighlightedContent = formatSupportingContentHtml(cleanSupportingContentForDisplay(subsectionContent, targetSubsection), {
+                let highlightedDisplayContent = cleanSupportingContentForDisplay(subsectionContent, targetSubsection);
+                // Keep subsection identity observable even when cleanup removed a source
+                // breadcrumb or the search index supplied body text without its heading.
+                if (!normalizeMatchText(highlightedDisplayContent).includes(normalizeMatchText(targetSubsection))) {
+                    highlightedDisplayContent = `${targetSubsection}\n\n${highlightedDisplayContent}`;
+                }
+                const formattedHighlightedContent = formatSupportingContentHtml(highlightedDisplayContent, {
                     highlight: true,
                     sourceInfo
                 });
