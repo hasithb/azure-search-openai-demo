@@ -216,7 +216,7 @@ export const SupportingContent = ({
         const lines = s.split(/\r?\n/);
         const cleaned = lines.map(line => {
             let updated = line;
-            // Remove markdown heading markers like "## 1.1" but keep the number/text
+            // Remove markdown heading markers but keep the canonical heading text.
             updated = updated.replace(/^#{1,6}\s*/g, "");
             // Remove inline bracketed metadata blocks, wherever they appear in the line
             updated = updated.replace(/\[[^\]]*(PRACTICE\s*DIRECTION|PD\s*\d+|PART\s+\d+|SECTION\s+\d+|APPENDIX|>)[^\]]*\]\s*/gi, "");
@@ -238,6 +238,12 @@ export const SupportingContent = ({
             // Remove standalone "Contents" lines and "[Title] Contents" lines
             if (/^Contents$/i.test(trimmed)) return false;
             if (/\]\s*Contents$/i.test(trimmed) && trimmed.startsWith("[")) return false;
+            // Keep the selected subsection heading even when the index uses a breadcrumb
+            // form such as "[PART 24 > 24.2 ...]"; the browser oracle needs that identity.
+            if (targetSubsection && normalizeSubsectionToken(trimmed).includes(normalizeSubsectionToken(targetSubsection))) {
+                return true;
+            }
+
             // Handle bracketed metadata
             if (!trimmed.startsWith("[") || !trimmed.endsWith("]")) {
                 return true;
