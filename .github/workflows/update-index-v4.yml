@@ -97,6 +97,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       artifact_sha256: ${{ steps.hash.outputs.artifact_sha256 }}
+      candidate_image: ${{ steps.image.outputs.candidate_image }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -311,6 +312,8 @@ jobs:
             --file app/backend/Dockerfile \
             app/backend
           echo "candidate_image=${registry_server}/${image_tag}" >> "$GITHUB_ENV"
+          echo "candidate_image=${registry_server}/${image_tag}" >> "$GITHUB_OUTPUT"
+        id: image
         env:
           AZURE_RESOURCE_GROUP: ${{ vars.V4_CANDIDATE_RESOURCE_GROUP }}
           AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -394,14 +397,27 @@ jobs:
           : "${AZURE_RESOURCE_GROUP:?Set V4 candidate resource group}"
           : "${V4_CANDIDATE_APP:?Set repository variable V4_CANDIDATE_APP}"
           snapshot_sha256=$(sha256sum reports/v4_search_snapshot.json | cut -d' ' -f1)
+          expected_revision="g-${GITHUB_SHA:0:8}"
           az containerapp update \
             --resource-group "${AZURE_RESOURCE_GROUP}" \
             --name "${V4_CANDIDATE_APP}" \
-            --revision-suffix "g-${GITHUB_SHA:0:8}" \
+            --revision-suffix "${expected_revision}" \
             --set-env-vars V4_SEARCH_SNAPSHOT_SHA256="${snapshot_sha256}" >/dev/null
+          az containerapp show --resource-group "${AZURE_RESOURCE_GROUP}" --name "${V4_CANDIDATE_APP}" -o json > reports/candidate_app.json
+          az containerapp revision list --resource-group "${AZURE_RESOURCE_GROUP}" --name "${V4_CANDIDATE_APP}" -o json > reports/candidate_revisions.json
+          python scripts/validate_v4_runtime_identity.py \
+            --app reports/candidate_app.json \
+            --revisions reports/candidate_revisions.json \
+            --revision "${expected_revision}" \
+            --image "${candidate_image}" \
+            --environment "AZURE_SEARCH_INDEX=${SEARCH_INDEX}" \
+            --environment "AZURE_SEARCH_KNOWLEDGEBASE_NAME=${SEARCH_KNOWLEDGEBASE}" \
+            --output reports/candidate_runtime_identity.json
+          echo "candidate_revision=${expected_revision}" >> "$GITHUB_ENV"
           echo "snapshot_sha256=${snapshot_sha256}" >> "$GITHUB_ENV"
         env:
           AZURE_RESOURCE_GROUP: ${{ vars.V4_CANDIDATE_RESOURCE_GROUP }}
+          candidate_image: ${{ needs.build-candidate.outputs.candidate_image }}
       - name: Wait for candidate provenance readiness
         run: |
           : "${V4_CANDIDATE_URL:?Set repository variable V4_CANDIDATE_URL}"
@@ -436,6 +452,8 @@ jobs:
               "search_service": os.environ["AZURE_SEARCH_SERVICE"],
               "search_index": os.environ["SEARCH_INDEX"],
               "knowledge_base": os.environ["SEARCH_KNOWLEDGEBASE"],
+              "candidate_revision": os.environ["CANDIDATE_REVISION"],
+              "candidate_image": os.environ["CANDIDATE_IMAGE"],
           }
           Path("reports/candidate_provenance.json").write_text(json.dumps(provenance, indent=2) + "\n")
           PY
@@ -453,6 +471,8 @@ jobs:
           SEARCH_INDEX: ${{ env.SEARCH_INDEX }}
           SEARCH_KNOWLEDGEBASE: ${{ env.SEARCH_KNOWLEDGEBASE }}
           V4_RELEASE_ID: ${{ inputs.release_id || github.run_number }}
+          CANDIDATE_IMAGE: ${{ needs.build-candidate.outputs.candidate_image }}
+        shell: bash
       - name: Generate provenance-bound ACL gate
         run: |
           python scripts/gate_acl.py \
@@ -549,6 +569,7 @@ jobs:
             reports/highlight_gate.json
             reports/acl_gate.json
             reports/candidate_provenance.json
+            reports/candidate_runtime_identity.json
           retention-days: 90
 
   promote:
