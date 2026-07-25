@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import scripts.capture_html_oracle as capture_html_oracle
 from scripts.capture_html_oracle import capture_source, snapshot_filename
 
 
@@ -65,3 +66,30 @@ def test_capture_source_rejects_manifest_discovery_sentinel(tmp_path):
 
     assert result["status"] == "unavailable"
     assert '"error": "canonical source has no usable HTTP URL"' in payload
+
+
+def test_run_includes_unavailable_source_diagnostics(tmp_path, monkeypatch):
+    monkeypatch.setattr(capture_html_oracle, "load_web_sources", lambda: [Source()])
+    monkeypatch.setattr(
+        capture_html_oracle,
+        "capture_source",
+        lambda *args, **kwargs: {
+            "identity": Source.identity,
+            "requested_url": Source.url,
+            "status": "unavailable",
+            "error_type": "TimeoutError",
+            "error": "request timed out",
+        },
+    )
+
+    summary = capture_html_oracle.run(tmp_path, None, None, 10)
+
+    assert summary["unavailable_count"] == 1
+    assert summary["unavailable_sources"] == [
+        {
+            "identity": Source.identity,
+            "requested_url": Source.url,
+            "error_type": "TimeoutError",
+            "error": "request timed out",
+        }
+    ]

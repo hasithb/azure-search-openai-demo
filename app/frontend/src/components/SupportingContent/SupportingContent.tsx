@@ -355,7 +355,7 @@ export const SupportingContent = ({
 
         // NO CLEANING - Use the original content structure as created in the search index
         const originalContent = stripLeadingIndexPrefix(content); // Only drop a leading "[n]: " if present
-    const displayContent = cleanSupportingContentForDisplay(originalContent, isHighlighted ? targetSubsection : undefined);
+        const displayContent = cleanSupportingContentForDisplay(originalContent, isHighlighted ? targetSubsection : undefined);
 
         // If we have a target subsection and this item is highlighted, highlight that section within the full content
         if (isHighlighted && targetSubsection) {
@@ -396,7 +396,11 @@ export const SupportingContent = ({
                 const fallbackRaw = activeCitationMetadata?.content;
                 if (fallbackRaw && fallbackRaw.trim()) {
                     const fallbackOriginal = stripLeadingIndexPrefix(fallbackRaw);
-                    const formattedHighlightedContent = formatSupportingContentHtml(cleanSupportingContentForDisplay(fallbackOriginal), {
+                    let fallbackHighlightedContent = cleanSupportingContentForDisplay(fallbackOriginal, targetSubsection);
+                    if (!normalizeMatchText(fallbackHighlightedContent).includes(normalizeMatchText(targetSubsection))) {
+                        fallbackHighlightedContent = `${targetSubsection}\n\n${fallbackHighlightedContent}`;
+                    }
+                    const formattedHighlightedContent = formatSupportingContentHtml(fallbackHighlightedContent, {
                         highlight: true,
                         sourceInfo
                     });

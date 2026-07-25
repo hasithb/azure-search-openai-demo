@@ -112,6 +112,15 @@ def run(output_dir: Path, source_filter: str | None, limit: int | None, timeout:
     session = requests.Session()
     session.headers.update({"User-Agent": "legal-rag-html-oracle/1.0"})
     results = [capture_source(session, source, output_dir, timeout, refresh) for source in sources]
+    unavailable_sources = [
+        {
+            key: result[key]
+            for key in ("identity", "requested_url", "error_type", "error")
+            if key in result
+        }
+        for result in results
+        if result.get("status") == "unavailable"
+    ]
     summary = {
         "schema_version": 1,
         "oracle_version": ORACLE_VERSION,
@@ -120,6 +129,7 @@ def run(output_dir: Path, source_filter: str | None, limit: int | None, timeout:
         "skipped_count": sum(result.get("status") == "skipped" for result in results),
         "unavailable_count": sum(result.get("status") == "unavailable" for result in results),
         "not_applicable_count": sum(result.get("status") == "not_applicable" for result in results),
+        "unavailable_sources": unavailable_sources,
         "results": results,
     }
     (output_dir / "manifest.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
