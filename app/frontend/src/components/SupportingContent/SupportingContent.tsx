@@ -322,11 +322,11 @@ export const SupportingContent = ({
 
     const normalizeMatchText = (s?: string) => (s || "").toLowerCase().replace(/\s+/g, " ").trim();
 
-    const ensureHighlightIdentity = (content: string, targetSubsection: string) => {
+    const ensureHighlightIdentity = (content: string, targetSubsection: string, sourcepage?: string) => {
         let identifiedContent = content;
-        const sourcepage = activeCitationMetadata?.sourcepage?.trim();
-        if (sourcepage && !normalizeMatchText(identifiedContent).includes(normalizeMatchText(sourcepage))) {
-            identifiedContent = `${sourcepage}\n\n${identifiedContent}`;
+        const canonicalSourcepage = sourcepage?.trim() || activeCitationMetadata?.sourcepage?.trim();
+        if (canonicalSourcepage && !normalizeMatchText(identifiedContent).includes(normalizeMatchText(canonicalSourcepage))) {
+            identifiedContent = `${canonicalSourcepage}\n\n${identifiedContent}`;
         }
         if (!normalizeMatchText(identifiedContent).includes(normalizeMatchText(targetSubsection))) {
             identifiedContent = `${targetSubsection}\n\n${identifiedContent}`;
@@ -362,7 +362,13 @@ export const SupportingContent = ({
     };
 
     // Enhanced content rendering with subsection highlighting
-    const renderContent = (content: string, isHighlighted: boolean = false, targetSubsection?: string, sourceInfo?: string) => {
+    const renderContent = (
+        content: string,
+        isHighlighted: boolean = false,
+        targetSubsection?: string,
+        sourceInfo?: string,
+        sourcepage?: string
+    ) => {
         if (!content) return null;
 
         // NO CLEANING - Use the original content structure as created in the search index
@@ -382,7 +388,8 @@ export const SupportingContent = ({
                 const formattedBeforeContent = formatSupportingContentHtml(cleanSupportingContentForDisplay(beforeSubsection));
                 const highlightedDisplayContent = ensureHighlightIdentity(
                     cleanSupportingContentForDisplay(subsectionContent, targetSubsection),
-                    targetSubsection
+                    targetSubsection,
+                    sourcepage
                 );
                 const formattedHighlightedContent = formatSupportingContentHtml(highlightedDisplayContent, {
                     highlight: true,
@@ -408,7 +415,8 @@ export const SupportingContent = ({
                     const fallbackOriginal = stripLeadingIndexPrefix(fallbackRaw);
                     const fallbackHighlightedContent = ensureHighlightIdentity(
                         cleanSupportingContentForDisplay(fallbackOriginal, targetSubsection),
-                        targetSubsection
+                        targetSubsection,
+                        sourcepage
                     );
                     const formattedHighlightedContent = formatSupportingContentHtml(fallbackHighlightedContent, {
                         highlight: true,
@@ -760,7 +768,7 @@ export const SupportingContent = ({
                         </div>
 
                         {/* Always render full content; highlight specific subsection if active */}
-                        {renderContent(parsedItem.content, isActive, targetSubsection ?? undefined, displayTitle)}
+                        {renderContent(parsedItem.content, isActive, targetSubsection ?? undefined, displayTitle, sourcepage)}
 
                         <div className={styles.supportingContentActions}>
                             {/* CUSTOM: Jump to the live primary source with the cited section highlighted */}
