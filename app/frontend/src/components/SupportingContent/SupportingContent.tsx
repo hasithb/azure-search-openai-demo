@@ -322,6 +322,18 @@ export const SupportingContent = ({
 
     const normalizeMatchText = (s?: string) => (s || "").toLowerCase().replace(/\s+/g, " ").trim();
 
+    const ensureHighlightIdentity = (content: string, targetSubsection: string) => {
+        let identifiedContent = content;
+        const sourcepage = activeCitationMetadata?.sourcepage?.trim();
+        if (sourcepage && !normalizeMatchText(identifiedContent).includes(normalizeMatchText(sourcepage))) {
+            identifiedContent = `${sourcepage}\n\n${identifiedContent}`;
+        }
+        if (!normalizeMatchText(identifiedContent).includes(normalizeMatchText(targetSubsection))) {
+            identifiedContent = `${targetSubsection}\n\n${identifiedContent}`;
+        }
+        return identifiedContent;
+    };
+
     const formatSupportingContentHtml = (text: string, options?: { highlight?: boolean; sourceInfo?: string }) => {
         const normalized = text.replace(/\r\n/g, "\n").trim();
         if (!normalized) return "";
@@ -368,12 +380,10 @@ export const SupportingContent = ({
                 const afterSubsection = originalContent.substring(section.endIndex);
 
                 const formattedBeforeContent = formatSupportingContentHtml(cleanSupportingContentForDisplay(beforeSubsection));
-                let highlightedDisplayContent = cleanSupportingContentForDisplay(subsectionContent, targetSubsection);
-                // Keep subsection identity observable even when cleanup removed a source
-                // breadcrumb or the search index supplied body text without its heading.
-                if (!normalizeMatchText(highlightedDisplayContent).startsWith(normalizeMatchText(targetSubsection))) {
-                    highlightedDisplayContent = `${targetSubsection}\n\n${highlightedDisplayContent}`;
-                }
+                const highlightedDisplayContent = ensureHighlightIdentity(
+                    cleanSupportingContentForDisplay(subsectionContent, targetSubsection),
+                    targetSubsection
+                );
                 const formattedHighlightedContent = formatSupportingContentHtml(highlightedDisplayContent, {
                     highlight: true,
                     sourceInfo
@@ -396,10 +406,10 @@ export const SupportingContent = ({
                 const fallbackRaw = activeCitationMetadata?.content;
                 if (fallbackRaw && fallbackRaw.trim()) {
                     const fallbackOriginal = stripLeadingIndexPrefix(fallbackRaw);
-                    let fallbackHighlightedContent = cleanSupportingContentForDisplay(fallbackOriginal, targetSubsection);
-                    if (!normalizeMatchText(fallbackHighlightedContent).startsWith(normalizeMatchText(targetSubsection))) {
-                        fallbackHighlightedContent = `${targetSubsection}\n\n${fallbackHighlightedContent}`;
-                    }
+                    const fallbackHighlightedContent = ensureHighlightIdentity(
+                        cleanSupportingContentForDisplay(fallbackOriginal, targetSubsection),
+                        targetSubsection
+                    );
                     const formattedHighlightedContent = formatSupportingContentHtml(fallbackHighlightedContent, {
                         highlight: true,
                         sourceInfo
