@@ -322,9 +322,9 @@ export const SupportingContent = ({
 
     const normalizeMatchText = (s?: string) => (s || "").toLowerCase().replace(/\s+/g, " ").trim();
 
-    const ensureHighlightIdentity = (content: string, targetSubsection: string, sourcepage?: string) => {
+    const ensureHighlightIdentity = (content: string, targetSubsection: string, sourcepage?: string, sourceInfo?: string) => {
         let identifiedContent = content;
-        const canonicalSourcepage = sourcepage?.trim() || activeCitationMetadata?.sourcepage?.trim();
+        const canonicalSourcepage = sourcepage?.trim() || activeCitationMetadata?.sourcepage?.trim() || sourceInfo?.trim();
         if (canonicalSourcepage && !normalizeMatchText(identifiedContent).includes(normalizeMatchText(canonicalSourcepage))) {
             identifiedContent = `${canonicalSourcepage}\n\n${identifiedContent}`;
         }
@@ -389,7 +389,8 @@ export const SupportingContent = ({
                 const highlightedDisplayContent = ensureHighlightIdentity(
                     cleanSupportingContentForDisplay(subsectionContent, targetSubsection),
                     targetSubsection,
-                    sourcepage
+                    sourcepage,
+                    sourceInfo
                 );
                 const formattedHighlightedContent = formatSupportingContentHtml(highlightedDisplayContent, {
                     highlight: true,
@@ -416,7 +417,8 @@ export const SupportingContent = ({
                     const fallbackHighlightedContent = ensureHighlightIdentity(
                         cleanSupportingContentForDisplay(fallbackOriginal, targetSubsection),
                         targetSubsection,
-                        sourcepage
+                        sourcepage,
+                        sourceInfo
                     );
                     const formattedHighlightedContent = formatSupportingContentHtml(fallbackHighlightedContent, {
                         highlight: true,
