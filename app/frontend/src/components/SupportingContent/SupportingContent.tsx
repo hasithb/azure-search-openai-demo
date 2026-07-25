@@ -371,7 +371,7 @@ export const SupportingContent = ({
                 let highlightedDisplayContent = cleanSupportingContentForDisplay(subsectionContent, targetSubsection);
                 // Keep subsection identity observable even when cleanup removed a source
                 // breadcrumb or the search index supplied body text without its heading.
-                if (!normalizeMatchText(highlightedDisplayContent).includes(normalizeMatchText(targetSubsection))) {
+                if (!normalizeMatchText(highlightedDisplayContent).startsWith(normalizeMatchText(targetSubsection))) {
                     highlightedDisplayContent = `${targetSubsection}\n\n${highlightedDisplayContent}`;
                 }
                 const formattedHighlightedContent = formatSupportingContentHtml(highlightedDisplayContent, {
@@ -397,7 +397,7 @@ export const SupportingContent = ({
                 if (fallbackRaw && fallbackRaw.trim()) {
                     const fallbackOriginal = stripLeadingIndexPrefix(fallbackRaw);
                     let fallbackHighlightedContent = cleanSupportingContentForDisplay(fallbackOriginal, targetSubsection);
-                    if (!normalizeMatchText(fallbackHighlightedContent).includes(normalizeMatchText(targetSubsection))) {
+                    if (!normalizeMatchText(fallbackHighlightedContent).startsWith(normalizeMatchText(targetSubsection))) {
                         fallbackHighlightedContent = `${targetSubsection}\n\n${fallbackHighlightedContent}`;
                     }
                     const formattedHighlightedContent = formatSupportingContentHtml(fallbackHighlightedContent, {
