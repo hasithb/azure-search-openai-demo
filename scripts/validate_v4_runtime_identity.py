@@ -13,7 +13,8 @@ class RuntimeIdentityError(ValueError):
 
 
 def _revision_name(revision: dict[str, Any]) -> str:
-    return str(revision.get("name") or revision.get("properties", {}).get("name") or "").strip()
+    name = str(revision.get("name") or revision.get("properties", {}).get("name") or "").strip()
+    return name.rsplit("--", 1)[-1]
 
 
 def _revision_image(revision: dict[str, Any]) -> str:
@@ -72,7 +73,8 @@ def validate_runtime_identity(
         mismatches.append("image")
     if _traffic_weight(revision) != 100:
         mismatches.append("traffic_weight")
-    if properties.get("latestReadyRevisionName") != expected_revision:
+    latest_ready_revision = str(properties.get("latestReadyRevisionName") or "").strip().rsplit("--", 1)[-1]
+    if latest_ready_revision != expected_revision:
         mismatches.append("latest_ready_revision")
     if revision.get("properties", {}).get("runningState") != "Running":
         mismatches.append("running_state")

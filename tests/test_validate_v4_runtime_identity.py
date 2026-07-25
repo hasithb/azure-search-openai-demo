@@ -79,3 +79,17 @@ def test_runtime_identity_rejects_duplicate_revision_names():
             expected_image="registry.azurecr.io/v4-candidate:git-1",
             expected_environment=ENVIRONMENT,
         )
+
+
+def test_runtime_identity_normalizes_azure_qualified_revision_names():
+    app, revisions = runtime_fixture()
+    app["properties"]["latestReadyRevisionName"] = "candidate-app--v4-release-1"
+    revisions[0]["name"] = "candidate-app--v4-release-1"
+    result = validate_runtime_identity(
+        app,
+        revisions,
+        expected_revision="v4-release-1",
+        expected_image="registry.azurecr.io/v4-candidate:git-1",
+        expected_environment=ENVIRONMENT,
+    )
+    assert result["active_revision"] == "v4-release-1"
