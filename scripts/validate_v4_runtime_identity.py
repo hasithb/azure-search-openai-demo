@@ -4,12 +4,16 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
 from typing import Any
 
 
 class RuntimeIdentityError(ValueError):
     """Raised when the candidate app does not serve the expected release."""
+
+
+IMMUTABLE_IMAGE = re.compile(r"^[^/\s]+(?:/[^/@\s]+)+@sha256:[0-9a-fA-F]{64}$")
 
 
 def _revision_name(revision: dict[str, Any]) -> str:
@@ -40,6 +44,10 @@ def validate_runtime_identity(
     expected_image: str,
     expected_environment: dict[str, str],
 ) -> dict[str, Any]:
+    if not expected_image.strip():
+        raise RuntimeIdentityError("Expected candidate image is empty")
+    if not IMMUTABLE_IMAGE.fullmatch(expected_image.strip()):
+        raise RuntimeIdentityError("Expected candidate image must be an immutable @sha256 image reference")
     properties = app.get("properties", {})
     observed: dict[str, Any] = {
         "app": app.get("name", ""),

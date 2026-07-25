@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -12,6 +13,9 @@ from typing import Any
 
 class EvidenceError(ValueError):
     """Raised when release evidence is incomplete or fails the fidelity gate."""
+
+
+IMMUTABLE_IMAGE = re.compile(r"^[^/\s]+(?:/[^/@\s]+)+@sha256:[0-9a-fA-F]{64}$")
 
 
 SEARCH_FIELDS = (
@@ -215,6 +219,22 @@ def candidate_validation_matches_snapshot(report: dict[str, Any], snapshot: dict
         raise EvidenceError("Candidate validation provenance does not match the Search snapshot")
 
 
+def runtime_identity_gate(report: dict[str, Any], candidate_index: str, candidate_knowledgebase: str) -> dict[str, Any]:
+    required = ("active_revision", "expected_revision", "deployed_image", "expected_image", "traffic_weight", "running_state", "health_state")
+    if not isinstance(report, dict) or any(not str(report.get(field) or "").strip() for field in required if field not in {"traffic_weight"}):
+        raise EvidenceError("Runtime identity evidence is incomplete")
+    if report.get("active_revision") != report.get("expected_revision"):
+        raise EvidenceError("Runtime identity active revision does not match expected revision")
+    if not IMMUTABLE_IMAGE.fullmatch(str(report.get("expected_image") or "")) or report.get("deployed_image") != report.get("expected_image"):
+        raise EvidenceError("Runtime identity does not prove the immutable candidate image")
+    if report.get("traffic_weight") != 100 or report.get("running_state") != "Running" or report.get("health_state") != "Healthy":
+        raise EvidenceError("Runtime identity is not healthy at 100% candidate traffic")
+    environment = report.get("environment")
+    if not isinstance(environment, dict) or environment.get("AZURE_SEARCH_INDEX") != candidate_index or environment.get("AZURE_SEARCH_KNOWLEDGEBASE_NAME") != candidate_knowledgebase:
+        raise EvidenceError("Runtime identity Search environment does not match the candidate pair")
+    return report
+
+
 def application_gate_gate(
     report: dict[str, Any],
     candidate_index: str,
@@ -261,6 +281,7 @@ def build_bundle(
     fidelity_report_path: Path,
     transition_report_path: Path,
     candidate_validation_path: Path,
+    candidate_runtime_identity_path: Path,
     candidate_index: str,
     candidate_knowledgebase: str,
     rollback_index: str,
@@ -276,6 +297,7 @@ def build_bundle(
         fidelity_report_path,
         transition_report_path,
         candidate_validation_path,
+        candidate_runtime_identity_path,
         application_gate_path,
     )
     for path in evidence_paths:
@@ -292,6 +314,7 @@ def build_bundle(
     report = _load_object(fidelity_report_path)
     transition_report = _load_object(transition_report_path)
     candidate_validation_report = _load_object(candidate_validation_path)
+    candidate_runtime_identity_report = _load_object(candidate_runtime_identity_path)
     if manifest.get("embedding_dimensions") != 3072 or manifest.get("embedding_model") != "text-embedding-3-large":
         raise EvidenceError("Artifact embedding metadata is not the approved configuration")
     if snapshot.get("documents_sha256") is None:
@@ -301,6 +324,7 @@ def build_bundle(
     artifact_search = artifact_search_gate(artifact_manifest_path, snapshot)
     candidate_validation = candidate_validation_gate(candidate_validation_report)
     candidate_validation_matches_snapshot(candidate_validation_report, snapshot)
+    runtime_identity = runtime_identity_gate(candidate_runtime_identity_report, candidate_index, candidate_knowledgebase)
     application_gate_report = _load_object(application_gate_path)
     application_gates = application_gate_gate(
         application_gate_report,
@@ -329,6 +353,7 @@ def build_bundle(
         "transition": transition,
         "artifact_search": artifact_search,
         "candidate_validation": candidate_validation,
+        "candidate_runtime_identity": runtime_identity,
         "application_gates": application_gates,
         "application_provenance": application_gates["provenance"],
         "highlight_oracle_path": str(highlight_oracle_path) if highlight_oracle_path else "",
@@ -356,6 +381,7 @@ def main() -> int:
     parser.add_argument("--fidelity-report", type=Path, required=True)
     parser.add_argument("--transition-report", type=Path, required=True)
     parser.add_argument("--candidate-validation", type=Path, required=True)
+    parser.add_argument("--candidate-runtime-identity", type=Path, required=True)
     parser.add_argument("--application-gates", type=Path, required=True)
     parser.add_argument("--highlight-oracle", type=Path)
     parser.add_argument("--candidate-index", required=True)
@@ -372,6 +398,7 @@ def main() -> int:
         args.fidelity_report,
         args.transition_report,
         args.candidate_validation,
+        args.candidate_runtime_identity,
         args.candidate_index,
         args.candidate_knowledgebase,
         args.rollback_index,

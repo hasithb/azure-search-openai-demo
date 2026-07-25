@@ -1,0 +1,35 @@
+from pathlib import Path
+
+
+WORKFLOW = Path(__file__).parents[1] / ".github" / "workflows" / "update-index-v4.yml"
+
+
+def workflow_text() -> str:
+    return WORKFLOW.read_text(encoding="utf-8")
+
+
+def test_candidate_image_output_is_owned_by_deploy_job():
+    workflow = workflow_text()
+
+    assert "needs.build-candidate.outputs.candidate_image" not in workflow
+    deploy_job = workflow.split("  deploy-candidate-app:", 1)[1].split("  audit-candidate:", 1)[0]
+    assert "candidate_image: ${{ steps.image.outputs.candidate_image }}" in deploy_job
+    assert 'candidate_image="${registry_server}/v4-candidate@${digest}"' in deploy_job
+    assert "@sha256:" not in deploy_job.split('candidate_image="', 1)[1].split('"', 1)[0]
+
+
+def test_readiness_precedes_runtime_validation_and_exports_uppercase_inputs():
+    workflow = workflow_text()
+    readiness_position = workflow.index("python scripts/wait_v4_candidate_readiness.py")
+    validation_position = workflow.index("python scripts/validate_v4_runtime_identity.py")
+
+    assert readiness_position < validation_position
+    assert "CANDIDATE_IMAGE: ${{ needs.deploy-candidate-app.outputs.candidate_image }}" in workflow
+    assert "CANDIDATE_REVISION: ${{ needs.deploy-candidate-app.outputs.candidate_revision }}" in workflow
+
+
+def test_evidence_bundle_requires_runtime_identity_in_each_build():
+    workflow = workflow_text()
+
+    assert workflow.count("--candidate-runtime-identity reports/candidate_runtime_identity.json") == 2
+    assert workflow.count("reports/candidate_runtime_identity.json") >= 3

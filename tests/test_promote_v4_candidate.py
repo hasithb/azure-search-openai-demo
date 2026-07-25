@@ -24,6 +24,19 @@ VALID_BUNDLE = {
     },
     "artifact_search": {"missing_count": 0, "extra_count": 0, "mismatched_count": 0},
     "candidate_validation": {"status": "PASS"},
+    "candidate_runtime_identity": {
+        "active_revision": "g-candidate",
+        "expected_revision": "g-candidate",
+        "deployed_image": "registry.azurecr.io/v4-candidate@sha256:" + "a" * 64,
+        "expected_image": "registry.azurecr.io/v4-candidate@sha256:" + "a" * 64,
+        "traffic_weight": 100,
+        "running_state": "Running",
+        "health_state": "Healthy",
+        "environment": {
+            "AZURE_SEARCH_INDEX": "legal-court-rag-v4-prod-20260713",
+            "AZURE_SEARCH_KNOWLEDGEBASE_NAME": "legal-court-rag-v4-prod-20260713-agent-upgrade",
+        },
+    },
     "application_gates": {
         "schema_version": 1,
         "status": "PASS",
@@ -123,7 +136,21 @@ def test_evidence_builder_requires_clean_fidelity(tmp_path):
             "artifact_sha256": "placeholder",
             "search_snapshot_sha256": "placeholder",
         }, "gates": {name: {"status": "PASS"} for name in ("retrieval", "category", "source_hierarchy", "citation", "acl")}}))
-        build_bundle(artifact, snapshot, fidelity, transition, candidate_validation, "legal-court-rag-v4", "legal-court-rag-v4-agent", "v3", "v3-agent", application_gates)
+        runtime_identity = tmp_path / "runtime-identity.json"
+        runtime_identity.write_text(json.dumps({
+            "active_revision": "g-candidate",
+            "expected_revision": "g-candidate",
+            "deployed_image": "registry.azurecr.io/v4-candidate@sha256:" + "a" * 64,
+            "expected_image": "registry.azurecr.io/v4-candidate@sha256:" + "a" * 64,
+            "traffic_weight": 100,
+            "running_state": "Running",
+            "health_state": "Healthy",
+            "environment": {
+                "AZURE_SEARCH_INDEX": "legal-court-rag-v4",
+                "AZURE_SEARCH_KNOWLEDGEBASE_NAME": "legal-court-rag-v4-agent",
+            },
+        }))
+        build_bundle(artifact, snapshot, fidelity, transition, candidate_validation, runtime_identity, "legal-court-rag-v4", "legal-court-rag-v4-agent", "v3", "v3-agent", application_gates)
 
 
 def test_artifact_search_equality_gate_accepts_exact_selected_fields(tmp_path):

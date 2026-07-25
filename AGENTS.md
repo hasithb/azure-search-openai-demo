@@ -459,6 +459,24 @@ The second command is validation-only unless `--execute` is explicitly
 provided. Embeddings must be generated first with
 `scripts/generate_v4_embeddings.py`; empty vectors are rejected.
 
+Before dispatching `update-index-v4.yml`, run the non-mutating release
+simulator against captured observations:
+
+```shell
+source .venv-upgrade/bin/activate
+python scripts/preflight_v4_release.py \
+  --input tests/fixtures/v4/ready/preflight.json
+```
+
+The simulator must return `status: PASS` with `promotion_eligible: false`.
+It never calls Azure or GitHub and cannot approve Production. The companion
+`tests/fixtures/v4/r7-reconstructed/preflight.json` fixture is an expected
+failure for the empty-image and stale-ready-revision race. The workflow uses a
+bounded read-only Container Apps readiness poll before runtime identity
+validation, retries transient `Activating`/not-ready observations only, and
+requires an immutable `registry/repository@sha256:<64 hex>` image reference.
+The first post-preflight workflow dispatch must set `promote=false`.
+
 The v4 release workflow also validates a dedicated candidate Container App
 revision before Production approval. The candidate must expose complete
 `/api/provenance` metadata and the audit job must provide five schema-1

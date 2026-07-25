@@ -108,7 +108,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       artifact_sha256: ${{ steps.hash.outputs.artifact_sha256 }}
-      candidate_image: ${{ steps.image.outputs.candidate_image }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -277,6 +276,9 @@ jobs:
   deploy-candidate-app:
     needs: [preflight, build-candidate, provision-and-upload]
     runs-on: ubuntu-latest
+    outputs:
+      candidate_image: ${{ steps.image.outputs.candidate_image }}
+      candidate_revision: ${{ steps.image.outputs.candidate_revision }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -322,8 +324,19 @@ jobs:
             --image "${image_tag}" \
             --file app/backend/Dockerfile \
             app/backend
-          echo "candidate_image=${registry_server}/${image_tag}" >> "$GITHUB_ENV"
-          echo "candidate_image=${registry_server}/${image_tag}" >> "$GITHUB_OUTPUT"
+          digest=$(az acr repository show \
+            --name "${registry_name}" \
+            --image "v4-candidate:${GITHUB_SHA}" \
+            --query digest --only-show-errors -o tsv)
+          [[ "${digest}" =~ ^sha256:[0-9a-fA-F]{64}$ ]] || {
+            echo "ACR did not return an immutable image digest" >&2
+            exit 1
+          }
+          candidate_image="${registry_server}/v4-candidate@${digest}"
+          candidate_revision="g-${GITHUB_SHA:0:8}"
+          echo "candidate_image=${candidate_image}" >> "$GITHUB_ENV"
+          echo "candidate_image=${candidate_image}" >> "$GITHUB_OUTPUT"
+          echo "candidate_revision=${candidate_revision}" >> "$GITHUB_OUTPUT"
         id: image
         env:
           AZURE_RESOURCE_GROUP: ${{ vars.V4_CANDIDATE_RESOURCE_GROUP }}
@@ -414,13 +427,18 @@ jobs:
             --name "${V4_CANDIDATE_APP}" \
             --revision-suffix "${expected_revision}" \
             --set-env-vars V4_SEARCH_SNAPSHOT_SHA256="${snapshot_sha256}" >/dev/null
+          python scripts/wait_v4_candidate_readiness.py \
+            --resource-group "${AZURE_RESOURCE_GROUP}" \
+            --app "${V4_CANDIDATE_APP}" \
+            --revision "${expected_revision}" \
+            --output reports/candidate_readiness.json
           az containerapp show --resource-group "${AZURE_RESOURCE_GROUP}" --name "${V4_CANDIDATE_APP}" -o json > reports/candidate_app.json
           az containerapp revision list --resource-group "${AZURE_RESOURCE_GROUP}" --name "${V4_CANDIDATE_APP}" -o json > reports/candidate_revisions.json
           python scripts/validate_v4_runtime_identity.py \
             --app reports/candidate_app.json \
             --revisions reports/candidate_revisions.json \
             --revision "${expected_revision}" \
-            --image "${candidate_image}" \
+            --image "${CANDIDATE_IMAGE}" \
             --environment "AZURE_SEARCH_INDEX=${SEARCH_INDEX}" \
             --environment "AZURE_SEARCH_KNOWLEDGEBASE_NAME=${SEARCH_KNOWLEDGEBASE}" \
             --output reports/candidate_runtime_identity.json
@@ -428,7 +446,8 @@ jobs:
           echo "snapshot_sha256=${snapshot_sha256}" >> "$GITHUB_ENV"
         env:
           AZURE_RESOURCE_GROUP: ${{ vars.V4_CANDIDATE_RESOURCE_GROUP }}
-          candidate_image: ${{ needs.build-candidate.outputs.candidate_image }}
+          CANDIDATE_IMAGE: ${{ needs.deploy-candidate-app.outputs.candidate_image }}
+          CANDIDATE_REVISION: ${{ needs.deploy-candidate-app.outputs.candidate_revision }}
       - name: Wait for candidate provenance readiness
         run: |
           : "${V4_CANDIDATE_URL:?Set repository variable V4_CANDIDATE_URL}"
@@ -482,7 +501,8 @@ jobs:
           SEARCH_INDEX: ${{ env.SEARCH_INDEX }}
           SEARCH_KNOWLEDGEBASE: ${{ env.SEARCH_KNOWLEDGEBASE }}
           V4_RELEASE_ID: ${{ inputs.release_id || github.run_number }}
-          CANDIDATE_IMAGE: ${{ needs.build-candidate.outputs.candidate_image }}
+          CANDIDATE_IMAGE: ${{ needs.deploy-candidate-app.outputs.candidate_image }}
+          CANDIDATE_REVISION: ${{ needs.deploy-candidate-app.outputs.candidate_revision }}
         shell: bash
       - name: Generate provenance-bound ACL gate
         run: |
@@ -561,6 +581,7 @@ jobs:
             --fidelity-report reports/v4_fidelity.json \
             --transition-report reports/html_transition_audit.json \
             --candidate-validation reports/v4_candidate_validation.json \
+            --candidate-runtime-identity reports/candidate_runtime_identity.json \
             --application-gates reports/v4_application_gates.json \
             --highlight-oracle reports/highlight_oracle.json \
             --candidate-index "${SEARCH_INDEX}" \
@@ -610,6 +631,7 @@ jobs:
             --fidelity-report reports/v4_fidelity.json \
             --transition-report reports/html_transition_audit.json \
             --candidate-validation reports/v4_candidate_validation.json \
+            --candidate-runtime-identity reports/candidate_runtime_identity.json \
             --application-gates reports/v4_application_gates.json \
             --highlight-oracle reports/highlight_oracle.json \
             --candidate-index "${SEARCH_INDEX}" \

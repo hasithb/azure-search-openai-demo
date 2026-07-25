@@ -9,7 +9,7 @@ ENVIRONMENT = {
 }
 
 
-def runtime_fixture(image="registry.azurecr.io/v4-candidate:git-1", traffic=100, ready="v4-release-1", env=None):
+def runtime_fixture(image="registry.azurecr.io/v4-candidate@sha256:" + "a" * 64, traffic=100, ready="v4-release-1", env=None):
     app = {
         "name": "candidate-app",
         "properties": {
@@ -41,7 +41,7 @@ def test_runtime_identity_requires_exact_image_revision_traffic_and_environment(
         app,
         revisions,
         expected_revision="v4-release-1",
-        expected_image="registry.azurecr.io/v4-candidate:git-1",
+        expected_image="registry.azurecr.io/v4-candidate@sha256:" + "a" * 64,
         expected_environment=ENVIRONMENT,
     )
     assert result["active_revision"] == "v4-release-1"
@@ -51,7 +51,7 @@ def test_runtime_identity_requires_exact_image_revision_traffic_and_environment(
 @pytest.mark.parametrize(
     "kwargs, message",
     [
-        ({"image": "registry.azurecr.io/v4-candidate:old"}, "image"),
+        ({"image": "registry.azurecr.io/v4-candidate@sha256:" + "b" * 64}, "image"),
         ({"traffic": 0}, "traffic_weight"),
         ({"ready": "v4-old"}, "latest_ready_revision"),
         ({"env": {"AZURE_SEARCH_INDEX": "legal-court-rag-index-v3", **{key: value for key, value in ENVIRONMENT.items() if key != "AZURE_SEARCH_INDEX"}}}, "AZURE_SEARCH_INDEX"),
@@ -64,7 +64,7 @@ def test_runtime_identity_rejects_stale_or_mismatched_runtime(kwargs, message):
             app,
             revisions,
             expected_revision="v4-release-1",
-            expected_image="registry.azurecr.io/v4-candidate:git-1",
+            expected_image="registry.azurecr.io/v4-candidate@sha256:" + "a" * 64,
             expected_environment=ENVIRONMENT,
         )
 
@@ -76,7 +76,7 @@ def test_runtime_identity_rejects_duplicate_revision_names():
             app,
             revisions + revisions,
             expected_revision="v4-release-1",
-            expected_image="registry.azurecr.io/v4-candidate:git-1",
+            expected_image="registry.azurecr.io/v4-candidate@sha256:" + "a" * 64,
             expected_environment=ENVIRONMENT,
         )
 
@@ -89,7 +89,7 @@ def test_runtime_identity_normalizes_azure_qualified_revision_names():
         app,
         revisions,
         expected_revision="v4-release-1",
-        expected_image="registry.azurecr.io/v4-candidate:git-1",
+        expected_image="registry.azurecr.io/v4-candidate@sha256:" + "a" * 64,
         expected_environment=ENVIRONMENT,
     )
     assert result["active_revision"] == "v4-release-1"

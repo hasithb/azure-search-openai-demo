@@ -10,10 +10,12 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
 from typing import Any
 
 LEGACY_INDEX = "legal-court-rag-index-v3"
+IMMUTABLE_IMAGE = re.compile(r"^[^/\s]+(?:/[^/@\s]+)+@sha256:[0-9a-fA-F]{64}$")
 
 
 class PromotionError(ValueError):
@@ -63,6 +65,18 @@ def validate_evidence_bundle(bundle: dict[str, Any]) -> dict[str, str]:
     application_gates = bundle.get("application_gates")
     if not isinstance(application_gates, dict) or application_gates.get("schema_version") != 1 or application_gates.get("status") != "PASS":
         raise PromotionError("Application-gate validation is not clean")
+    runtime_identity = bundle.get("candidate_runtime_identity")
+    if not isinstance(runtime_identity, dict):
+        raise PromotionError("Evidence bundle is missing candidate runtime identity")
+    if runtime_identity.get("active_revision") != runtime_identity.get("expected_revision"):
+        raise PromotionError("Candidate runtime identity revision is not bound")
+    if not IMMUTABLE_IMAGE.fullmatch(str(runtime_identity.get("expected_image") or "")) or runtime_identity.get("deployed_image") != runtime_identity.get("expected_image"):
+        raise PromotionError("Candidate runtime identity image is not immutable or does not match")
+    if runtime_identity.get("traffic_weight") != 100 or runtime_identity.get("running_state") != "Running" or runtime_identity.get("health_state") != "Healthy":
+        raise PromotionError("Candidate runtime identity is not healthy at 100% traffic")
+    runtime_environment = runtime_identity.get("environment")
+    if not isinstance(runtime_environment, dict) or runtime_environment.get("AZURE_SEARCH_INDEX") != index_name or runtime_environment.get("AZURE_SEARCH_KNOWLEDGEBASE_NAME") != knowledgebase_name:
+        raise PromotionError("Candidate runtime identity Search binding does not match the candidate pair")
     gates = application_gates.get("gates")
     required_gates = {"retrieval", "category", "source_hierarchy", "citation", "acl", "highlight"}
     if not isinstance(gates, dict) or set(gates) != required_gates:

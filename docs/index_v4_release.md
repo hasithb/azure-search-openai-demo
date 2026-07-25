@@ -197,6 +197,39 @@ The candidate index and knowledge base must be promoted as a pair. The v3
 index and `legal-court-rag-index-v3-agent-upgrade` knowledge base are retained
 and are never deleted by this process.
 
+## Local preflight simulator
+
+Before dispatching a candidate workflow, run the non-mutating simulator against
+captured or reconstructed observations:
+
+```shell
+source .venv-upgrade/bin/activate
+python scripts/preflight_v4_release.py \
+   --input tests/fixtures/v4/ready/preflight.json
+```
+
+The command must report `"status": "PASS"` and
+`"promotion_eligible": false`. It performs no Azure, GitHub, Search, ACR, or
+Container App writes and never grants Production approval. The simulator
+checks the same fail-closed contracts used by the workflow: HTTPS/FQDN
+binding, v4 staging Search pair, snapshot hash, immutable ACR digest, exact
+candidate revision, `latestReadyRevisionName`, healthy state, 100% traffic,
+Search environment binding, and provenance.
+
+The reconstructed r7 race can be checked explicitly and is expected to fail:
+
+```shell
+python scripts/preflight_v4_release.py \
+   --input tests/fixtures/v4/r7-reconstructed/preflight.json
+```
+
+That fixture captures an empty image output and an `Activating` revision while
+the previous revision remains latest-ready. The readiness poller retries only
+those transient propagation states within its bounded timeout; immutable
+contradictions fail immediately. Do not dispatch a new GitHub Actions run
+until the local simulator and focused test suite pass. The first candidate run
+after this preflight must use `promote=false`.
+
 ## Cutover and rollback
 
 The approved workflow updates both application settings in one deployment API
