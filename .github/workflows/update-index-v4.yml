@@ -69,10 +69,21 @@ jobs:
             echo "OIDC identity cannot read the Azure AI Search data plane (HTTP ${search_status}); grant Search Index Data Reader/Contributor before running the release" >&2
             exit 1
           }
-          candidate_json=$(az containerapp show \
-            --resource-group "${AZURE_RESOURCE_GROUP}" \
-            --name "${V4_CANDIDATE_APP}" \
-            --only-show-errors -o json)
+          candidate_json=""
+          for attempt in 1 2 3; do
+            if candidate_json=$(az containerapp show \
+              --resource-group "${AZURE_RESOURCE_GROUP}" \
+              --name "${V4_CANDIDATE_APP}" \
+              --only-show-errors -o json); then
+              break
+            fi
+            if [[ "${attempt}" == "3" ]]; then
+              echo "Unable to read candidate Container App after ${attempt} attempts" >&2
+              exit 1
+            fi
+            echo "Candidate Container App lookup failed; retrying (${attempt}/3)" >&2
+            sleep 5
+          done
           CANDIDATE_JSON="${candidate_json}" python - <<'PY'
           import json
           import os
