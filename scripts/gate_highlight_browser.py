@@ -167,7 +167,12 @@ def run_browser_gate(candidate_url: str, oracle: dict[str, Any], question: str) 
             if not highlighted_text:
                 raise BrowserGateError("Supporting Content rendered an empty highlighted subsection")
             if expected_heading not in highlighted_text and str(target_case["subsection_id"]).casefold() not in highlighted_text:
-                raise BrowserGateError("Highlighted subsection does not identify the canonical target heading")
+                raise BrowserGateError(
+                    "Highlighted subsection does not identify the canonical target heading: "
+                    f"case={target_case.get('case_id')!r}, expected_heading={expected_heading!r}, "
+                    f"expected_subsection={target_case.get('subsection_id')!r}, "
+                    f"selected_citation={selected_citation!r}, highlighted_text={highlighted_text[:500]!r}"
+                )
             if expected_body not in highlighted_text and highlighted_text not in expected_body:
                 raise BrowserGateError("Highlighted subsection text does not match canonical oracle evidence")
             if next_heading and next_heading in highlighted_text:
