@@ -50,16 +50,18 @@ export function findBestMatch(metadata: StructuredCitationMetadata, items: Match
         const itemSourcepage = (item.sourcepage ?? "").trim();
         const itemSourcefile = (item.sourcefile ?? "").trim();
         const itemContent = item.full_content || item.content || "";
+        const normalizedMetaSubsection = subsectionId.toLowerCase();
+        const normalizedItemSubsection = itemSubsectionId.toLowerCase();
+        const normalizedMetaSourcepage = metaSourcepage.toLowerCase();
+        const normalizedItemSourcepage = itemSourcepage.toLowerCase();
 
         // 1. Exact subsection_id field match
-        if (hasSubsection && itemSubsectionId && itemSubsectionId === subsectionId) {
+        if (hasSubsection && itemSubsectionId && normalizedItemSubsection === normalizedMetaSubsection) {
             score += 100;
         }
 
         // 2. Exact sourcepage match helps disambiguate multiple sections from the same guide.
         if (hasSourcepage && itemSourcepage) {
-            const normalizedMetaSourcepage = metaSourcepage.toLowerCase();
-            const normalizedItemSourcepage = itemSourcepage.toLowerCase();
             if (
                 normalizedMetaSourcepage === normalizedItemSourcepage ||
                 normalizedMetaSourcepage.includes(normalizedItemSourcepage) ||
