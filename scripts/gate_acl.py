@@ -6,7 +6,7 @@ import asyncio
 import os
 from typing import Any
 
-from azure.identity.aio import AzureDeveloperCliCredential
+from azure.identity.aio import AzureCliCredential
 from azure.search.documents.aio import SearchClient
 
 try:
@@ -17,7 +17,7 @@ except ImportError:
 
 async def search_counts(search_service: str, index_name: str, tenant_id: str) -> dict[str, int]:
     endpoint = f"https://{search_service}.search.windows.net"
-    credential = AzureDeveloperCliCredential(tenant_id=tenant_id)
+    credential = AzureCliCredential(tenant_id=tenant_id)
     try:
         token = await credential.get_token("https://search.azure.com/.default")
         async with SearchClient(endpoint=endpoint, index_name=index_name, credential=credential) as client:
