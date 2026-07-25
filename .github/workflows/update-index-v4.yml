@@ -397,7 +397,7 @@ jobs:
           az containerapp update \
             --resource-group "${AZURE_RESOURCE_GROUP}" \
             --name "${V4_CANDIDATE_APP}" \
-            --revision-suffix "v4-${V4_RELEASE_ID}-gates" \
+            --revision-suffix "g-${GITHUB_SHA:0:8}" \
             --set-env-vars V4_SEARCH_SNAPSHOT_SHA256="${snapshot_sha256}" >/dev/null
           echo "snapshot_sha256=${snapshot_sha256}" >> "$GITHUB_ENV"
         env:
