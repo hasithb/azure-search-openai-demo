@@ -68,3 +68,13 @@ def test_provisioner_dry_run_accepts_disposable_target():
     # The parser-level behavior is covered by the validation-only invocation in
     # the release command; this test keeps the shared target guard exercised.
     validate_staging_target("legal-court-rag-v4-staging-test")
+
+
+def test_staging_index_enables_permission_filtering():
+    from azure.search.documents.indexes.models import SearchIndexPermissionFilterOption
+
+    from scripts.create_v4_staging_index import build_index
+
+    index = build_index("legal-court-rag-v4-staging-test")
+
+    assert index.permission_filter_option == SearchIndexPermissionFilterOption.ENABLED

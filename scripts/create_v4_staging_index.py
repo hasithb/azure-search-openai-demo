@@ -19,6 +19,7 @@ def build_index(index_name: str):
         SearchField,
         SearchFieldDataType,
         SearchIndex,
+        SearchIndexPermissionFilterOption,
         SearchableField,
         SemanticConfiguration,
         SemanticField,
@@ -76,7 +77,13 @@ def build_index(index_name: str):
             )
         ]
     )
-    return SearchIndex(name=index_name, fields=fields, vector_search=vector_search, semantic_search=semantic_search)
+    return SearchIndex(
+        name=index_name,
+        fields=fields,
+        vector_search=vector_search,
+        semantic_search=semantic_search,
+        permission_filter_option=SearchIndexPermissionFilterOption.ENABLED,
+    )
 
 
 def provision(index_name: str, service: str) -> None:
