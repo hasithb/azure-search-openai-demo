@@ -83,7 +83,15 @@ def load_snapshot_cases(snapshot_dir: Path) -> list[dict[str, Any]]:
         headings = [
             block
             for block in blocks
-            if isinstance(block, dict) and block.get("kind") == "heading" and normalize_text(str(block.get("text") or ""))
+            if isinstance(block, dict)
+            and normalize_text(str(block.get("text") or ""))
+            and (
+                block.get("kind") == "heading"
+                or (
+                    block.get("kind") in {"p", "paragraph"}
+                    and SECTION_RE.match(normalize_text(str(block.get("text") or "")))
+                )
+            )
         ]
         for index, heading in enumerate(headings):
             text = normalize_text(str(heading["text"]))
