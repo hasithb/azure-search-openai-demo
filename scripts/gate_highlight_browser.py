@@ -176,7 +176,7 @@ def run_browser_gate(candidate_url: str, oracle: dict[str, Any], question: str) 
             except PlaywrightTimeoutError:
                 pass
 
-            question_input = page.get_by_placeholder(re.compile(r"Ask a question|Type a new question"))
+            question_input = page.locator("textarea").first
             question_input.wait_for(state="visible", timeout=30_000)
             source_filter = page.get_by_role("combobox", name="Source filter")
             source_filter.wait_for(state="visible", timeout=30_000)
