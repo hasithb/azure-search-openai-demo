@@ -2,7 +2,12 @@ import json
 
 import pytest
 
-from scripts.upload_v4_staging import EMBEDDING_DIMENSIONS, load_documents, validate_index_schema, validate_staging_target
+from scripts.upload_v4_staging import (
+    EMBEDDING_DIMENSIONS,
+    load_documents,
+    validate_index_schema,
+    validate_staging_target,
+)
 
 
 def test_staging_target_rejects_production():
@@ -63,11 +68,30 @@ def test_validate_index_schema_checks_embedding_dimensions():
 
 
 def test_provisioner_dry_run_accepts_disposable_target():
-    from scripts.create_v4_staging_index import main
-
     # The parser-level behavior is covered by the validation-only invocation in
     # the release command; this test keeps the shared target guard exercised.
     validate_staging_target("legal-court-rag-v4-staging-test")
+
+
+def test_check_capacity_rejects_full_service_without_deleting_indexes():
+    from scripts.create_v4_staging_index import check_capacity
+
+    class FakeClient:
+        def list_index_names(self):
+            return (f"staging-{index}" for index in range(50))
+
+    with pytest.raises(ValueError, match="50/50.*Do not delete"):
+        check_capacity(FakeClient(), "legal-court-rag-v4-staging-next")
+
+
+def test_check_capacity_accepts_available_slot():
+    from scripts.create_v4_staging_index import check_capacity
+
+    class FakeClient:
+        def list_index_names(self):
+            return ["legal-court-rag-index-v3"]
+
+    assert check_capacity(FakeClient(), "legal-court-rag-v4-staging-next", max_indexes=2) == 1
 
 
 def test_staging_index_enables_permission_filtering():

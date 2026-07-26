@@ -9,18 +9,24 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from scripts.upload_v4_staging import EMBEDDING_DIMENSIONS, PRODUCTION_INDEX, validate_staging_target
+from scripts.upload_v4_staging import (
+    EMBEDDING_DIMENSIONS,
+    PRODUCTION_INDEX,
+    validate_staging_target,
+)
+
+MAX_INDEX_COUNT = 50
 
 
 def build_index(index_name: str):
     from azure.search.documents.indexes.models import (
         HnswAlgorithmConfiguration,
         HnswParameters,
+        SearchableField,
         SearchField,
         SearchFieldDataType,
         SearchIndex,
         SearchIndexPermissionFilterOption,
-        SearchableField,
         SemanticConfiguration,
         SemanticField,
         SemanticPrioritizedFields,
@@ -86,12 +92,30 @@ def build_index(index_name: str):
     )
 
 
-def provision(index_name: str, service: str) -> None:
+def check_capacity(client, index_name: str, max_indexes: int = MAX_INDEX_COUNT) -> int:
+    index_names = list(client.list_index_names())
+    if index_name in index_names:
+        raise ValueError(f"Staging index already exists: {index_name}")
+    if len(index_names) >= max_indexes:
+        protected = f"{PRODUCTION_INDEX} and rollback indexes"
+        raise ValueError(
+            f"Azure AI Search index quota exhausted: {len(index_names)}/{max_indexes} indexes exist; "
+            f"free a disposable staging index before creating {index_name}. Do not delete {protected}."
+        )
+    return len(index_names)
+
+
+def get_client(service: str):
     from azure.identity import DefaultAzureCredential
     from azure.search.documents.indexes import SearchIndexClient
 
     endpoint = service if service.startswith("https://") else f"https://{service}.search.windows.net"
-    client = SearchIndexClient(endpoint=endpoint, credential=DefaultAzureCredential())
+    return SearchIndexClient(endpoint=endpoint, credential=DefaultAzureCredential())
+
+
+def provision(index_name: str, service: str) -> None:
+    client = get_client(service)
+    check_capacity(client, index_name)
     result = client.create_index(build_index(index_name))
     print(json.dumps({"index": result.name, "status": "created"}))
 
@@ -101,14 +125,21 @@ def main() -> int:
     parser.add_argument("--index", required=True)
     parser.add_argument("--service", default=os.environ.get("AZURE_SEARCH_SERVICE", ""))
     parser.add_argument("--execute", action="store_true", help="Create the index; default is validation-only")
+    parser.add_argument("--check-capacity", action="store_true", help="Check index quota without creating an index")
     args = parser.parse_args()
     validate_staging_target(args.index)
     if args.index.casefold() == PRODUCTION_INDEX.casefold():
         raise ValueError("Refusing to provision the production index")
-    if args.execute:
+    if args.execute or args.check_capacity:
         if not args.service:
-            raise ValueError("--service or AZURE_SEARCH_SERVICE is required with --execute")
-        provision(args.index, args.service)
+            raise ValueError("--service or AZURE_SEARCH_SERVICE is required with --execute or --check-capacity")
+        client = get_client(args.service)
+        index_count = check_capacity(client, args.index)
+        if args.execute:
+            result = client.create_index(build_index(args.index))
+            print(json.dumps({"index": result.name, "status": "created", "index_count_before": index_count}))
+        else:
+            print(json.dumps({"index": args.index, "status": "capacity_available", "index_count": index_count}))
     else:
         print(json.dumps({"index": args.index, "status": "validated", "execute": False}))
     return 0

@@ -283,6 +283,10 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Check staging index capacity
+        run: python scripts/create_v4_staging_index.py --index "${SEARCH_INDEX}" --check-capacity
+        env:
+          AZURE_SEARCH_SERVICE: ${{ secrets.AZURE_SEARCH_SERVICE }}
       - name: Provision immutable staging index
         run: python scripts/create_v4_staging_index.py --index "${SEARCH_INDEX}" --execute
         env:
