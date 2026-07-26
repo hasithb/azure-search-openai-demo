@@ -1,6 +1,6 @@
 import pytest
 
-from scripts.gate_highlight_browser import BrowserGateError, citation_matches, select_citation
+from scripts.gate_highlight_browser import BrowserGateError, citation_matches, select_citation, validate_highlight_identity
 
 
 TARGET = {
@@ -66,3 +66,22 @@ def test_select_citation_normalizes_source_page_dash_punctuation():
     selected = citation(sourcepage="PART 24 - SUMMARY JUDGMENT")
 
     assert select_citation(TARGET, [selected]) == selected
+
+
+def test_validate_highlight_identity_accepts_heading_in_card_and_subsection_in_mark():
+    validate_highlight_identity(
+        "24.2 The court may give summary judgment",
+        "Part 24, PART 24 - SUMMARY JUDGMENT, Civil Procedure Rules and Practice Directions 24.2 The court may give summary judgment",
+        "PART 24 - SUMMARY JUDGMENT",
+        "24.2",
+    )
+
+
+def test_validate_highlight_identity_rejects_heading_from_another_card():
+    with pytest.raises(BrowserGateError, match="canonical target heading"):
+        validate_highlight_identity(
+            "24.2 The court may give summary judgment",
+            "Part 25, PART 25 - COSTS",
+            "PART 24 - SUMMARY JUDGMENT",
+            "24.2",
+        )

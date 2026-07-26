@@ -78,6 +78,29 @@ def select_citation(target_case: dict[str, Any], citations: list[dict[str, Any]]
     return matches[0]
 
 
+def validate_highlight_identity(
+    highlighted_text: str,
+    supporting_card_text: str,
+    expected_heading: str,
+    expected_subsection: str,
+) -> None:
+    """Require the heading in the selected card and the subsection in its highlight."""
+    normalized_highlight = normalize(highlighted_text)
+    normalized_card = normalize(supporting_card_text)
+    if not normalized_highlight:
+        raise BrowserGateError("Supporting Content rendered an empty highlighted subsection")
+    if normalize(expected_heading) not in normalized_card:
+        raise BrowserGateError(
+            "Supporting Content card does not identify the canonical target heading: "
+            f"expected_heading={normalize(expected_heading)!r}, card_text={normalized_card[:500]!r}"
+        )
+    if normalize(expected_subsection) not in normalized_highlight:
+        raise BrowserGateError(
+            "Highlighted subsection does not identify the canonical target subsection: "
+            f"expected_subsection={expected_subsection!r}, highlighted_text={normalized_highlight[:500]!r}"
+        )
+
+
 def css_attribute_value(value: str) -> str:
     return value.replace("\\", "\\\\").replace('"', '\\"')
 
@@ -164,15 +187,15 @@ def run_browser_gate(candidate_url: str, oracle: dict[str, Any], question: str) 
             highlight = page.locator("#highlighted-subsection")
             highlight.wait_for(state="visible", timeout=30_000)
             highlighted_text = normalize(highlight.inner_text())
-            if not highlighted_text:
-                raise BrowserGateError("Supporting Content rendered an empty highlighted subsection")
-            if expected_heading not in highlighted_text and str(target_case["subsection_id"]).casefold() not in highlighted_text:
-                raise BrowserGateError(
-                    "Highlighted subsection does not identify the canonical target heading: "
-                    f"case={target_case.get('case_id')!r}, expected_heading={expected_heading!r}, "
-                    f"expected_subsection={target_case.get('subsection_id')!r}, "
-                    f"selected_citation={selected_citation!r}, highlighted_text={highlighted_text[:500]!r}"
-                )
+            supporting_card = highlight.locator("xpath=ancestor::*[contains(@class, 'supportingItem')][1]")
+            supporting_card.wait_for(state="visible", timeout=5_000)
+            supporting_card_text = supporting_card.inner_text()
+            validate_highlight_identity(
+                highlighted_text,
+                supporting_card_text,
+                expected_heading,
+                str(target_case["subsection_id"]),
+            )
             if expected_body not in highlighted_text and highlighted_text not in expected_body:
                 raise BrowserGateError("Highlighted subsection text does not match canonical oracle evidence")
             if next_heading and next_heading in highlighted_text:
