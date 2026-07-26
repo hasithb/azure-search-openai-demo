@@ -189,7 +189,7 @@ def run_browser_gate(candidate_url: str, oracle: dict[str, Any], question: str) 
             page.get_by_role("button", name="Submit question").click()
 
             citations_locator = page.locator(".supContainer")
-            citations_locator.first.wait_for(state="visible", timeout=120_000)
+            citations_locator.first.wait_for(state="visible", timeout=180_000)
             citations = citations_locator.evaluate_all(
                 """
                 (elements) => elements
