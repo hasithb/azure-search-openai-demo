@@ -1,7 +1,12 @@
 import pytest
 
-from scripts.gate_highlight_browser import BrowserGateError, choose_case, citation_matches, select_citation, validate_highlight_identity
-
+from scripts.gate_highlight_browser import (
+    BrowserGateError,
+    choose_case,
+    citation_matches,
+    select_citation,
+    validate_highlight_identity,
+)
 
 TARGET = {
     "sourcefile": "Part 24",

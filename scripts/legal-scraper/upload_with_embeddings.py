@@ -6,19 +6,24 @@ Supports dry-run mode for validation and staging index uploads.
 Usage:
     python upload_with_embeddings.py --input Upload [--dry-run] [--staging]
 """
-import os
-import sys
-import json
-import glob
 import argparse
-import logging
+import glob
 import hashlib
-import time
+import json
+import logging
+import os
 import re
-from pathlib import Path
-from openai import AzureOpenAI, RateLimitError, APIConnectionError, APIError
+import sys
+import time
+
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+from openai import APIConnectionError, APIError, AzureOpenAI, RateLimitError
+from tenacity import (
+    retry,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_exponential,
+)
 
 # Add scripts to path
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -26,11 +31,11 @@ backend_dir = os.path.join(script_dir, '../../app/backend')
 
 # Import from local scripts first
 sys.path.insert(0, script_dir)
-from config import Config
+from config import Config  # noqa: E402
 
 # Then add backend to path for customizations
 sys.path.insert(0, backend_dir)
-from customizations.subsection_extractor import SubsectionExtractor
+from customizations.subsection_extractor import SubsectionExtractor  # noqa: E402
 
 # Set up logging
 logging.basicConfig(
@@ -46,8 +51,8 @@ _INDEX_FIELDS: set[str] | None = None
 def load_index_fields(endpoint: str, index_name: str):
     """Fetch field names from the deployed index to avoid sending unsupported fields."""
     global _INDEX_FIELDS
-    from azure.search.documents.indexes import SearchIndexClient
     from azure.identity import DefaultAzureCredential
+    from azure.search.documents.indexes import SearchIndexClient
 
     idx_client = SearchIndexClient(endpoint=endpoint, credential=DefaultAzureCredential())
     idx = idx_client.get_index(index_name)
@@ -63,7 +68,7 @@ def load_documents_from_files(input_dir: str) -> list:
     
     for json_file in sorted(json_files):
         try:
-            with open(json_file, 'r', encoding='utf-8') as f:
+            with open(json_file, encoding='utf-8') as f:
                 data = json.load(f)
                 
                 # Handle both single document and array of documents
@@ -465,11 +470,11 @@ def filter_changed_documents(client, documents: list) -> tuple[list, int, int, i
 def upload_to_azure_search(index_name: str, documents: list, batch_size: int = 100, dry_run: bool = False) -> int:
     """Upload documents to Azure Search."""
     try:
+        from azure.core.credentials import AzureKeyCredential
+        from azure.core.exceptions import ResourceNotFoundError
+        from azure.identity import AzureCliCredential, DefaultAzureCredential
         from azure.search.documents import SearchClient
         from azure.search.documents.indexes import SearchIndexClient
-        from azure.core.credentials import AzureKeyCredential
-        from azure.identity import DefaultAzureCredential, AzureCliCredential
-        from azure.core.exceptions import ResourceNotFoundError
         
         endpoint = Config.AZURE_SEARCH_SERVICE
         # Ensure endpoint is a full URL
@@ -577,7 +582,6 @@ def upload_to_azure_search(index_name: str, documents: list, batch_size: int = 1
                 if new_count > 0:
                     f.write("NEW DOCUMENTS (to be added):\n")
                     f.write("-" * 40 + "\n")
-                    new_docs = [d for d in docs_to_upload if d.get('_is_new', False)]
                     for i, doc in enumerate(docs_to_upload[:30], 1):
                         f.write(f"  {i}. {doc.get('id')}\n")
                     if len(docs_to_upload) > 30:
@@ -723,7 +727,7 @@ def upload_to_azure_search(index_name: str, documents: list, batch_size: int = 1
             f.write(f"  Successful:         {uploaded:>6}\n")
             if failed > 0:
                 f.write(f"  Failed:             {failed:>6}\n")
-            f.write(f"\n  Breakdown:\n")
+            f.write("\n  Breakdown:\n")
             f.write(f"    New:              {new_count:>6}\n")
             f.write(f"    Changed:          {changed_count:>6}\n")
             f.write(f"\n  Completion Time: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")

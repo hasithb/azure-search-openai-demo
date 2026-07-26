@@ -1,3 +1,4 @@
+import httpx
 import pytest
 
 from scripts.gate_common import (
@@ -25,6 +26,11 @@ class FakeClient:
         return FakeResponse()
 
 
+class TimeoutClient:
+    async def post(self, url: str, *, json: dict[str, object]) -> FakeResponse:
+        raise httpx.ReadTimeout("timed out")
+
+
 @pytest.mark.asyncio
 async def test_post_chat_uses_context_overrides() -> None:
     client = FakeClient()
@@ -38,6 +44,12 @@ async def test_post_chat_uses_context_overrides() -> None:
         "messages": [{"role": "user", "content": "What is the rule?"}],
         "context": {"overrides": {"top": 7, "include_category": "Court"}},
     }
+
+
+@pytest.mark.asyncio
+async def test_post_chat_normalizes_timeout_failure() -> None:
+    with pytest.raises(GateFailure, match="timed out"):
+        await post_chat(TimeoutClient(), "https://candidate.example.com", "What is the rule?")
 
 
 def test_response_helpers_accept_backend_chat_shape() -> None:

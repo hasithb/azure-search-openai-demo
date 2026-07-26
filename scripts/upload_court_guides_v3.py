@@ -20,15 +20,13 @@ Usage:
     # Skip specific guides:
     python scripts/upload_court_guides_v3.py --skip "Court of Appeal" --skip "Senior Courts Costs Office"
 """
-import os
-import sys
-import json
-import glob
-import re
-import time
-import logging
 import argparse
-import hashlib
+import json
+import logging
+import os
+import re
+import sys
+import time
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
@@ -39,8 +37,8 @@ PROJECT_ROOT = SCRIPT_DIR.parent
 BACKEND_DIR = PROJECT_ROOT / "app" / "backend"
 sys.path.insert(0, str(BACKEND_DIR))
 
-from load_azd_env import load_azd_env
-from customizations.subsection_extractor import SubsectionExtractor
+from customizations.subsection_extractor import SubsectionExtractor  # noqa: E402
+from load_azd_env import load_azd_env  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -378,8 +376,13 @@ def generate_embeddings(docs: list[dict], dry_run: bool) -> list[dict]:
         logger.info("  [DRY RUN] Would generate embeddings for %d docs", len(docs))
         return docs
 
-    from openai import RateLimitError, APIConnectionError, APIError
-    from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+    from openai import APIConnectionError, APIError, RateLimitError
+    from tenacity import (
+        retry,
+        retry_if_exception_type,
+        stop_after_attempt,
+        wait_exponential,
+    )
 
     client = get_openai_client()
     deployment = os.environ.get("AZURE_OPENAI_EMB_DEPLOYMENT", "text-embedding-3-large")

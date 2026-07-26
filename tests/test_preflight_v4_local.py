@@ -5,7 +5,12 @@ import pytest
 
 from application_gate import ApplicationGateError, validate_candidate_url
 
-from scripts.preflight_v4_local import run_api_gates, run_live_smoke
+from scripts.preflight_v4_local import (
+    local_runtime_contract,
+    run_api_gates,
+    run_live_smoke,
+    validate_chat_failure_contracts,
+)
 from scripts.run_v4_application_gates import load_gate_reports
 from scripts.v4_local_test_server import PROVENANCE, start_fixture_server
 
@@ -27,6 +32,16 @@ def test_live_candidate_policy_rejects_localhost() -> None:
         validate_candidate_url("http://127.0.0.1:50505")
 
     assert validate_candidate_url("http://127.0.0.1:50505", allow_local=True) == "http://127.0.0.1:50505"
+
+
+def test_local_runtime_contract_covers_candidate_readiness_identity_and_configuration() -> None:
+    report = local_runtime_contract()
+
+    assert report["status"] == "PASS"
+    assert report["readiness"]["status"] == "READY"
+    assert report["runtime_identity"]["traffic_weight"] == 100
+    assert report["runtime_identity"]["running_state"] == "Running"
+    assert report["runtime_identity"]["health_state"] == "Healthy"
 
 
 @pytest.mark.asyncio
@@ -62,3 +77,13 @@ async def test_live_smoke_requires_real_https_candidate(monkeypatch, tmp_path) -
             tmp_path / "reports",
             "test question",
         )
+
+
+@pytest.mark.asyncio
+async def test_local_preflight_captures_chat_failure_contracts() -> None:
+    checks = await validate_chat_failure_contracts()
+
+    assert [check["id"] for check in checks] == [
+        "Candidate chat request timed out",
+        "Candidate chat response is not valid JSON",
+    ]

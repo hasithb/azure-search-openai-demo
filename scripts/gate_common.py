@@ -9,7 +9,7 @@ import os
 import tempfile
 from collections.abc import Awaitable, Callable, Coroutine
 from pathlib import Path
-from typing import Any
+from typing import Any, Protocol
 
 import httpx
 
@@ -18,6 +18,11 @@ from application_gate import validate_candidate_url
 
 class GateFailure(ValueError):
     """Raised when a candidate fails an expected application behavior check."""
+
+
+class ChatClient(Protocol):
+    async def post(self, url: str, *, json: dict[str, Any]) -> Any:
+        """Send a chat request and return an HTTP-like response."""
 
 
 def gate_parser(description: str) -> argparse.ArgumentParser:
@@ -48,7 +53,7 @@ def passing_report(
 
 
 async def post_chat(
-    client: httpx.AsyncClient,
+    client: ChatClient,
     candidate: str,
     question: str,
     *,
@@ -63,9 +68,15 @@ async def post_chat(
     }
     if category:
         overrides["include_category"] = category
-    response = await client.post(f"{candidate_url}/chat", json=payload)
+    try:
+        response = await client.post(f"{candidate_url}/chat", json=payload)
+    except httpx.TimeoutException as error:
+        raise GateFailure("Candidate chat request timed out") from error
     response.raise_for_status()
-    result = response.json()
+    try:
+        result = response.json()
+    except ValueError as error:
+        raise GateFailure("Candidate chat response is not valid JSON") from error
     if not isinstance(result, dict):
         raise GateFailure("Candidate chat response must be a JSON object")
     return result

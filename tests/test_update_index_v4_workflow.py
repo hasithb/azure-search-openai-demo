@@ -1,6 +1,5 @@
 from pathlib import Path
 
-
 WORKFLOW = Path(__file__).parents[1] / ".github" / "workflows" / "update-index-v4.yml"
 
 
@@ -33,3 +32,11 @@ def test_evidence_bundle_requires_runtime_identity_in_each_build():
 
     assert workflow.count("--candidate-runtime-identity reports/candidate_runtime_identity.json") == 2
     assert workflow.count("reports/candidate_runtime_identity.json") >= 3
+
+
+def test_local_validation_runs_before_remote_preflight():
+    workflow = workflow_text()
+
+    assert workflow.index("  local-validation:") < workflow.index("  preflight:")
+    local_validation = workflow.split("  local-validation:", 1)[1].split("  preflight:", 1)[0]
+    assert "python scripts/preflight_v4_local.py --mode offline --require-runtime-contract --output reports/v4-local" in local_validation
