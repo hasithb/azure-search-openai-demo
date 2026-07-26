@@ -93,6 +93,11 @@ GUIDE_FILES = {
         "sourcefile": "Court of Appeal Civil Division Guide",
         "category": "Court of Appeal Civil Division",
     },
+    "Intellectual Property Enterprise Court": {
+        "file": "Intellectual-Property-Enterprise-Court-IPEC-Guide-revised-November-2024_processed.json",
+        "sourcefile": "Intellectual Property Enterprise Court Guide",
+        "category": "Intellectual Property Enterprise Court",
+    },
     "Senior Courts Costs Office": {
         "file": "Senior-Courts-Costs-Office-Guide_processed.json",
         "sourcefile": "Senior Courts Costs Office Guide",

@@ -18,7 +18,8 @@ describe("extractMetadataFromDataPoint", () => {
             sourcefile: "",
             category: "",
             content: "",
-            storageUrl: ""
+            storageUrl: "",
+            fullContent: ""
         });
     });
 
@@ -30,7 +31,8 @@ describe("extractMetadataFromDataPoint", () => {
             sourcefile: "",
             category: "",
             content: "",
-            storageUrl: ""
+            storageUrl: "",
+            fullContent: ""
         });
     });
 
@@ -50,7 +52,8 @@ describe("extractMetadataFromDataPoint", () => {
             sourcefile: "civil-procedure-rules.pdf",
             category: "Civil Procedure Rules",
             content: "The court may make an order for disclosure",
-            storageUrl: "https://www.justice.gov.uk/courts/procedure-rules"
+            storageUrl: "https://www.justice.gov.uk/courts/procedure-rules",
+            fullContent: ""
         });
     });
 
@@ -161,10 +164,11 @@ describe("buildCitationLabel", () => {
             sourcefile: "Part 46",
             category: "Civil Procedure Rules and Practice Directions",
             content: "",
-            storageUrl: "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-46-costs-special-cases"
+            storageUrl: "https://www.justice.gov.uk/courts/procedure-rules/civil/rules/part-46-costs-special-cases",
+            fullContent: ""
         };
 
-        expect(buildCitationLabel(metadata)).toBe("46.2, Part 46 – Costs special cases, Part 46");
+        expect(buildCitationLabel(metadata)).toBe("46.2, Part 46 – Costs special cases");
     });
 
     it("avoids repeating equivalent sourcepage and sourcefile fragments", () => {
@@ -174,7 +178,8 @@ describe("buildCitationLabel", () => {
             sourcefile: "Commercial Court Guide",
             category: "Commercial Court Guide",
             content: "",
-            storageUrl: ""
+            storageUrl: "",
+            fullContent: ""
         };
 
         expect(buildCitationLabel(metadata, "fallback")).toBe("Commercial Court Guide");

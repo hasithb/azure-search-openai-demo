@@ -1,6 +1,6 @@
 {
-    "pageTitle": "Azure OpenAI + AI Search",
-    "headerTitle": "Azure OpenAI + AI Search",
+    "pageTitle": "Civil Procedure Copilot",
+    "headerTitle": "Civil Procedure Copilot",
     "chat": "Chat",
     "login": "Login",
     "logout": "Logout",
@@ -33,19 +33,19 @@
     },
     "developerSettings": "Developer settings",
     "chatEmptyStateTitle": "Civil Procedure Copilot",
-    "chatEmptyStateSubtitle": "Your AI assistant for Civil Procedure Rules, Practice Directions, and Court Guides",
+    "chatEmptyStateSubtitle": "Search the Civil Procedure Rules, Practice Directions, and Court Guides",
     "defaultExamples": {
-        "1": "What is included in my Northwind Health Plus plan that is not in standard?",
-        "2": "What happens in a performance review?",
-        "3": "What does a Product Manager do?",
-        "placeholder": "Type a new question (e.g. does my plan cover annual eye exams?)"
+        "1": "What are the time limits for filing a defence?",
+        "2": "What documents are needed for a case management conference?",
+        "3": "What are the cost budgeting requirements in the Commercial Court?",
+        "placeholder": "Ask about a rule, practice direction, or court guide..."
     },
     "askTitle": "Ask your data",
     "multimodalExamples": {
         "1": "Compare the impact of interest rates and GDP in financial markets.",
         "2": "What is the expected trend for the S&P 500 index over the next five years? Compare it to the past S&P 500 performance",
         "3": "Can you identify any correlation between oil prices and stock market trends?",
-        "placeholder": "Example: Does my plan cover annual eye exams?"
+        "placeholder": "Example: What are the time limits for filing a defence?"
     },
     "generatingAnswer": "Generating answer",
     "citationWithColon": "Citation:",

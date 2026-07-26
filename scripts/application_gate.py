@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from typing import cast
 from urllib.parse import urlparse
 
 
@@ -21,14 +22,17 @@ PROVENANCE_FIELDS = (
 )
 
 
-def validate_candidate_url(candidate_url: str) -> str:
+def validate_candidate_url(candidate_url: str, *, allow_local: bool = False) -> str:
     """Require an explicit HTTPS candidate URL and reject local/v3 fallbacks."""
     value = candidate_url.strip().rstrip("/")
     parsed = urlparse(value)
-    if parsed.scheme != "https" or not parsed.netloc:
+    if allow_local:
+        if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+            raise ApplicationGateError("Local candidate application URL must have a valid scheme and host")
+    elif parsed.scheme != "https" or not parsed.netloc:
         raise ApplicationGateError("Candidate application URL must be an HTTPS URL")
     hostname = (parsed.hostname or "").casefold()
-    if hostname in {"localhost", "127.0.0.1", "::1"} or hostname.endswith(".localhost"):
+    if not allow_local and (hostname in {"localhost", "127.0.0.1", "::1"} or hostname.endswith(".localhost")):
         raise ApplicationGateError("Candidate application URL must not be local")
     if "v3" in value.casefold():
         raise ApplicationGateError("Candidate application URL must not identify a v3 deployment")
@@ -39,6 +43,7 @@ def validate_provenance(payload: object, expected: dict[str, str]) -> dict[str, 
     """Validate the complete provenance envelope against release expectations."""
     if not isinstance(payload, dict):
         raise ApplicationGateError("Candidate provenance must be a JSON object")
+    payload = cast(dict[str, object], payload)
     if payload.get("schema_version") != 1:
         raise ApplicationGateError("Candidate provenance schema version is unsupported")
 

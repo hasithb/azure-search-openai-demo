@@ -31,7 +31,7 @@ describe("SplashScreen", () => {
         render(<SplashScreen />);
 
         expect(screen.getByText("Civil Procedure Copilot")).toBeInTheDocument();
-        expect(screen.getByText(/Your AI assistant for Civil Procedure Rules/)).toBeInTheDocument();
+        expect(screen.getByText(/Search the Civil Procedure Rules/)).toBeInTheDocument();
     });
 
     it("renders with custom title and subtitle", () => {

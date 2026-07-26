@@ -14,7 +14,9 @@ from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 from playwright.sync_api import sync_playwright
 
 try:
-    from .validate_highlight_oracle import validate as validate_oracle
+    from .validate_highlight_oracle import (  # type: ignore[unresolved-import]
+        validate as validate_oracle,
+    )
 except ImportError:
     from validate_highlight_oracle import validate as validate_oracle
 
@@ -48,7 +50,7 @@ def sourcepage_matches(target_case: dict[str, Any], citation: dict[str, Any]) ->
     # scoped to the same canonical Part.
     expected_subsection = normalize(str(target_case.get("subsection_id") or ""))
     expected_sourcefile = normalize_sourcepage(str(target_case.get("sourcefile") or ""))
-    return (
+    return bool(
         expected_subsection != "part 24"
         and expected_subsection.startswith("24.")
         and expected_sourcefile
@@ -88,8 +90,6 @@ def citation_matches(target_case: dict[str, Any], citation: dict[str, Any]) -> b
     expected_category = normalize(str(target_case.get("category") or ""))
     if expected_category and normalize(str(citation.get("category") or "")) != expected_category:
         return False
-    expected_sourcepage = normalize_sourcepage(str(target_case.get("sourcepage") or ""))
-    actual_sourcepage = normalize_sourcepage(str(citation.get("sourcepage") or ""))
     return sourcepage_matches(target_case, citation)
 
 
@@ -259,6 +259,14 @@ def build_report(candidate_url: str, oracle_path: Path, snapshot_dir: Path, prov
         "source_count": validated_oracle["source_count"],
         "snapshot_manifest_sha256": validated_oracle["snapshot_manifest_sha256"],
         "browser_evidence": browser_evidence,
+        "checks": [
+            {
+                "id": "canonical_citation_highlight",
+                "case_id": browser_evidence["case_id"],
+                "subsection_id": browser_evidence["subsection_id"],
+                "status": "PASS",
+            }
+        ],
         "provenance": provenance,
     }
 

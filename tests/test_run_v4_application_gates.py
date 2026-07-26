@@ -4,7 +4,6 @@ import pytest
 
 from scripts.run_v4_application_gates import ApplicationGatesError, load_gate_reports
 
-
 PROVENANCE = {
     "release_id": "release-1",
     "git_sha": "git-1",
@@ -29,6 +28,7 @@ def write_report(tmp_path, name, status="PASS", provenance=None):
             "snapshot_manifest_sha256": "manifest-hash",
             "browser_evidence": {"highlight_visible": True},
         })
+        payload["checks"] = [{"id": "canonical_citation_highlight", "status": "PASS"}]
     path.write_text(json.dumps(payload))
     return f"{name}={path}"
 

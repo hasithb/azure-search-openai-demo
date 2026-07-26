@@ -31,7 +31,7 @@ interface SplashScreenProps {
  */
 export const SplashScreen: React.FC<SplashScreenProps> = ({
     title = "Civil Procedure Copilot",
-    subtitle = "Your AI assistant for Civil Procedure Rules, Practice Directions, and Court Guides",
+    subtitle = "Search the Civil Procedure Rules, Practice Directions, and Court Guides",
     duration = 1800,
     onComplete,
     logo,

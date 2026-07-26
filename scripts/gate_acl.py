@@ -2,15 +2,20 @@
 
 from __future__ import annotations
 
-import asyncio
 import os
 from typing import Any
 
+import httpx
 from azure.identity.aio import AzureCliCredential
 from azure.search.documents.aio import SearchClient
 
 try:
-    from .gate_common import GateFailure, gate_parser, passing_report, run_gate
+    from .gate_common import (  # type: ignore[unresolved-import]
+        GateFailure,
+        gate_parser,
+        passing_report,
+        run_gate,
+    )
 except ImportError:
     from gate_common import GateFailure, gate_parser, passing_report, run_gate
 
@@ -49,6 +54,19 @@ async def search_counts(search_service: str, index_name: str, tenant_id: str) ->
 
 
 async def run(candidate: str, provenance: dict[str, str]) -> dict[str, Any]:
+    if os.environ.get("V4_LOCAL_FIXTURE") == "1":
+        async with httpx.AsyncClient(timeout=30) as client:
+            response = await client.get(f"{candidate}/api/acl")
+            response.raise_for_status()
+            counts = response.json()
+        if not isinstance(counts, dict):
+            raise GateFailure("Fixture ACL response must be a JSON object")
+        if counts.get("authorized_total", 0) <= 0 or counts.get("elevated_total", 0) <= 0:
+            raise GateFailure("Fixture ACL response contains no documents")
+        if counts["authorized_total"] > counts["elevated_total"]:
+            raise GateFailure("Fixture ACL result set is broader than elevated read")
+        return passing_report("acl", [{"id": "acl_filtering_fixture", **counts, "status": "PASS"}], provenance=provenance)
+
     del candidate
     search_service = os.environ.get("AZURE_SEARCH_SERVICE", "").strip()
     index_name = os.environ.get("AZURE_SEARCH_INDEX", "").strip()
@@ -68,7 +86,7 @@ async def run(candidate: str, provenance: dict[str, str]) -> dict[str, Any]:
 
 
 def main() -> int:
-    args = gate_parser(__doc__).parse_args()
+    args = gate_parser(__doc__ or "Run the ACL gate").parse_args()
     return run_gate("acl", args.output, run, args.candidate_url, args.provenance)
 
 

@@ -4,7 +4,7 @@
 
 Use this prompt for the planner agent to resolve the current implementation blocker:
 
-```text
+````text
 You are the planner agent for the legal Azure AI Search v4 release pipeline in
 this repository. Fix the source-fidelity audit workflow at its root cause.
 
@@ -109,6 +109,7 @@ python scripts/audit_source_documents.py \
   --markdown-output /tmp/index-v4-r4.md
 ```
 
+
 The checkpoint is an operational progress marker for reconciliation and PDF or
 HTML fidelity phases. It is written atomically and includes the run ID, Search
 snapshot provenance, source identity digest, phase, and processed count. The
@@ -152,7 +153,8 @@ time/phase metrics, fresh report summary, unresolved source identities, and
 whether the release is BLOCKED or READY FOR HUMAN APPROVAL. Given the current
 state, do not report READY unless a fresh complete audit and every other
 release gate pass. Never claim that stale July 12 counts are current.
-```
+
+````
 
 Use the following prompt when asking an engineer or coding agent to complete the
 legal index v4 release methodology.
@@ -292,3 +294,384 @@ Never report production readiness from local unit tests alone. Never perform a
 production Search write or application cutover without the complete evidence
 bundle and explicit Production approval.
 ```
+
+## Current Release Handoff Prompt
+
+Use this prompt for the planner agent to continue the release from the current
+staging-only workflow state:
+
+```text
+You are the planner agent responsible for completing the legal Azure AI Search
+v4 release in this repository. Continue from the exact current state below.
+
+## Objective
+
+Advance the release through all staging validation phases and stop only at:
+
+   READY FOR HUMAN APPROVAL
+
+The release must remain fail-closed. Do not perform production Search writes,
+production configuration changes, cutover, `approved=true`, or promotion.
+
+## Current state
+
+- Repository: `/Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2`
+- Branch: `feature/primary-source-validation`
+- Latest fix commit: `3018bc75`
+- Staging workflow: `.github/workflows/update-index-v4.yml`
+- Latest dispatched release: `20260718-r21`
+- Latest workflow run: `29646775945`
+- Dispatch input: `promote=false`
+- Verified embedding service:
+  `cog-gz2m4s637t5me`
+- Verified embedding endpoint:
+  `https://cog-gz2m4s637t5me.openai.azure.com/`
+- Verified embedding deployment: `text-embedding-3-large`
+- Required embedding dimensions: `3072`
+- OIDC principal object ID:
+  `6743c9fc-61d0-44df-9bfe-a63f9d07a9a3`
+- Required role: `Cognitive Services OpenAI User`
+- Required data action:
+  `Microsoft.CognitiveServices/accounts/OpenAI/deployments/embeddings/action`
+
+The root cause of the earlier embedding 401 was configuration mismatch: the
+repository service secret targeted a different Azure OpenAI account than the
+account carrying the exact-scope role assignment. Commit `3018bc75` makes the
+staging embedding step use the verified service explicitly. The deployment
+secret remains `text-embedding-3-large`. Do not restore the incorrect service
+secret dependency or broaden RBAC.
+
+The r21 run was accepted and preflight completed successfully. Its candidate
+job was still running when this handoff was prepared. Do not dispatch a second
+run until run `29646775945` has a terminal result.
+
+The older run `29643610606` (`20260718-r12`, commit `2b22c89b`) is stale failure
+evidence. That revision passed an empty `AZURE_OPENAI_ENDPOINT` to
+`generate_v4_embeddings.py` and failed before making an embedding request.
+Do not infer an Azure OpenAI RBAC failure from that run, and do not use its
+candidate environment values as evidence for r21. The current branch commit
+`3018bc75` supplies the verified endpoint explicitly with `--endpoint`.
+
+## First actions: establish facts
+
+1. Inspect run `29646775945` through the GitHub Actions API or a non-interactive
+  equivalent. Do not rely on a stale local log or the interactive `gh run
+  watch` renderer.
+2. Confirm the run commit is `3018bc75`, promotion is disabled, and no
+  production job has started.
+3. Inspect the candidate job steps. Confirm the managed-identity embedding
+  step completed successfully before diagnosing later phases.
+4. If r21 is still running, monitor it without dispatching another run.
+5. If r21 failed, capture the exact failed step and error first. Fix only the
+  controlling defect, then rerun with a new release ID and `promote=false`.
+6. If r21 succeeded, use its generated release ID, artifact, snapshot, and
+  provenance as the only inputs to downstream validation.
+
+When inspecting logs, always record the run ID, head SHA, release ID, and
+embedding command arguments together. A failure from an older SHA is not a
+failure of the current workflow, and a missing endpoint is a configuration
+failure distinct from a 401/403 authorization failure.
+
+Never treat a queued, cancelled, interrupted, partial, or stale report as
+evidence. A workflow failure is a release blocker, not permission to skip a
+phase.
+
+## Required staging sequence
+
+After embeddings pass, verify that the same release proceeds through every
+phase below:
+
+1. Candidate document validation, including non-empty 3072-dimensional vectors,
+  selected-field equality, source identity, category, subsection/content,
+  and duplicate-occurrence checks.
+2. Immutable artifact hashing and artifact upload.
+3. Staging Azure AI Search index provisioning and upload only. Confirm the
+  target is the v4 staging index, never `legal-court-rag-index-v3`.
+4. Verified Search snapshot capture. Confirm the snapshot envelope contains
+  the exact candidate service, index, knowledge base, release ID, Git SHA,
+  artifact hash, and snapshot hash.
+5. Fresh occurrence-level HTML/PDF fidelity audit and transition audit. Any
+  `FAIL`, `UNKNOWN`, `UNAVAILABLE`, `AMBIGUOUS`, `INDEX_ONLY`,
+  `MISSING_FROM_INDEX`, incomplete, duplicate, or unresolved finding blocks
+  the release.
+6. Candidate application deployment or candidate test target. Verify its
+  runtime configuration points to the paired v4 index and knowledge base.
+7. Run all required application gates against that candidate target:
+  `retrieval`, `category`, `source_hierarchy`, `citation`, `acl`, and
+  `highlight`.
+8. Build the evidence bundle only after all preceding reports are complete and
+  provenance-compatible.
+
+Each application gate must be an explicit machine-readable `PASS` with the
+same candidate provenance. A missing, unavailable, skipped, diagnostic-only,
+malformed, partial, or production-targeted gate is a failure.
+
+## Provenance contract
+
+Before reporting readiness, collect and compare these fields across the source
+audit, artifact validation, Search snapshot, candidate validation, application
+gate report, and evidence bundle:
+
+- `release_id`
+- `git_sha`
+- `deployment_id`
+- `artifact_sha256`
+- `search_snapshot_sha256`
+- `search_service`
+- `search_index`
+- `knowledge_base`
+
+Reject any missing, duplicated, stale, mismatched, or locally fabricated
+provenance. The v3 Search index may remain only as the documented rollback
+target; it must not be used as the candidate or as an application fallback.
+
+## Handling failures
+
+- Do not repeat an unchanged workflow run after an authentication or resource
+  targeting failure; identify the exact target and principal first.
+- Do not fix a failed fidelity audit by raising thresholds, deduplicating legal
+  occurrences, adding silent exclusions, or converting statuses to `PASS`.
+- Do not approve unresolved Practice Direction 27B ambiguity or unmatched form
+  clauses. Preserve source identities and remediation dispositions.
+- If an external canonical source is unavailable, produce a bounded,
+  reproducible non-PASS result with the source identity and classification.
+- Keep temporary diagnostic logging only until the target is verified; remove
+  diagnostics that are no longer needed without weakening the workflow gate.
+- Do not modify production resources or invoke promotion while investigating.
+
+## Validation commands
+
+Run focused checks before and after any code change:
+
+   source .venv/bin/activate
+   pytest -q tests/test_audit_source_documents.py \
+    tests/test_promote_v4_candidate.py \
+    tests/test_run_v4_application_gates.py
+   python -m py_compile scripts/audit_source_documents.py \
+    scripts/build_v4_evidence_bundle.py
+   git diff --check
+
+For workflow-only changes, additionally validate YAML syntax using the
+repository's available YAML checker. Prefer API-based GitHub run inspection
+when the terminal's interactive alternate buffer hides `gh` output.
+
+## Final report
+
+Report:
+
+1. The exact run IDs, commit, release ID, and candidate targets used.
+2. The embedding result and the exact failed step for any unsuccessful retry.
+3. Every required gate and its machine-readable status.
+4. The complete provenance comparison.
+5. Unresolved source identities, statuses, remediation dispositions, and
+  counts.
+6. Tests and validation commands with results.
+7. One of exactly these conclusions:
+
+     READY FOR HUMAN APPROVAL
+
+  or
+
+     BLOCKED: DO NOT PROMOTE
+
+Only use `READY FOR HUMAN APPROVAL` when the fresh source audit, artifact and
+Search checks, candidate validation, all six application gates, and evidence
+bundle pass for the same candidate. Human approval and promotion are outside
+this task and must remain unperformed.
+```
+
+## Current End-to-End Test-and-Fix Planner Prompt
+
+Use this prompt when the goal is to test every v4 staging gate, repair any
+failure found, and rerun until the candidate either passes completely or is
+blocked by a genuine unresolved source or infrastructure issue.
+
+````text
+You are the release planner and coding agent for the legal Azure AI Search v4
+workflow in this repository. Your job is to test the complete staging release,
+diagnose failures from evidence, implement root-cause fixes, and rerun the
+affected checks until every required gate has an explicit PASS or the release
+is accurately BLOCKED.
+
+## Non-negotiable boundary
+
+This is a staging-only exercise. Never promote, cut over, approve, or mutate
+production. Every workflow dispatch must use `promote=false`. Do not write to,
+replace, or reconfigure `legal-court-rag-index-v3` or its paired knowledge
+base. Preserve v3 as the rollback target. Do not weaken a gate, raise a
+threshold, add a silent exclusion, accept a skipped test, or treat partial or
+stale output as evidence.
+
+## Known release context
+
+- Repository: `/Users/HasithB/Downloads/PROJECTS/azure-search-openai-demo-2`
+- Branch: `feature/primary-source-validation`
+- Workflow: `.github/workflows/update-index-v4.yml`
+- Latest known failed release: `20260718-r17`
+- Latest known workflow run: `29656368165`
+- Latest known failing commit: `b8c37c8bb19d9280a02e4a84e44925b05d3feca2`
+- Failed step: browser highlight gate
+- Candidate app:
+  `https://capps-v4-candidate-20260717-r5.blackflower-4aba1fd4.uksouth.azurecontainerapps.io`
+- Candidate index: `legal-court-rag-v4-staging-20260718-r17`
+- Candidate knowledge base:
+  `legal-court-rag-v4-staging-20260718-r17-agent-upgrade`
+- Rollback index: `legal-court-rag-index-v3`
+- Rollback knowledge base: `legal-court-rag-index-v3-agent-upgrade`
+- Embedding model: `text-embedding-3-large`, exactly 3072 dimensions
+
+Treat these values as starting context, not assumed truth. First inspect the
+actual run, commit, release ID, candidate URL, index, knowledge base, report
+envelopes, and workflow inputs using non-interactive GitHub/API commands. If a
+newer terminal run exists, use its exact provenance instead. Never dispatch a
+replacement while the current run is still active.
+
+## Required operating method
+
+Before each edit:
+
+1. Identify the smallest owning code path and state one falsifiable root-cause
+   hypothesis.
+2. Name one cheap check that could disconfirm it.
+3. Inspect the nearest implementation and focused test.
+4. Make the smallest coherent fix, preserving fail-closed behavior.
+5. Immediately run the narrowest executable validation for the changed slice.
+
+Do not patch a symptom merely to make a report pass. Record the failed gate,
+its exact evidence, the root cause, files changed, validation result, and the
+new candidate provenance before moving on.
+
+## Gate sequence to execute completely
+
+For a fresh staging release, verify these gates in order. A failed gate blocks
+the release, but after repairing it you must rerun that gate and every later
+gate because its outputs may have changed.
+
+1. Preflight and configuration: verify OIDC/managed identity, exact Azure
+   OpenAI embedding endpoint and deployment, 3072 dimensions, permissions,
+   source manifest, and `promote=false`.
+2. Artifact generation: verify source identity, category, subsection metadata,
+   occurrence preservation, non-empty embeddings, vector dimensions, hashes,
+   and deterministic manifest contents.
+3. Staging Search upload: provision and populate only the immutable v4 staging
+   index. Verify selected-field equality and reject duplicate or missing
+   documents.
+4. Search snapshot: capture a verified snapshot envelope containing release ID,
+   Git SHA, artifact hash, Search service, index, knowledge base, and snapshot
+   hash.
+5. HTML/PDF oracle and transition audit: recapture fresh canonical sources.
+   Reject mixed oracle versions, stale snapshots, parser loss, unavailable or
+   ambiguous sources, unmatched substantive blocks, duplicate occurrences,
+   `INDEX_ONLY`, `MISSING_FROM_INDEX`, `UNKNOWN`, and incomplete output.
+6. Candidate deployment: verify the live candidate app is available and its
+   runtime configuration points to the exact paired staging index and
+   knowledge base, never v3 or an implicit fallback.
+7. Application gates: run every required gate independently and retain its
+   machine-readable report:
+   - retrieval accuracy across CPR, Practice Directions, court guides, forms,
+     appendices, tables, and other source families;
+   - category/source filtering and the `include_category` request override;
+   - source hierarchy and precedence behavior;
+   - citation rendering, citation metadata, and citation click behavior;
+   - supporting-content opening and subsection highlight boundaries;
+   - ACL authorization and rejection of unauthorized source access.
+8. Strict application aggregation: run
+   `scripts/run_v4_application_gates.py` and reject missing, skipped,
+   unavailable, malformed, partial, diagnostic-only, or provenance-mismatched
+   gate reports.
+9. Evidence bundle: run the evidence builder only after all preceding reports
+   are complete and mutually bound to the same candidate.
+10. Promotion guard: run promotion validation in dry-run or validation mode
+    only. Confirm it would reject any missing gate and that no production job,
+    Search write, or cutover occurred.
+
+## Browser-highlight investigation
+
+The known r17 failure is:
+
+`No live citation matched subsection "PART 24" or source page "PART 24 - SUMMARY JUDGMENT"`
+
+Diagnose this with evidence before changing matching. Capture all visible
+`.supContainer` metadata after the candidate answer is generated, including
+`data-subsection-id`, `data-sourcepage`, `data-sourcefile`,
+`data-citation-path`, `data-category`, title, and citation text. Compare it to
+the selected oracle case and the candidate Search document. A safe match may
+use an exact canonical sourcefile/path plus a normalized subsection or source
+page, including a nested subsection such as `24.2`, but must not accept any
+arbitrary citation. The gate must still prove that the clicked citation maps to
+the canonical source and that highlighted content has the expected body hash,
+length, boundaries, and subsection identity. Add a focused test for any
+extracted matcher or selector helper.
+
+## Failure repair rules
+
+- Authentication or authorization failures: verify endpoint, deployment,
+  principal, scope, and role before changing code; never broaden permissions
+  or hardcode credentials.
+- Embedding failures: preserve bounded concurrency, single tokenization,
+  retry/backoff, append-only checkpoints, and no restart-after-100-documents
+  behavior. Validate dimensions and request payloads.
+- Oracle or fidelity failures: repair source capture, parsing, identity, or
+  matching. Never lower substantive fidelity requirements.
+- Candidate targeting failures: repair provenance/configuration and redeploy
+  the candidate; do not fall back to v3.
+- Application failures: inspect the live request, response, rendered metadata,
+  and gate fixture before changing the gate. Keep the test deterministic and
+  candidate-bound.
+- External source outages: produce a bounded, reproducible non-PASS result
+  classified as `UNAVAILABLE` or another accurate remediation status. Do not
+  call the release complete.
+
+## Required implementation and validation
+
+Add or update only focused code, tests, workflow wiring, and documentation
+needed to fix observed defects. Preserve existing `CUSTOM:` markers and
+fail-closed checks. At minimum, run the focused tests for every touched area,
+then:
+
+```shell
+source .venv/bin/activate
+python -m py_compile scripts/gate_highlight_browser.py \
+  scripts/run_v4_application_gates.py \
+  scripts/build_v4_evidence_bundle.py
+pytest -q tests/test_validate_highlight_oracle.py \
+  tests/test_run_v4_application_gates.py \
+  tests/test_application_gate.py \
+  tests/test_audit_source_documents.py \
+  tests/test_promote_v4_candidate.py
+git diff --check
+```
+
+For workflow changes, validate YAML syntax and inspect the rendered workflow
+steps. Dispatch a new run only after local validation succeeds, always with a
+new release ID and `promote=false`. Monitor it through a terminal result,
+inspect every job step, download every relevant artifact, and verify that no
+later gate was skipped. If the workflow remains fail-fast, explicitly report
+all skipped gates as untested rather than passing them.
+
+## Completion contract
+
+Return a concise release record containing:
+
+- run ID, release ID, commit, candidate URL, Search index, and knowledge base;
+- every required gate with `PASS`, `FAIL`, or `UNTESTED` and its report path;
+- the exact root cause and fix for each failure;
+- provenance comparison across artifact, Search snapshot, candidate app,
+  application gates, and evidence bundle;
+- unresolved source identities and remediation statuses;
+- commands and tests run with results.
+
+Use exactly one final conclusion:
+
+`READY FOR HUMAN APPROVAL`
+
+only when every gate above has a fresh explicit PASS for the same candidate,
+the evidence bundle validates, the promotion guard passes validation, and v3
+remains unchanged. Otherwise use:
+
+`BLOCKED: DO NOT PROMOTE`
+
+Never claim readiness because infrastructure succeeded, because one gate
+passed, or because later gates were skipped after an earlier failure.
+
+````

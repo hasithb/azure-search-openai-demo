@@ -481,7 +481,7 @@ The v4 release workflow also validates a dedicated candidate Container App
 revision before Production approval. The candidate must expose complete
 `/api/provenance` metadata and the audit job must provide five schema-1
 application reports with `status: PASS`: retrieval, category,
-source-hierarchy, citation, and ACL. Run the strict wrapper with
+source-hierarchy, citation, ACL, and highlight. Run the strict wrapper with
 `scripts/run_v4_application_gates.py`; it rejects localhost URLs, missing or
 non-passing reports, and any provenance mismatch. The combined report is
 required by both `scripts/build_v4_evidence_bundle.py` and

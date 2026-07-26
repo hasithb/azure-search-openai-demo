@@ -148,7 +148,12 @@ const resolveNumericCitationDataPoint = (textDataPoints: any[], citationIndex: n
         return positionalDataPoint;
     }
 
-    const exactMatch = textDataPoints.find(dataPoint => String(dataPoint?.subsection_id || "").trim().toLowerCase() === contextSubsection.toLowerCase());
+    const exactMatch = textDataPoints.find(
+        dataPoint =>
+            String(dataPoint?.subsection_id || "")
+                .trim()
+                .toLowerCase() === contextSubsection.toLowerCase()
+    );
     return exactMatch || positionalDataPoint;
 };
 
@@ -233,7 +238,8 @@ const dataPointMatchesCitation = (dataPoint: any, citation: string): boolean => 
 };
 
 const normalizeAnswerText = (answer: ChatAppResponse, isStreaming: boolean): string => {
-    let parsedAnswer = answer.output_text.trim();
+    const legacyMessage = (answer as ChatAppResponse & { message?: { content?: string } }).message;
+    let parsedAnswer = (answer.output_text ?? legacyMessage?.content ?? "").trim();
 
     // CUSTOM: Apply citation sanitization before parsing
     if (isFeatureEnabled("citationSanitizer")) {
@@ -241,16 +247,13 @@ const normalizeAnswerText = (answer: ChatAppResponse, isStreaming: boolean): str
     }
 
     if (isStreaming) {
-        let lastIndex = parsedAnswer.length;
-        for (let i = parsedAnswer.length - 1; i >= 0; i--) {
-            if (parsedAnswer[i] === "]") {
-                break;
-            } else if (parsedAnswer[i] === "[") {
-                lastIndex = i;
-                break;
-            }
+        // Keep completed citation markers visible while hiding only a trailing
+        // citation token that is still being emitted by the model.
+        const lastOpenBracket = parsedAnswer.lastIndexOf("[");
+        const lastCloseBracket = parsedAnswer.lastIndexOf("]");
+        if (lastOpenBracket > lastCloseBracket) {
+            parsedAnswer = parsedAnswer.substring(0, lastOpenBracket);
         }
-        parsedAnswer = parsedAnswer.substring(0, lastIndex);
     }
 
     // CUSTOM: Add paragraph breaks to long single-block answers for readability
@@ -411,11 +414,7 @@ const collectCitations = (answer: ChatAppResponse, isStreaming: boolean): { frag
         const existing = citationMap.get(resolvedReference);
         if (existing) {
             // Determine content of the current data point (before matchingDataPoint is computed)
-            const currentDpContent = numericMatch
-                ? typeof numericDataPoint?.content === "string"
-                    ? numericDataPoint.content
-                    : undefined
-                : undefined;
+            const currentDpContent = numericMatch ? (typeof numericDataPoint?.content === "string" ? numericDataPoint.content : undefined) : undefined;
             const contentDiffers = currentDpContent && existing.content && currentDpContent !== existing.content;
             if (!contentDiffers) {
                 fragments.push({ type: "citation", detail: existing });

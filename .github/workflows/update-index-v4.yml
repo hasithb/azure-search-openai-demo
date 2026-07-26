@@ -34,7 +34,22 @@ env:
   V4_CANDIDATE_URL: ${{ vars.V4_CANDIDATE_URL }}
 
 jobs:
+  local-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - name: Install validation dependencies
+        run: python -m pip install -r requirements-dev.txt
+      - name: Run deterministic local application gates
+        run: python scripts/preflight_v4_local.py --mode offline --output reports/v4-local
+
   preflight:
+    needs: local-validation
     runs-on: ubuntu-latest
     steps:
       - uses: azure/login@v2

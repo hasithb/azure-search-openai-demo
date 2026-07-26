@@ -356,6 +356,10 @@ class ChatReadRetrieveReadApproach(Approach):
         use_agentic_knowledgebase = bool(
             overrides.get("use_agentic_knowledgebase") or overrides.get("use_agentic_retrieval")
         )
+        # CUSTOM: Agentic knowledge-base retrieval currently fails for explicit
+        # category filters; preserve the user's source selection via direct Search.
+        if overrides.get("include_category"):
+            use_agentic_knowledgebase = False
         original_user_query = messages[-1]["content"]
 
         if use_agentic_knowledgebase:
@@ -608,16 +612,27 @@ class ChatReadRetrieveReadApproach(Approach):
                         results + reference_results,
                         limit=top,
                     )
+                    if not self._results_include_reference_in_source(results, reference_query):
+                        targeted_document = next(
+                            (
+                                document
+                                for document in reference_results
+                                if self._results_include_reference_in_source([document], reference_query)
+                            ),
+                            reference_results[0],
+                        )
+                        results = [*results[: max(0, top - 1)], targeted_document]
                     adaptive_retry_used = True
                     break
 
-        # Dynamic CPR Part retrieval: if the LLM's rewrite references a CPR Part
+        # Dynamic reference retrieval: preserve the user's selected source filter
+        # when the LLM rewrite triggers a targeted fallback search.
         # (e.g. "CPR 3.9" → Part 3) and that Part is missing from results, do a
         # category-filtered search to ensure the authoritative source is included.
         # This replaces hardcoded canonical concept mappings — the LLM's general
         # legal knowledge drives which Parts to look for.
-        cpr_category_filter = "category eq 'Civil Procedure Rules and Practice Directions'"
         cpr_category_name = "Civil Procedure Rules and Practice Directions"
+        cpr_category_filter = f"category eq '{cpr_category_name}'"
         for part_reference, rewrite_search_text in rewrite_cpr_refs:
             # Check if this Part is already covered by a CPR document specifically.
             # Court Guide chunks often reference CPR Part numbers in their
@@ -630,7 +645,7 @@ class ChatReadRetrieveReadApproach(Approach):
             cpr_results = await self.search(
                 min(top, 3),
                 rewrite_search_text,
-                cpr_category_filter,
+                f"({search_index_filter}) and {cpr_category_filter}" if search_index_filter else cpr_category_filter,
                 [],
                 True,
                 False,

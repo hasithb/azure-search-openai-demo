@@ -73,7 +73,7 @@ const Chat = () => {
     const [includeCategory, setIncludeCategory] = useState<string>("");
     const [excludeCategory, setExcludeCategory] = useState<string>("");
     // CUSTOM: Category filter and mobile dropdown state
-    const [allCategoriesSelected, setAllCategoriesSelected] = useState<boolean>(false);
+    const [allCategoriesSelected, setAllCategoriesSelected] = useState<boolean>(true);
     const hasAppliedAllSourcesFallbackRef = useRef<boolean>(false);
     const [showMobileDropdown, setShowMobileDropdown] = useState<boolean>(false);
     const [userHasInteracted, setUserHasInteracted] = useState<boolean>(false);

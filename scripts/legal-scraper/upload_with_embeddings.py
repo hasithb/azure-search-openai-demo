@@ -334,6 +334,8 @@ def map_document_to_schema(doc: dict) -> dict:
         "storageUrl": doc.get("storageUrl", ""),
         "oids": doc.get("oids", []) if doc.get("oids") else [],
         "groups": doc.get("groups", []) if doc.get("groups") else [],
+        "subsection_id": subsection_id,
+        "subsections": subsections,
     }
     # Only include extended fields if the target index supports them
     if _INDEX_FIELDS is not None:

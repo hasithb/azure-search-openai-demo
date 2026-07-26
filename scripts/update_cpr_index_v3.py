@@ -55,6 +55,32 @@ from load_azd_env import load_azd_env
 from customizations.subsection_extractor import SubsectionExtractor
 from token_chunker import LegalDocumentChunker
 
+
+def verify_scrape_target(entry: dict, final_url: str, title: str) -> tuple[bool, str]:
+    """Reject redirects that no longer identify the requested CPR document."""
+    requested_url = str(entry.get("url") or "").strip()
+    resolved_url = str(final_url or "").strip()
+    sourcefile = str(entry.get("sourcefile") or "").strip().lower()
+    normalized_requested = requested_url.rstrip("/").lower()
+    normalized_resolved = resolved_url.rstrip("/").lower()
+
+    if not normalized_requested or not normalized_resolved:
+        return False, "missing source URL"
+    if normalized_requested == normalized_resolved:
+        return True, "ok"
+
+    # Justice.gov.uk has renamed the PD 40F page while retaining the same rule.
+    # Keep this alias explicit so other unexpected redirects remain blocked.
+    if sourcefile == "practice direction 40f" and "practice-direction-40f" in normalized_resolved:
+        return True, "ok"
+
+    normalized_title = re.sub(r"[^a-z0-9]+", " ", str(title or "").lower()).strip()
+    source_tokens = [token for token in re.findall(r"[a-z0-9]+", sourcefile) if token not in {"the", "and"}]
+    if source_tokens and all(token in normalized_title for token in source_tokens):
+        return True, "ok"
+    return False, f"redirected from {requested_url} to {resolved_url}"
+
+
 # ---------------------------------------------------------------------------
 # Logging
 # ---------------------------------------------------------------------------

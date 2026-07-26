@@ -1056,7 +1056,14 @@ class Approach(ABC):
         agentic_retrieval_input: dict[str, Any] = {}
         rewrite_result = None
         latest_message_content = messages[-1]["content"] if messages else ""
-        if should_rewrite_query and isinstance(latest_message_content, str) and latest_message_content:
+        rewrite_method = getattr(self, "rewrite_query")
+        has_custom_rewrite = getattr(rewrite_method, "__func__", rewrite_method) is not Approach.rewrite_query
+        if (
+            should_rewrite_query
+            and (self.openai_client is not None or has_custom_rewrite)
+            and isinstance(latest_message_content, str)
+            and latest_message_content
+        ):
             rewrite_result = await self.rewrite_query(
                 prompt_template="query_rewrite.system.jinja2",
                 prompt_variables={
@@ -1380,7 +1387,7 @@ class Approach(ABC):
                 )
 
         supplemental_reference_queries: list[str] = []
-        if isinstance(latest_user_query, str) and latest_user_query and document_results:
+        if isinstance(latest_user_query, str) and latest_user_query:
             covered_reference_terms = self._covered_query_reference_terms(document_results, latest_user_query)
             missing_reference_queries = [
                 reference
@@ -1414,8 +1421,8 @@ class Approach(ABC):
                         )
                         break
 
-            # Dynamic CPR Part retrieval from LLM rewrite + canonical concepts
-            cpr_category_filter = "category eq 'Civil Procedure Rules and Practice Directions'"
+            # Dynamic reference retrieval from LLM rewrite + canonical concepts.
+            # Preserve the caller's selected source filter during fallback search.
             all_part_refs: list[tuple[str, str]] = list(rewrite_cpr_refs)
             for concept_query, required_source_reference, _ in canonical_legal_concepts:
                 if not any(ref == required_source_reference for ref, _ in all_part_refs):
@@ -1428,7 +1435,7 @@ class Approach(ABC):
                 docs = await self.search(
                     top=min(fallback_result_limit, 3),
                     query_text=search_text,
-                    filter=cpr_category_filter,
+                    filter=filter,
                     vectors=[],
                     use_text_search=True,
                     use_vector_search=False,

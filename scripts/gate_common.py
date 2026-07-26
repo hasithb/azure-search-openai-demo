@@ -5,9 +5,11 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import os
 import tempfile
+from collections.abc import Awaitable, Callable, Coroutine
 from pathlib import Path
-from typing import Any, Awaitable, Callable
+from typing import Any
 
 import httpx
 
@@ -53,13 +55,14 @@ async def post_chat(
     category: str = "",
     top: int = 5,
 ) -> dict[str, Any]:
-    candidate_url = validate_candidate_url(candidate)
+    candidate_url = validate_candidate_url(candidate, allow_local=os.environ.get("V4_LOCAL_FIXTURE") == "1")
+    overrides: dict[str, Any] = {"top": top}
     payload: dict[str, Any] = {
         "messages": [{"role": "user", "content": question}],
-        "overrides": {"top": top},
+        "context": {"overrides": overrides},
     }
     if category:
-        payload["overrides"]["include_category"] = category
+        overrides["include_category"] = category
     response = await client.post(f"{candidate_url}/chat", json=payload)
     response.raise_for_status()
     result = response.json()
@@ -69,14 +72,40 @@ async def post_chat(
 
 
 def response_answer(result: dict[str, Any]) -> str:
-    answer = result.get("answer")
-    if isinstance(answer, str) and answer.strip():
-        return answer.strip()
+    candidates: list[Any] = [result.get("output_text"), result.get("answer")]
+    message = result.get("message")
+    if isinstance(message, dict):
+        candidates.append(message.get("content"))
+    choices = result.get("choices")
+    if isinstance(choices, list):
+        for choice in choices:
+            if isinstance(choice, dict):
+                choice_message = choice.get("message")
+                if isinstance(choice_message, dict):
+                    candidates.append(choice_message.get("content"))
+                candidates.append(choice.get("text"))
+    output = result.get("output")
+    if isinstance(output, list):
+        for item in output:
+            if isinstance(item, dict):
+                content = item.get("content")
+                if isinstance(content, list):
+                    for content_item in content:
+                        if isinstance(content_item, dict):
+                            candidates.append(content_item.get("text"))
+    for answer in candidates:
+        if isinstance(answer, str) and answer.strip():
+            return answer.strip()
     raise GateFailure("Candidate chat response has no usable answer")
 
 
 def response_sources(result: dict[str, Any]) -> list[dict[str, Any]]:
-    sources = result.get("sources", [])
+    sources: Any = result.get("sources", [])
+    context = result.get("context")
+    if isinstance(context, dict):
+        data_points = context.get("data_points")
+        if isinstance(data_points, dict) and "text" in data_points:
+            sources = data_points["text"]
     if not isinstance(sources, list) or any(not isinstance(source, dict) for source in sources):
         raise GateFailure("Candidate chat response has invalid sources")
     return sources
@@ -85,7 +114,7 @@ def response_sources(result: dict[str, Any]) -> list[dict[str, Any]]:
 def run_gate(
     gate: str,
     output: Path,
-    runner: Callable[..., Awaitable[dict[str, Any]]],
+    runner: Callable[..., Coroutine[Any, Any, dict[str, Any]]],
     candidate_url: str,
     provenance_path: Path,
 ) -> int:
@@ -93,7 +122,7 @@ def run_gate(
         provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
         if not isinstance(provenance, dict):
             raise GateFailure("Gate provenance must be a JSON object")
-        report = asyncio.run(runner(validate_candidate_url(candidate_url), provenance))
+        report = asyncio.run(_run_runner(runner, validate_candidate_url(candidate_url), provenance))
         if not isinstance(report, dict) or report.get("status") != "PASS":
             raise GateFailure(f"{gate} gate did not produce a passing report")
         output.parent.mkdir(parents=True, exist_ok=True)
@@ -108,3 +137,9 @@ def run_gate(
     except (OSError, ValueError, httpx.HTTPError) as error:
         print(json.dumps({"gate": gate, "status": "FAIL", "error": str(error)}, sort_keys=True))
         return 1
+
+
+async def _run_runner(
+    runner: Callable[..., Awaitable[dict[str, Any]]], candidate_url: str, provenance: dict[str, Any]
+) -> dict[str, Any]:
+    return await runner(candidate_url, provenance)

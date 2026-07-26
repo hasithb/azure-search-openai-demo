@@ -8,7 +8,7 @@
  * CUSTOM: Isolated in /customizations/ for merge-safe architecture.
  */
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { Dropdown, Option, Button, Tooltip } from "@fluentui/react-components";
 import { Settings20Regular } from "@fluentui/react-icons";
 import { useTranslation } from "react-i18next";
@@ -78,6 +78,7 @@ export const ChatInputControls: React.FC<ChatInputControlsProps> = ({
     setShowMobileDropdown
 }) => {
     const { t } = useTranslation();
+    const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
 
     // Parse includeCategory CSV into array of selected keys
     const includeKeys = useMemo(
@@ -181,28 +182,84 @@ export const ChatInputControls: React.FC<ChatInputControlsProps> = ({
     return (
         <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
             {showCategoryFilter && (
-                <Dropdown
-                    data-testid="chat-source-filter-desktop"
-                    button={{
-                        id: "chat-source-filter-desktop-button",
-                        "aria-label": "Source filter"
-                    }}
-                    multiselect
-                    aria-label="Source filter"
-                    value={categoryDisplayValue}
-                    selectedOptions={selectedOptions}
-                    onOptionSelect={handleCategorySelect}
-                    disabled={isLoading || categoriesLoading}
-                    placeholder="Source"
-                    style={{ minWidth: 140, maxWidth: 180 }}
-                    size="small"
-                >
-                    {categoryOptions.map(opt => (
-                        <Option id={buildSourceOptionId(opt.key)} key={opt.key} value={opt.key} text={opt.text}>
-                            {opt.text}
-                        </Option>
-                    ))}
-                </Dropdown>
+                <div style={{ position: "relative" }}>
+                    <button
+                        type="button"
+                        id="chat-source-filter-desktop-button"
+                        data-testid="chat-source-filter-desktop"
+                        aria-label="Source filter"
+                        aria-expanded={isCategoryMenuOpen}
+                        disabled={isLoading || categoriesLoading}
+                        onClick={() => setIsCategoryMenuOpen(!isCategoryMenuOpen)}
+                        style={{
+                            minWidth: "140px",
+                            maxWidth: "180px",
+                            minHeight: "32px",
+                            padding: "0 10px",
+                            border: "1px solid #c8c8c8",
+                            borderRadius: "4px",
+                            background: "#fff",
+                            color: "#242424",
+                            textAlign: "left",
+                            cursor: isLoading || categoriesLoading ? "default" : "pointer"
+                        }}
+                    >
+                        {categoryDisplayValue}
+                    </button>
+                    {isCategoryMenuOpen && !isLoading && !categoriesLoading && (
+                        <div
+                            role="menu"
+                            aria-label="Source filter options"
+                            style={{
+                                position: "absolute",
+                                top: "calc(100% + 4px)",
+                                left: 0,
+                                zIndex: 10,
+                                minWidth: "220px",
+                                maxHeight: "320px",
+                                overflowY: "auto",
+                                padding: "4px",
+                                background: "#fff",
+                                border: "1px solid #c8c8c8",
+                                borderRadius: "4px",
+                                boxShadow: "0 4px 12px rgba(0,0,0,0.15)"
+                            }}
+                        >
+                            {categoryOptions.map(opt => {
+                                const selected = selectedOptions.includes(opt.key);
+                                return (
+                                    <button
+                                        type="button"
+                                        role="menuitemcheckbox"
+                                        id={buildSourceOptionId(opt.key)}
+                                        key={opt.key}
+                                        aria-checked={selected}
+                                        onClick={() => {
+                                            handleCategorySelect(null, {
+                                                optionValue: opt.key,
+                                                selectedOptions: opt.key === "" ? [""] : [opt.key]
+                                            });
+                                            setIsCategoryMenuOpen(false);
+                                        }}
+                                        style={{
+                                            display: "block",
+                                            width: "100%",
+                                            padding: "8px",
+                                            border: 0,
+                                            borderRadius: "2px",
+                                            background: selected ? "#e5f1fb" : "transparent",
+                                            color: "#242424",
+                                            textAlign: "left",
+                                            cursor: "pointer"
+                                        }}
+                                    >
+                                        {opt.text}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
             )}
             {showAgenticRetrievalOption && useAgenticRetrieval && (
                 <Dropdown

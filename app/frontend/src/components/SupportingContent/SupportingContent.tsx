@@ -362,13 +362,7 @@ export const SupportingContent = ({
     };
 
     // Enhanced content rendering with subsection highlighting
-    const renderContent = (
-        content: string,
-        isHighlighted: boolean = false,
-        targetSubsection?: string,
-        sourceInfo?: string,
-        sourcepage?: string
-    ) => {
+    const renderContent = (content: string, isHighlighted: boolean = false, targetSubsection?: string, sourceInfo?: string, sourcepage?: string) => {
         if (!content) return null;
 
         // NO CLEANING - Use the original content structure as created in the search index

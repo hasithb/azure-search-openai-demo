@@ -90,8 +90,13 @@ class OpenAIEmbeddings(ABC):
     async def _create_embedding_batch_with_retry(
         self, batch: EmbeddingBatch, dimensions_args: ExtraArgs, max_attempts: int = 15
     ) -> list[list[float]]:
-        for attempt in range(max_attempts):
-            try:
+        async for attempt in AsyncRetrying(
+            retry=retry_if_exception_type((RateLimitError, APIConnectionError, APITimeoutError)),
+            wait=wait_random_exponential(min=15, max=60),
+            stop=stop_after_attempt(max_attempts),
+            before_sleep=self.before_retry_sleep,
+        ):
+            with attempt:
                 emb_response = await self.open_ai_client.embeddings.create(
                     model=self._api_model, input=batch.texts, **dimensions_args
                 )
@@ -101,12 +106,6 @@ class OpenAIEmbeddings(ABC):
                     batch.token_length,
                 )
                 return [data.embedding for data in emb_response.data]
-            except Exception as exc:
-                if not self._is_retryable(exc) or attempt == max_attempts - 1:
-                    raise
-                delay = self._retry_delay(exc, attempt)
-                logger.info("Retrying transient embedding failure in %.2fs", delay)
-                await asyncio.sleep(delay)
         raise RuntimeError("Embedding retry loop exited unexpectedly")
 
     def calculate_token_length(self, text: str):

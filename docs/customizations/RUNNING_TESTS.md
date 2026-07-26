@@ -2,6 +2,114 @@
 
 Complete guide for running all new test suites for customization features.
 
+## Pre-Workflow Local Triage Prompt
+
+Use this prompt with `scripts/computer_use_test.py --task` before dispatching an
+Azure or GitHub Actions release workflow. It is deliberately fail-closed: a
+missing citation, stale page, ambiguous source, failed click, or incomplete
+check is an issue and must not be reported as a pass.
+
+```text
+You are performing a local pre-workflow regression triage for the Legal RAG
+application. Test the running localhost app only. Do not call Azure APIs, do
+not upload or delete Search documents, do not modify production or rollback
+indexes, do not promote a candidate, and do not change any validation oracle.
+
+Your goal is to find the first concrete defect that would make a staging v4
+release unsafe to start. Use the browser UI and visible application behavior;
+do not infer success from the answer text alone.
+
+Run these checks in order and stop investigating new areas after the first
+reproducible failure, while still recording all checks already completed:
+
+1. Confirm the page is the local target at `http://localhost:50505`. If it is
+  not reachable, report `BLOCKED` with the exact navigation or startup error.
+2. Ask exactly:
+  `What is CPR Part 24 rule 24.2 and the test for summary judgment?`
+3. Confirm the answer discusses rule `24.2` and the summary judgment test.
+  This text check is not sufficient by itself.
+4. Inspect every rendered citation and record its visible label plus these DOM
+  attributes when available: `data-subsection-id`, `data-sourcepage`,
+  `data-sourcefile`, `data-category`, and `data-citation-path`.
+5. Require at least one CPR citation whose subsection identity is exactly
+  `24.2`. A citation for `24.1` is a failure even if the visible answer says
+  `24.2`.
+6. Click the canonical `24.2` citation. Confirm Supporting Content opens,
+  remains associated with Part 24, and does not silently select another
+  source or subsection.
+7. Confirm the highlighted block is non-empty, starts at the `24.2` heading or
+  its exact canonical body, includes evidence for rule `24.2`, and excludes
+  the preceding `24.1` heading and the next subsection heading. Do not accept
+  a highlight merely because some Part 24 text is visible.
+8. Return to the chat and test the source filter for
+  `Civil Procedure Rules and Practice Directions`. Ask the same question and
+  confirm every displayed citation belongs to that category.
+9. Reset to `All Sources`. Ask:
+  `What is the Chancery Guide guidance on summary judgment or strike-out?`
+  Confirm the answer has a Chancery Guide citation and that its source
+  metadata is not mislabeled as CPR.
+10. Reload the page and repeat one citation click. A reload, empty result,
+   stale Supporting Content panel, or citation that cannot be reopened is a
+   failure.
+11. Resize or use a mobile viewport if available. Confirm the source filter,
+   answer, citation, and Supporting Content controls remain readable and do
+   not overlap or become unreachable.
+
+For every issue, record:
+
+- the exact question and source filter;
+- the visible answer and citation label;
+- all available citation metadata attributes;
+- the browser action that exposed the issue;
+- the expected behavior;
+- the observed behavior;
+- whether the issue is `BLOCKING`, `WARNING`, or `UNAVAILABLE`;
+- a minimal reproduction that a developer can run locally.
+
+Do not repair code, retry indefinitely, reinterpret `24.1` as `24.2`, or mark
+an unavailable check as passed. Do not report `READY FOR HUMAN APPROVAL`.
+Return exactly one final JSON object with this shape, followed by a concise
+plain-text diagnosis:
+
+{
+  "status": "PASS" | "BLOCKED",
+  "target": "http://localhost:50505",
+  "checks": [
+   {"name": "...", "status": "PASS" | "FAIL" | "UNAVAILABLE", "evidence": "..."}
+  ],
+  "issues": [
+   {"severity": "BLOCKING" | "WARNING" | "UNAVAILABLE", "title": "...", "reproduction": "...", "evidence": "..."}
+  ],
+  "firstConcreteFailure": "..." | null,
+  "releaseStatus": "BLOCKED: DO NOT PROMOTE"
+}
+```
+
+Run the prompt locally with:
+
+```bash
+# Terminal 1: start the local app
+./app/start.sh
+
+# Terminal 2: run the deterministic checks first
+npm --prefix app/frontend test -- --run src/components/Answer/__tests__/AnswerParser.test.ts
+npm --prefix app/frontend run build
+source .venv/bin/activate
+python scripts/test_live_citation_click.py
+
+# Terminal 2: run the browser triage prompt
+python scripts/computer_use_test.py --headless --task "$(sed -n '/^You are performing a local pre-workflow/,/^```$/p' docs/customizations/RUNNING_TESTS.md | sed '1d;$d')"
+
+# Existing broad regressions
+python scripts/computer_use_test.py --headless --suite highlight-regression
+python scripts/computer_use_test.py --headless --suite detailed-citations
+```
+
+Do not dispatch the GitHub workflow until the local result is complete and all
+required checks pass. A local pass is necessary but does not authorize
+promotion; the release remains `BLOCKED: DO NOT PROMOTE` until fresh staging
+evidence satisfies the repository release process.
+
 ## Summary of Test Files
 
 ### Backend Tests (6 files, 109 tests)
