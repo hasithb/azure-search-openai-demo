@@ -68,6 +68,16 @@ def test_select_citation_normalizes_source_page_dash_punctuation():
     assert select_citation(TARGET, [selected]) == selected
 
 
+def test_select_citation_accepts_parent_source_page_for_leaf_oracle_case():
+    target = {
+        **TARGET,
+        "sourcepage": "24.2 The court may give summary judgment",
+    }
+    selected = citation(sourcepage="PART 24 - SUMMARY JUDGMENT")
+
+    assert select_citation(target, [selected]) == selected
+
+
 def test_validate_highlight_identity_accepts_heading_in_card_and_subsection_in_mark():
     validate_highlight_identity(
         "24.2 The court may give summary judgment",
