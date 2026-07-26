@@ -44,7 +44,10 @@ def subsection_matches(expected: str, actual: str) -> bool:
         return True
     if expected_normalized == "part 24":
         return actual_normalized.startswith("24.") or actual_normalized == "24"
-    return actual_normalized.startswith(f"{expected_normalized}(")
+    return actual_normalized.startswith(expected_normalized) and (
+        len(actual_normalized) == len(expected_normalized)
+        or actual_normalized[len(expected_normalized)] in " ("
+    )
 
 
 def citation_matches(target_case: dict[str, Any], citation: dict[str, Any]) -> bool:
@@ -94,7 +97,7 @@ def validate_highlight_identity(
             "Supporting Content card does not identify the canonical target heading: "
             f"expected_heading={normalize(expected_heading)!r}, card_text={normalized_card[:500]!r}"
         )
-    if normalize(expected_subsection) not in normalized_highlight:
+    if not subsection_matches(expected_subsection, normalized_highlight):
         raise BrowserGateError(
             "Highlighted subsection does not identify the canonical target subsection: "
             f"expected_subsection={expected_subsection!r}, highlighted_text={normalized_highlight[:500]!r}"

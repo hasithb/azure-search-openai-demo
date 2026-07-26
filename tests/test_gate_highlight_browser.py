@@ -77,6 +77,15 @@ def test_validate_highlight_identity_accepts_heading_in_card_and_subsection_in_m
     )
 
 
+def test_validate_highlight_identity_accepts_leaf_subsection_for_parent_heading():
+    validate_highlight_identity(
+        "24.2 The court may give summary judgment",
+        "Part 24, PART 24 - SUMMARY JUDGMENT, 24.2 The court may give summary judgment",
+        "PART 24 - SUMMARY JUDGMENT",
+        "PART 24",
+    )
+
+
 def test_validate_highlight_identity_rejects_heading_from_another_card():
     with pytest.raises(BrowserGateError, match="canonical target heading"):
         validate_highlight_identity(
