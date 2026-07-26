@@ -1,6 +1,6 @@
 import pytest
 
-from scripts.gate_highlight_browser import BrowserGateError, citation_matches, select_citation, validate_highlight_identity
+from scripts.gate_highlight_browser import BrowserGateError, choose_case, citation_matches, select_citation, validate_highlight_identity
 
 
 TARGET = {
@@ -94,3 +94,21 @@ def test_validate_highlight_identity_rejects_heading_from_another_card():
             "PART 24 - SUMMARY JUDGMENT",
             "24.2",
         )
+
+
+def test_choose_case_prefers_part_24_leaf_case_when_sourcepage_is_leaf_heading():
+    parent_case = {
+        "sourcefile": "Part 24",
+        "sourcepage": "PART 24 - SUMMARY JUDGMENT",
+        "subsection_id": "PART 24",
+        "body_text": "Contents of this Part",
+    }
+    leaf_case = {
+        "sourcefile": "Part 24",
+        "sourcepage": "24.2 The court may give summary judgment-",
+        "subsection_id": "24.2",
+        "identity": "civil procedure rules and practice directions::part 24",
+        "body_text": "24.2 The court may give summary judgment- (a) against a claimant",
+    }
+
+    assert choose_case({"cases": [parent_case, leaf_case]}) is leaf_case

@@ -116,7 +116,9 @@ def choose_case(oracle: dict[str, Any]) -> dict[str, Any]:
         case
         for case in cases
         if str(case.get("subsection_id") or "").strip() == "24.2"
-        and "part 24" in str(case.get("sourcepage") or "").casefold()
+        and "part 24" in " ".join(
+            str(case.get(field) or "") for field in ("sourcefile", "sourcepage", "identity")
+        ).casefold()
     ]
     if preferred:
         return preferred[0]
