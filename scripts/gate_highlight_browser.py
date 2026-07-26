@@ -178,7 +178,9 @@ def run_browser_gate(candidate_url: str, oracle: dict[str, Any], question: str) 
 
             question_input = page.locator("textarea").first
             question_input.wait_for(state="visible", timeout=30_000)
-            source_filter = page.get_by_role("combobox", name="Source filter")
+            source_filter = page.locator(
+                "#chat-source-filter-desktop-button, #chat-source-filter-mobile-button"
+            ).first
             source_filter.wait_for(state="visible", timeout=30_000)
             source_filter.click()
             page.get_by_role("menuitemcheckbox", name="All Sources", exact=True).click()
