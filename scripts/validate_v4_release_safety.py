@@ -35,7 +35,15 @@ def _git(repository: Path, *args: str) -> str:
 def _git_status_entries(repository: Path) -> list[tuple[str, tuple[str, ...]]]:
     try:
         result = subprocess.run(
-            ["git", "-C", str(repository), "status", "--porcelain=v1", "-z"],
+            [
+                "git",
+                "-C",
+                str(repository),
+                "status",
+                "--porcelain=v1",
+                "--untracked-files=all",
+                "-z",
+            ],
             check=True,
             capture_output=True,
         )

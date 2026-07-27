@@ -4,7 +4,10 @@ import sys
 
 import pytest
 
-from scripts.validate_v4_release_safety import ReleaseSafetyError, validate_release_safety
+from scripts.validate_v4_release_safety import (
+    ReleaseSafetyError,
+    validate_release_safety,
+)
 
 
 def test_release_safety_accepts_matching_clean_repository(tmp_path):
@@ -147,6 +150,19 @@ def test_release_safety_accepts_first_unstaged_allowed_entry(tmp_path):
     artifact.write_text("changed\n", encoding="utf-8")
 
     result = _validate(repository, sha, artifact, ["reports/release/"])
+    assert result["ignored_generated_changes"] is True
+
+
+def test_release_safety_accepts_nested_untracked_allowed_entry(tmp_path):
+    repository, sha = _committed_repository(tmp_path)
+    artifact = repository / "artifact.jsonl"
+    artifact.write_text("artifact\n", encoding="utf-8")
+    sha = _commit_artifact(repository, artifact)
+    generated = repository / "reports" / "nested" / "release.json"
+    generated.parent.mkdir(parents=True)
+    generated.write_text("generated\n", encoding="utf-8")
+
+    result = _validate(repository, sha, artifact, ["reports/"])
     assert result["ignored_generated_changes"] is True
 
 
