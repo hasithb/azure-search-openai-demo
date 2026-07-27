@@ -21,14 +21,16 @@ import json
 import logging
 import os
 import re
+import shutil
 import time
 import unicodedata
-from urllib.request import Request, urlopen
 from dataclasses import dataclass, field
 from pathlib import Path
+from urllib.request import Request, urlopen
 
 from azure.ai.documentintelligence import DocumentIntelligenceClient
 from azure.ai.documentintelligence.models import AnalyzeDocumentRequest
+from azure.core.exceptions import HttpResponseError
 from azure.identity import DefaultAzureCredential
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -43,6 +45,8 @@ AZURE_DI_ENDPOINT = os.getenv(
 DI_MODEL_ID = "prebuilt-layout"
 DI_OUTPUT_CONTENT_FORMAT = "markdown"
 EXTRACTION_MANIFEST = "court_guides_extraction_manifest.json"
+DI_MAX_RETRIES = 2
+DI_RETRY_BACKOFF_SECONDS = 10
 
 
 def sha256_file(path: str | Path) -> str:
@@ -377,7 +381,7 @@ def is_boilerplate_section(heading: str, content: str) -> bool:
 # ── Core Extraction Logic ───────────────────────────────────────────────────────
 
 
-def parse_with_azure_di(pdf_path: str) -> str:
+def parse_with_azure_di(pdf_path: str, max_retries: int = DI_MAX_RETRIES) -> str:
     """Send PDF to Azure Document Intelligence and return markdown content."""
     credential = DefaultAzureCredential()
     client = DocumentIntelligenceClient(endpoint=AZURE_DI_ENDPOINT, credential=credential)
@@ -388,12 +392,32 @@ def parse_with_azure_di(pdf_path: str) -> str:
     logger.info("Sending %s (%d bytes) to Azure Document Intelligence...", pdf_path, len(pdf_bytes))
     t0 = time.time()
 
-    poller = client.begin_analyze_document(
-        model_id=DI_MODEL_ID,
-        body=AnalyzeDocumentRequest(bytes_source=pdf_bytes),
-        output_content_format=DI_OUTPUT_CONTENT_FORMAT,
-    )
-    result = poller.result()
+    for attempt in range(max_retries + 1):
+        try:
+            poller = client.begin_analyze_document(
+                model_id=DI_MODEL_ID,
+                body=AnalyzeDocumentRequest(bytes_source=pdf_bytes),
+                output_content_format=DI_OUTPUT_CONTENT_FORMAT,
+            )
+            result = poller.result()
+            break
+        except HttpResponseError as exc:
+            status_code = getattr(exc, "status_code", None)
+            retryable = status_code in {408, 429, 500, 502, 503, 504} or "timeout" in str(exc).lower()
+            if not retryable or attempt >= max_retries:
+                raise
+            delay = DI_RETRY_BACKOFF_SECONDS * (2**attempt)
+            logger.warning(
+                "Azure DI transient failure for %s (attempt %d/%d, status=%s); retrying in %ds",
+                pdf_path,
+                attempt + 1,
+                max_retries + 1,
+                status_code,
+                delay,
+            )
+            time.sleep(delay)
+    else:
+        raise RuntimeError(f"Azure DI did not return a result for {pdf_path}")
     elapsed = time.time() - t0
 
     logger.info(
@@ -737,7 +761,12 @@ def sections_to_documents(
 # ── Main Pipeline ───────────────────────────────────────────────────────────────
 
 
-def process_pdf(pdf_path: str, output_dir: str, dry_run: bool = False) -> list[dict]:
+def process_pdf(
+    pdf_path: str,
+    output_dir: str,
+    dry_run: bool = False,
+    cache_dir: str | None = None,
+) -> list[dict]:
     """Full pipeline: PDF -> Azure DI -> sections -> documents -> JSON."""
     pdf_name = os.path.basename(pdf_path)
 
@@ -759,6 +788,43 @@ def process_pdf(pdf_path: str, output_dir: str, dry_run: bool = False) -> list[d
     split_level = metadata.get("split_level", 2)
     annex_as_single = metadata.get("annex_as_single", True)
     pdf_sha256 = sha256_file(pdf_path)
+
+    cache_root = Path(cache_dir) if cache_dir else None
+    cache_manifest_path = cache_root / EXTRACTION_MANIFEST if cache_root else None
+    cache_entry = {}
+    if cache_manifest_path and cache_manifest_path.exists():
+        cache_manifest = json.loads(cache_manifest_path.read_text(encoding="utf-8"))
+        cache_entry = cache_manifest.get("guides", {}).get(pdf_name, {})
+    cache_md_path = cache_root / (Path(pdf_name).stem + "_azure_di.md") if cache_root else None
+    cache_provenance_path = Path(str(cache_md_path) + ".provenance.json") if cache_md_path else None
+    cache_json_path = cache_root / cache_entry["processed_json"] if cache_root and cache_entry.get("processed_json") else None
+    cache_valid = bool(
+        cache_root
+        and cache_md_path
+        and cache_json_path
+        and cache_md_path.exists()
+        and cache_json_path.exists()
+        and cache_entry.get("pdf_sha256") == pdf_sha256
+        and cache_entry.get("processed_json_sha256") == sha256_file(cache_json_path)
+        and hashlib.sha256(cache_md_path.read_bytes()).hexdigest() == cache_entry.get("markdown_sha256")
+        and (
+            not cache_provenance_path.exists()
+            or json.loads(cache_provenance_path.read_text(encoding="utf-8")).get("pdf_sha256") == pdf_sha256
+        )
+    )
+
+    if cache_valid and not dry_run:
+        output_root = Path(output_dir)
+        output_root.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(cache_md_path, output_root / cache_md_path.name)
+        if cache_provenance_path and cache_provenance_path.exists():
+            shutil.copyfile(cache_provenance_path, output_root / cache_provenance_path.name)
+        output_json_path = output_root / cache_json_path.name
+        shutil.copyfile(cache_json_path, output_json_path)
+        if cache_manifest_path and cache_manifest_path.exists():
+            shutil.copyfile(cache_manifest_path, output_root / EXTRACTION_MANIFEST)
+        logger.info("Reusing approved extraction cache for %s (pdf_sha256=%s)", pdf_name, pdf_sha256)
+        return json.loads(output_json_path.read_text(encoding="utf-8"))
 
     logger.info("Processing: %s (category=%s, split_level=%d, annex_as_single=%s)",
                 pdf_name, metadata["category"], split_level, annex_as_single)
@@ -858,6 +924,23 @@ def process_pdf(pdf_path: str, output_dir: str, dry_run: bool = False) -> list[d
         }
         manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
+        if cache_root and cache_root.resolve() != Path(output_dir).resolve():
+            cache_root.mkdir(parents=True, exist_ok=True)
+            for cache_name in (md_path, provenance_path, output_path):
+                shutil.copyfile(cache_name, cache_root / Path(cache_name).name)
+            if cache_manifest_path.exists():
+                cache_manifest = json.loads(cache_manifest_path.read_text(encoding="utf-8"))
+            else:
+                cache_manifest = {
+                    "schema_version": 1,
+                    "model_id": DI_MODEL_ID,
+                    "output_content_format": DI_OUTPUT_CONTENT_FORMAT,
+                    "guides": {},
+                }
+            cache_manifest.setdefault("guides", {})[pdf_name] = manifest["guides"][pdf_name]
+            cache_manifest_path.write_text(json.dumps(cache_manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+            logger.info("Saved approved extraction cache for %s", pdf_name)
+
     return doc_dicts
 
 
@@ -873,6 +956,10 @@ def main():
         "--output-dir",
         default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "reports", "court_guides_v4_artifacts"),
         help="Output directory for processed JSONs (default: ../../../reports/court_guides_v4_artifacts/)",
+    )
+    parser.add_argument(
+        "--cache-dir",
+        help="Persistent directory containing approved hash-matched extraction outputs",
     )
     parser.add_argument(
         "--capture-canonical",
@@ -909,7 +996,7 @@ def main():
     for pdf_path in pdfs:
         pdf_name = os.path.basename(pdf_path)
         try:
-            docs = process_pdf(pdf_path, output_dir, dry_run=args.dry_run)
+            docs = process_pdf(pdf_path, output_dir, dry_run=args.dry_run, cache_dir=args.cache_dir)
             total_docs += len(docs)
             results[pdf_name] = len(docs)
         except Exception:

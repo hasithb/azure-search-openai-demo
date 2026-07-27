@@ -229,13 +229,26 @@ jobs:
       - name: Verify Document Intelligence identity
         run: |
           az account show --query '{user:user.name,type:user.type,tenantId:tenantId,id:id}' -o json
+      - name: Restore approved court-guide extraction cache
+        uses: actions/cache/restore@v4
+        with:
+          path: reports/court_guides_extraction_cache
+          key: court-guides-extraction-v1-${{ github.run_id }}
+          restore-keys: court-guides-extraction-v1-
       - name: Capture and extract canonical court guides
         run: |
           rm -rf "reports/court_guides_${V4_RELEASE_ID}"
           python scripts/court_guides_processing_pipeline/scripts/extract_court_guides_azure_di.py \
             --capture-canonical \
             --sources-dir "reports/court_guides_${V4_RELEASE_ID}/sources" \
-            --output-dir "reports/court_guides_${V4_RELEASE_ID}/outputs"
+            --output-dir "reports/court_guides_${V4_RELEASE_ID}/outputs" \
+            --cache-dir reports/court_guides_extraction_cache
+      - name: Save approved court-guide extraction cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: reports/court_guides_extraction_cache
+          key: court-guides-extraction-v1-${{ github.run_id }}
       - name: Generate release-bound source artifact
         run: |
           python scripts/generate_v4_artifacts.py \
