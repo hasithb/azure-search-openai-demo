@@ -87,6 +87,14 @@ def test_workflow_retains_release_safety_report_when_validation_fails():
     assert "if: always()" not in candidate_upload
 
 
+def test_workflow_allows_generated_court_guide_extraction_cache():
+    workflow = workflow_text()
+    build_candidate = workflow.split("  build-candidate:", 1)[1].split("  provision-and-upload:", 1)[0]
+
+    assert "--cache-dir reports/court_guides_extraction_cache" in build_candidate
+    assert "--allow-dirty-prefix reports/court_guides_extraction_cache/" in build_candidate
+
+
 def test_workflow_runs_and_merges_deterministic_browser_shards_before_coverage_validation():
     workflow = workflow_text()
     browser_step = workflow.split("Generate provenance-bound browser highlight gate", 1)[1].split("Generate provenance-bound ACL gate", 1)[0]

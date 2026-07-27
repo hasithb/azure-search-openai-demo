@@ -322,6 +322,7 @@ jobs:
             --allow-dirty-prefix "reports/index_v4_artifacts_${V4_RELEASE_ID}/" \
             --allow-dirty-prefix "reports/html_oracle_snapshots/" \
             --allow-dirty-prefix "reports/court_guides_${V4_RELEASE_ID}/" \
+            --allow-dirty-prefix reports/court_guides_extraction_cache/ \
             --allow-dirty-prefix reports/v4_release_inventory.json \
             --allow-dirty-prefix reports/v4_release_index_uniqueness.json \
             --allow-dirty-prefix reports/v4_release_safety.json \
