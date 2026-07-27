@@ -50,6 +50,28 @@ def test_reconcile_accepts_many_cases_for_one_search_document(tmp_path):
     assert result["artifact_documents_sha256"] == result["search_documents_sha256"]
 
 
+def test_reconcile_accepts_descriptive_generated_sourcefile(tmp_path):
+    oracle = tmp_path / "oracle.json"
+    oracle.write_text(json.dumps({"cases": [{
+        "case_id": "case-1", "identity": "source-1", "sourcefile": "Practice Direction 59", "sourcepage": "7.11",
+        "subsection_id": "7.11", "expected_heading": "7.11", "heading_locator": "h1", "body_sha256": "hash",
+        "body_length": 1, "snapshot_file": "snapshot.json", "snapshot_content_sha256": "snapshot-hash",
+    }]}), encoding="utf-8")
+    manifest = build_manifest(oracle)
+    snapshot = tmp_path / "search.json"
+    document = {
+        "id": "search-1", "content": "7.11 The court may...", "sourcefile": "Practice Direction 59 - Circuit Commercial Courts"
+    }
+    write_index_snapshot(snapshot, [document], "service", "index")
+    artifact = tmp_path / "artifact.jsonl"
+    artifact.write_text(json.dumps(document) + "\n", encoding="utf-8")
+
+    result = reconcile(manifest, snapshot, artifact)
+
+    assert result["status"] == "PASS"
+    assert result["mappings"][0]["case_ids"] == ["case-1"]
+
+
 def test_reconcile_rejects_any_projected_search_field_mismatch(tmp_path):
     oracle = tmp_path / "oracle.json"
     oracle.write_text(json.dumps({"cases": [{

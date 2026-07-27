@@ -8,8 +8,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from audit_source_documents import load_index_snapshot
-from audit_source_documents import INDEX_SELECT_FIELDS
+from audit_source_documents import INDEX_SELECT_FIELDS, load_index_snapshot
 
 
 class SearchReconciliationError(ValueError):
@@ -34,6 +33,13 @@ def _load_artifact(path: Path) -> list[dict[str, Any]]:
     if any(not document_id for document_id in ids) or len(ids) != len(set(ids)):
         raise SearchReconciliationError("Artifact contains missing or duplicate document IDs")
     return documents
+
+
+def _sourcefile_matches(manifest_sourcefile: str, artifact_sourcefile: str) -> bool:
+    """Allow generated descriptive source labels to extend canonical names."""
+    canonical = manifest_sourcefile.strip().casefold()
+    generated = artifact_sourcefile.strip().casefold()
+    return generated == canonical or generated.startswith(canonical + " ")
 
 
 def reconcile(manifest: dict[str, Any], snapshot_path: Path, artifact_path: Path) -> dict[str, Any]:
@@ -69,7 +75,7 @@ def reconcile(manifest: dict[str, Any], snapshot_path: Path, artifact_path: Path
         content = str(artifact.get("content") or "")
         for case in included_cases:
             subsection_id = str(case.get("subsection_id") or "")
-            if case.get("sourcefile") == artifact.get("sourcefile") and (
+            if _sourcefile_matches(str(case.get("sourcefile") or ""), str(artifact.get("sourcefile") or "")) and (
                 subsection_id.casefold() in content.casefold()
                 or subsection_id.casefold() == str(artifact.get("subsection_id") or "").casefold()
                 or subsection_id.casefold() in {str(value).casefold() for value in artifact.get("subsections", []) if value}
