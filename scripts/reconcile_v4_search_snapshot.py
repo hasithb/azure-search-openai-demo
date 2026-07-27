@@ -39,7 +39,10 @@ def _sourcefile_matches(manifest_sourcefile: str, artifact_sourcefile: str) -> b
     """Allow generated descriptive source labels to extend canonical names."""
     canonical = manifest_sourcefile.strip().casefold()
     generated = artifact_sourcefile.strip().casefold()
-    return generated == canonical or generated.startswith(canonical + " ")
+    if generated == canonical:
+        return True
+    suffix = generated[len(canonical) :] if generated.startswith(canonical) else ""
+    return bool(suffix) and suffix[0] in " -:"
 
 
 def reconcile(manifest: dict[str, Any], snapshot_path: Path, artifact_path: Path) -> dict[str, Any]:
