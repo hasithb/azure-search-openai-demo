@@ -798,6 +798,7 @@ jobs:
           path: |
             reports/highlight-browser-diagnostics/
             reports/highlight_gate.json
+            reports/v4_search_reconciliation.json
             reports/candidate_readiness.json
             reports/candidate_app.json
             reports/candidate_revisions.json

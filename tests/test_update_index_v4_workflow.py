@@ -95,6 +95,13 @@ def test_workflow_allows_generated_court_guide_extraction_cache():
     assert "--allow-dirty-prefix reports/court_guides_extraction_cache/" in build_candidate
 
 
+def test_workflow_uploads_search_reconciliation_diagnostics():
+    workflow = workflow_text()
+    diagnostics = workflow.split("Upload candidate audit diagnostics", 1)[1].split("  promote:", 1)[0]
+
+    assert "reports/v4_search_reconciliation.json" in diagnostics
+
+
 def test_workflow_runs_and_merges_deterministic_browser_shards_before_coverage_validation():
     workflow = workflow_text()
     browser_step = workflow.split("Generate provenance-bound browser highlight gate", 1)[1].split("Generate provenance-bound ACL gate", 1)[0]
