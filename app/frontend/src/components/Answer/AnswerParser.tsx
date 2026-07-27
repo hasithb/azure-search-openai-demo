@@ -27,6 +27,10 @@ export type CitationDetail = {
     sourcefile?: string;
     category?: string;
     storageUrl?: string;
+    sourceRevision?: string;
+    sourceId?: string;
+    documentId?: string;
+    canonicalTextSha256?: string;
 };
 
 type CitationFragment =
@@ -450,7 +454,11 @@ const collectCitations = (answer: ChatAppResponse, isStreaming: boolean): { frag
             sourcepage: dpMetadata.sourcepage || undefined,
             sourcefile: dpMetadata.sourcefile || undefined,
             category: dpMetadata.category || undefined,
-            storageUrl: dpMetadata.storageUrl || undefined
+            storageUrl: dpMetadata.storageUrl || undefined,
+            sourceRevision: dpMetadata.sourceRevision || undefined,
+            sourceId: dpMetadata.sourceId || undefined,
+            documentId: dpMetadata.documentId || undefined,
+            canonicalTextSha256: dpMetadata.canonicalTextSha256 || undefined
         };
 
         // CUSTOM: Use a unique key when content differs for same resolved reference
@@ -519,6 +527,10 @@ const renderCitation = (detail: CitationDetail, onCitationClicked: (citationFile
                 data-sourcepage={detail.sourcepage ?? ""}
                 data-sourcefile={detail.sourcefile ?? ""}
                 data-category={detail.category ?? ""}
+                data-source-revision={detail.sourceRevision ?? ""}
+                data-source-id={detail.sourceId ?? ""}
+                data-document-id={detail.documentId ?? ""}
+                data-canonical-text-sha256={detail.canonicalTextSha256 ?? ""}
             >
                 {supElement}
             </a>

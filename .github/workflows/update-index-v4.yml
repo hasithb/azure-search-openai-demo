@@ -38,6 +38,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
@@ -52,6 +54,9 @@ jobs:
     needs: local-validation
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
       - uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -77,6 +82,15 @@ jobs:
           search_endpoint="${AZURE_SEARCH_SERVICE%/}"
           [[ "${search_endpoint}" == https://* ]] || search_endpoint="https://${search_endpoint}.search.windows.net"
           search_token=$(az account get-access-token --resource https://search.azure.com --query accessToken -o tsv)
+          mkdir -p reports
+          indexes_json=$(curl --silent --show-error --fail \
+            --header "Authorization: Bearer ${search_token}" \
+            "${search_endpoint}/indexes?api-version=2024-07-01")
+          printf '%s\n' "${indexes_json}" > reports/v4_release_inventory.json
+          python scripts/validate_v4_release_index_uniqueness.py \
+            --inventory reports/v4_release_inventory.json \
+            --release-id "${V4_RELEASE_ID}" \
+            --output reports/v4_release_index_uniqueness.json
           search_status=$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' \
             --header "Authorization: Bearer ${search_token}" \
             "${search_endpoint}/indexes?api-version=2024-07-01")
@@ -125,6 +139,8 @@ jobs:
       artifact_sha256: ${{ steps.hash.outputs.artifact_sha256 }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
@@ -250,6 +266,21 @@ jobs:
       - id: hash
         name: Hash immutable artifact
         run: echo "artifact_sha256=$(sha256sum reports/index_v4_artifacts_${V4_RELEASE_ID}/documents_with_embeddings.jsonl | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+      - name: Validate release Git and artifact identity
+        run: |
+          python scripts/validate_v4_release_safety.py \
+            --repository . \
+            --git-sha "${GITHUB_SHA}" \
+            --ref "${GITHUB_REF_NAME}" \
+            --release-id "${V4_RELEASE_ID}" \
+            --artifact "reports/index_v4_artifacts_${V4_RELEASE_ID}/documents_with_embeddings.jsonl" \
+            --artifact-sha256 "${ARTIFACT_SHA256}" \
+            --allow-dirty-prefix reports/ \
+            --output reports/v4_release_safety.json
+        env:
+          ARTIFACT_SHA256: ${{ steps.hash.outputs.artifact_sha256 }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+          GITHUB_SHA: ${{ github.sha }}
       - uses: actions/upload-artifact@v4
         with:
           name: v4-candidate-${{ inputs.release_id || github.run_number }}
@@ -265,6 +296,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
@@ -300,6 +333,8 @@ jobs:
       candidate_revision: ${{ steps.image.outputs.candidate_revision }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
@@ -413,6 +448,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
       - uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -511,6 +548,8 @@ jobs:
             --snapshot-dir reports/html_oracle_snapshots \
             --oracle reports/highlight_oracle.json \
             --provenance reports/candidate_provenance.json \
+            --diagnostics-dir reports/highlight-browser-diagnostics \
+            --exhaustive-coverage-input reports/v4_citation_coverage_input.json \
             --output reports/highlight_gate.json
         env:
           ARTIFACT_SHA256: ${{ needs.build-candidate.outputs.artifact_sha256 }}
@@ -580,6 +619,12 @@ jobs:
           SEARCH_INDEX: ${{ env.SEARCH_INDEX }}
           SEARCH_KNOWLEDGEBASE: ${{ env.SEARCH_KNOWLEDGEBASE }}
           AZURE_SEARCH_SERVICE: ${{ secrets.AZURE_SEARCH_SERVICE }}
+      - name: Require exhaustive citation evidence
+        run: |
+          test -s reports/v4_citation_coverage_input.json
+          python scripts/validate_v4_citation_coverage.py \
+            --input reports/v4_citation_coverage_input.json \
+            --output reports/v4_citation_coverage.json
       - name: Run complete fidelity audit
         run: |
           python scripts/audit_source_documents.py \
@@ -603,6 +648,9 @@ jobs:
             --candidate-runtime-identity reports/candidate_runtime_identity.json \
             --application-gates reports/v4_application_gates.json \
             --highlight-oracle reports/highlight_oracle.json \
+            --citation-coverage reports/v4_citation_coverage.json \
+            --release-index-uniqueness reports/v4_release_index_uniqueness.json \
+            --release-safety reports/v4_release_safety.json \
             --candidate-index "${SEARCH_INDEX}" \
             --candidate-knowledgebase "${SEARCH_KNOWLEDGEBASE}" \
             --rollback-index "${ROLLBACK_INDEX}" \
@@ -622,6 +670,21 @@ jobs:
             reports/candidate_provenance.json
             reports/candidate_runtime_identity.json
           retention-days: 90
+      - name: Upload candidate audit diagnostics
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: v4-audit-diagnostics-${{ inputs.release_id || github.run_number }}
+          if-no-files-found: warn
+          path: |
+            reports/highlight-browser-diagnostics/
+            reports/highlight_gate.json
+            reports/candidate_readiness.json
+            reports/candidate_app.json
+            reports/candidate_revisions.json
+            reports/candidate_runtime_identity.json
+            reports/candidate_provenance.json
+          retention-days: 30
 
   promote:
     needs: audit-candidate
@@ -630,6 +693,8 @@ jobs:
     environment: Production
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
       - uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -653,6 +718,9 @@ jobs:
             --candidate-runtime-identity reports/candidate_runtime_identity.json \
             --application-gates reports/v4_application_gates.json \
             --highlight-oracle reports/highlight_oracle.json \
+            --citation-coverage reports/v4_citation_coverage.json \
+            --release-index-uniqueness reports/v4_release_index_uniqueness.json \
+            --release-safety reports/v4_release_safety.json \
             --candidate-index "${SEARCH_INDEX}" \
             --candidate-knowledgebase "${SEARCH_KNOWLEDGEBASE}" \
             --rollback-index "${ROLLBACK_INDEX}" \

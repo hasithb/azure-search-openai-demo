@@ -130,6 +130,15 @@ Run `.github/workflows/update-index-v4.yml` manually with an immutable
 8. Include the passing application-gate and highlight-oracle reports in the evidence bundle and
    revalidate it during the Production approval job.
 
+The bundle also requires `reports/v4_release_index_uniqueness.json`, produced by a read-only
+Azure AI Search `/indexes` inventory check before staging creation. The check rejects a reused
+release-specific index name and never creates, updates, or deletes Search resources. It also
+requires `reports/v4_citation_coverage.json`, generated from
+`reports/v4_citation_coverage_input.json`. Every canonical citation must reconcile to exactly
+one Search document, rendered citation, click, Supporting Content result, and Primary Source
+result using `source revision + source ID + document ID + subsection ID + canonical text SHA-256`.
+Missing, duplicate, ambiguous, drifted, or unavailable records block the release.
+
 The candidate revision is configured with `V4_RELEASE_ID`, `GIT_SHA`,
 `DEPLOYMENT_ID`, `V4_ARTIFACT_SHA256`, and
 `V4_SEARCH_SNAPSHOT_SHA256`. The last value is updated after Search snapshot
@@ -198,6 +207,45 @@ index and `legal-court-rag-index-v3-agent-upgrade` knowledge base are retained
 and are never deleted by this process.
 
 ## Local preflight simulator
+
+### Local application smoke
+
+The local application smoke attaches to an already-running local app by
+default. It checks the bounded readiness endpoint, compares `/api/provenance`
+with the release provenance file, and then runs the real Playwright citation,
+Supporting Content, and subsection-highlight path. It does not enable fixture
+chat behavior and it never makes Azure writes.
+
+```shell
+source .venv-upgrade/bin/activate
+python scripts/preflight_v4_local.py \
+   --mode local-smoke \
+   --candidate-url http://127.0.0.1:50505 \
+   --provenance reports/candidate_provenance.json \
+   --oracle reports/highlight_oracle.json \
+   --snapshot-dir reports/html_oracle_snapshots \
+   --output reports/v4-local-smoke
+```
+
+To let the smoke runner own the local process, provide an explicit command:
+
+```shell
+python scripts/preflight_v4_local.py \
+   --mode local-smoke \
+   --candidate-url http://127.0.0.1:50505 \
+   --startup-command './app/start.sh' \
+   --startup-timeout 90 \
+   --provenance reports/candidate_provenance.json \
+   --oracle reports/highlight_oracle.json \
+   --snapshot-dir reports/html_oracle_snapshots
+```
+
+The runner terminates only a process it started itself. Readiness polling is
+bounded and reports the last HTTP status or connection error. Browser failures
+retain `browser-diagnostics.json`, `browser-final.png`, and
+`browser-trace.zip` under `highlight-browser-diagnostics/` when the diagnostics
+directory is supplied. The release workflow uploads this directory with
+`if: always()` so failures remain inspectable.
 
 Before dispatching a candidate workflow, run the non-mutating simulator against
 captured or reconstructed observations:

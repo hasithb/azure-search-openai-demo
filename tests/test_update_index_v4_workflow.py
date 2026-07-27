@@ -40,3 +40,23 @@ def test_local_validation_runs_before_remote_preflight():
     assert workflow.index("  local-validation:") < workflow.index("  preflight:")
     local_validation = workflow.split("  local-validation:", 1)[1].split("  preflight:", 1)[0]
     assert "python scripts/preflight_v4_local.py --mode offline --require-runtime-contract --output reports/v4-local" in local_validation
+
+
+def test_preflight_checks_release_index_uniqueness_read_only():
+    workflow = workflow_text()
+    preflight = workflow.split("  preflight:", 1)[1].split("  build-candidate:", 1)[0]
+
+    assert "actions/checkout@v4" in preflight
+    assert "ref: ${{ github.sha }}" in preflight
+    assert "indexes?api-version=2024-07-01" in preflight
+    assert "validate_v4_release_index_uniqueness.py" in preflight
+    assert "reports/v4_release_index_uniqueness.json" in preflight
+
+
+def test_workflow_requires_exhaustive_citation_evidence_before_bundle():
+    workflow = workflow_text()
+
+    assert "Require exhaustive citation evidence" in workflow
+    assert "v4_citation_coverage_input.json" in workflow
+    assert "validate_v4_citation_coverage.py" in workflow
+    assert "--release-index-uniqueness reports/v4_release_index_uniqueness.json" in workflow

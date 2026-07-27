@@ -281,7 +281,11 @@ export const Answer = ({
                         category: supContainer.getAttribute("data-category") || "",
                         content: finalCitationContent,
                         storageUrl: "",
-                        fullContent: ""
+                        fullContent: "",
+                        sourceRevision: supContainer.getAttribute("data-source-revision") || "",
+                        sourceId: supContainer.getAttribute("data-source-id") || "",
+                        documentId: supContainer.getAttribute("data-document-id") || "",
+                        canonicalTextSha256: supContainer.getAttribute("data-canonical-text-sha256") || ""
                     };
                     const hasMetadata = metadata.subsectionId || metadata.sourcepage || metadata.sourcefile || metadata.category;
                     onCitationClicked(citationPath, finalCitationContent || undefined, hasMetadata ? metadata : undefined, selectionId);
@@ -376,7 +380,11 @@ export const Answer = ({
                                               category: citation.category || "",
                                               content: citation.content || "",
                                               storageUrl: citation.storageUrl || "",
-                                              fullContent: ""
+                                              fullContent: "",
+                                              sourceRevision: citation.sourceRevision || "",
+                                              sourceId: citation.sourceId || "",
+                                              documentId: citation.documentId || "",
+                                              canonicalTextSha256: citation.canonicalTextSha256 || ""
                                           }
                                         : undefined;
                                 const citationPath = citMeta

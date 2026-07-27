@@ -60,6 +60,13 @@ export function PrimarySourceViewer({ citationFilePath, metadata, citationLabel,
 
     const extension = citationFilePath ? getExtension(citationFilePath) : "";
     const isPdf = extension === "pdf";
+    const identityAttributes = {
+        "data-source-revision": metadata?.sourceRevision || "",
+        "data-source-id": metadata?.sourceId || "",
+        "data-document-id": metadata?.documentId || "",
+        "data-subsection-id": metadata?.subsectionId || "",
+        "data-canonical-text-sha256": metadata?.canonicalTextSha256 || ""
+    };
 
     // Keep a stable ref to the latest onVerified so its changing identity never
     // re-triggers the effects below (parents commonly pass an inline callback,
@@ -109,7 +116,7 @@ export function PrimarySourceViewer({ citationFilePath, metadata, citationLabel,
         const newTabUrl = buildTextFragmentUrl(externalSource, metadata?.content);
         const docName = citationLabel || docNameFromPath(citationFilePath);
         return (
-            <div className={styles.primarySource}>
+            <div className={styles.primarySource} {...identityAttributes}>
                 <Toolbar docName={docName} where={metadata?.subsectionId ? `→ ${metadata.subsectionId}` : ""} status="none" />
                 <PassageBanner metadata={metadata} title="Cited passage — highlighted in the source below" />
                 <iframe
@@ -133,7 +140,7 @@ export function PrimarySourceViewer({ citationFilePath, metadata, citationLabel,
     const docName = citationLabel || docNameFromPath(citationFilePath);
     if (["png", "jpg", "jpeg", "gif", "webp", "svg"].includes(extension)) {
         return (
-            <div className={styles.primarySource}>
+            <div className={styles.primarySource} {...identityAttributes}>
                 <Toolbar docName={docName} where="" status="none" />
                 <img src={citationFilePath} alt={docName} style={{ maxWidth: "100%", borderRadius: 8 }} />
             </div>
@@ -150,7 +157,7 @@ export function PrimarySourceViewer({ citationFilePath, metadata, citationLabel,
     const hasEmbeddableSource = !!externalSource || browsableWebTypes.includes(extension);
     if (!hasEmbeddableSource) {
         return (
-            <div className={styles.primarySource}>
+            <div className={styles.primarySource} {...identityAttributes}>
                 <Toolbar docName={docName} where={metadata?.subsectionId ? `→ ${metadata.subsectionId}` : ""} status="none" />
                 <PassageBanner metadata={metadata} title="Cited passage from the primary source" />
                 <div className={styles.fallbackBox}>
@@ -169,7 +176,7 @@ export function PrimarySourceViewer({ citationFilePath, metadata, citationLabel,
     // Embeddable HTML / Markdown / other -> embed the live source (external when available) with banner.
     const embedSrc = externalSource || citationFilePath;
     return (
-        <div className={styles.primarySource}>
+        <div className={styles.primarySource} {...identityAttributes}>
             <Toolbar docName={docName} where={metadata?.subsectionId ? `→ ${metadata.subsectionId}` : ""} status="none" />
             <PassageBanner metadata={metadata} title="Locate this passage in the document below" />
             <iframe title="Primary source" src={embedSrc} className={styles.frame} style={{ height }} />
@@ -205,6 +212,13 @@ function PdfHighlightView({ citationFilePath, metadata, citationLabel, needles, 
     const [status, setStatus] = useState<ViewerStatus>("loading");
 
     const docName = citationLabel || docNameFromPath(citationFilePath);
+    const identityAttributes = {
+        "data-source-revision": metadata?.sourceRevision || "",
+        "data-source-id": metadata?.sourceId || "",
+        "data-document-id": metadata?.documentId || "",
+        "data-subsection-id": metadata?.subsectionId || "",
+        "data-canonical-text-sha256": metadata?.canonicalTextSha256 || ""
+    };
     const pageHint = useMemo(() => parsePageNumber(citationFilePath, metadata?.sourcepage), [citationFilePath, metadata?.sourcepage]);
 
     // Load the document and resolve the initial target page.
@@ -349,7 +363,7 @@ function PdfHighlightView({ citationFilePath, metadata, citationLabel, needles, 
     const where = metadata?.subsectionId ? `→ ${metadata.subsectionId}${pageHint ? ` (page ${pageHint})` : ""}` : pageHint ? `→ page ${pageHint}` : "";
 
     return (
-        <div className={styles.primarySource}>
+        <div className={styles.primarySource} {...identityAttributes}>
             <Toolbar docName={docName} where={where} status={status} />
 
             {status === "none" && needles.length > 0 && (

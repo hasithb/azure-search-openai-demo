@@ -19,6 +19,10 @@ export interface StructuredCitationMetadata {
     storageUrl: string;
     /** Full section text from the index (dp.full_content). Used as a reader-view fallback. */
     fullContent: string;
+    sourceRevision: string;
+    sourceId: string;
+    documentId: string;
+    canonicalTextSha256: string;
 }
 
 /**
@@ -27,7 +31,19 @@ export interface StructuredCitationMetadata {
  */
 export function extractMetadataFromDataPoint(dp: SourceTextItem | undefined | null): StructuredCitationMetadata {
     if (!dp) {
-        return { subsectionId: "", sourcepage: "", sourcefile: "", category: "", content: "", storageUrl: "", fullContent: "" };
+        return {
+            subsectionId: "",
+            sourcepage: "",
+            sourcefile: "",
+            category: "",
+            content: "",
+            storageUrl: "",
+            fullContent: "",
+            sourceRevision: "",
+            sourceId: "",
+            documentId: "",
+            canonicalTextSha256: ""
+        };
     }
     return {
         subsectionId: (dp.subsection_id ?? "").trim(),
@@ -36,7 +52,11 @@ export function extractMetadataFromDataPoint(dp: SourceTextItem | undefined | nu
         category: (dp.category ?? "").trim(),
         content: (dp.content ?? "").trim(),
         storageUrl: (dp.storageurl ?? "").trim(),
-        fullContent: (dp.full_content ?? "").trim()
+        fullContent: (dp.full_content ?? "").trim(),
+        sourceRevision: (dp.source_revision ?? "").trim(),
+        sourceId: (dp.source_id ?? "").trim(),
+        documentId: (dp.document_id ?? dp.original_doc_id ?? dp.id ?? "").trim(),
+        canonicalTextSha256: (dp.canonical_text_sha256 ?? "").trim()
     };
 }
 

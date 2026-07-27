@@ -12,11 +12,22 @@ Usage:
     structured_sources = processor.process_documents(documents, use_semantic_captions=False)
 """
 
+import hashlib
 import logging
+import os
 import re
 from typing import Any, Optional
 
 from .citation_builder import CitationBuilder
+
+
+def source_revision() -> str:
+    return str(os.environ.get("V4_SEARCH_SNAPSHOT_SHA256") or os.environ.get("GIT_SHA") or "local").strip()
+
+
+def canonical_text_sha256(value: str) -> str:
+    normalized = re.sub(r"\s+", " ", value).strip().casefold()
+    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
 
 
 class SourceProcessor:
@@ -243,6 +254,10 @@ class SourceProcessor:
                 "total_subsections": len(subsections),
                 "is_subsection": True,
                 "subsection_id": subsection_id,
+                "source_revision": source_revision(),
+                "document_id": str(getattr(doc, "id", "")),
+                "source_id": str(getattr(doc, "sourcefile", "") or getattr(doc, "id", "")),
+                "canonical_text_sha256": canonical_text_sha256(subsection_content),
             }
             
             results.append(result_obj)
@@ -316,6 +331,10 @@ class SourceProcessor:
             # Metadata for consistency
             "original_doc_id": doc_id,
             "is_subsection": False,
+            "source_revision": source_revision(),
+            "document_id": doc_id,
+            "source_id": sourcefile or doc_id,
+            "canonical_text_sha256": canonical_text_sha256(content),
         }
         
         # Add captions if using semantic captions

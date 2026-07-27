@@ -78,6 +78,11 @@ export type SourceTextItem = {
     storageurl?: string;
     updated?: string;
     subsection_id?: string;
+    source_revision?: string;
+    source_id?: string;
+    document_id?: string;
+    original_doc_id?: string;
+    canonical_text_sha256?: string;
 };
 
 export type DataPoints = {

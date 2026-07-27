@@ -219,6 +219,23 @@ def candidate_validation_matches_snapshot(report: dict[str, Any], snapshot: dict
         raise EvidenceError("Candidate validation provenance does not match the Search snapshot")
 
 
+def citation_coverage_gate(report: dict[str, Any]) -> dict[str, Any]:
+    if report.get("schema_version") != 1 or report.get("status") != "PASS":
+        raise EvidenceError("Exhaustive citation coverage report is not passing")
+    counts = report.get("counts")
+    case_count = int(report.get("case_count", 0) or 0)
+    if not isinstance(counts, dict) or case_count <= 0:
+        raise EvidenceError("Exhaustive citation coverage report has no cases or counts")
+    required = ("manifest", "rendered", "clicked", "supporting_content", "primary_source")
+    if any(int(counts.get(field, -1)) != case_count for field in required):
+        raise EvidenceError("Exhaustive citation coverage counts do not reconcile")
+    if int(counts.get("search_documents", -1)) != case_count:
+        raise EvidenceError("Exhaustive citation coverage Search joins are incomplete")
+    if report.get("failures") not in ([], None):
+        raise EvidenceError("Exhaustive citation coverage contains failures")
+    return report
+
+
 def runtime_identity_gate(report: dict[str, Any], candidate_index: str, candidate_knowledgebase: str) -> dict[str, Any]:
     required = ("active_revision", "expected_revision", "deployed_image", "expected_image", "traffic_weight", "running_state", "health_state")
     if not isinstance(report, dict) or any(not str(report.get(field) or "").strip() for field in required if field not in {"traffic_weight"}):
@@ -288,6 +305,9 @@ def build_bundle(
     rollback_knowledgebase: str,
     application_gate_path: Path,
     highlight_oracle_path: Path | None = None,
+    citation_coverage_path: Path | None = None,
+    release_index_uniqueness_path: Path | None = None,
+    release_safety_path: Path | None = None,
     approved: bool = False,
     approval_environment: str = "",
 ) -> dict[str, Any]:
@@ -322,6 +342,19 @@ def build_bundle(
     fidelity = fidelity_gate(report)
     transition = transition_gate(transition_report)
     artifact_search = artifact_search_gate(artifact_manifest_path, snapshot)
+    if citation_coverage_path is None or not citation_coverage_path.exists():
+        raise EvidenceError("Missing exhaustive citation coverage evidence")
+    citation_coverage = citation_coverage_gate(_load_object(citation_coverage_path))
+    if release_index_uniqueness_path is None or not release_index_uniqueness_path.exists():
+        raise EvidenceError("Missing read-only release-index uniqueness evidence")
+    release_index_uniqueness = _load_object(release_index_uniqueness_path)
+    if release_index_uniqueness.get("schema_version") != 1 or release_index_uniqueness.get("status") != "PASS" or release_index_uniqueness.get("read_only") is not True:
+        raise EvidenceError("Release-index uniqueness evidence is not a read-only PASS report")
+    if release_safety_path is None or not release_safety_path.exists():
+        raise EvidenceError("Missing read-only release safety evidence")
+    release_safety = _load_object(release_safety_path)
+    if release_safety.get("schema_version") != 1 or release_safety.get("status") != "PASS" or release_safety.get("read_only") is not True:
+        raise EvidenceError("Release safety evidence is not a read-only PASS report")
     candidate_validation = candidate_validation_gate(candidate_validation_report)
     candidate_validation_matches_snapshot(candidate_validation_report, snapshot)
     runtime_identity = runtime_identity_gate(candidate_runtime_identity_report, candidate_index, candidate_knowledgebase)
@@ -355,6 +388,9 @@ def build_bundle(
         "candidate_validation": candidate_validation,
         "candidate_runtime_identity": runtime_identity,
         "application_gates": application_gates,
+        "citation_coverage": citation_coverage,
+        "release_index_uniqueness": release_index_uniqueness,
+        "release_safety": release_safety,
         "application_provenance": application_gates["provenance"],
         "highlight_oracle_path": str(highlight_oracle_path) if highlight_oracle_path else "",
         "artifact": {
@@ -384,6 +420,9 @@ def main() -> int:
     parser.add_argument("--candidate-runtime-identity", type=Path, required=True)
     parser.add_argument("--application-gates", type=Path, required=True)
     parser.add_argument("--highlight-oracle", type=Path)
+    parser.add_argument("--citation-coverage", type=Path, required=True)
+    parser.add_argument("--release-index-uniqueness", type=Path, required=True)
+    parser.add_argument("--release-safety", type=Path, required=True)
     parser.add_argument("--candidate-index", required=True)
     parser.add_argument("--candidate-knowledgebase", required=True)
     parser.add_argument("--rollback-index", default="legal-court-rag-index-v3")
@@ -405,6 +444,9 @@ def main() -> int:
         args.rollback_knowledgebase,
         application_gate_path=args.application_gates,
         highlight_oracle_path=args.highlight_oracle,
+        citation_coverage_path=args.citation_coverage,
+        release_index_uniqueness_path=args.release_index_uniqueness,
+        release_safety_path=args.release_safety,
         approved=args.approved,
         approval_environment=args.approval_environment,
     )

@@ -745,9 +745,21 @@ export const SupportingContent = ({
                         ""
                 );
                 const docKey = (itemAny.original_doc_id || docUrl || parsedItem.sourcefile || "") + `_${index}`;
+                const sourceRevision = String(itemAny.source_revision || "");
+                const sourceId = String(itemAny.source_id || itemAny.sourcefile || "");
+                const documentId = String(itemAny.document_id || itemAny.original_doc_id || itemAny.id || "");
+                const canonicalTextSha256 = String(itemAny.canonical_text_sha256 || "");
 
                 return (
-                    <div key={docKey} className={`${styles.supportingItem} ${isActive ? styles.highlighted : ""}`}>
+                    <div
+                        key={docKey}
+                        className={`${styles.supportingItem} ${isActive ? styles.highlighted : ""}`}
+                        data-source-revision={sourceRevision}
+                        data-source-id={sourceId}
+                        data-document-id={documentId}
+                        data-subsection-id={String(itemAny.subsection_id || targetSubsection || "")}
+                        data-canonical-text-sha256={canonicalTextSha256}
+                    >
                         <div className={styles.itemHeader}>
                             <div className={styles.itemTitle} title={displayTitle} aria-label={displayTitle}>
                                 {displayTitle}

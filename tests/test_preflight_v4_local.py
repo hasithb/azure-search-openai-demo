@@ -9,6 +9,7 @@ from scripts.preflight_v4_local import (
     local_runtime_contract,
     run_api_gates,
     run_live_smoke,
+    wait_for_local_app,
     validate_chat_failure_contracts,
 )
 from scripts.run_v4_application_gates import load_gate_reports
@@ -87,3 +88,17 @@ async def test_local_preflight_captures_chat_failure_contracts() -> None:
         "Candidate chat request timed out",
         "Candidate chat response is not valid JSON",
     ]
+
+
+@pytest.mark.asyncio
+async def test_local_readiness_attaches_to_fixture_server(fixture_origin) -> None:
+    readiness = await wait_for_local_app(fixture_origin, "/api/provenance", 1)
+
+    assert readiness["status"] == "READY"
+    assert readiness["http_status"] == 200
+
+
+@pytest.mark.asyncio
+async def test_local_readiness_fails_with_bounded_timeout() -> None:
+    with pytest.raises(Exception, match="did not become ready within 0.0s"):
+        await wait_for_local_app("http://127.0.0.1:1", "/api/provenance", 0)

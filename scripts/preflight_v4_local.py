@@ -6,7 +6,10 @@ import argparse
 import asyncio
 import json
 import os
+import shlex
+import subprocess
 import threading
+from time import monotonic
 from collections.abc import Awaitable, Callable
 from pathlib import Path
 from typing import Any
@@ -200,6 +203,84 @@ async def run_live_smoke(
     return result
 
 
+async def wait_for_local_app(candidate_url: str, readiness_path: str, timeout_seconds: float) -> dict[str, Any]:
+    deadline = monotonic() + timeout_seconds
+    last_error = ""
+    async with httpx.AsyncClient(timeout=5) as client:
+        while monotonic() < deadline:
+            try:
+                response = await client.get(f"{candidate_url.rstrip('/')}/{readiness_path.lstrip('/')}")
+                if response.status_code == 200:
+                    return {
+                        "status": "READY",
+                        "url": f"{candidate_url.rstrip('/')}/{readiness_path.lstrip('/')}",
+                        "http_status": response.status_code,
+                    }
+                last_error = f"HTTP {response.status_code}"
+            except httpx.HTTPError as error:
+                last_error = str(error)
+            await asyncio.sleep(0.25)
+    raise ApplicationGatesError(
+        f"Local application did not become ready within {timeout_seconds:.1f}s: {last_error or 'no response'}"
+    )
+
+
+async def run_local_smoke(
+    candidate: str,
+    provenance_path: Path,
+    oracle_path: Path,
+    snapshot_dir: Path,
+    output: Path,
+    question: str,
+    startup_command: str = "",
+    readiness_path: str = "/api/provenance",
+    startup_timeout: float = 60,
+) -> dict[str, Any]:
+    candidate_url = validate_candidate_url(candidate, allow_local=True)
+    expected_provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
+    if not isinstance(expected_provenance, dict):
+        raise ValueError("Local-smoke provenance file must contain a JSON object")
+
+    owned_process: subprocess.Popen[str] | None = None
+    if startup_command:
+        owned_process = subprocess.Popen(shlex.split(startup_command), text=True)
+    try:
+        readiness = await wait_for_local_app(candidate_url, readiness_path, startup_timeout)
+        observed_provenance = await fetch_provenance(candidate_url)
+        if observed_provenance != expected_provenance:
+            raise ApplicationGatesError("Local application provenance does not match the supplied provenance file")
+        diagnostics_dir = output / "highlight-browser-diagnostics"
+        highlight_report = build_highlight_report(
+            candidate_url,
+            oracle_path,
+            snapshot_dir,
+            expected_provenance,
+            question,
+            diagnostics_dir,
+        )
+        reports = {"highlight": highlight_report}
+        write_reports(output, reports)
+        result = {
+            "mode": "local-smoke",
+            "promotion_eligible": False,
+            "status": "PASS",
+            "candidate_url": candidate_url,
+            "app_lifecycle": "started-and-stopped" if owned_process else "attached",
+            "readiness": readiness,
+            "gates": ["highlight"],
+        }
+        (output / "summary.json").write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        return result
+    finally:
+        if owned_process is not None:
+            owned_process.terminate()
+            try:
+                owned_process.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                owned_process.kill()
+                owned_process.wait(timeout=5)
+
+
 def write_reports(output: Path, reports: dict[str, dict[str, Any]]) -> None:
     output.mkdir(parents=True, exist_ok=True)
     for name, report in reports.items():
@@ -208,7 +289,7 @@ def write_reports(output: Path, reports: dict[str, dict[str, Any]]) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--mode", choices=("offline", "live-smoke"), default="offline")
+    parser.add_argument("--mode", choices=("offline", "local-smoke", "live-smoke"), default="offline")
     parser.add_argument(
         "--require-runtime-contract",
         action="store_true",
@@ -221,7 +302,42 @@ def main() -> int:
     parser.add_argument("--snapshot-dir", type=Path, help="Canonical snapshot directory for live-smoke")
     parser.add_argument("--provenance-token", default="")
     parser.add_argument("--question", default="What is CPR Part 24 rule 24.2 and the test for summary judgment?")
+    parser.add_argument("--startup-command", help="Optional command to start for local-smoke; otherwise attach to the existing app")
+    parser.add_argument("--readiness-path", default="/api/provenance")
+    parser.add_argument("--startup-timeout", type=float, default=60)
     args = parser.parse_args()
+    if args.mode == "local-smoke":
+        missing = [
+            name
+            for name, value in (
+                ("--candidate-url", args.candidate_url),
+                ("--provenance", args.provenance),
+                ("--oracle", args.oracle),
+                ("--snapshot-dir", args.snapshot_dir),
+            )
+            if value is None
+        ]
+        if missing:
+            parser.error(f"local-smoke requires: {', '.join(missing)}")
+        try:
+            result = asyncio.run(
+                run_local_smoke(
+                    args.candidate_url,
+                    args.provenance,
+                    args.oracle,
+                    args.snapshot_dir,
+                    args.output,
+                    args.question,
+                    args.startup_command or "",
+                    args.readiness_path,
+                    args.startup_timeout,
+                )
+            )
+        except (OSError, json.JSONDecodeError, ApplicationGatesError, ValueError) as error:
+            print(json.dumps({"mode": "local-smoke", "promotion_eligible": False, "status": "FAIL", "error": str(error)}))
+            return 1
+        print(json.dumps(result, sort_keys=True))
+        return 0
     if args.mode == "live-smoke":
         missing = [
             name
