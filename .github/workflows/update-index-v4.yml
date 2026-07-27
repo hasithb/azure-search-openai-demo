@@ -321,7 +321,16 @@ jobs:
           ARTIFACT_SHA256: ${{ steps.hash.outputs.artifact_sha256 }}
           GITHUB_REF_NAME: ${{ github.ref_name }}
           GITHUB_SHA: ${{ github.sha }}
+      - name: Upload release safety failure report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v4-release-safety-${{ inputs.release_id || github.run_number }}
+          path: reports/v4_release_safety.json
+          if-no-files-found: ignore
+          retention-days: 30
       - uses: actions/upload-artifact@v4
+        if: success()
         with:
           name: v4-candidate-${{ inputs.release_id || github.run_number }}
           path: |

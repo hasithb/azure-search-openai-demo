@@ -73,6 +73,20 @@ def test_workflow_passes_replay_bound_coverage_to_downstream_gates():
     assert "if: inputs.promote == true" in workflow
 
 
+def test_workflow_retains_release_safety_report_when_validation_fails():
+    workflow = workflow_text()
+    build_candidate = workflow.split("  build-candidate:", 1)[1].split("  provision-and-upload:", 1)[0]
+
+    assert "Upload release safety failure report" in build_candidate
+    safety_upload = build_candidate.split("Upload release safety failure report", 1)[1].split("      - uses: actions/upload-artifact@v4", 1)[0]
+    assert "if: always()" in safety_upload
+    assert "path: reports/v4_release_safety.json" in safety_upload
+    assert "if-no-files-found: ignore" in safety_upload
+    candidate_upload = build_candidate.split("      - uses: actions/upload-artifact@v4", 1)[1]
+    assert "if: success()" in candidate_upload
+    assert "if: always()" not in candidate_upload
+
+
 def test_workflow_runs_and_merges_deterministic_browser_shards_before_coverage_validation():
     workflow = workflow_text()
     browser_step = workflow.split("Generate provenance-bound browser highlight gate", 1)[1].split("Generate provenance-bound ACL gate", 1)[0]

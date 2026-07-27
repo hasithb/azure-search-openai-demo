@@ -32,6 +32,43 @@ def _git(repository: Path, *args: str) -> str:
     return result.stdout.strip()
 
 
+def _git_status_entries(repository: Path) -> list[tuple[str, tuple[str, ...]]]:
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(repository), "status", "--porcelain=v1", "-z"],
+            check=True,
+            capture_output=True,
+        )
+    except (OSError, subprocess.CalledProcessError) as error:
+        raise ReleaseSafetyError("Git command failed: status --porcelain=v1 -z") from error
+
+    raw_entries = result.stdout.split(b"\0")
+    entries: list[tuple[str, tuple[str, ...]]] = []
+    index = 0
+    while index < len(raw_entries) - 1:
+        entry = raw_entries[index]
+        index += 1
+        if not entry:
+            continue
+        status = entry[:2].decode("ascii")
+        path = entry[3:].decode("utf-8", errors="surrogateescape")
+        paths = [path]
+        if status[0] in {"R", "C"} or status[1] in {"R", "C"}:
+            if index >= len(raw_entries) - 1:
+                raise ReleaseSafetyError("Git status returned an incomplete rename entry")
+            paths.append(raw_entries[index].decode("utf-8", errors="surrogateescape"))
+            index += 1
+        entries.append((status, tuple(paths)))
+    return entries
+
+
+def _path_is_allowed(path: str, allowed_dirty_prefixes: tuple[str, ...]) -> bool:
+    return any(
+        path == prefix or (prefix.endswith("/") and path.startswith(prefix))
+        for prefix in allowed_dirty_prefixes
+    )
+
+
 def sha256_file(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as stream:
@@ -74,12 +111,14 @@ def validate_release_safety(
         raise ReleaseSafetyError("Checked-out Git HEAD is detached; pass allow_detached=True for immutable CI checkouts")
     if expected_ref.strip() and actual_ref != expected_ref.strip() and actual_ref != "DETACHED":
         raise ReleaseSafetyError(f"Checked-out Git ref does not match expected ref: {actual_ref} != {expected_ref}")
-    status = _git(repository, "status", "--porcelain")
-    unexpected_status = "\n".join(
-        line for line in status.splitlines() if not any(line[3:].startswith(prefix) for prefix in allowed_dirty_prefixes)
-    )
-    if require_clean and unexpected_status:
-        raise ReleaseSafetyError("Git worktree is not clean")
+    status_entries = _git_status_entries(repository)
+    unexpected_entries = [
+        {"status": status, "paths": list(paths)}
+        for status, paths in status_entries
+        if not all(_path_is_allowed(path, allowed_dirty_prefixes) for path in paths)
+    ]
+    if require_clean and unexpected_entries:
+        raise ReleaseSafetyError(f"Git worktree is not clean: {json.dumps(unexpected_entries, sort_keys=True)}")
     if not artifact_path.is_file():
         raise ReleaseSafetyError(f"Release artifact is missing: {artifact_path}")
     actual_artifact_sha256 = sha256_file(artifact_path)
@@ -94,8 +133,8 @@ def validate_release_safety(
         "release_id": release_id.strip(),
         "artifact_path": str(artifact_path),
         "artifact_sha256": actual_artifact_sha256,
-        "clean_tree": not bool(unexpected_status),
-        "ignored_generated_changes": bool(status) and not bool(unexpected_status),
+        "clean_tree": not bool(unexpected_entries),
+        "ignored_generated_changes": bool(status_entries) and not bool(unexpected_entries),
     }
 
 
@@ -125,7 +164,9 @@ def main() -> int:
     except ReleaseSafetyError as error:
         result = {"schema_version": 1, "status": "FAIL", "read_only": True, "error": str(error)}
         args.output.parent.mkdir(parents=True, exist_ok=True)
-        args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        payload = json.dumps(result, indent=2, sort_keys=True) + "\n"
+        args.output.write_text(payload, encoding="utf-8")
+        print(payload, end="", flush=True)
         return 1
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
