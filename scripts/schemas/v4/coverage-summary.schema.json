@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/v4/coverage-summary.schema.json",
+  "type": "object",
+  "required": ["expected_cases", "passed_cases", "failed_cases", "unique_documents"],
+  "properties": {
+    "expected_cases": {"type": "integer", "minimum": 0},
+    "passed_cases": {"type": "integer", "minimum": 0},
+    "failed_cases": {"type": "integer", "minimum": 0},
+    "unique_documents": {"type": "integer", "minimum": 0}
+  },
+  "additionalProperties": false
+}

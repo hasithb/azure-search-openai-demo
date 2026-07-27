@@ -88,7 +88,13 @@ def fixture_highlight_report() -> dict[str, Any]:
         "case_count": 1,
         "source_count": 1,
         "snapshot_manifest_sha256": "c" * 64,
-        "browser_evidence": {"highlight_visible": True, "mode": "offline-fixture", "real_browser": False},
+        "browser_evidence": {
+            "highlight_visible": True,
+            "mode": "offline-fixture",
+            "real_browser": False,
+            "replay_hash": "d" * 64,
+            "request_serialization_hash": "e" * 64,
+        },
         "checks": [{"id": "fixture_highlight_contract", "status": "PASS"}],
         "provenance": PROVENANCE,
     }

@@ -30,6 +30,7 @@ def make_report(tmp_path):
         "heading_locator": "h-1",
         "next_heading": "1.2 Next",
         "next_heading_locator": "h-2",
+        "preceding_text": "",
         "snapshot_file": "snapshot.json",
         "body_text": body_text,
         "body_sha256": hashlib.sha256(body_text.casefold().encode("utf-8")).hexdigest(),

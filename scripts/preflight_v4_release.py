@@ -34,12 +34,7 @@ def require_hash(value: Any, field: str) -> str:
 def require_image(value: Any, field: str) -> str:
     image = str(value or "").strip()
     if not image:
-        raise PreflightError(
-            "PRECHECK FAILED: candidate_image is empty in audit job environment. "
-            "Producer: deploy-candidate-app.steps.image.outputs.candidate_image. "
-            "Expected: a non-empty immutable ACR image reference. "
-            "Action: stop before Container App update and workflow dispatch."
-        )
+        raise PreflightError("PRECHECK FAILED: candidate_image is empty")
     if not IMAGE_PATTERN.fullmatch(image):
         raise PreflightError(f"{field} must be an immutable ACR image reference including @sha256:digest")
     return image
@@ -85,33 +80,20 @@ def validate_runtime(
     if properties.get("provisioningState") != "Succeeded":
         raise PreflightError(f"Candidate app provisioning state is {properties.get('provisioningState')!r}")
     normalized_expected = normalize_revision_name(expected_revision)
-    latest = normalize_revision_name(properties.get("latestRevisionName"))
-    latest_ready = normalize_revision_name(properties.get("latestReadyRevisionName"))
-    if latest != normalized_expected:
-        raise PreflightError(f"Active revision {latest!r} does not match expected revision {normalized_expected!r}")
-    if latest_ready != normalized_expected:
-        raise PreflightError(
-            f"PRECHECK FAILED: candidate revision {normalized_expected} is not latest ready. "
-            f"latest_ready_revision is {latest_ready or '<missing>'}, likely still the previous v4 revision. "
-            "Action: wait for bounded readiness or fail before runtime validation."
-        )
+    if normalize_revision_name(properties.get("latestRevisionName")) != normalized_expected:
+        raise PreflightError(f"Active revision does not match expected revision {normalized_expected!r}")
+    if normalize_revision_name(properties.get("latestReadyRevisionName")) != normalized_expected:
+        raise PreflightError("Candidate revision is not latest ready")
     matching = [item for item in revisions if normalize_revision_name(item.get("name") or item.get("properties", {}).get("name")) == normalized_expected]
     if len(matching) != 1:
         raise PreflightError(f"Expected exactly one candidate revision; found {len(matching)}")
-    revision = matching[0]
-    revision_properties = revision.get("properties", {})
-    running_state = revision_properties.get("runningState")
-    health_state = revision_properties.get("healthState")
-    if running_state != "Running":
-        raise PreflightError(
-            f"PRECHECK FAILED: candidate revision {normalized_expected} is {running_state or '<missing>'}. "
-            f"latest_ready_revision is {latest_ready or '<missing>'}. "
-            "Action: wait for bounded readiness or fail before runtime validation."
-        )
-    if health_state != "Healthy":
-        raise PreflightError(f"Candidate revision {normalized_expected} health_state is {health_state!r}, expected 'Healthy'")
-    if int(revision_properties.get("trafficWeight", revision_properties.get("traffic_weight", 0)) or 0) != 100:
-        raise PreflightError(f"Candidate revision {normalized_expected} does not receive 100% traffic")
+    revision_properties = matching[0].get("properties", {})
+    if revision_properties.get("runningState") != "Running":
+        raise PreflightError(f"Candidate revision is {revision_properties.get('runningState')}")
+    if revision_properties.get("healthState") != "Healthy":
+        raise PreflightError(f"Candidate revision health_state is {revision_properties.get('healthState')!r}")
+    if int(revision_properties.get("trafficWeight", 0) or 0) != 100:
+        raise PreflightError("Candidate revision does not receive 100% traffic")
     containers = revision_properties.get("template", {}).get("containers", [])
     if not isinstance(containers, list) or len(containers) != 1:
         raise PreflightError("Candidate revision must expose exactly one container")
@@ -133,32 +115,31 @@ def run_preflight(payload: dict[str, Any]) -> dict[str, Any]:
     if not RELEASE_PATTERN.fullmatch(release_id):
         raise PreflightError("Release ID must match YYYYMMDD-rN")
     candidate_app = str(payload.get("candidate_app_name") or "").strip()
-    if not candidate_app or "v3" in candidate_app.casefold():
-        raise PreflightError("Candidate app is missing or targets the blocked v3 environment")
     expected_index = str(payload.get("expected_search_index") or "").strip()
     expected_knowledge_base = str(payload.get("expected_knowledge_base") or "").strip()
+    if not candidate_app or "v3" in candidate_app.casefold():
+        raise PreflightError("Candidate app is missing or targets the blocked v3 environment")
     if "v4" not in expected_index.casefold() or "staging" not in expected_index.casefold():
         raise PreflightError("Expected Search index must be a v4 staging index")
-    if expected_index not in expected_knowledge_base or "v4" not in expected_knowledge_base.casefold():
+    if expected_index not in expected_knowledge_base:
         raise PreflightError("Expected knowledge base must identify the v4 staging index")
     candidate_app_json = payload.get("candidate_app")
     if not isinstance(candidate_app_json, dict):
         raise PreflightError("candidate_app must be a JSON object")
-    ingress = candidate_app_json.get("properties", {}).get("configuration", {}).get("ingress", {})
-    fqdn = str(ingress.get("fqdn") or "").strip()
+    fqdn = str(candidate_app_json.get("properties", {}).get("configuration", {}).get("ingress", {}).get("fqdn") or "").strip()
     if not fqdn:
         raise PreflightError("Candidate app has no ingress FQDN")
     validate_url(str(payload.get("candidate_url") or ""), fqdn)
     artifact_sha = require_hash(payload.get("artifact_sha256"), "artifact_sha256")
     snapshot_sha = validate_snapshot(payload.get("search_snapshot") or {}, expected_index)
-    supplied_snapshot_sha = require_hash(payload.get("search_snapshot_sha256"), "search_snapshot_sha256")
-    if supplied_snapshot_sha != snapshot_sha:
+    if require_hash(payload.get("search_snapshot_sha256"), "search_snapshot_sha256") != snapshot_sha:
         raise PreflightError("Provided Search snapshot SHA does not match the verified snapshot")
     expected_image = require_image(payload.get("candidate_image"), "candidate_image")
+    expected_revision = normalize_revision_name(payload.get("expected_revision"))
     validate_runtime(
         candidate_app_json,
         payload.get("candidate_revisions") or [],
-        expected_revision=str(payload.get("expected_revision") or ""),
+        expected_revision=expected_revision,
         expected_image=expected_image,
         expected_environment={
             "AZURE_SEARCH_INDEX": expected_index,
@@ -175,42 +156,58 @@ def run_preflight(payload: dict[str, Any]) -> dict[str, Any]:
         "search_snapshot_sha256": snapshot_sha,
         "search_index": expected_index,
         "knowledge_base": expected_knowledge_base,
-        "candidate_revision": normalize_revision_name(payload.get("expected_revision")),
+        "candidate_revision": expected_revision,
         "candidate_image": expected_image,
     }
     for field, value in expected_provenance.items():
         if not value or provenance.get(field) != value:
             raise PreflightError(f"Candidate provenance does not match {field}")
     return {
+        "schema_version": 1,
         "simulation": True,
+        "read_only": True,
         "promotion_eligible": False,
         "status": "PASS",
         "release_id": release_id,
         "candidate_app": candidate_app,
-        "expected_revision": normalize_revision_name(payload.get("expected_revision")),
+        "expected_revision": expected_revision,
         "candidate_image": expected_image,
         "artifact_sha256": artifact_sha,
         "search_snapshot_sha256": snapshot_sha,
     }
 
 
-def load_payload(path: Path) -> dict[str, Any]:
-    payload = json.loads(path.read_text(encoding="utf-8"))
-    if not isinstance(payload, dict):
-        raise PreflightError("Preflight input must be a JSON object")
-    return payload
+validate_preflight = run_preflight
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", type=Path, required=True)
+    parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     try:
-        result = run_preflight(load_payload(args.input))
+        payload = json.loads(args.input.read_text(encoding="utf-8"))
+        if not isinstance(payload, dict):
+            raise PreflightError("Preflight input must be a JSON object")
+        result = run_preflight(payload)
     except (OSError, json.JSONDecodeError, PreflightError) as error:
-        print(f"PRECHECK FAILED: {error}")
+        result = {
+            "schema_version": 1,
+            "simulation": True,
+            "read_only": True,
+            "promotion_eligible": False,
+            "status": "FAIL",
+            "error": str(error),
+        }
+        print(json.dumps(result, sort_keys=True))
+        if args.output:
+            args.output.parent.mkdir(parents=True, exist_ok=True)
+            args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         return 1
     print(json.dumps(result, sort_keys=True))
+    if args.output:
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return 0
 
 

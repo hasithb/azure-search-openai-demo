@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/v4/search-reconciliation.schema.json",
+  "type": "object",
+  "required": ["schema_version", "gate", "status", "snapshot_sha256", "documents_sha256", "artifact_documents_sha256", "search_documents_sha256", "manifest_sha256", "artifact_document_count", "search_document_count", "mappings", "failures"],
+  "properties": {
+    "schema_version": {"const": 2},
+    "gate": {"const": "v4_search_reconciliation"},
+    "status": {"const": "PASS"},
+    "snapshot_sha256": {"type": "string", "minLength": 1},
+    "documents_sha256": {"type": "string", "minLength": 1},
+    "artifact_documents_sha256": {"type": "string", "minLength": 1},
+    "search_documents_sha256": {"type": "string", "minLength": 1},
+    "manifest_sha256": {"type": "string", "minLength": 1},
+    "artifact_document_count": {"type": "integer", "minimum": 1},
+    "search_document_count": {"type": "integer", "minimum": 1},
+    "mappings": {"type": "array", "minItems": 1},
+    "failures": {"const": []}
+  }
+}

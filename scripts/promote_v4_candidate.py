@@ -63,7 +63,7 @@ def validate_evidence_bundle(bundle: dict[str, Any]) -> dict[str, str]:
     if index_name.casefold() not in knowledgebase_name.casefold():
         raise PromotionError("Knowledge-base target must identify the candidate index")
     application_gates = bundle.get("application_gates")
-    if not isinstance(application_gates, dict) or application_gates.get("schema_version") != 1 or application_gates.get("status") != "PASS":
+    if not isinstance(application_gates, dict) or application_gates.get("schema_version") != 2 or application_gates.get("status") != "PASS":
         raise PromotionError("Application-gate validation is not clean")
     runtime_identity = bundle.get("candidate_runtime_identity")
     if not isinstance(runtime_identity, dict):

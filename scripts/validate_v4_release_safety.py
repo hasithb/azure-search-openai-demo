@@ -50,6 +50,7 @@ def validate_release_safety(
     expected_artifact_sha256: str,
     require_clean: bool = True,
     allowed_dirty_prefixes: tuple[str, ...] = (),
+    allow_detached: bool = False,
 ) -> dict[str, Any]:
     expected_sha = expected_sha.strip().lower()
     if not GIT_SHA.fullmatch(expected_sha):
@@ -59,8 +60,19 @@ def validate_release_safety(
     actual_sha = _git(repository, "rev-parse", "HEAD").lower()
     if actual_sha != expected_sha:
         raise ReleaseSafetyError(f"Checked-out Git SHA does not match expected SHA: {actual_sha} != {expected_sha}")
-    actual_ref = _git(repository, "symbolic-ref", "--short", "HEAD")
-    if expected_ref.strip() and actual_ref != expected_ref.strip():
+    symbolic_ref = subprocess.run(
+        ["git", "-C", str(repository), "symbolic-ref", "--short", "HEAD"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if symbolic_ref.returncode == 0:
+        actual_ref = symbolic_ref.stdout.strip()
+    elif allow_detached:
+        actual_ref = "DETACHED"
+    else:
+        raise ReleaseSafetyError("Checked-out Git HEAD is detached; pass allow_detached=True for immutable CI checkouts")
+    if expected_ref.strip() and actual_ref != expected_ref.strip() and actual_ref != "DETACHED":
         raise ReleaseSafetyError(f"Checked-out Git ref does not match expected ref: {actual_ref} != {expected_ref}")
     status = _git(repository, "status", "--porcelain")
     unexpected_status = "\n".join(
@@ -96,6 +108,7 @@ def main() -> int:
     parser.add_argument("--artifact", type=Path, required=True)
     parser.add_argument("--artifact-sha256", required=True)
     parser.add_argument("--allow-dirty-prefix", action="append", default=[])
+    parser.add_argument("--allow-detached", action="store_true")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     try:
@@ -107,6 +120,7 @@ def main() -> int:
             artifact_path=args.artifact,
             expected_artifact_sha256=args.artifact_sha256,
             allowed_dirty_prefixes=tuple(args.allow_dirty_prefix),
+            allow_detached=args.allow_detached,
         )
     except ReleaseSafetyError as error:
         result = {"schema_version": 1, "status": "FAIL", "read_only": True, "error": str(error)}

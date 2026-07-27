@@ -220,19 +220,49 @@ def candidate_validation_matches_snapshot(report: dict[str, Any], snapshot: dict
 
 
 def citation_coverage_gate(report: dict[str, Any]) -> dict[str, Any]:
-    if report.get("schema_version") != 1 or report.get("status") != "PASS":
-        raise EvidenceError("Exhaustive citation coverage report is not passing")
+    if report.get("schema_version") != 2 or report.get("status") != "PASS":
+        raise EvidenceError("Exhaustive citation coverage report is not passing schema version 2")
     counts = report.get("counts")
     case_count = int(report.get("case_count", 0) or 0)
-    if not isinstance(counts, dict) or case_count <= 0:
+    if not isinstance(counts, dict) or case_count <= 0 or not str(report.get("replay_hash") or "").strip() or not str(report.get("request_serialization_hash") or "").strip():
         raise EvidenceError("Exhaustive citation coverage report has no cases or counts")
+    coverage_summary = report.get("coverage_summary")
+    if not isinstance(coverage_summary, dict):
+        raise EvidenceError("Exhaustive citation coverage report is missing coverage summary")
     required = ("manifest", "rendered", "clicked", "supporting_content", "primary_source")
     if any(int(counts.get(field, -1)) != case_count for field in required):
         raise EvidenceError("Exhaustive citation coverage counts do not reconcile")
-    if int(counts.get("search_documents", -1)) != case_count:
+    unique_documents = int(counts.get("unique_documents", -1))
+    if unique_documents <= 0 or int(counts.get("search_documents", -1)) != unique_documents:
         raise EvidenceError("Exhaustive citation coverage Search joins are incomplete")
+    if coverage_summary != {
+        "expected_cases": case_count,
+        "passed_cases": case_count,
+        "failed_cases": 0,
+        "unique_documents": unique_documents,
+    }:
+        raise EvidenceError("Exhaustive citation coverage summary does not reconcile")
     if report.get("failures") not in ([], None):
         raise EvidenceError("Exhaustive citation coverage contains failures")
+    return report
+
+
+def search_reconciliation_gate(report: dict[str, Any]) -> dict[str, Any]:
+    if report.get("schema_version") != 2 or report.get("gate") != "v4_search_reconciliation" or report.get("status") != "PASS":
+        raise EvidenceError("Artifact/Search reconciliation report is not passing schema version 2")
+    if report.get("artifact_document_count") != report.get("search_document_count") or not isinstance(report.get("mappings"), list) or not report["mappings"]:
+        raise EvidenceError("Artifact/Search reconciliation counts do not reconcile")
+    hash_fields = (
+        "snapshot_sha256",
+        "documents_sha256",
+        "artifact_documents_sha256",
+        "search_documents_sha256",
+        "manifest_sha256",
+    )
+    if any(not str(report.get(field) or "").strip() for field in hash_fields):
+        raise EvidenceError("Artifact/Search reconciliation is missing hash-bound evidence")
+    if report["artifact_documents_sha256"] != report["search_documents_sha256"]:
+        raise EvidenceError("Artifact/Search reconciliation document hashes do not match")
     return report
 
 
@@ -259,8 +289,8 @@ def application_gate_gate(
     artifact_sha256: str,
     search_snapshot_sha256: str,
 ) -> dict[str, Any]:
-    if report.get("schema_version") != 1 or report.get("status") != "PASS":
-        raise EvidenceError("Application-gate report is not a passing version 1 report")
+    if report.get("schema_version") != 2 or report.get("status") != "PASS":
+        raise EvidenceError("Application-gate report is not a passing version 2 report")
     provenance = report.get("provenance")
     if not isinstance(provenance, dict):
         raise EvidenceError("Application-gate report is missing provenance")
@@ -306,6 +336,7 @@ def build_bundle(
     application_gate_path: Path,
     highlight_oracle_path: Path | None = None,
     citation_coverage_path: Path | None = None,
+    search_reconciliation_path: Path | None = None,
     release_index_uniqueness_path: Path | None = None,
     release_safety_path: Path | None = None,
     approved: bool = False,
@@ -345,6 +376,9 @@ def build_bundle(
     if citation_coverage_path is None or not citation_coverage_path.exists():
         raise EvidenceError("Missing exhaustive citation coverage evidence")
     citation_coverage = citation_coverage_gate(_load_object(citation_coverage_path))
+    if search_reconciliation_path is None or not search_reconciliation_path.exists():
+        raise EvidenceError("Missing artifact/Search reconciliation evidence")
+    search_reconciliation = search_reconciliation_gate(_load_object(search_reconciliation_path))
     if release_index_uniqueness_path is None or not release_index_uniqueness_path.exists():
         raise EvidenceError("Missing read-only release-index uniqueness evidence")
     release_index_uniqueness = _load_object(release_index_uniqueness_path)
@@ -389,6 +423,7 @@ def build_bundle(
         "candidate_runtime_identity": runtime_identity,
         "application_gates": application_gates,
         "citation_coverage": citation_coverage,
+        "search_reconciliation": search_reconciliation,
         "release_index_uniqueness": release_index_uniqueness,
         "release_safety": release_safety,
         "application_provenance": application_gates["provenance"],
@@ -421,6 +456,7 @@ def main() -> int:
     parser.add_argument("--application-gates", type=Path, required=True)
     parser.add_argument("--highlight-oracle", type=Path)
     parser.add_argument("--citation-coverage", type=Path, required=True)
+    parser.add_argument("--search-reconciliation", type=Path, required=True)
     parser.add_argument("--release-index-uniqueness", type=Path, required=True)
     parser.add_argument("--release-safety", type=Path, required=True)
     parser.add_argument("--candidate-index", required=True)
@@ -445,6 +481,7 @@ def main() -> int:
         application_gate_path=args.application_gates,
         highlight_oracle_path=args.highlight_oracle,
         citation_coverage_path=args.citation_coverage,
+        search_reconciliation_path=args.search_reconciliation,
         release_index_uniqueness_path=args.release_index_uniqueness,
         release_safety_path=args.release_safety,
         approved=args.approved,

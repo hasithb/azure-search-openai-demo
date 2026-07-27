@@ -1,3 +1,38 @@
+import json
+from pathlib import Path
+
+import pytest
+
+from scripts.preflight_v4_release import PreflightError, run_preflight
+
+
+FIXTURES = Path(__file__).parents[1] / "tests" / "fixtures" / "v4"
+
+
+def load_fixture(name: str) -> dict:
+    return json.loads((FIXTURES / name / "preflight.json").read_text(encoding="utf-8"))
+
+
+def test_ready_fixture_passes_without_promotion_eligibility():
+    result = run_preflight(load_fixture("ready"))
+    assert result["status"] == "PASS"
+    assert result["simulation"] is True
+    assert result["read_only"] is True
+    assert result["promotion_eligible"] is False
+
+
+def test_reconstructed_r7_fixture_fails_closed_on_empty_image():
+    with pytest.raises(PreflightError, match="candidate_image is empty"):
+        run_preflight(load_fixture("r7-reconstructed"))
+
+
+def test_preflight_rejects_snapshot_hash_drift():
+    observations = load_fixture("ready")
+    observations["search_snapshot"]["documents_sha256"] = "d" * 64
+    with pytest.raises(PreflightError, match="documents_sha256"):
+        run_preflight(observations)
+
+
 import hashlib
 import json
 

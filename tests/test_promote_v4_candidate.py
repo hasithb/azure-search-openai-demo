@@ -38,7 +38,7 @@ VALID_BUNDLE = {
         },
     },
     "application_gates": {
-        "schema_version": 1,
+        "schema_version": 2,
         "status": "PASS",
         "provenance": {
             "release_id": "20260713-r3",
@@ -84,7 +84,7 @@ def test_valid_evidence_bundle_returns_exact_cutover_targets():
         ({"fidelity": {"substantive_coverage": 1.0, "ambiguous": 1}}, "not clean"),
         ({"fidelity": {"substantive_coverage": 0.99}}, "100%"),
         ({"application_gates": {"schema_version": 1, "status": "FAIL"}}, "Application-gate"),
-        ({"application_gates": {"schema_version": 1, "status": "PASS", "provenance": {}, "gates": {}}}, "all six required gates"),
+        ({"application_gates": {"schema_version": 2, "status": "PASS", "provenance": {}, "gates": {}}}, "all six required gates"),
     ],
 )
 def test_invalid_evidence_bundle_cannot_promote(change, message):

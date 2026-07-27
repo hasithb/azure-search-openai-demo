@@ -459,6 +459,20 @@ The second command is validation-only unless `--execute` is explicitly
 provided. Embeddings must be generated first with
 `scripts/generate_v4_embeddings.py`; empty vectors are rejected.
 
+The release preflight can be simulated without Azure or workflow writes using
+captured observations:
+
+```shell
+source .venv/bin/activate
+python scripts/preflight_v4_release.py \
+  --input tests/fixtures/v4/ready/preflight.json \
+  --output reports/v4-preflight-simulation.json
+```
+
+The simulator must return `status: PASS`, `read_only: true`, and
+`promotion_eligible: false`. The `r7-reconstructed` fixture is an expected
+fail-closed case for an empty image and stale candidate revision.
+
 Before dispatching `update-index-v4.yml`, run the non-mutating release
 simulator against captured observations:
 

@@ -49,6 +49,18 @@ jobs:
         run: python -m pip install -r requirements-dev.txt
       - name: Run deterministic local application gates
         run: python scripts/preflight_v4_local.py --mode offline --require-runtime-contract --output reports/v4-local
+      - name: Simulate captured v4 release preflight
+        run: |
+          python scripts/preflight_v4_release.py \
+            --input tests/fixtures/v4/ready/preflight.json \
+            --output reports/v4-preflight-simulation.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          result = json.loads(Path("reports/v4-preflight-simulation.json").read_text())
+          if result.get("status") != "PASS" or result.get("promotion_eligible") is not False:
+              raise SystemExit("ready preflight simulation did not prove read-only PASS")
+          PY
 
   preflight:
     needs: local-validation
@@ -131,6 +143,13 @@ jobs:
               raise SystemExit("V4_CANDIDATE_URL must be an origin URL without a path")
           print(f"Validated dedicated candidate {candidate['name']} at https://{fqdn}")
           PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v4-preflight-${{ inputs.release_id || github.run_number }}
+          path: |
+            reports/v4_release_inventory.json
+            reports/v4_release_index_uniqueness.json
+          retention-days: 30
 
   build-candidate:
     needs: preflight
@@ -151,6 +170,10 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: v4-preflight-${{ inputs.release_id || github.run_number }}
+          path: reports
       - name: Verify Cognitive Services token identity
         shell: bash
         run: |
@@ -196,6 +219,13 @@ jobs:
           python scripts/generate_highlight_oracle.py \
             --snapshot-dir reports/html_oracle_snapshots \
             --output reports/highlight_oracle.json
+          python scripts/build_v4_subsection_manifest.py \
+            --oracle reports/highlight_oracle.json \
+            --output reports/v4_subsection_manifest.json
+          python scripts/validate_v4_subsection_manifest.py \
+            --manifest reports/v4_subsection_manifest.json \
+            --oracle reports/highlight_oracle.json \
+            --output reports/v4_subsection_manifest_gate.json
       - name: Verify Document Intelligence identity
         run: |
           az account show --query '{user:user.name,type:user.type,tenantId:tenantId,id:id}' -o json
@@ -275,7 +305,17 @@ jobs:
             --release-id "${V4_RELEASE_ID}" \
             --artifact "reports/index_v4_artifacts_${V4_RELEASE_ID}/documents_with_embeddings.jsonl" \
             --artifact-sha256 "${ARTIFACT_SHA256}" \
-            --allow-dirty-prefix reports/ \
+            --allow-detached \
+            --allow-dirty-prefix "reports/index_v4_artifacts_${V4_RELEASE_ID}/" \
+            --allow-dirty-prefix "reports/html_oracle_snapshots/" \
+            --allow-dirty-prefix "reports/court_guides_${V4_RELEASE_ID}/" \
+            --allow-dirty-prefix reports/v4_release_inventory.json \
+            --allow-dirty-prefix reports/v4_release_index_uniqueness.json \
+            --allow-dirty-prefix reports/v4_release_safety.json \
+            --allow-dirty-prefix reports/highlight_oracle.json \
+            --allow-dirty-prefix reports/v4_subsection_manifest.json \
+            --allow-dirty-prefix reports/v4_subsection_manifest_gate.json \
+            --allow-dirty-prefix reports/html_transition_audit.json \
             --output reports/v4_release_safety.json
         env:
           ARTIFACT_SHA256: ${{ steps.hash.outputs.artifact_sha256 }}
@@ -289,6 +329,10 @@ jobs:
             reports/html_oracle_snapshots/
             reports/html_transition_audit.json
             reports/highlight_oracle.json
+            reports/v4_subsection_manifest.json
+            reports/v4_subsection_manifest_gate.json
+            reports/v4_release_safety.json
+            reports/v4_release_index_uniqueness.json
           retention-days: 30
 
   provision-and-upload:
@@ -472,6 +516,13 @@ jobs:
             --output reports/v4_search_snapshot.json
         env:
           AZURE_SEARCH_SERVICE: ${{ secrets.AZURE_SEARCH_SERVICE }}
+      - name: Reconcile artifact with candidate Search snapshot
+        run: |
+          python scripts/reconcile_v4_search_snapshot.py \
+            --manifest reports/v4_subsection_manifest.json \
+            --artifact reports/index_v4_artifacts_${{ inputs.release_id || github.run_number }}/documents_with_embeddings.jsonl \
+            --snapshot reports/v4_search_snapshot.json \
+            --output reports/v4_search_reconciliation.json
       - name: Bind candidate revision to Search snapshot
         run: |
           : "${AZURE_RESOURCE_GROUP:?Set V4 candidate resource group}"
@@ -543,14 +594,50 @@ jobs:
           }
           Path("reports/candidate_provenance.json").write_text(json.dumps(provenance, indent=2) + "\n")
           PY
+          shard_count="${V4_BROWSER_SHARD_COUNT:-4}"
+          for shard_index in $(seq 0 "$((shard_count - 1))"); do
+            python scripts/gate_highlight_browser.py \
+              --candidate-url "${V4_CANDIDATE_URL}" \
+              --snapshot-dir reports/html_oracle_snapshots \
+              --oracle reports/highlight_oracle.json \
+              --provenance reports/candidate_provenance.json \
+              --diagnostics-dir "reports/highlight-browser-diagnostics/shard-${shard_index}" \
+              --shard-index "${shard_index}" \
+              --shard-count "${shard_count}" \
+              --exhaustive-coverage-input "reports/v4_browser_shard_${shard_index}.json" \
+              --output "reports/highlight_gate_shard_${shard_index}.json"
+          done
+          merge_args=()
+          for shard_index in $(seq 0 "$((shard_count - 1))"); do
+            merge_args+=(--merge-report "reports/v4_browser_shard_${shard_index}.json")
+          done
           python scripts/gate_highlight_browser.py \
-            --candidate-url "${V4_CANDIDATE_URL}" \
-            --snapshot-dir reports/html_oracle_snapshots \
             --oracle reports/highlight_oracle.json \
-            --provenance reports/candidate_provenance.json \
-            --diagnostics-dir reports/highlight-browser-diagnostics \
-            --exhaustive-coverage-input reports/v4_citation_coverage_input.json \
-            --output reports/highlight_gate.json
+            "${merge_args[@]}" \
+            --search-snapshot reports/v4_search_snapshot.json \
+            --output reports/v4_citation_coverage_input.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          coverage = json.loads(Path("reports/v4_citation_coverage_input.json").read_text())
+          report = {
+              "schema_version": 2,
+              "gate": "highlight",
+              "status": coverage["status"],
+              "case_count": coverage["case_count"],
+              "replay_hash": coverage["replay_hash"],
+              "request_serialization_hash": coverage["request_serialization_hash"],
+              "coverage": coverage,
+              "provenance": json.loads(Path("reports/candidate_provenance.json").read_text()),
+          }
+          Path("reports/highlight_gate.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
+          PY
+          python scripts/validate_v4_schema_contract.py \
+            --input reports/v4_citation_coverage_input.json \
+            --schema scripts/schemas/v4/merged-coverage.schema.json
+          python scripts/validate_v4_schema_contract.py \
+            --input reports/v4_search_reconciliation.json \
+            --schema scripts/schemas/v4/search-reconciliation.schema.json
         env:
           ARTIFACT_SHA256: ${{ needs.build-candidate.outputs.artifact_sha256 }}
           AZURE_SEARCH_SERVICE: ${{ secrets.AZURE_SEARCH_SERVICE }}
@@ -561,6 +648,7 @@ jobs:
           V4_RELEASE_ID: ${{ inputs.release_id || github.run_number }}
           CANDIDATE_IMAGE: ${{ needs.deploy-candidate-app.outputs.candidate_image }}
           CANDIDATE_REVISION: ${{ needs.deploy-candidate-app.outputs.candidate_revision }}
+          V4_BROWSER_SHARD_COUNT: ${{ vars.V4_BROWSER_SHARD_COUNT || 4 }}
         shell: bash
       - name: Generate provenance-bound ACL gate
         run: |
@@ -621,6 +709,10 @@ jobs:
           AZURE_SEARCH_SERVICE: ${{ secrets.AZURE_SEARCH_SERVICE }}
       - name: Require exhaustive citation evidence
         run: |
+          python scripts/validate_v4_subsection_manifest.py \
+            --manifest reports/v4_subsection_manifest.json \
+            --oracle reports/highlight_oracle.json \
+            --output reports/v4_subsection_manifest_gate.json
           test -s reports/v4_citation_coverage_input.json
           python scripts/validate_v4_citation_coverage.py \
             --input reports/v4_citation_coverage_input.json \
@@ -645,6 +737,7 @@ jobs:
             --fidelity-report reports/v4_fidelity.json \
             --transition-report reports/html_transition_audit.json \
             --candidate-validation reports/v4_candidate_validation.json \
+            --search-reconciliation reports/v4_search_reconciliation.json \
             --candidate-runtime-identity reports/candidate_runtime_identity.json \
             --application-gates reports/v4_application_gates.json \
             --highlight-oracle reports/highlight_oracle.json \
@@ -665,6 +758,9 @@ jobs:
             reports/index_v4_artifacts_${{ inputs.release_id || github.run_number }}/documents_with_embeddings.jsonl
             reports/index_v4_artifacts_${{ inputs.release_id || github.run_number }}/court_guides_extraction_manifest.json
             reports/highlight_oracle.json
+            reports/v4_subsection_manifest.json
+            reports/v4_subsection_manifest_gate.json
+            reports/v4_search_reconciliation.json
             reports/highlight_gate.json
             reports/acl_gate.json
             reports/candidate_provenance.json
@@ -715,6 +811,7 @@ jobs:
             --fidelity-report reports/v4_fidelity.json \
             --transition-report reports/html_transition_audit.json \
             --candidate-validation reports/v4_candidate_validation.json \
+            --search-reconciliation reports/v4_search_reconciliation.json \
             --candidate-runtime-identity reports/candidate_runtime_identity.json \
             --application-gates reports/v4_application_gates.json \
             --highlight-oracle reports/highlight_oracle.json \

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/v4/primary-source-identity.schema.json",
+  "type": "object",
+  "required": ["source-revision", "source-id", "document-id", "subsection-id", "canonical-text-sha256"],
+  "properties": {
+    "source-revision": {"type": "string", "minLength": 1},
+    "source-id": {"type": "string", "minLength": 1},
+    "document-id": {"type": "string", "minLength": 1},
+    "subsection-id": {"type": "string", "minLength": 1},
+    "canonical-text-sha256": {"type": "string", "minLength": 1}
+  },
+  "additionalProperties": false
+}

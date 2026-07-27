@@ -40,6 +40,8 @@ def test_local_validation_runs_before_remote_preflight():
     assert workflow.index("  local-validation:") < workflow.index("  preflight:")
     local_validation = workflow.split("  local-validation:", 1)[1].split("  preflight:", 1)[0]
     assert "python scripts/preflight_v4_local.py --mode offline --require-runtime-contract --output reports/v4-local" in local_validation
+    assert "python scripts/preflight_v4_release.py" in local_validation
+    assert "tests/fixtures/v4/ready/preflight.json" in local_validation
 
 
 def test_preflight_checks_release_index_uniqueness_read_only():
@@ -60,3 +62,24 @@ def test_workflow_requires_exhaustive_citation_evidence_before_bundle():
     assert "v4_citation_coverage_input.json" in workflow
     assert "validate_v4_citation_coverage.py" in workflow
     assert "--release-index-uniqueness reports/v4_release_index_uniqueness.json" in workflow
+
+
+def test_workflow_passes_replay_bound_coverage_to_downstream_gates():
+    workflow = workflow_text()
+
+    browser_step = workflow.split("Generate provenance-bound browser highlight gate", 1)[1].split("Generate provenance-bound ACL gate", 1)[0]
+    assert "--exhaustive-coverage-input \"reports/v4_browser_shard_${shard_index}.json\"" in browser_step
+    assert workflow.index("Run strict application gates") < workflow.index("Require exhaustive citation evidence")
+    assert "if: inputs.promote == true" in workflow
+
+
+def test_workflow_runs_and_merges_deterministic_browser_shards_before_coverage_validation():
+    workflow = workflow_text()
+    browser_step = workflow.split("Generate provenance-bound browser highlight gate", 1)[1].split("Generate provenance-bound ACL gate", 1)[0]
+
+    assert "--shard-index" in browser_step
+    assert "--shard-count" in browser_step
+    assert "--merge-report" in browser_step
+    assert "reports/v4_citation_coverage_input.json" in browser_step
+    assert browser_step.index("--merge-report") > browser_step.index("--shard-count")
+    assert "V4_BROWSER_SHARD_COUNT" in browser_step

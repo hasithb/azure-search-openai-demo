@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/v4/merged-coverage.schema.json",
+  "type": "object",
+  "required": ["schema_version", "status", "replay_hash", "request_serialization_hash", "case_count", "manifest", "browser_document_observations", "coverage_summary", "failures"],
+  "properties": {
+    "schema_version": {"const": 2},
+    "status": {"const": "PASS"},
+    "replay_hash": {"type": "string", "minLength": 1},
+    "request_serialization_hash": {"type": "string", "minLength": 1},
+    "case_count": {"type": "integer", "minimum": 1},
+    "manifest": {"type": "array", "minItems": 1},
+    "browser_document_observations": {"type": "array"},
+    "coverage_summary": {"$ref": "coverage-summary.schema.json"},
+    "failures": {"const": []}
+  }
+}

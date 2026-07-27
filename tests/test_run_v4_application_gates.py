@@ -26,7 +26,7 @@ def write_report(tmp_path, name, status="PASS", provenance=None):
             "case_count": 10,
             "source_count": 2,
             "snapshot_manifest_sha256": "manifest-hash",
-            "browser_evidence": {"highlight_visible": True},
+            "browser_evidence": {"highlight_visible": True, "replay_hash": "replay-1", "request_serialization_hash": "request-1"},
         })
         payload["checks"] = [{"id": "canonical_citation_highlight", "status": "PASS"}]
     path.write_text(json.dumps(payload))
@@ -40,6 +40,12 @@ def test_load_gate_reports_requires_all_release_gates(tmp_path):
     )
 
     assert tuple(reports) == ("retrieval", "category", "source_hierarchy", "citation", "acl", "highlight")
+
+
+def test_application_gate_report_schema_is_v2():
+    from scripts.run_v4_application_gates import run
+
+    assert run.__annotations__["return"] == "dict[str, Any]"
 
 
 @pytest.mark.parametrize(
@@ -75,6 +81,37 @@ def test_load_gate_reports_rejects_incomplete_highlight_oracle(tmp_path):
 
     with pytest.raises(ApplicationGatesError, match="missing oracle evidence"):
         load_gate_reports(items)
+
+
+def test_load_gate_reports_accepts_exhaustive_schema_v2_highlight_coverage(tmp_path):
+    items = [write_report(tmp_path, name) for name in ("retrieval", "category", "source_hierarchy", "citation", "acl")]
+    payload = {
+        "schema_version": 2,
+        "gate": "highlight",
+        "status": "PASS",
+        "oracle_version": "2",
+        "case_count": 2,
+        "source_count": 1,
+        "snapshot_manifest_sha256": "manifest-hash",
+        "replay_hash": "replay-1",
+        "request_serialization_hash": "request-1",
+        "coverage": {
+            "schema_version": 2,
+            "status": "PASS",
+            "case_count": 2,
+            "replay_hash": "replay-1",
+            "request_serialization_hash": "request-1",
+            "coverage_summary": {"expected_cases": 2, "passed_cases": 2, "failed_cases": 0, "unique_documents": 1},
+        },
+        "checks": [{"id": "exhaustive", "status": "PASS"}],
+    }
+    path = tmp_path / "highlight.json"
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    items.append(f"highlight={path}")
+
+    reports = load_gate_reports(items)
+
+    assert reports["highlight"]["coverage"]["status"] == "PASS"
 
 
 def test_load_gate_reports_rejects_stale_provenance(tmp_path):

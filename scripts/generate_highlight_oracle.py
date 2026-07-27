@@ -34,12 +34,15 @@ def normalize_text(value: str) -> str:
     return re.sub(r"\s+", " ", value).strip()
 
 
-def body_evidence(blocks: list[dict[str, Any]], heading: dict[str, Any], next_heading: dict[str, Any] | None) -> tuple[str, str]:
+def body_evidence(
+    blocks: list[dict[str, Any]], heading: dict[str, Any], next_heading: dict[str, Any] | None
+) -> tuple[str, str, str]:
     """Fingerprint the complete canonical span from heading through its body."""
     start = blocks.index(heading)
     end = blocks.index(next_heading) if next_heading is not None else len(blocks)
     body_text = normalize_text(" ".join(str(block.get("text") or "") for block in blocks[start:end]))
-    return body_text, hashlib.sha256(body_text.casefold().encode("utf-8")).hexdigest()
+    preceding_text = normalize_text(str(blocks[start - 1].get("text") or "")) if start else ""
+    return body_text, hashlib.sha256(body_text.casefold().encode("utf-8")).hexdigest(), preceding_text
 
 
 def case_id(identity: str, locator: str) -> str:
@@ -106,7 +109,7 @@ def load_snapshot_cases(snapshot_dir: Path) -> list[dict[str, Any]]:
                 raise ValueError(f"Duplicate section heading: {identity} {locator}")
             seen.add(key)
             next_heading = headings[index + 1] if index + 1 < len(headings) else None
-            body_text, body_sha256 = body_evidence(blocks, heading, next_heading)
+            body_text, body_sha256, preceding_text = body_evidence(blocks, heading, next_heading)
             cases.append(
                 {
                     "case_id": case_id(identity, locator),
@@ -122,6 +125,7 @@ def load_snapshot_cases(snapshot_dir: Path) -> list[dict[str, Any]]:
                     "heading_locator": locator,
                     "next_heading": normalize_text(str(next_heading.get("text") or "")) if next_heading else None,
                     "next_heading_locator": str(next_heading.get("locator") or "") if next_heading else None,
+                    "preceding_text": preceding_text,
                     "body_text": body_text,
                     "body_sha256": body_sha256,
                     "body_length": len(body_text),

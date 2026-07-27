@@ -79,7 +79,23 @@ def load_gate_reports(paths: list[str], expected_provenance: dict[str, str] | No
             if int(payload.get("case_count", 0)) <= 0 or int(payload.get("source_count", 0)) <= 0:
                 raise ApplicationGatesError("Application gate highlight has no oracle cases or sources")
             browser_evidence = payload.get("browser_evidence")
-            if not isinstance(browser_evidence, dict) or browser_evidence.get("highlight_visible") is not True:
+            coverage = payload.get("coverage")
+            if isinstance(browser_evidence, dict):
+                if browser_evidence.get("highlight_visible") is not True:
+                    raise ApplicationGatesError("Application gate highlight is missing live browser evidence")
+                if not str(browser_evidence.get("replay_hash") or payload.get("replay_hash") or "").strip() or not str(browser_evidence.get("request_serialization_hash") or payload.get("request_serialization_hash") or "").strip():
+                    raise ApplicationGatesError("Application gate highlight is missing replay hash")
+            elif isinstance(coverage, dict):
+                if coverage.get("schema_version") != 2 or coverage.get("status") != "PASS":
+                    raise ApplicationGatesError("Application gate highlight is missing passing exhaustive browser coverage")
+                if int(coverage.get("case_count", 0)) != int(payload.get("case_count", 0)):
+                    raise ApplicationGatesError("Application gate highlight coverage count does not match oracle")
+                if not str(coverage.get("replay_hash") or payload.get("replay_hash") or "").strip() or not str(coverage.get("request_serialization_hash") or payload.get("request_serialization_hash") or "").strip():
+                    raise ApplicationGatesError("Application gate highlight is missing replay hash")
+                summary = coverage.get("coverage_summary")
+                if not isinstance(summary, dict) or summary.get("expected_cases") != int(payload.get("case_count", 0)) or summary.get("passed_cases") != int(payload.get("case_count", 0)) or summary.get("failed_cases") != 0:
+                    raise ApplicationGatesError("Application gate highlight coverage summary does not reconcile")
+            else:
                 raise ApplicationGatesError("Application gate highlight is missing live browser evidence")
             payload = {"gate": name, **payload}
         checks = payload.get("checks")
@@ -112,7 +128,7 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
     validated_provenance = validate_provenance(provenance, expected_provenance(args))
     reports = load_gate_reports(args.gate_report, expected_provenance=validated_provenance)
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "status": "PASS",
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "candidate_url": candidate_url,
@@ -143,7 +159,7 @@ def main() -> int:
     try:
         report = asyncio.run(run(args))
     except (ApplicationGateError, ApplicationGatesError) as error:
-        print(json.dumps({"schema_version": 1, "status": "FAIL", "error": str(error)}, sort_keys=True))
+        print(json.dumps({"schema_version": 2, "status": "FAIL", "error": str(error)}, sort_keys=True))
         return 1
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile(

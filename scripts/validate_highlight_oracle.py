@@ -80,9 +80,11 @@ def validate(
         next_heading = next((block for block in blocks if block.get("locator") == case.get("next_heading_locator")), None)
         if heading is None:
             raise OracleValidationError("Highlight oracle heading locator is not present in its snapshot")
-        body_text, body_sha256 = body_evidence(blocks, heading, next_heading)
+        body_text, body_sha256, preceding_text = body_evidence(blocks, heading, next_heading)
         if body_sha256 != case.get("body_sha256") or len(body_text) != case.get("body_length") or body_text != case.get("body_text"):
             raise OracleValidationError("Highlight oracle body evidence does not match its canonical snapshot")
+        if case.get("preceding_text", preceding_text) != preceding_text:
+            raise OracleValidationError("Highlight oracle preceding evidence does not match its canonical snapshot")
         next_locator = str(case.get("next_heading_locator") or "")
         if next_locator and not str(case.get("next_heading") or "").strip():
             raise OracleValidationError("Highlight oracle next-heading locator has no text")

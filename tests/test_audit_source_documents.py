@@ -69,6 +69,7 @@ def test_pdf_action_is_classified_as_pdf_source():
 
     assert len(debt_claims) == 1
     assert debt_claims[0].source_type == "pdf"
+    assert debt_claims[0].url == "https://www.justice.gov.uk/courts/procedure-rules/civil/pdf/protocols/debt-pap.pdf"
 
 
 def test_text_content_reports_bidirectional_coverage():
