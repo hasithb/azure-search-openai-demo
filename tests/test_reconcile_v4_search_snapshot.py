@@ -95,6 +95,26 @@ def test_reconcile_accepts_punctuation_separated_sourcefile(tmp_path):
     assert result["mappings"][0]["case_ids"] == ["case-1"]
 
 
+def test_reconcile_accepts_section_heading_without_roman_numeral(tmp_path):
+    oracle = tmp_path / "oracle.json"
+    oracle.write_text(json.dumps({"cases": [{
+        "case_id": "case-1", "identity": "source-1", "sourcefile": "Part 25", "sourcepage": "SECTION III Freezing Injunctions",
+        "subsection_id": "SECTION III", "expected_heading": "SECTION III Freezing Injunctions", "heading_locator": "h1",
+        "body_sha256": "hash", "body_length": 1, "snapshot_file": "snapshot.json", "snapshot_content_sha256": "snapshot-hash",
+    }]}), encoding="utf-8")
+    manifest = build_manifest(oracle)
+    snapshot = tmp_path / "search.json"
+    document = {"id": "search-1", "content": "Freezing Injunctions\nThe court may...", "sourcefile": "Part 25"}
+    write_index_snapshot(snapshot, [document], "service", "index")
+    artifact = tmp_path / "artifact.jsonl"
+    artifact.write_text(json.dumps(document) + "\n", encoding="utf-8")
+
+    result = reconcile(manifest, snapshot, artifact)
+
+    assert result["status"] == "PASS"
+    assert result["mappings"][0]["case_ids"] == ["case-1"]
+
+
 def test_reconcile_rejects_any_projected_search_field_mismatch(tmp_path):
     oracle = tmp_path / "oracle.json"
     oracle.write_text(json.dumps({"cases": [{

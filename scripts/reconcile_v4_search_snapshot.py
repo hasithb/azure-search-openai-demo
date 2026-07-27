@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -45,6 +46,20 @@ def _sourcefile_matches(manifest_sourcefile: str, artifact_sourcefile: str) -> b
     return bool(suffix) and suffix[0] in " -:"
 
 
+def _subsection_matches(case: dict[str, Any], artifact: dict[str, Any]) -> bool:
+    subsection_id = str(case.get("subsection_id") or "")
+    content = str(artifact.get("content") or "")
+    if subsection_id.casefold() in content.casefold():
+        return True
+    if subsection_id.casefold() == str(artifact.get("subsection_id") or "").casefold():
+        return True
+    if subsection_id.casefold() in {str(value).casefold() for value in artifact.get("subsections", []) if value}:
+        return True
+    expected_heading = str(case.get("expected_heading") or "")
+    heading_text = re.sub(r"^section\s+[ivxlcdm]+\s+", "", expected_heading, flags=re.IGNORECASE)
+    return bool(heading_text) and heading_text.casefold() in content.casefold()
+
+
 def reconcile(manifest: dict[str, Any], snapshot_path: Path, artifact_path: Path) -> dict[str, Any]:
     if manifest.get("schema_version") != 2:
         raise SearchReconciliationError("Canonical subsection manifest must use schema version 2")
@@ -75,13 +90,9 @@ def reconcile(manifest: dict[str, Any], snapshot_path: Path, artifact_path: Path
         if not str(document.get("content") or "").strip():
             failures.append(f"empty Search content: {search_id}")
         matched_cases = []
-        content = str(artifact.get("content") or "")
         for case in included_cases:
-            subsection_id = str(case.get("subsection_id") or "")
             if _sourcefile_matches(str(case.get("sourcefile") or ""), str(artifact.get("sourcefile") or "")) and (
-                subsection_id.casefold() in content.casefold()
-                or subsection_id.casefold() == str(artifact.get("subsection_id") or "").casefold()
-                or subsection_id.casefold() in {str(value).casefold() for value in artifact.get("subsections", []) if value}
+                _subsection_matches(case, artifact)
             ):
                 matched_cases.append(str(case["case_id"]))
                 case_matches[str(case["case_id"])].append(search_id)
