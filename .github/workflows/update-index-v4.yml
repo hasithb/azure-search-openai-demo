@@ -618,6 +618,7 @@ jobs:
           Path("reports/candidate_provenance.json").write_text(json.dumps(provenance, indent=2) + "\n")
           PY
           shard_count="${V4_BROWSER_SHARD_COUNT:-4}"
+          shard_pids=()
           for shard_index in $(seq 0 "$((shard_count - 1))"); do
             python scripts/gate_highlight_browser.py \
               --candidate-url "${V4_CANDIDATE_URL}" \
@@ -628,8 +629,20 @@ jobs:
               --shard-index "${shard_index}" \
               --shard-count "${shard_count}" \
               --exhaustive-coverage-input "reports/v4_browser_shard_${shard_index}.json" \
-              --output "reports/highlight_gate_shard_${shard_index}.json"
+              --output "reports/highlight_gate_shard_${shard_index}.json" \
+              >"reports/highlight_gate_shard_${shard_index}.log" 2>&1 &
+            shard_pids+=("$!")
           done
+          shard_failed=0
+          for shard_pid in "${shard_pids[@]}"; do
+            if ! wait "$shard_pid"; then
+              shard_failed=1
+            fi
+          done
+          if [[ "$shard_failed" -ne 0 ]]; then
+            echo "One or more browser highlight shards failed" >&2
+            exit 1
+          fi
           merge_args=()
           for shard_index in $(seq 0 "$((shard_count - 1))"); do
             merge_args+=(--merge-report "reports/v4_browser_shard_${shard_index}.json")

@@ -112,3 +112,6 @@ def test_workflow_runs_and_merges_deterministic_browser_shards_before_coverage_v
     assert "reports/v4_citation_coverage_input.json" in browser_step
     assert browser_step.index("--merge-report") > browser_step.index("--shard-count")
     assert "V4_BROWSER_SHARD_COUNT" in browser_step
+    assert "shard_pids=()" in browser_step
+    assert ">\"reports/highlight_gate_shard_${shard_index}.log\" 2>&1 &" in browser_step
+    assert "wait \"$shard_pid\"" in browser_step
