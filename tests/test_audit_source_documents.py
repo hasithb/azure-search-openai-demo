@@ -1,4 +1,5 @@
 import json
+import sys
 import time
 from unittest.mock import patch
 
@@ -17,6 +18,7 @@ from scripts.audit_source_documents import (
     load_index_snapshot,
     load_pdf_sources,
     load_web_sources,
+    main,
     normalize_label,
     normalize_url,
     odata_escape,
@@ -70,6 +72,59 @@ def test_pdf_action_is_classified_as_pdf_source():
     assert len(debt_claims) == 1
     assert debt_claims[0].source_type == "pdf"
     assert debt_claims[0].url == "https://www.justice.gov.uk/courts/procedure-rules/civil/pdf/protocols/debt-pap.pdf"
+
+
+def test_reconciliation_reports_current_source_before_processing():
+    canonical = [
+        CanonicalSource(source_type="html", sourcefile="Part 1", category="CPR"),
+        CanonicalSource(source_type="html", sourcefile="Part 2", category="CPR"),
+    ]
+    progress = []
+
+    reconcile_sources(canonical, [], progress_callback=progress.append)
+
+    assert [(item["phase"], item["current_source"], item["processed_source_count"]) for item in progress] == [
+        ("reconciled", "Part 1", 0),
+        ("reconciled", "Part 2", 1),
+    ]
+
+
+def test_interrupted_audit_keeps_final_report_and_marks_checkpoint_incomplete(tmp_path):
+    checkpoint = tmp_path / "audit.checkpoint.json"
+    json_output = tmp_path / "audit.json"
+    markdown_output = tmp_path / "audit.md"
+    json_output.write_text("prior-json\n", encoding="utf-8")
+    markdown_output.write_text("prior-markdown\n", encoding="utf-8")
+    source = CanonicalSource(source_type="html", sourcefile="Part 1", category="CPR")
+
+    def interrupt(*args, **kwargs):
+        raise KeyboardInterrupt
+
+    with (
+        patch.object(sys, "argv", [
+            "audit_source_documents.py",
+            "--index-snapshot",
+            str(tmp_path / "snapshot.json"),
+            "--checkpoint",
+            str(checkpoint),
+            "--json-output",
+            str(json_output),
+            "--markdown-output",
+            str(markdown_output),
+        ]),
+        patch("scripts.audit_source_documents.load_pdf_sources", return_value=[]),
+        patch("scripts.audit_source_documents.load_web_sources", return_value=[source]),
+        patch("scripts.audit_source_documents.load_index_snapshot", return_value=([], {"verified": True})),
+        patch("scripts.audit_source_documents.reconcile_sources", side_effect=interrupt),
+    ):
+        assert main() == 130
+
+    checkpoint_payload = json.loads(checkpoint.read_text(encoding="utf-8"))
+    assert checkpoint_payload["phase"] == "interrupted"
+    assert checkpoint_payload["complete"] is False
+    assert checkpoint_payload["interrupted"] is True
+    assert json_output.read_text(encoding="utf-8") == "prior-json\n"
+    assert markdown_output.read_text(encoding="utf-8") == "prior-markdown\n"
 
 
 def test_text_content_reports_bidirectional_coverage():

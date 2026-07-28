@@ -21,7 +21,7 @@ permissions:
 
 concurrency:
   group: update-index-v4-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 env:
   PYTHON_VERSION: '3.10'
@@ -513,6 +513,7 @@ jobs:
   audit-candidate:
     needs: [preflight, build-candidate, provision-and-upload, deploy-candidate-app]
     runs-on: ubuntu-latest
+    timeout-minutes: 360
     steps:
       - uses: actions/checkout@v4
         with:
@@ -810,6 +811,9 @@ jobs:
           if-no-files-found: warn
           path: |
             reports/highlight-browser-diagnostics/
+            reports/highlight_gate_shard_*.log
+            reports/highlight_gate_shard_*.json
+            reports/v4_browser_shard_*.json
             reports/highlight_gate.json
             reports/v4_search_reconciliation.json
             reports/candidate_readiness.json

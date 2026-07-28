@@ -1,5 +1,7 @@
 import pytest
+from types import SimpleNamespace
 
+import scripts.gate_highlight_browser as browser_gate
 from scripts.gate_highlight_browser import (
     BrowserGateError,
     choose_case,
@@ -138,3 +140,57 @@ def test_choose_case_prefers_part_24_leaf_case_when_sourcepage_is_leaf_heading()
     }
 
     assert choose_case({"cases": [parent_case, leaf_case]}) is leaf_case
+
+
+def test_exhaustive_browser_gate_reuses_one_browser_per_shard(monkeypatch, tmp_path):
+    cases = [
+        {"case_id": "case-1", "subsection_id": "24.1", "sourcepage": "Part 24"},
+        {"case_id": "case-2", "subsection_id": "24.2", "sourcepage": "Part 24"},
+    ]
+    oracle = {"cases": cases}
+    browser_instances = []
+
+    class FakeBrowser:
+        def close(self):
+            pass
+
+    class FakePlaywright:
+        def __enter__(self):
+            return SimpleNamespace(chromium=SimpleNamespace(launch=self.launch))
+
+        def __exit__(self, exc_type, exc_value, traceback):
+            return False
+
+        def launch(self, headless):
+            browser = FakeBrowser()
+            browser_instances.append(browser)
+            return browser
+
+    def fake_run_browser_gate(*args, **kwargs):
+        assert kwargs["browser"] is browser_instances[0]
+        case = kwargs["target_case"]
+        return {
+            "browser": {
+                "selected_citation": {
+                    "document_id": case["case_id"],
+                    "source_revision": "rev-1",
+                    "source_id": case["case_id"],
+                    "canonical_text_sha256": f"hash-{case['case_id']}",
+                },
+                "highlighted_text_sha256": f"highlight-{case['case_id']}",
+                "primary_source_identity": {},
+            }
+        }
+
+    monkeypatch.setattr(browser_gate, "sync_playwright", lambda: FakePlaywright())
+    monkeypatch.setattr(browser_gate, "run_browser_gate", fake_run_browser_gate)
+
+    report = browser_gate.run_exhaustive_browser_gate(
+        "https://candidate.example",
+        oracle,
+        tmp_path / "coverage.json",
+        shard_count=1,
+    )
+
+    assert report["status"] == "PASS"
+    assert len(browser_instances) == 1

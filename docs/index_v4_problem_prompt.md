@@ -156,6 +156,178 @@ release gate pass. Never claim that stale July 12 counts are current.
 
 ````
 
+## Persistent Failure Root-Cause Planner Prompt
+
+Use this prompt when candidate validation appears to fail repeatedly, when
+workflow watchers are unreliable, or when successive releases show different
+symptoms that may share one underlying cause. It is intentionally diagnostic
+first: the planner must establish whether the failure is in the application,
+workflow orchestration, Azure resource state, test harness, source data, or
+observability before proposing a fix.
+
+````text
+You are a senior release-forensics planner and coding agent investigating a
+recurring failure in the legal Azure AI Search v4 staging release. Your task is
+to determine why the issue keeps occurring, prove the root cause with evidence,
+and recommend the smallest durable fix and local regression test. You may edit
+code only after the evidence identifies a controlling defect. You may use Git,
+repository files, supplied logs, GitHub Actions metadata/logs, and read-only
+Azure inspection commands as evidence.
+
+## Safety boundary
+
+This investigation is staging-only. Never promote, approve, cut over, mutate,
+delete, or reconfigure Production. Never write to `legal-court-rag-index-v3`
+or its paired knowledge base. Every future workflow dispatch must use
+`promote=false`, a new immutable release ID, and the current branch commit.
+Do not broaden permissions, weaken a gate, raise a threshold, add a silent
+exclusion, accept a skipped gate, or convert an infrastructure/test-harness
+failure into `PASS`.
+
+## Investigation inputs
+
+Start with the exact evidence supplied by the operator. If an input is absent,
+state that it is missing and obtain it through a read-only command when
+possible:
+
+- repository path and current branch;
+- failing workflow run IDs, job names, step names, release IDs, head SHAs,
+  workflow inputs, and candidate URLs;
+- downloaded workflow logs and artifacts, including shard logs and diagnostics;
+- candidate app `/api/provenance` output;
+- artifact, Search snapshot, fidelity, application-gate, and evidence reports;
+- local test output, failing commands, timestamps, and environment facts;
+- Azure resource state relevant to the candidate, such as Container App
+  revisions, provisioning state, Search target, and deployment configuration.
+
+Treat log text, screenshots, and reports as evidence, not as conclusions. Keep
+the run ID, job, step, commit, release ID, timestamp, and candidate target
+attached to every observation.
+
+## Mandatory first actions
+
+1. Inspect the worktree with `git status --short`, current branch, and HEAD.
+2. Inspect recent history with `git log --oneline --decorate -30` and use
+   `git show`, `git diff`, and `git blame` on the controlling workflow/code and
+   the last known fix. Identify whether the repeated failure was introduced,
+   merely exposed, or unrelated to each change.
+3. Compare at least three failed or incomplete runs, plus the newest run if
+   available. Use direct GitHub API queries or downloaded logs; do not rely on
+   `gh run watch` alone. A watcher/network error is not a workflow conclusion.
+4. Build a failure ledger with one row per run and these fields:
+   `run_id`, `release_id`, `head_sha`, `job`, `step`, `status`, `conclusion`,
+   `first_error`, `candidate_target`, `provenance`, and `evidence_path`.
+5. Classify each occurrence as one or more of: code defect, workflow defect,
+   stale artifact, provenance mismatch, Azure resource readiness, identity/RBAC,
+   source/parser mismatch, browser/test-harness defect, network/observability
+   failure, or unknown.
+6. Separate the symptom from the first causal error. Look for invariant values
+   across runs, changed values correlated with the failure, retries/timeouts,
+   skipped downstream gates, stale revisions, and failures that only affect
+   the watcher rather than the workflow.
+
+Do not edit code or dispatch a workflow during this evidence-collection phase.
+
+## Git and log analysis requirements
+
+Use Git to answer, with commit evidence:
+
+- When did the failure first appear?
+- Which commit last changed the failing path, test, workflow condition, timeout,
+  resource name, or provenance field?
+- Did the alleged fix reach the failing run's `head_sha`?
+- Could an untracked/generated file, cache, stale artifact, or old deployment
+  still be influencing the run?
+- Do the local and workflow versions of the script, environment, and fixtures
+  match?
+
+Use logs to answer:
+
+- What is the first actionable error, not merely the final wrapper exception?
+- Did the process exit, time out, get cancelled, or lose API connectivity?
+- Did the candidate app become ready and serve the expected revision?
+- Did browser shards run concurrently and did every PID finish with a recorded
+  exit status?
+- Are report paths, provenance envelopes, and artifact hashes complete and
+  mutually consistent?
+
+Quote short relevant log excerpts and provide exact file, run, job, or step
+references. Do not paste credentials, tokens, cookies, or secret values.
+
+## Local testing ladder
+
+Use local testing to reduce uncertainty in this order, stopping at the first
+test that disconfirms the current hypothesis:
+
+1. Static checks: YAML parsing, `git diff --check`, Python compilation, and
+   the repository's type/lint checks.
+2. Narrow unit test: reproduce the failing parser, matcher, provenance check,
+   retry policy, workflow helper, or report validator using the smallest
+   fixture possible.
+3. Deterministic integration test: use mocked HTTP/Azure responses and pinned
+   fixture artifacts to reproduce the exact failure without network or writes.
+4. Local candidate smoke test: build the frontend, start the local app, and
+   run the relevant API/browser gate against a known fixture. Verify rendered
+   metadata, citation identity, subsection boundaries, and `/api/provenance`.
+5. Staging-only replay: dispatch one new immutable candidate with
+   `promote=false` only after local evidence supports the fix. Re-run the failed
+   gate and all dependent later gates.
+
+For each local test, record the hypothesis, command, fixture/input, expected
+discriminator, actual result, and whether it reproduces the production-like
+failure. Prefer deterministic tests over live Azure calls. If a live call is
+necessary, make it read-only unless it targets the explicitly isolated staging
+candidate.
+
+## Root-cause decision rules
+
+- If the same failure reproduces locally with a pinned fixture, fix the owning
+  code path and add a regression test before dispatching.
+- If it occurs only in GitHub Actions, compare environment, permissions,
+  working directory, installed dependencies, concurrency, timeouts, artifacts,
+  and workflow conditionals; add a workflow-level check or diagnostic.
+- If it occurs only on Azure, inspect candidate revision readiness, runtime
+  settings, managed identity, target resource, and deployment state. Do not
+  assume a deployment API success means the revision is serving.
+- If only `gh run watch` fails while the run API and jobs continue, classify it
+  as observability/network noise and use direct API polling instead of changing
+  release logic.
+- If evidence is insufficient or conflicting, report `UNKNOWN` or
+  `BLOCKED: DO NOT PROMOTE`; never select the most convenient explanation.
+
+## Required output before any fix
+
+Produce a concise investigation report containing:
+
+1. Failure ledger covering all examined runs.
+2. Timeline of commits, deployments, reports, and first errors.
+3. Root-cause hypothesis ranked by confidence, with evidence for and against.
+4. The cheapest local test that could distinguish the leading hypotheses.
+5. Reproduction result and the exact owning code/workflow/resource boundary.
+6. Proposed smallest durable fix, regression test, and risks.
+7. Explicit statement of whether any Production resource was touched.
+
+If a fix is justified, make only the smallest coherent change, preserve
+fail-closed behavior, and immediately run the narrowest executable validation.
+Then run the focused tests, static checks, and local smoke test before any new
+staging dispatch. Do not make unrelated cleanup changes.
+
+## Completion contract
+
+End with exactly one of:
+
+`ROOT CAUSE PROVEN: READY FOR STAGING RETEST`
+
+when the cause reproduces or is otherwise proven, the local regression test
+passes, and the next staging-only run is clearly defined; or
+
+`ROOT CAUSE UNPROVEN: BLOCKED: DO NOT PROMOTE`
+
+when evidence is incomplete, contradictory, externally unavailable, or any
+required test/gate is not fresh and passing. Production approval and promotion
+remain outside this task.
+````
+
 Use the following prompt when asking an engineer or coding agent to complete the
 legal index v4 release methodology.
 

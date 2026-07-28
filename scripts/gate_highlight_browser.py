@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from contextlib import nullcontext
 import hashlib
 import json
 import re
@@ -213,7 +214,6 @@ def merge_exhaustive_browser_reports(
         raise BrowserGateError("Oracle contains duplicate case_id values")
     replay_hash = build_replay_hash(oracle)
     request_serialization_hash = build_request_serialization_hash(oracle)
-    request_serialization_hash = build_request_serialization_hash(oracle)
     merged_manifest: list[dict[str, Any]] = []
     merged_observations: dict[str, dict[str, Any]] = {}
     seen_case_ids: set[str] = set()
@@ -249,7 +249,6 @@ def merge_exhaustive_browser_reports(
         "schema_version": 2,
         "status": "PASS",
         "replay_hash": replay_hash,
-        "request_serialization_hash": request_serialization_hash,
         "request_serialization_hash": request_serialization_hash,
         "case_count": len(expected_case_ids),
         "manifest": merged_manifest,
@@ -397,6 +396,7 @@ def run_browser_gate(
     question: str,
     diagnostics_dir: Path | None = None,
     target_case: dict[str, Any] | None = None,
+    browser: Any | None = None,
 ) -> dict[str, Any]:
     target_case = target_case or choose_case(oracle)
     expected_body = normalize(str(target_case.get("body_text") or ""))
@@ -405,9 +405,12 @@ def run_browser_gate(
     if not expected_body or not expected_heading:
         raise BrowserGateError("Selected highlight oracle case is incomplete")
 
-    with sync_playwright() as playwright:
-        browser = playwright.chromium.launch(headless=True)
-        page = browser.new_page()
+    owns_browser = browser is None
+    with (sync_playwright() if owns_browser else nullcontext()) as playwright:
+        if owns_browser:
+            browser = playwright.chromium.launch(headless=True)
+        context = browser.new_context()
+        page = context.new_page()
         diagnostics = _capture_browser_diagnostics(page, diagnostics_dir)
         try:
             page.goto(candidate_url, wait_until="domcontentloaded", timeout=60_000)
@@ -498,7 +501,9 @@ def run_browser_gate(
             }
         finally:
             _write_browser_diagnostics(page, diagnostics, diagnostics_dir)
-            browser.close()
+            context.close()
+            if owns_browser:
+                browser.close()
 
 
 def build_report(
@@ -552,48 +557,54 @@ def run_exhaustive_browser_gate(
     manifest: list[dict[str, Any]] = []
     browser_document_observations: dict[str, dict[str, Any]] = {}
     failures: list[dict[str, Any]] = []
-    for index, case in enumerate(cases):
-        case_diagnostics = diagnostics_dir / f"case-{index:04d}" if diagnostics_dir else None
-        question = f"What is {case.get('subsection_id', '')} in {case.get('sourcepage', '')}?"
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch(headless=True)
         try:
-            evidence = run_browser_gate(
-                candidate_url,
-                oracle,
-                question,
-                case_diagnostics,
-                target_case=case,
-            )
-            selected = evidence["browser"]["selected_citation"]
-            document_id = str(selected.get("document_id") or "").strip()
-            source_revision = str(selected.get("source_revision") or "").strip()
-            source_id = str(selected.get("source_id") or "").strip()
-            canonical_hash = str(selected.get("canonical_text_sha256") or "").strip()
-            if not all((document_id, source_revision, source_id, canonical_hash)):
-                raise BrowserGateError(f"Citation {case.get('case_id')} lacks immutable identity attributes")
-            browser_document_observations[document_id] = {
-                "id": document_id,
-                "source_revision": source_revision,
-                "source_id": source_id,
-                "canonical_text_sha256": canonical_hash,
-            }
-            manifest.append(
-                {
-                    "case_id": str(case.get("case_id") or ""),
-                    "source_revision": source_revision,
-                    "source_id": source_id,
-                    "document_id": document_id,
-                    "subsection_id": str(case.get("subsection_id") or ""),
-                    "canonical_text_sha256": canonical_hash,
-                    "rendered": True,
-                    "clicked": True,
-                    "supporting_content_count": 1,
-                    "primary_source_count": 1,
-                    "highlighted_text_sha256": evidence["browser"]["highlighted_text_sha256"],
-                    "primary_source_identity": evidence["browser"]["primary_source_identity"],
-                }
-            )
-        except Exception as error:
-            failures.append({"case_id": case.get("case_id"), "error": str(error)})
+            for index, case in enumerate(cases):
+                case_diagnostics = diagnostics_dir / f"case-{index:04d}" if diagnostics_dir else None
+                question = f"What is {case.get('subsection_id', '')} in {case.get('sourcepage', '')}?"
+                try:
+                    evidence = run_browser_gate(
+                        candidate_url,
+                        oracle,
+                        question,
+                        case_diagnostics,
+                        target_case=case,
+                        browser=browser,
+                    )
+                    selected = evidence["browser"]["selected_citation"]
+                    document_id = str(selected.get("document_id") or "").strip()
+                    source_revision = str(selected.get("source_revision") or "").strip()
+                    source_id = str(selected.get("source_id") or "").strip()
+                    canonical_hash = str(selected.get("canonical_text_sha256") or "").strip()
+                    if not all((document_id, source_revision, source_id, canonical_hash)):
+                        raise BrowserGateError(f"Citation {case.get('case_id')} lacks immutable identity attributes")
+                    browser_document_observations[document_id] = {
+                        "id": document_id,
+                        "source_revision": source_revision,
+                        "source_id": source_id,
+                        "canonical_text_sha256": canonical_hash,
+                    }
+                    manifest.append(
+                        {
+                            "case_id": str(case.get("case_id") or ""),
+                            "source_revision": source_revision,
+                            "source_id": source_id,
+                            "document_id": document_id,
+                            "subsection_id": str(case.get("subsection_id") or ""),
+                            "canonical_text_sha256": canonical_hash,
+                            "rendered": True,
+                            "clicked": True,
+                            "supporting_content_count": 1,
+                            "primary_source_count": 1,
+                            "highlighted_text_sha256": evidence["browser"]["highlighted_text_sha256"],
+                            "primary_source_identity": evidence["browser"]["primary_source_identity"],
+                        }
+                    )
+                except Exception as error:
+                    failures.append({"case_id": case.get("case_id"), "error": str(error)})
+        finally:
+            browser.close()
 
     payload = {
         "schema_version": 2,

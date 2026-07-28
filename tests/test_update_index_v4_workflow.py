@@ -7,6 +7,15 @@ def workflow_text() -> str:
     return WORKFLOW.read_text(encoding="utf-8")
 
 
+def test_staging_releases_are_queued_instead_of_cancelling_active_runs():
+    workflow = workflow_text()
+
+    concurrency = workflow.split("concurrency:", 1)[1].split("env:", 1)[0]
+    assert "group: update-index-v4-${{ github.ref }}" in concurrency
+    assert "cancel-in-progress: false" in concurrency
+    assert "cancel-in-progress: true" not in concurrency
+
+
 def test_candidate_image_output_is_owned_by_deploy_job():
     workflow = workflow_text()
 
@@ -100,6 +109,18 @@ def test_workflow_uploads_search_reconciliation_diagnostics():
     diagnostics = workflow.split("Upload candidate audit diagnostics", 1)[1].split("  promote:", 1)[0]
 
     assert "reports/v4_search_reconciliation.json" in diagnostics
+
+
+def test_audit_candidate_is_bounded_and_retains_browser_shard_diagnostics():
+    workflow = workflow_text()
+    audit_job = workflow.split("  audit-candidate:", 1)[1].split("  promote:", 1)[0]
+    diagnostics = audit_job.split("Upload candidate audit diagnostics", 1)[1]
+
+    assert "timeout-minutes: 360" in audit_job
+    assert "reports/highlight_gate_shard_*.log" in diagnostics
+    assert "reports/highlight_gate_shard_*.json" in diagnostics
+    assert "reports/v4_browser_shard_*.json" in diagnostics
+    assert "if: ${{ always() }}" in diagnostics
 
 
 def test_workflow_runs_and_merges_deterministic_browser_shards_before_coverage_validation():

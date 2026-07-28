@@ -247,6 +247,15 @@ retain `browser-diagnostics.json`, `browser-final.png`, and
 directory is supplied. The release workflow uploads this directory with
 `if: always()` so failures remain inspectable.
 
+The candidate audit job has a six-hour deadline. Browser shards run concurrently
+and each shard writes its log, report, and coverage input under `reports/`.
+The always-run diagnostics artifact retains these files, including when the job
+times out or is cancelled. A missing or incomplete shard remains a failure: the
+deadline does not convert an interrupted browser audit into a passing report.
+Use the shard log's final case and the per-case files under
+`reports/highlight-browser-diagnostics/` to identify the last completed case
+before rerunning with a new immutable staging `release_id`.
+
 Before dispatching a candidate workflow, run the non-mutating simulator against
 captured or reconstructed observations:
 
@@ -263,6 +272,19 @@ checks the same fail-closed contracts used by the workflow: HTTPS/FQDN
 binding, v4 staging Search pair, snapshot hash, immutable ACR digest, exact
 candidate revision, `latestReadyRevisionName`, healthy state, 100% traffic,
 Search environment binding, and provenance.
+
+For a long-running source audit, pass a run-specific `--checkpoint` path. The
+checkpoint is an operational progress marker, not release evidence. It records
+the phase, current source identity, processed count, snapshot provenance, and
+source-manifest digest before each source begins. A completed audit marks it
+`complete: true` only after both final reports are atomically published. A
+cancelled or interrupted audit records `phase: interrupted` and
+`complete: false`, leaves the previous final reports untouched, and must be
+rerun; do not resume by treating the checkpoint as a partial passing report.
+Use the current source and phase from the checkpoint, plus the persistent HTML
+cache, to identify the slow or unavailable source before a bounded rerun. Only
+a fresh report with `complete: true`, complete source results, verified snapshot
+provenance, and explicit dispositions can enter the evidence bundle.
 
 The reconstructed r7 race can be checked explicitly and is expected to fail:
 

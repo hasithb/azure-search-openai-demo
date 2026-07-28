@@ -20,7 +20,7 @@ import hashlib
 import time
 import unicodedata
 from collections import defaultdict
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
@@ -247,11 +247,22 @@ def apply_pdf_fidelity(
     results: Iterable[SourceAuditResult],
     canonical_sources: Iterable[CanonicalSource],
     index_documents: Iterable[dict[str, Any]],
+    progress_callback: Callable[[dict[str, Any]], None] | None = None,
 ) -> list[SourceAuditResult]:
     canonical_by_identity = {source.identity: source for source in canonical_sources if source.source_type == "pdf"}
     documents_by_id = {str(document.get("id") or ""): document for document in index_documents}
     audited = list(results)
-    for result in audited:
+    for position, result in enumerate(audited, start=1):
+        if progress_callback:
+            progress_callback(
+                {
+                    "phase": "pdf_fidelity",
+                    "current_source": result.sourcefile,
+                    "current_source_identity": f"{normalize_label(result.category)}::{normalize_label(result.sourcefile)}",
+                    "processed_source_count": position - 1,
+                    "expected_source_count": len(audited),
+                }
+            )
         if result.source_type != "pdf" or not result.index_document_ids:
             continue
         source = canonical_by_identity.get(f"{normalize_label(result.category)}::{normalize_label(result.sourcefile)}")
@@ -297,6 +308,7 @@ def apply_html_fidelity(
     index_documents: Iterable[dict[str, Any]],
     scraper: Any | None = None,
     cache_path: Path | None = DEFAULT_HTML_CACHE,
+    progress_callback: Callable[[dict[str, Any]], None] | None = None,
 ) -> list[SourceAuditResult]:
     import requests
 
@@ -307,7 +319,17 @@ def apply_html_fidelity(
     cache = HtmlAuditCache(cache_path)
     session = requests.Session()
     session.headers.update({"User-Agent": "legal-source-fidelity-audit/1.0 (read-only)"})
-    for result in audited:
+    for position, result in enumerate(audited, start=1):
+        if progress_callback:
+            progress_callback(
+                {
+                    "phase": "html_fidelity",
+                    "current_source": result.sourcefile,
+                    "current_source_identity": f"{normalize_label(result.category)}::{normalize_label(result.sourcefile)}",
+                    "processed_source_count": position - 1,
+                    "expected_source_count": len(audited),
+                }
+            )
         if result.source_type != "html" or not result.index_document_ids:
             continue
         source = canonical_by_identity.get(f"{normalize_label(result.category)}::{normalize_label(result.sourcefile)}")
@@ -922,6 +944,7 @@ def reconcile_sources(
     canonical_sources: Iterable[CanonicalSource],
     index_documents: Iterable[dict[str, Any]],
     include_index_only: bool = True,
+    progress_callback: Callable[[dict[str, Any]], None] | None = None,
 ) -> list[SourceAuditResult]:
     canonical = sorted(canonical_sources, key=lambda source: (source.source_type, source.identity, source.manifest_key))
     indexed = group_index_documents(index_documents)
@@ -945,7 +968,17 @@ def reconcile_sources(
 
     matched_index_positions: set[int] = set()
     results: list[SourceAuditResult] = []
-    for source in canonical:
+    for position, source in enumerate(canonical, start=1):
+        if progress_callback:
+            progress_callback(
+                {
+                    "phase": "reconciled",
+                    "current_source": source.sourcefile,
+                    "current_source_identity": source.identity,
+                    "processed_source_count": position - 1,
+                    "expected_source_count": len(canonical),
+                }
+            )
         normalized_url = normalize_url(source.url)
         candidates = by_url.get(normalized_url, []) if normalized_url else []
         if not candidates:
@@ -1209,46 +1242,41 @@ def main() -> int:
     if args.write_snapshot:
         snapshot_provenance = write_index_snapshot(args.write_snapshot, documents, args.service, args.index)
 
-    results = reconcile_sources(sources, documents, include_index_only=args.family == "all" and not args.source)
-    if args.checkpoint:
-        write_checkpoint(
-            args.checkpoint,
-            {
-                "schema_version": 1,
-                "run_id": run_id,
-                "phase": "reconciled",
-                "source_identity_digest": source_identity_digest,
-                "snapshot_provenance": snapshot_provenance,
-                "processed_source_count": len(results),
-            },
-        )
-    results = apply_pdf_fidelity(results, sources, documents)
-    if args.checkpoint:
-        write_checkpoint(
-            args.checkpoint,
-            {
-                "schema_version": 1,
-                "run_id": run_id,
-                "phase": "pdf_fidelity",
-                "source_identity_digest": source_identity_digest,
-                "snapshot_provenance": snapshot_provenance,
-                "processed_source_count": len(results),
-            },
-        )
-    if args.html_fidelity:
-        results = apply_html_fidelity(results, sources, documents, cache_path=args.html_cache)
+    checkpoint_base = {
+        "schema_version": 1,
+        "run_id": run_id,
+        "source_identity_digest": source_identity_digest,
+        "snapshot_provenance": snapshot_provenance,
+        "complete": False,
+    }
+
+    def record_progress(progress: dict[str, Any]) -> None:
         if args.checkpoint:
-            write_checkpoint(
-                args.checkpoint,
-                {
-                    "schema_version": 1,
-                    "run_id": run_id,
-                    "phase": "html_fidelity",
-                    "source_identity_digest": source_identity_digest,
-                    "snapshot_provenance": snapshot_provenance,
-                    "processed_source_count": len(results),
-                },
+            write_checkpoint(args.checkpoint, checkpoint_base | progress)
+
+    record_progress({"phase": "snapshot_loaded", "processed_source_count": 0, "expected_source_count": len(sources)})
+    try:
+        results = reconcile_sources(
+            sources,
+            documents,
+            include_index_only=args.family == "all" and not args.source,
+            progress_callback=record_progress,
+        )
+        record_progress({"phase": "reconciled", "processed_source_count": len(results), "expected_source_count": len(sources)})
+        results = apply_pdf_fidelity(results, sources, documents, progress_callback=record_progress)
+        record_progress({"phase": "pdf_fidelity", "processed_source_count": len(results), "expected_source_count": len(sources)})
+        if args.html_fidelity:
+            results = apply_html_fidelity(
+                results,
+                sources,
+                documents,
+                cache_path=args.html_cache,
+                progress_callback=record_progress,
             )
+            record_progress({"phase": "html_fidelity", "processed_source_count": len(results), "expected_source_count": len(sources)})
+    except KeyboardInterrupt:
+        record_progress({"phase": "interrupted", "interrupted": True})
+        return 130
     report = build_report(
         results,
         snapshot_provenance,
@@ -1265,6 +1293,16 @@ def main() -> int:
         },
     )
     write_report(report, args.json_output, args.markdown_output)
+    record_progress(
+        {
+            "phase": "complete",
+            "current_source": "",
+            "current_source_identity": "",
+            "processed_source_count": len(results),
+            "expected_source_count": len(sources),
+            "complete": True,
+        }
+    )
     return 1 if any(source["status"] in TERMINAL_FAILURE_STATUSES for source in report["sources"]) else 0
 
 
