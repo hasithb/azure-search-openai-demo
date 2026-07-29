@@ -75,9 +75,13 @@ def test_workflow_requires_exhaustive_citation_evidence_before_bundle():
 
 def test_workflow_passes_replay_bound_coverage_to_downstream_gates():
     workflow = workflow_text()
+    runner = (WORKFLOW.parents[2] / "scripts" / "run_v4_browser_shards.py").read_text()
 
     browser_step = workflow.split("Generate provenance-bound browser highlight gate", 1)[1].split("Generate provenance-bound ACL gate", 1)[0]
-    assert "--exhaustive-coverage-input \"reports/v4_browser_shard_${shard_index}.json\"" in browser_step
+    assert "--coverage-dir reports" in browser_step
+    assert "--gate-report-dir reports" in browser_step
+    assert '"--exhaustive-coverage-input"' in runner
+    assert '"--output"' in runner
     assert workflow.index("Run strict application gates") < workflow.index("Require exhaustive citation evidence")
     assert "if: inputs.promote == true" in workflow
 
@@ -127,12 +131,13 @@ def test_workflow_runs_and_merges_deterministic_browser_shards_before_coverage_v
     workflow = workflow_text()
     browser_step = workflow.split("Generate provenance-bound browser highlight gate", 1)[1].split("Generate provenance-bound ACL gate", 1)[0]
 
-    assert "--shard-index" in browser_step
     assert "--shard-count" in browser_step
     assert "--merge-report" in browser_step
     assert "reports/v4_citation_coverage_input.json" in browser_step
-    assert browser_step.index("--merge-report") > browser_step.index("--shard-count")
+    assert "for shard_index in $(seq 0 \"$((shard_count - 1))\")" in browser_step
     assert "V4_BROWSER_SHARD_COUNT" in browser_step
-    assert "shard_pids=()" in browser_step
-    assert ">\"reports/highlight_gate_shard_${shard_index}.log\" 2>&1 &" in browser_step
-    assert "wait \"$shard_pid\"" in browser_step
+    assert "python scripts/run_v4_browser_shards.py" in browser_step
+    assert "reports/browser_shard_process_summary.json" in browser_step
+    assert "--timeout-seconds 20700" in browser_step
+    assert "--diagnostics-dir reports/highlight-browser-diagnostics" in browser_step
+    assert "shard_pids=()" not in browser_step

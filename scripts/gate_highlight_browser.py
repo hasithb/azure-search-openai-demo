@@ -28,6 +28,8 @@ class BrowserGateError(ValueError):
 
 
 REPLAY_SCHEMA_VERSION = 1
+DIAGNOSTIC_EVENT_LIMIT = 100
+DIAGNOSTIC_TEXT_LIMIT = 2_000
 
 
 def normalize(value: str) -> str:
@@ -302,20 +304,24 @@ def _capture_browser_diagnostics(page: Any, diagnostics_dir: Path | None) -> dic
     }
 
     def record_console(message: Any) -> None:
-        diagnostics["console"].append({"type": message.type, "text": message.text})
+        if len(diagnostics["console"]) < DIAGNOSTIC_EVENT_LIMIT:
+            diagnostics["console"].append({"type": message.type, "text": message.text[:DIAGNOSTIC_TEXT_LIMIT]})
 
     def record_page_error(error: Any) -> None:
-        diagnostics["page_errors"].append(str(error))
+        if len(diagnostics["page_errors"]) < DIAGNOSTIC_EVENT_LIMIT:
+            diagnostics["page_errors"].append(str(error)[:DIAGNOSTIC_TEXT_LIMIT])
 
     def record_request_failure(request: Any) -> None:
-        diagnostics["request_failures"].append(
-            {"url": request.url, "method": request.method, "failure": request.failure}
-        )
+        if len(diagnostics["request_failures"]) < DIAGNOSTIC_EVENT_LIMIT:
+            diagnostics["request_failures"].append(
+                {"url": request.url, "method": request.method, "failure": request.failure}
+            )
 
     def record_response(response: Any) -> None:
-        diagnostics["responses"].append(
-            {"url": response.url, "status": response.status, "status_text": response.status_text}
-        )
+        if len(diagnostics["responses"]) < DIAGNOSTIC_EVENT_LIMIT:
+            diagnostics["responses"].append(
+                {"url": response.url, "status": response.status, "status_text": response.status_text}
+            )
 
     page.on("console", record_console)
     page.on("pageerror", record_page_error)
@@ -329,24 +335,38 @@ def _capture_browser_diagnostics(page: Any, diagnostics_dir: Path | None) -> dic
     return diagnostics
 
 
-def _write_browser_diagnostics(page: Any, diagnostics: dict[str, Any], diagnostics_dir: Path | None) -> None:
+def _write_browser_diagnostics(
+    page: Any,
+    diagnostics: dict[str, Any],
+    diagnostics_dir: Path | None,
+    retain_full: bool = True,
+) -> None:
     if diagnostics_dir is None:
         return
     diagnostics_dir.mkdir(parents=True, exist_ok=True)
     try:
         diagnostics["url"] = page.url
         diagnostics["title"] = page.title()
-        diagnostics["body_text"] = page.locator("body").inner_text(timeout=2_000)[:20_000]
-        diagnostics["html"] = page.content()[:100_000]
-        if hasattr(page, "aria_snapshot"):
-            diagnostics["aria_snapshot"] = page.aria_snapshot(timeout=2_000)
+        if retain_full:
+            diagnostics["body_text"] = page.locator("body").inner_text(timeout=2_000)[:20_000]
+            diagnostics["html"] = page.content()[:100_000]
+            if hasattr(page, "aria_snapshot"):
+                diagnostics["aria_snapshot"] = page.aria_snapshot(timeout=2_000)
+        diagnostics["retention"] = "full" if retain_full else "compact"
+        (diagnostics_dir / "browser-diagnostics.json").write_text(
+            json.dumps(diagnostics, indent=2, sort_keys=True, default=str) + "\n", encoding="utf-8"
+        )
+        if retain_full:
+            page.screenshot(path=str(diagnostics_dir / "browser-final.png"), full_page=True)
+            page.context.tracing.stop(path=str(diagnostics_dir / "browser-trace.zip"))
+        else:
+            page.context.tracing.stop()
     except Exception as error:  # pragma: no cover - diagnostic fallback
-        diagnostics["snapshot_error"] = str(error)
-    (diagnostics_dir / "browser-diagnostics.json").write_text(
-        json.dumps(diagnostics, indent=2, sort_keys=True, default=str) + "\n", encoding="utf-8"
-    )
-    page.screenshot(path=str(diagnostics_dir / "browser-final.png"), full_page=True)
-    page.context.tracing.stop(path=str(diagnostics_dir / "browser-trace.zip"))
+        diagnostics["diagnostic_error"] = str(error)[:DIAGNOSTIC_TEXT_LIMIT]
+        try:
+            page.context.tracing.stop()
+        except Exception:
+            pass
 
 
 def _wait_for_citation(
@@ -412,6 +432,7 @@ def run_browser_gate(
         context = browser.new_context()
         page = context.new_page()
         diagnostics = _capture_browser_diagnostics(page, diagnostics_dir)
+        succeeded = False
         try:
             page.goto(candidate_url, wait_until="domcontentloaded", timeout=60_000)
             splash = page.locator("[role='dialog'][aria-modal='true']")
@@ -481,7 +502,7 @@ def run_browser_gate(
                         f"Primary Source identity mismatch for {field}: expected={expected!r}, observed={observed!r}"
                     )
 
-            return {
+            evidence = {
                 "browser": {
                     "candidate_url": candidate_url,
                     "question": question,
@@ -499,8 +520,10 @@ def run_browser_gate(
                 "case_id": target_case["case_id"],
                 "subsection_id": target_case["subsection_id"],
             }
+            succeeded = True
+            return evidence
         finally:
-            _write_browser_diagnostics(page, diagnostics, diagnostics_dir)
+            _write_browser_diagnostics(page, diagnostics, diagnostics_dir, retain_full=not succeeded)
             context.close()
             if owns_browser:
                 browser.close()
@@ -560,8 +583,10 @@ def run_exhaustive_browser_gate(
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(headless=True)
         try:
-            for index, case in enumerate(cases):
-                case_diagnostics = diagnostics_dir / f"case-{index:04d}" if diagnostics_dir else None
+            for global_index, case in enumerate(all_cases):
+                if global_index % shard_count != shard_index:
+                    continue
+                case_diagnostics = diagnostics_dir / f"case-{global_index:04d}" if diagnostics_dir else None
                 question = f"What is {case.get('subsection_id', '')} in {case.get('sourcepage', '')}?"
                 try:
                     evidence = run_browser_gate(
@@ -603,6 +628,19 @@ def run_exhaustive_browser_gate(
                     )
                 except Exception as error:
                     failures.append({"case_id": case.get("case_id"), "error": str(error)})
+                if diagnostics_dir:
+                    progress = {
+                        "schema_version": 1,
+                        "shard_index": shard_index,
+                        "shard_count": shard_count,
+                        "completed_case_ids": [str(item.get("case_id") or "") for item in manifest + failures],
+                        "passed_cases": len(manifest),
+                        "failed_cases": len(failures),
+                    }
+                    temporary = diagnostics_dir / "browser-progress.json.tmp"
+                    diagnostics_dir.mkdir(parents=True, exist_ok=True)
+                    temporary.write_text(json.dumps(progress, sort_keys=True) + "\n", encoding="utf-8")
+                    temporary.replace(diagnostics_dir / "browser-progress.json")
         finally:
             browser.close()
 

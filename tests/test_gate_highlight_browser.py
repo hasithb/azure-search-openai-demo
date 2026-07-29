@@ -194,3 +194,80 @@ def test_exhaustive_browser_gate_reuses_one_browser_per_shard(monkeypatch, tmp_p
 
     assert report["status"] == "PASS"
     assert len(browser_instances) == 1
+
+
+def test_success_diagnostics_are_compact_and_do_not_write_browser_bundle(tmp_path):
+    class FakeTracing:
+        def __init__(self):
+            self.stop_paths = []
+
+        def stop(self, path=None):
+            self.stop_paths.append(path)
+
+    tracing = FakeTracing()
+    page = SimpleNamespace(
+        url="https://candidate.example",
+        title=lambda: "Candidate",
+        context=SimpleNamespace(tracing=tracing),
+    )
+
+    browser_gate._write_browser_diagnostics(page, {"responses": []}, tmp_path, retain_full=False)
+
+    payload = (tmp_path / "browser-diagnostics.json").read_text()
+    assert '"retention": "compact"' in payload
+    assert tracing.stop_paths == [None]
+    assert not (tmp_path / "browser-final.png").exists()
+    assert not (tmp_path / "browser-trace.zip").exists()
+
+
+def test_exhaustive_browser_gate_writes_global_progress_checkpoint(monkeypatch, tmp_path):
+    cases = [
+        {"case_id": "case-0", "subsection_id": "24.1", "sourcepage": "Part 24"},
+        {"case_id": "case-1", "subsection_id": "24.2", "sourcepage": "Part 24"},
+        {"case_id": "case-2", "subsection_id": "24.3", "sourcepage": "Part 24"},
+        {"case_id": "case-3", "subsection_id": "24.4", "sourcepage": "Part 24"},
+    ]
+    oracle = {"cases": cases}
+
+    class FakeBrowser:
+        def close(self):
+            pass
+
+    class FakePlaywright:
+        def __enter__(self):
+            return SimpleNamespace(chromium=SimpleNamespace(launch=lambda headless: FakeBrowser()))
+
+        def __exit__(self, exc_type, exc_value, traceback):
+            return False
+
+    def fake_run_browser_gate(*args, **kwargs):
+        case = kwargs["target_case"]
+        return {
+            "browser": {
+                "selected_citation": {
+                    "document_id": case["case_id"],
+                    "source_revision": "rev-1",
+                    "source_id": case["case_id"],
+                    "canonical_text_sha256": f"hash-{case['case_id']}",
+                },
+                "highlighted_text_sha256": f"highlight-{case['case_id']}",
+                "primary_source_identity": {},
+            }
+        }
+
+    monkeypatch.setattr(browser_gate, "sync_playwright", lambda: FakePlaywright())
+    monkeypatch.setattr(browser_gate, "run_browser_gate", fake_run_browser_gate)
+    diagnostics_dir = tmp_path / "diagnostics"
+
+    browser_gate.run_exhaustive_browser_gate(
+        "https://candidate.example",
+        oracle,
+        tmp_path / "coverage.json",
+        diagnostics_dir=diagnostics_dir,
+        shard_index=1,
+        shard_count=2,
+    )
+
+    progress = __import__("json").loads((diagnostics_dir / "browser-progress.json").read_text())
+    assert progress["completed_case_ids"] == ["case-1", "case-3"]
+    assert not (diagnostics_dir / "browser-progress.json.tmp").exists()

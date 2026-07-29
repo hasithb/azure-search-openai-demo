@@ -619,31 +619,20 @@ jobs:
           Path("reports/candidate_provenance.json").write_text(json.dumps(provenance, indent=2) + "\n")
           PY
           shard_count="${V4_BROWSER_SHARD_COUNT:-4}"
-          shard_pids=()
-          for shard_index in $(seq 0 "$((shard_count - 1))"); do
+          python scripts/run_v4_browser_shards.py \
+            --shard-count "${shard_count}" \
+            --timeout-seconds 20700 \
+            --log-dir reports \
+            --coverage-dir reports \
+            --gate-report-dir reports \
+            --diagnostics-dir reports/highlight-browser-diagnostics \
+            --summary-path reports/browser_shard_process_summary.json \
+            -- \
             python scripts/gate_highlight_browser.py \
               --candidate-url "${V4_CANDIDATE_URL}" \
               --snapshot-dir reports/html_oracle_snapshots \
               --oracle reports/highlight_oracle.json \
-              --provenance reports/candidate_provenance.json \
-              --diagnostics-dir "reports/highlight-browser-diagnostics/shard-${shard_index}" \
-              --shard-index "${shard_index}" \
-              --shard-count "${shard_count}" \
-              --exhaustive-coverage-input "reports/v4_browser_shard_${shard_index}.json" \
-              --output "reports/highlight_gate_shard_${shard_index}.json" \
-              >"reports/highlight_gate_shard_${shard_index}.log" 2>&1 &
-            shard_pids+=("$!")
-          done
-          shard_failed=0
-          for shard_pid in "${shard_pids[@]}"; do
-            if ! wait "$shard_pid"; then
-              shard_failed=1
-            fi
-          done
-          if [[ "$shard_failed" -ne 0 ]]; then
-            echo "One or more browser highlight shards failed" >&2
-            exit 1
-          fi
+              --provenance reports/candidate_provenance.json
           merge_args=()
           for shard_index in $(seq 0 "$((shard_count - 1))"); do
             merge_args+=(--merge-report "reports/v4_browser_shard_${shard_index}.json")
@@ -814,6 +803,7 @@ jobs:
             reports/highlight_gate_shard_*.log
             reports/highlight_gate_shard_*.json
             reports/v4_browser_shard_*.json
+            reports/browser_shard_process_summary.json
             reports/highlight_gate.json
             reports/v4_search_reconciliation.json
             reports/candidate_readiness.json
